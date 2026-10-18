@@ -2,6 +2,7 @@
 #include "gfx.h"
 #include "ui.h"
 #include "assets.h"
+#include "ambient.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +14,7 @@
 #define TEAL C(38,126,115)
 static int cam_x=-1,cam_y=-1,last_x,last_y;
 static int path_x[20],path_y[20],path_head,path_count;
+static uint8_t viewport_depth[256*192] __attribute__((aligned(4)));
 static int min(int a,int b){return a<b?a:b;}
 static int max(int a,int b){return a>b?a:b;}
 static int clamp(int a,int lo,int hi){return max(lo,min(hi,a));}
@@ -24,7 +26,7 @@ static void ground_sprite(Surface*s,int footx,int footy,const uint16_t*p,int w,i
     or tree canopy, then emerge in front of its foot without repainting it. */
  for(int j=0;j<h;j++){int wy=y+j,sy=wy-cam_y;if(wy<0||wy>=768||sy<0||sy>=192)continue;
   for(int i=0;i<w;i++){int wx=x+i,sx=wx-cam_x;if(wx<0||wx>=1024||sx<0||sx>=256)continue;
-   uint16_t c=p[j*w+i];if(c&&world_depth[wy*1024+wx]<=cut)s->pixels[sy*256+sx]=c;
+   uint16_t c=p[j*w+i];if(c&&viewport_depth[sy*256+sx]<=cut)s->pixels[sy*256+sx]=c;
   }
  }
 }
@@ -32,7 +34,7 @@ static void shadow(Surface*s,int wx,int wy,int radius){
  if(wx+radius<cam_x||wx-radius>=cam_x+256||wy+2<cam_y||wy-2>=cam_y+192)return;
  for(int j=-2;j<=2;j++)for(int i=-radius;i<=radius;i++)if(i*i*4+j*j*radius*radius<=radius*radius*4){
   int x=wx+i,y=wy+j,px=x-cam_x,py=y-cam_y;if(x<0||x>=1024||y<0||y>=768||px<0||px>=256||py<0||py>=192)continue;
-  if(world_depth[y*1024+x]>wy/4)continue;
+  if(viewport_depth[py*256+px]>wy/4)continue;
   uint16_t c=s->pixels[py*256+px];s->pixels[py*256+px]=0x8000|((c&31)*3/4)|(((c>>5&31)*3/4)<<5)|(((c>>10&31)*3/4)<<10);
  }
 }
@@ -58,45 +60,62 @@ static const uint16_t blossom_art[12*18]={
  0,0,0,0,0,0,0,0,0,0,0,0,
 };
 typedef struct {int x,y,kind,id,anim;} Actor;
+static void follower_position(const Game*g,int*fx,int*fy){
+ *fx=g->save.player_x+20;*fy=g->save.player_y+8;
+ if(!path_count)return;
+ int x=g->save.player_x,y=g->save.player_y,remaining=20;
+ for(int n=0;n<path_count;n++){
+  int index=(path_head-n+20)%20;
+  int dx=path_x[index]-x,dy=path_y[index]-y;
+  int length=abs(dx)+abs(dy);
+  if(length>=remaining){
+   *fx=x+dx*remaining/length;*fy=y+dy*remaining/length;return;
+  }
+  remaining-=length;x=path_x[index];y=path_y[index];
+ }
+ *fx=x;*fy=y;
+}
 static void draw_world(Surface*s,const Game*g){
- int tx=clamp(g->save.player_x-128,0,768),ty=clamp(g->save.player_y-111,0,576);
- if(cam_x<0||abs(g->save.player_x-last_x)+abs(g->save.player_y-last_y)>100){cam_x=tx;cam_y=ty;path_count=0;last_x=g->save.player_x;last_y=g->save.player_y;}
- else {int dx=tx-cam_x,dy=ty-cam_y;cam_x+=dx?((abs(dx)+2)/3)*(dx<0?-1:1):0;cam_y+=dy?((abs(dy)+2)/3)*(dy<0?-1:1):0;}
+ if(cam_x<0||abs(g->save.player_x-last_x)+abs(g->save.player_y-last_y)>100){path_count=0;last_x=g->save.player_x;last_y=g->save.player_y;}
+ cam_x=clamp(g->save.player_x-128,0,768);
+ cam_y=clamp(g->save.player_y-104,0,576);
  if(g->save.player_x!=last_x||g->save.player_y!=last_y){
   path_head=(path_head+1)%20;path_x[path_head]=last_x;path_y[path_head]=last_y;if(path_count<20)path_count++;
  }
  last_x=g->save.player_x;last_y=g->save.player_y;
- for(int y=0;y<192;y++)gfx_copy(s->pixels+y*256,world_art+(cam_y+y)*1024+cam_x,256);
+ for(int y=0;y<192;y++){
+  gfx_copy(s->pixels+y*256,world_art+(cam_y+y)*1024+cam_x,256);
+  memcpy(viewport_depth+y*256,world_depth+(cam_y+y)*1024+cam_x,256);
+ }
+ ambient_world(s,viewport_depth,cam_x,cam_y,g->frame);
  Actor actors[16];int count=0;
  if(g->world){
-  for(int i=0;i<4;i++)actors[count++]=(Actor){g->world->npcs[i].x,g->world->npcs[i].y,0,i,0};
+  for(int i=0;i<4;i++)actors[count++]=(Actor){g->world->npcs[i].x,g->world->npcs[i].y,0,i,(g->frame/36+i)&1};
   for(int i=0;i<6;i++)if(game_wild_visible(g,i)){
    static const int wild_species[6]={3,4,5,3,4,5};
-   actors[count++]=(Actor){g->world->wilds[i].x,g->world->wilds[i].y,1,wild_species[i],0};
+   actors[count++]=(Actor){g->world->wilds[i].x,g->world->wilds[i].y,1,wild_species[i],(g->frame/36+i)&1};
   }
  }
  if(g->world&&(g->save.flags&PF_CHOSEN))for(int i=0;i<3;i++)if(!(g->save.flowers&(1u<<i)))
   actors[count++]=(Actor){g->world->flowers[i].x,g->world->flowers[i].y,3,i,0};
- if(g->save.party_count){int index=(path_head-min(path_count,10)+20)%20;
-  int fx=path_count?path_x[index]:g->save.player_x+20,fy=path_count?path_y[index]:g->save.player_y+8;
-  actors[count++]=(Actor){fx,fy,1,g->save.party[g->save.lead].species,0};}
- actors[count++]=(Actor){g->save.player_x,g->save.player_y,2,g->facing,g->walking?(g->anim_tick/5)%4:0};
+ if(g->save.party_count){int fx,fy;follower_position(g,&fx,&fy);
+  int species=g->save.party[g->save.lead].species;
+  actors[count++]=(Actor){fx,fy,1,species,(g->frame/36+species)&1};}
+ actors[count++]=(Actor){g->save.player_x,g->save.player_y,2,g->facing,g->walking?(g->anim_tick/8)%4:(g->frame/36)&1};
  for(int i=1;i<count;i++){Actor a=actors[i];int j=i;while(j&&actors[j-1].y>a.y){actors[j]=actors[j-1];j--;}actors[j]=a;}
  for(int i=0;i<count;i++){
   Actor*a=&actors[i];shadow(s,a->x,a->y,7);
-  if(a->kind==0)ground_sprite(s,a->x,a->y,people_art+a->id*28*46,28,46);
-  else if(a->kind==1)ground_sprite(s,a->x,a->y,creature_field+a->id*32*32,32,32);
+  if(a->kind==0)ground_sprite(s,a->x,a->y,people_art+(a->id*2+a->anim)*24*34,24,34);
+  else if(a->kind==1)ground_sprite(s,a->x,a->y,creature_field+(a->id*2+a->anim)*28*28,28,28);
   else if(a->kind==3)ground_sprite(s,a->x,a->y,blossom_art,12,18);
-  else ground_sprite(s,a->x,a->y,hero_art+(a->id*4+a->anim)*28*42,28,42);
+  else ground_sprite(s,a->x,a->y,g->walking?hero_art+(a->id*4+a->anim)*24*32:hero_idle_art+(a->id*2+a->anim)*24*32,24,32);
  }
+ ambient_foreground(s,cam_x,cam_y,g->frame);
  if(g->world){
   int goal=!(g->save.flags&PF_CHOSEN)?0:!(g->save.flags&PF_MET_JUN)?1:!(g->save.flags&PF_TRIAL_WON)?3:-1;
-  if(goal>=0){int x=g->world->npcs[goal].x-cam_x,y=g->world->npcs[goal].y-cam_y-54-(g->frame/20%2);
+  if(goal>=0){int x=g->world->npcs[goal].x-cam_x,y=g->world->npcs[goal].y-cam_y-40-(g->frame/20%2);
    gfx_circle(s,x,y,5,INK);gfx_circle(s,x,y,4,GOLD);gfx_text(s,x-1,y-4,"!",INK);}
  }
- /* Slow drifting pollen gives the painted scene a little life. */
- for(int i=0;i<12;i++){int x=(i*83+(int)g->frame/3)%294-18,y=(i*47+(int)g->frame/8)%211-10;
-  if((i+g->frame/24)%3)gfx_rect(s,x,y,1+(i%2),1,C(248,239,179));}
  label(s,7,6,game_location(g));
  if(g->ui_focus){gfx_card(s,210,6,39,20,TEAL,GOLD);gfx_text(s,218,11,"Menu",PAPER);}
  int target=game_nearest_interaction(g);
@@ -133,6 +152,7 @@ int render_game(const Game*g,uint16_t*top,uint16_t*bottom){
  static const char*last_location;
  Game key=*g;
  key.frame=0;key.facing=0;key.walking=0;key.anim_tick=0;
+ key.move_dx=key.move_dy=0;key.move_remaining=key.move_speed=key.move_preference=key.move_queued=key.action_queued=0;
  key.save.player_x=key.save.player_y=0;key.save.steps=0;key.save.facing=0;key.save.checksum=0;
  memset(key.wild_cooldown,0,sizeof(key.wild_cooldown));key.interaction_cooldown=0;
  key.toast_timer=!!g->toast_timer;key.battle.flash_enemy=key.battle.flash_player=0;key.battle.effect_timer=0;

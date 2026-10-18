@@ -6,8 +6,12 @@ The test suite first compiles the portable rules with AddressSanitizer and
 UndefinedBehaviorSanitizer. It checks all three starters, recruitment by trust
 and by lowering health, shared experience, both growth choices, the optional
 blossom quest, battle switching, defeat recovery, notebook controls, save
-round-tripping, and corruption rejection. A second native test follows real
-`game_update` button movement to all 14 world interactions.
+round-tripping, and corruption rejection. A focused movement test checks
+cardinal tile steps, release completion, queued turns, swept collision, running,
+notebook pause/resume, deferred menus, and mid-step saving. It also migrates a
+fixed completed save from the original free-position DS release. A world route
+test follows real `game_update` button movement to all 14 interactions, using
+the authored 16-pixel lattice and checking the entire swept foot box.
 
 The integration run executes the actual ARM9/ARM7 cartridge in DeSmuME. It uses
 only joypad input to play the opening through the keeper trial, opens every
@@ -15,10 +19,11 @@ notebook tab, completes the optional quest, saves, and resumes in a separate
 emulator process. Game RAM is observed read-only. There are no cheats, state
 writes, test hooks, touchscreen input, or emulator state restores in the run.
 
-The renderer check walks to an accessible canopy and compares displayed pixels:
-part of the hero must remain visible while the tree hides the overlapping
-pixels. The suite also checks the cartridge header, audio output, and a minimum
-field/title update rate. Screenshots and a JSON report are written to
+The renderer check walks to accessible foreground scenery and compares displayed
+pixels: the hero must pass behind its overlapping pixels and draw in front when
+south of it. Idle and environmental animation are observed without movement or
+changes to progress. The suite also checks the cartridge header, audio output,
+and a minimum field/title update rate. Screenshots and a JSON report are written to
 `build/validation/`.
 
 After a presentation-only change, `python3 tests/visual_smoke.py` uses the

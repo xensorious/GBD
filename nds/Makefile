@@ -22,7 +22,7 @@ build:
 	mkdir -p build
 
 assets: build/assets.c build/assets.h
-build/assets.c build/assets.h &: tools/build_assets.py $(wildcard art/*.png) $(wildcard art/*.json) | build
+build/assets.c build/assets.h &: tools/build_assets.py tools/topdown_art.py tools/world_layout.py $(wildcard art/*.png) $(wildcard art/*.json) | build
 	python3 tools/build_assets.py
 
 build/%.o: src/%.c build/assets.h $(wildcard src/*.h) platform/platform.h | build

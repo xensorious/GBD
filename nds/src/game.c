@@ -9,6 +9,8 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 enum { DA_FIELD, DA_STARTER, DA_TRIAL, DA_ENDING, DA_WILD=16 };
+enum { MOVE_NONE=4 };
+enum { QUEUE_NONE, QUEUE_MENU, QUEUE_PARTY, QUEUE_JOURNAL, QUEUE_INTERACT, QUEUE_REST };
 
 const char *const game_element_names[5] = {"Grove", "Ember", "Tide", "Stone", "Spark"};
 const Species game_species[GAME_SPECIES_COUNT] = {
@@ -27,10 +29,10 @@ const Species game_species[GAME_SPECIES_COUNT] = {
 };
 
 static const WorldDef default_world = {
-    0,0,{448,624},{384,512},
-    {{448,560},{360,360},{640,520},{680,180}},
-    {{240,400},{720,340},{320,180},{840,470},{560,280},{160,520}},
-    {{760,440},{240,280},{580,200}}
+    0,0,{456,632},{392,520},
+    {{456,568},{360,360},{648,520},{680,184}},
+    {{248,408},{728,344},{328,184},{840,472},{568,280},{168,520}},
+    {{760,440},{248,280},{584,200}}
 };
 static const uint8_t wild_species[GAME_WILD_COUNT]={3,4,5,3,4,5};
 static const uint8_t wild_levels[GAME_WILD_COUNT]={1,1,2,2,2,3};
@@ -98,13 +100,20 @@ static void heal_party(Game *g) {
         g->save.party[i].energy=3;
     }
 }
+static void reset_movement(Game *g) {
+    g->move_dx=0; g->move_dy=0; g->move_remaining=0; g->move_speed=0;
+    g->move_preference=g->facing; g->move_queued=MOVE_NONE; g->action_queued=QUEUE_NONE;
+    g->walking=0; g->anim_tick=0;
+}
 static void reset_progress(Game *g,uint32_t seed) {
     memset(&g->save,0,sizeof(g->save));
     g->save.magic=SAVE_MAGIC; g->save.version=SAVE_VERSION;
     g->save.seed=seed?seed:0xA57E2026u;
     g->save.player_x=g->world->spawn.x; g->save.player_y=g->world->spawn.y;
     g->save.tonics=3; g->save.facing=0; g->facing=0;
+    g->save.reserved[0]=GAME_MAP_REVISION;
     g->pending_growth=0; g->cursor=0; g->has_save=0; g->ui_focus=0; g->ui_tab=0;
+    reset_movement(g);
     memset(g->wild_cooldown,0,sizeof(g->wild_cooldown));
 }
 void game_init(Game *g,uint32_t seed) {
@@ -119,6 +128,13 @@ void game_set_world(Game *g,const WorldDef *world) {
 }
 void game_make_save(const Game *g,GameSave *save) {
     *save=g->save; save->magic=SAVE_MAGIC; save->version=SAVE_VERSION;
+    /* SELECT may pause midway through a step. Save its already-validated
+     * destination, keeping reloaded feet on the grid without moving the game. */
+    if(g->move_remaining) {
+        save->player_x+=(int16_t)(g->move_dx*g->move_remaining);
+        save->player_y+=(int16_t)(g->move_dy*g->move_remaining);
+    }
+    save->reserved[0]=GAME_MAP_REVISION;
     save->facing=g->facing; save->checksum=0; save->checksum=save_checksum(save);
 }
 int game_save_valid(const GameSave *save) {
@@ -148,6 +164,13 @@ int game_load(Game *g,const GameSave *save) {
     int i;
     if(!game_save_valid(save)) return 0;
     g->save=*save; g->facing=save->facing; g->has_save=1; g->title_cursor=0;
+    if(save->reserved[0]!=GAME_MAP_REVISION) {
+        /* The island was rebuilt around cardinal tiles. Keep every companion
+         * and quest flag from the painted-map release, then return to harbor. */
+        g->save.player_x=g->world->spawn.x; g->save.player_y=g->world->spawn.y;
+        g->save.reserved[0]=GAME_MAP_REVISION;
+    }
+    reset_movement(g);
     g->mode=GM_TITLE; g->pending_growth=0;
     for(i=0;i<save->party_count;i++)
         if(save->party[i].level>=3 && !save->party[i].path) g->pending_growth|=(uint8_t)(1u<<i);
@@ -169,13 +192,13 @@ const char *game_objective(const Game *g) {
 }
 const char *game_location(const Game *g) {
     int x=g->save.player_x,y=g->save.player_y;
-    if(y>540 && x<455) return "Sunwake Harbor";
-    if(x>750 && y<235) return "Aster Terrace";
-    if(x>740 && y>310) return "Moonwater Banks";
-    if(x>495 && y<210) return "Northgate";
-    if(x<330 && y<215) return "Research Lodge";
-    if(x<385 && y<395) return "Willow Garden";
-    if(y>450 && x<455) return "Harbor Walk";
+    if(y>=608) return "Sunwake Harbor";
+    if(x>=592 && x<832 && y>=144 && y<352) return "Aster Terrace";
+    if(x>=656 && (x>=832 || y>=352)) return "Moonwater Banks";
+    if(x>=448 && y<160) return "Northgate";
+    if(x>=192 && x<352 && y>=128 && y<320) return "Research Lodge";
+    if(x<352 && y>=432 && y<576) return "Willow Garden";
+    if(y>=576) return "Harbor Walk";
     return "Lantern Commons";
 }
 const char *game_intent_name(const Battle *b) {
@@ -224,7 +247,7 @@ const char *game_interaction_label(const Game *g,int interaction) {
 
 static void maybe_growth(Game *g) {
     int i;
-    if(g->mode!=GM_FIELD || !g->pending_growth) return;
+    if(g->mode!=GM_FIELD || g->move_remaining || !g->pending_growth) return;
     for(i=0;i<g->save.party_count;i++) if(g->pending_growth&(1u<<i)) {
         if(g->save.party[i].path || g->save.party[i].level<3) {
             g->pending_growth&=(uint8_t)~(1u<<i); continue;
@@ -398,7 +421,8 @@ static void finish_battle(Game *g) {
     int result=b->result;
     g->mode=GM_FIELD; g->interaction_cooldown=20; g->ui_focus=0; g->ui_tab=0; g->menu_from_battle=0;
     if(result==BR_LOSS) {
-        heal_party(g); g->save.player_x=g->world->camp.x; g->save.player_y=g->world->camp.y+28;
+        heal_party(g); g->save.player_x=g->world->camp.x; g->save.player_y=g->world->camp.y+32;
+        reset_movement(g);
         begin_dialog(g,"A safe return",DA_FIELD);
         say(g,"Your companions are rested at the lantern camp. Take a breath, try a different plan, and set out again.");
     } else if(result==BR_RETREAT) {
@@ -608,6 +632,14 @@ void game_action(Game *g,GameAction action,int arg) {
     }
     if(g->mode!=GM_FIELD) return;
     if(g->ui_focus && (action==GA_INTERACT || action==GA_ACCEPT)) return;
+    if(g->move_remaining) {
+        if(action==GA_INTERACT || action==GA_ACCEPT) g->action_queued=QUEUE_INTERACT;
+        else if(action==GA_MENU) g->action_queued=QUEUE_MENU;
+        else if(action==GA_PARTY) g->action_queued=QUEUE_PARTY;
+        else if(action==GA_JOURNAL) g->action_queued=QUEUE_JOURNAL;
+        else if(action==GA_REST) g->action_queued=QUEUE_REST;
+        return;
+    }
     if(action==GA_INTERACT || action==GA_ACCEPT) { if(!g->interaction_cooldown) interact(g); }
     else if(action==GA_MENU) { g->mode=GM_MENU; g->cursor=0; g->ui_focus=1; g->ui_tab=4; }
     else if(action==GA_PARTY) {
@@ -629,6 +661,40 @@ static int blocked(const Game *g,int x,int y) {
         if(distance_squared(x,y,g->world->npcs[i].x,g->world->npcs[i].y)<12*12) return 1;
     return 0;
 }
+static const uint32_t direction_keys[4]={GK_DOWN,GK_LEFT,GK_RIGHT,GK_UP};
+static const int8_t direction_dx[4]={0,-1,1,0},direction_dy[4]={1,0,0,-1};
+static int direction_from_keys(uint32_t keys,int preferred) {
+    int i;
+    if(preferred<4 && (keys&direction_keys[preferred])) return preferred;
+    for(i=0;i<4;i++) if(keys&direction_keys[i]) return i;
+    return MOVE_NONE;
+}
+static int step_is_clear(const Game *g,int direction) {
+    int offset;
+    /* Checking the complete footprint path before committing prevents both
+     * running through a thin railing and stopping halfway between tiles. */
+    for(offset=1;offset<=GAME_TILE_SIZE;offset++)
+        if(blocked(g,g->save.player_x+direction_dx[direction]*offset,
+                     g->save.player_y+direction_dy[direction]*offset)) return 0;
+    return 1;
+}
+static void advance_step(Game *g) {
+    int amount=MIN(g->move_remaining,g->move_speed);
+    g->save.player_x+=(int16_t)(g->move_dx*amount);
+    g->save.player_y+=(int16_t)(g->move_dy*amount);
+    g->move_remaining-=(uint8_t)amount;
+    g->walking=1; g->anim_tick+=(uint8_t)amount;
+    if(!g->move_remaining) {
+        g->move_dx=0; g->move_dy=0;
+        g->save.steps++;
+        if(g->action_queued!=QUEUE_NONE) {
+            static const GameAction actions[]={GA_ACCEPT,GA_MENU,GA_PARTY,GA_JOURNAL,GA_INTERACT,GA_REST};
+            int action=g->action_queued;
+            g->action_queued=QUEUE_NONE; g->move_queued=MOVE_NONE;
+            game_action(g,actions[action],0);
+        }
+    }
+}
 static void cycle_cursor(Game *g,int change,int count) {
     if(count>0) g->cursor=(uint8_t)((g->cursor+count+change)%count);
 }
@@ -648,7 +714,13 @@ void game_update(Game *g,const GameInput *input) {
        && !g->menu_from_battle) {
         if(p&GK_SELECT) {
             if(g->ui_focus) { g->ui_focus=0; g->ui_tab=0; g->mode=GM_FIELD; g->cursor=0; }
-            else focus_tab(g,0);
+            else {
+                /* Notebook focus supersedes pending world input. Keep only
+                 * the current committed step so returning cannot reopen a
+                 * menu or replay a turn pressed before checking the map. */
+                g->action_queued=QUEUE_NONE; g->move_queued=MOVE_NONE;
+                focus_tab(g,0);
+            }
             return;
         }
         if(g->ui_focus && (p&(GK_L|GK_R))) {
@@ -669,19 +741,32 @@ void game_update(Game *g,const GameInput *input) {
         return;
     }
     if(g->mode==GM_FIELD) {
-        int dx=0,dy=0,speed=(input->held&GK_B)?3:2;
-        if(p&GK_START) { game_action(g,GA_MENU,0); return; }
-        if(p&GK_X) { game_action(g,GA_PARTY,0); return; }
-        if(p&GK_Y) { game_action(g,GA_JOURNAL,0); return; }
-        if(p&GK_A) { game_action(g,GA_INTERACT,0); return; }
-        if(input->held&GK_LEFT) { dx=-speed; g->facing=1; }
-        else if(input->held&GK_RIGHT) { dx=speed; g->facing=2; }
-        if(input->held&GK_UP) { dy=-speed; g->facing=3; }
-        else if(input->held&GK_DOWN) { dy=speed; g->facing=0; }
-        if(dx && dy) { dx=dx<0?-(speed-1):speed-1; dy=dy<0?-(speed-1):speed-1; }
-        if(dx && !blocked(g,g->save.player_x+dx,g->save.player_y)) { g->save.player_x+=(int16_t)dx; g->walking=1; }
-        if(dy && !blocked(g,g->save.player_x,g->save.player_y+dy)) { g->save.player_y+=(int16_t)dy; g->walking=1; }
-        if(g->walking) { g->anim_tick++; g->save.steps++; }
+        int direction,fresh=direction_from_keys(p,MOVE_NONE);
+        if(fresh<MOVE_NONE) {
+            g->move_preference=(uint8_t)fresh;
+            if(g->move_remaining) g->move_queued=(uint8_t)fresh;
+        }
+        if(p&GK_START) game_action(g,GA_MENU,0);
+        else if(p&GK_X) game_action(g,GA_PARTY,0);
+        else if(p&GK_Y) game_action(g,GA_JOURNAL,0);
+        else if(p&GK_A) game_action(g,GA_INTERACT,0);
+        if(g->mode!=GM_FIELD || g->ui_focus) return;
+        if(g->move_remaining) {
+            advance_step(g); g->save.facing=g->facing; maybe_growth(g); return;
+        }
+        if(p&(GK_START|GK_X|GK_Y|GK_A)) return;
+        direction=g->move_queued<MOVE_NONE?g->move_queued:
+            direction_from_keys(input->held,g->move_preference);
+        g->move_queued=MOVE_NONE;
+        if(direction<MOVE_NONE) {
+            g->facing=(uint8_t)direction;
+            if(step_is_clear(g,direction)) {
+                g->move_dx=direction_dx[direction]; g->move_dy=direction_dy[direction];
+                g->move_remaining=GAME_TILE_SIZE;
+                g->move_speed=(uint8_t)((input->held&GK_B)?GAME_RUN_SPEED:GAME_WALK_SPEED);
+                advance_step(g);
+            }
+        }
         g->save.facing=g->facing; maybe_growth(g); return;
     }
     if(g->mode==GM_BATTLE && g->battle.phase==BP_TEXT) {

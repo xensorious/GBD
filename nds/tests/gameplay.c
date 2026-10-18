@@ -135,7 +135,7 @@ int main(void) {
     command(&g,2,1);
     CHECK(g.mode==GM_FIELD);
     CHECK(g.save.player_x==g.world->camp.x);
-    CHECK(g.save.player_y==g.world->camp.y+28);
+    CHECK(g.save.player_y==g.world->camp.y+32);
     CHECK(g.save.party_count==1 && g.save.party[0].hp==game_max_hp(&g.save.party[0]));
     /* In-battle partner switching costs a turn and cannot revive a fainted ally. */
     recruit(&g,0,1);

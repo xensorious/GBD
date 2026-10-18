@@ -12,8 +12,8 @@ shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 (DIST/'CREDITS.txt').write_text((ROOT/'CREDITS.txt').read_text())
 shots=BUILD/'validation'/'screens'
-scenes=[('harbor-arrival','SUNWAKE HARBOR'),('starter-ferro','YOUR FIRST COMPANION'),
-        ('keeper-trial','THE LANTERN TRIAL'),('focused-map','BUTTON-CONTROLLED NOTEBOOK')]
+scenes=[('harbor-arrival','SUNWAKE HARBOR'),('town-commons','THE VILLAGE COMMONS'),
+        ('stairs-behind','LAYERED TERRACE STAIRS'),('forest-path','THE LIVING FOREST')]
 scale=2;tilew=256*scale;tileh=384*scale+24
 sheet=Image.new('RGB',(tilew*2,tileh*2),'#142b40');draw=ImageDraw.Draw(sheet)
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
@@ -27,6 +27,11 @@ sheet.save(DIST/'Preview.png')
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for file in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(file,licenses/file.name)
 files=['Asterwild.nds','PLAY.txt','Preview.png','CREDITS.txt']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+for name in ('living-world.gif','walking-stairs.gif'):
+    source=shots/name
+    assert source.exists(),f'Run the top-down visual checks first: missing {name}'
+    shutil.copyfile(source,DIST/name)
+    files.append(name)
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 with zipfile.ZipFile(DIST/'Asterwild-DS.zip','w',zipfile.ZIP_DEFLATED) as archive:
     for name in files+['SHA256SUMS.txt']:

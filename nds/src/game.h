@@ -11,6 +11,10 @@
 #define GAME_NPC_COUNT 4
 #define GAME_DIALOG_MAX 8
 #define GAME_LOG_MAX 8
+#define GAME_TILE_SIZE 16
+#define GAME_WALK_SPEED 4
+#define GAME_RUN_SPEED 8
+#define GAME_MAP_REVISION 2
 
 enum GameKey {
     GK_UP=1u<<0, GK_DOWN=1u<<1, GK_LEFT=1u<<2, GK_RIGHT=1u<<3,
@@ -110,6 +114,12 @@ typedef struct {
     uint8_t new_confirm; /* Title: a second A is required before replacing an existing journey. */
     uint16_t toast_timer, interaction_cooldown;
     char toast[80];
+    /* Runtime movement is deliberately outside the fixed 88-byte save format.
+     * Coordinates are the interpolated feet; settled tiles are 8 mod 16.
+     * Directions: down, left, right, up. A queued value of 4 means none. */
+    int8_t move_dx, move_dy;
+    uint8_t move_remaining, move_speed, move_preference, move_queued;
+    uint8_t action_queued;
 } Game;
 
 void game_init(Game *g, uint32_t seed);

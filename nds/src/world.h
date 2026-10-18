@@ -3,7 +3,7 @@
 
 #include "game.h"
 
-/* Original painted village with matching ground footprints and routes. */
+/* Authored orthographic 16px tile world; regenerate with tools/world_layout.py. */
 extern const WorldDef aster_world;
 
 #endif

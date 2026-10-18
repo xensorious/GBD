@@ -7,6 +7,14 @@ creatures' trust, help the gardens, and challenge Vale's lantern trial.
 This is a native `.nds` game with new artwork, a new world, new characters and
 new gameplay code. It does not require an existing commercial ROM or a patch.
 
+This revision rebuilds exploration around four-direction tile movement and a
+directly following overhead camera. The village, gardens and forest share an
+authored layout with tall buildings, layered trees and a raised terrace reached
+by sideways stairs. The near railing passes in front of the character. Selected
+foliage sways, people and creatures breathe, and occasional leaves, fireflies
+and coastal birds animate the surroundings. The six creature designs and the
+battle, recruitment and progression systems remain from the original DS build.
+
 ## Playing on a phone
 
 Import `Asterwild.nds` into Delta's Nintendo DS library. Use a DS controller skin
@@ -15,7 +23,7 @@ a comfortable starting point. All game actions use buttons. Touch is ignored.
 
 | Button | Action |
 | --- | --- |
-| D-pad | Walk; navigate the active menu |
+| D-pad | Walk in four directions; navigate the active menu |
 | A | Talk, meet a creature, choose, advance dialogue |
 | B | Hold to run; cancel/back; retreat from a wild battle |
 | Select | Switch focus between exploration and the lower-screen map/notebook |
@@ -43,6 +51,10 @@ DS save file with your ROM when backing up or moving progress. Emulator save
 states are separate and can depend on the exact ROM version.
 
 Asterwild has its own save format; Bramblebound GBA saves belong to that game.
+Battery saves from the earlier Asterwild DS release keep their companions,
+quest progress and trial results. The first load relocates the player to the
+new harbor because the island layout has changed. Use a battery save when
+moving between these releases; emulator save states contain the old program.
 
 ## Scope
 
@@ -62,6 +74,9 @@ make -j2
 
 The setup uses a local ARM GCC/newlib toolchain and pinned open-source libnds,
 CRT and ndstool revisions. It installs under `/workspace/nds-tools` without root.
+`tools/world_layout.py` defines terrain, scenery footprints and landmarks on
+the same 16-pixel lattice and regenerates `src/world.c`. `tools/topdown_art.py`
+composes the terrain, illustrated props, depth silhouettes and wind poses.
 Artwork in `art/` is converted to RGB555 DS assets by `tools/build_assets.py`;
 no image-generation service is needed to rebuild the checked-in game.
 

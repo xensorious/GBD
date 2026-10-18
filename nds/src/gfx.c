@@ -75,13 +75,15 @@ void FAST gfx_sprite(Surface*s,int x,int y,const uint16_t*p,int w,int h,int flip
  }
 }
 void FAST gfx_creature(Surface*s,int x,int y,int species,int size,int back,int frame){
- (void)frame;if(species<0||species>=6||size<=0)return;
+ if(species<0||species>=6||size<=0)return;
  const uint16_t*p=(back?creature_back:creature_front)+species*96*96;
- if(size==96){gfx_sprite(s,x,y,p,96,96,0);return;}
+ /* Breath changes the upper silhouette while the paws stay on the ground. */
+ int inset=((frame/36+species)&1)?2:0,height=size-inset;
+ if(size==96&&!inset){gfx_sprite(s,x,y,p,96,96,0);return;}
  int columns[256],n=min(size,256);
  for(int i=0;i<n;i++)columns[i]=i*96/size;
- for(int j=max(0,-y);j<min(size,s->h-y);j++){
-  const uint16_t*row=p+(j*96/size)*96;
+ for(int j=max(inset,-y);j<min(size,s->h-y);j++){
+  const uint16_t*row=p+((j-inset)*96/height)*96;
   for(int i=max(0,-x);i<min(n,s->w-x);i++){uint16_t c=row[columns[i]];if(c)s->pixels[(y+j)*s->w+x+i]=c;}
  }
 }

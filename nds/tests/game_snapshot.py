@@ -64,7 +64,11 @@ class Game(C.LittleEndianStructure):
                 ("ui_tab", C.c_uint8), ("new_confirm", C.c_uint8),
                 ("toast_timer", C.c_uint16),
                 ("interaction_cooldown", C.c_uint16),
-                ("toast", C.c_char * 80)]
+                ("toast", C.c_char * 80),
+                ("move_dx", C.c_int8), ("move_dy", C.c_int8),
+                ("move_remaining", C.c_uint8), ("move_speed", C.c_uint8),
+                ("move_preference", C.c_uint8), ("move_queued", C.c_uint8),
+                ("action_queued", C.c_uint8)]
 
 
 class Point(C.LittleEndianStructure):
@@ -94,6 +98,16 @@ def find_symbol(elf: Path, name: str) -> int:
         fields = line.split()
         if len(fields) >= 8 and fields[-1] == name:
             return int(fields[1], 16)
+    raise RuntimeError(f"ELF symbol {name!r} not found in {elf}")
+
+
+def symbol_size(elf: Path, name: str) -> int:
+    result = subprocess.run(["readelf", "-sW", str(elf)], check=True,
+                            capture_output=True, text=True)
+    for line in result.stdout.splitlines():
+        fields = line.split()
+        if len(fields) >= 8 and fields[-1] == name:
+            return int(fields[2])
     raise RuntimeError(f"ELF symbol {name!r} not found in {elf}")
 
 

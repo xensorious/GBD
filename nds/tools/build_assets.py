@@ -2,6 +2,8 @@
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import array, json, math, random
+from topdown_art import compose_world
+from world_layout import generate as generate_layout
 ROOT=Path(__file__).resolve().parents[1]
 ART=ROOT/'art'; OUT=ROOT/'build';OUT.mkdir(exist_ok=True)
 assets=[]
@@ -19,14 +21,25 @@ def sprite(im,w,h):
     if not box:return Image.new('RGBA',(w,h))
     im=im.crop(box);im.thumbnail((w-2,h-2),Image.Resampling.LANCZOS)
     dst=Image.new('RGBA',(w,h));dst.alpha_composite(im,((w-im.width)//2,h-im.height-1));return dst
-world=Image.open(ART/'harbor.png').convert('RGB').resize((1024,768),Image.Resampling.LANCZOS)
+def breathe(im):
+    """A second, foot-anchored idle drawing; the torso settles one pixel."""
+    dst=Image.new('RGBA',im.size)
+    split=im.height*3//4
+    dst.alpha_composite(im.crop((0,0,im.width,split)).resize((im.width,split-1),Image.Resampling.NEAREST),(0,1))
+    dst.alpha_composite(im.crop((0,split,im.width,im.height)),(0,split))
+    return dst
+generate_layout()
+world,plane,animations=compose_world(ART,OUT)
 raw('world_art',rgb555(world),'uint16_t',1024*768)
 raw('world_thumbnail',rgb555(world.resize((192,144),Image.Resampling.LANCZOS)),'uint16_t',192*144)
-plane=Image.new('L',(1024,768));draw=ImageDraw.Draw(plane)
-geometry=json.loads((ART/'world_geometry.json').read_text()) if (ART/'world_geometry.json').exists() else {}
-for obj in sorted(geometry.get('occluders',[]),key=lambda o:o['depth']):
-    draw.polygon([tuple(p) for p in obj['polygon']],fill=max(1,min(255,obj['depth']//4)))
 raw('world_depth',plane.tobytes(),'uint8_t',1024*768)
+animation_pixels=0;animation_records=[];animation_art=[];animation_depth=[]
+for p in animations:
+    animation_records.append((p['x'],p['y'],p['w'],p['h'],animation_pixels))
+    animation_art.append(rgb555(p['image']));animation_depth.append(p['depth'].tobytes())
+    animation_pixels+=p['w']*p['h']
+raw('world_animation_art',b''.join(animation_art),'uint16_t',animation_pixels)
+raw('world_animation_depth',b''.join(animation_depth),'uint8_t',animation_pixels)
 world.save(OUT/'world.png');plane.point(lambda v:min(255,v*2)).save(OUT/'depth.png')
 for stem,name in [('creatures-front','creature_front'),('creatures-back','creature_back')]:
     im=Image.open(ART/(stem+'.png')).convert('RGBA');sprites=[]
@@ -34,20 +47,31 @@ for stem,name in [('creatures-front','creature_front'),('creatures-back','creatu
         x=n%3;y=n//3;cell=im.crop((x*im.width//3,y*im.height//2,(x+1)*im.width//3,(y+1)*im.height//2))
         sprites.append(sprite(cell,96,96))
     raw(name,b''.join(rgb555(s) for s in sprites),'uint16_t',6*96*96)
-    if name=='creature_front':raw('creature_field',b''.join(rgb555(s.resize((32,32),Image.Resampling.LANCZOS)) for s in sprites),'uint16_t',6*32*32)
+    if name=='creature_front':
+        field=[]
+        for s in sprites:
+            pose=sprite(s,28,28);field.extend((pose,breathe(pose)))
+        raw('creature_field',b''.join(rgb555(s) for s in field),'uint16_t',6*2*28*28)
     sheet=Image.new('RGBA',(576,96),(242,237,216,255))
     for i,s in enumerate(sprites):sheet.alpha_composite(s,(i*96,0))
     sheet.save(OUT/(name+'.png'))
 im=Image.open(ART/'hero.png').convert('RGBA');heroes=[]
 for row in range(4):
- for col in range(4):heroes.append(sprite(im.crop((col*im.width//4,row*im.height//4,(col+1)*im.width//4,(row+1)*im.height//4)),28,42))
-raw('hero_art',b''.join(rgb555(s) for s in heroes),'uint16_t',16*28*42)
+ for col in range(4):heroes.append(sprite(im.crop((col*im.width//4,row*im.height//4,(col+1)*im.width//4,(row+1)*im.height//4)),24,32))
+raw('hero_art',b''.join(rgb555(s) for s in heroes),'uint16_t',16*24*32)
+idle=[]
+for direction in range(4):
+ pose=heroes[direction*4];idle.extend((pose,breathe(pose)))
+raw('hero_idle_art',b''.join(rgb555(s) for s in idle),'uint16_t',4*2*24*32)
+preview=Image.new('RGBA',(8*48,64),(42,91,72,255))
+for i,s in enumerate(idle):preview.alpha_composite(s.resize((48,64),Image.Resampling.NEAREST),(i*48,0))
+preview.save(OUT/'hero_idle.png')
 im=Image.open(ART/'people.png').convert('RGBA');people=[];portraits=[]
 for n in range(4):
- cell=im.crop((n*im.width//4,0,(n+1)*im.width//4,im.height));people.append(sprite(cell,28,46))
+ cell=im.crop((n*im.width//4,0,(n+1)*im.width//4,im.height));pose=sprite(cell,24,34);people.extend((pose,breathe(pose)))
  box=cell.getchannel('A').point(lambda v:255 if v>=110 else 0).getbbox();cell=cell.crop(box)
  portraits.append(sprite(cell.crop((0,0,cell.width,int(cell.height*.56))),72,90))
-raw('people_art',b''.join(rgb555(s) for s in people),'uint16_t',4*28*46)
+raw('people_art',b''.join(rgb555(s) for s in people),'uint16_t',4*2*24*34)
 raw('portrait_art',b''.join(rgb555(s) for s in portraits),'uint16_t',4*72*90)
 battle=Image.open(ART/'battle.png').convert('RGB').resize((256,192),Image.Resampling.LANCZOS)
 raw('battle_art',rgb555(battle),'uint16_t',256*192)
@@ -86,9 +110,15 @@ raw('music_pcm',samples,'int8_t',len(samples))
 with (OUT/'assets.h').open('w') as f:
  f.write('#ifndef ASTER_ASSETS_H\n#define ASTER_ASSETS_H\n#include <stdint.h>\n')
  for name,ctype,count in assets:f.write(f'extern const {ctype} {name}[{count}];\n')
+ f.write('typedef struct { short x,y; unsigned short w,h; unsigned int offset; } WorldAnimation;\n')
+ f.write('#define WORLD_ANIMATION_COUNT '+str(len(animation_records))+'\n')
+ f.write('extern const WorldAnimation world_animations[WORLD_ANIMATION_COUNT];\n')
  f.write('#define MUSIC_BYTES '+str(len(samples))+'\n#define MUSIC_RATE '+str(rate)+'\n#endif\n')
 with (OUT/'assets.c').open('w') as f:
  f.write('/* Binary assets stay compact and compile without enormous C initializers. */\n')
  for name,ctype,count in assets:
   f.write('__asm__(".section .rodata\\n.balign 4\\n.global '+name+'\\n'+name+':\\n.incbin \\\"build/'+name+'.bin\\\"\\n.previous\\n");\n')
+ f.write('#include "assets.h"\nconst WorldAnimation world_animations[WORLD_ANIMATION_COUNT] = {\n')
+ for record in animation_records:f.write(' {'+','.join(map(str,record))+'},\n')
+ f.write('};\n')
 print('Prepared',len(assets),'original DS assets;',sum((OUT/(n+'.bin')).stat().st_size for n,_,_ in assets),'bytes')

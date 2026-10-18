@@ -4,11 +4,21 @@ A new, original **Nintendo DS** creature-catching RPG opening. Explore an
 illustrated coastal island, choose a companion, meet wild creatures, help the
 gardens, and challenge the first lantern trial.
 
+Exploration uses classic four-direction tile movement, a fixed overhead view,
+and a directly following camera. Illustrated buildings and trees have height;
+sideways stairs have foreground railings. Walking and idle poses, swaying
+foliage, fireflies, occasional leaf gusts and coastal birds bring the island to
+life. The creature designs and battle systems are retained from the first DS
+release.
+
 - [Download the DS ROM](nds/dist/Asterwild.nds)
 - [Download the complete ZIP](nds/dist/Asterwild-DS.zip)
 - [Controls, gameplay and build instructions](nds/README.md)
 
 ![Screens captured from the actual DS ROM](nds/dist/Preview.png)
+
+[Watch the staircase movement](nds/dist/walking-stairs.gif) ·
+[Watch the idle and foliage animation](nds/dist/living-world.gif)
 
 The lower screen displays the island map during exploration. **Select** switches
 focus to its notebook; **L/R** change tabs, and the **D-pad and A/B** navigate.
@@ -38,11 +48,12 @@ bash nds/tests/setup_emulator.sh
 make -C nds test
 ```
 
-Tests exercise the rules with sanitizers, check the actual painted-world routes,
+Tests exercise the rules with sanitizers, check the authored tile-world routes,
 and play the native DS ROM using buttons in DeSmuME. They cover the opening,
 notebook focus and tabs, recruitment, the blossom quest, battle switching,
 growth, the trial, audio and a battery-save reload in a separate process. Pixel
-checks verify the player can pass behind tree canopies. Generated screenshots,
+checks verify foreground railing overlap and stationary idle/foliage animation.
+Generated screenshots,
 test saves and reports stay under ignored `nds/build/`.
 
 The earlier Bramblebound GBA experiment remains in the repository's original

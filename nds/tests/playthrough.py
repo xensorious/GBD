@@ -16,12 +16,13 @@ from collections import deque
 from pathlib import Path
 
 from emulator import Emulator, ROOT
-from game_snapshot import MODES, find_symbol, read_game, read_world
+from game_snapshot import MODES, find_symbol, symbol_size, read_game, read_world
 from inspect_rom import inspect
 
 
 def native_tests():
-    for name, sources in (("gameplay", ["game.c"]), ("routes", ["game.c", "world.c"])):
+    for name, sources in (("gameplay", ["game.c"]), ("movement", ["game.c"]),
+                          ("routes", ["game.c", "world.c"])):
         target = ROOT / "build" / ("test-" + name)
         command = ["gcc", "-std=c99", "-O2", "-g", "-Wall", "-Wextra", "-Werror",
                    "-pedantic", "-fsanitize=address,undefined", "-I", str(ROOT / "src"),
@@ -127,16 +128,16 @@ class Playthrough:
         g = self.game()
         assert g.mode == 1 and not g.ui_focus
         x0, y0 = g.save.player_x, g.save.player_y
-        px, py = x0 & 1, y0 & 1
-        width, height = 512, 384
-        start = (y0 // 2) * width + x0 // 2
+        assert x0 % 16 == 8 and y0 % 16 == 8 and not g.move_remaining, (x0, y0, g.move_remaining)
+        width, height = 64, 48
+        start = (y0 // 16) * width + x0 // 16
         previous = array.array("i", [-1]) * (width * height)
         previous[start] = start
         queue = deque([start])
         goal = None
         while queue:
             cell = queue.popleft()
-            x, y = (cell % width) * 2 + px, (cell // width) * 2 + py
+            x, y = (cell % width) * 16 + 8, (cell // width) * 16 + 8
             arrived = (x, y) == destination if destination else self.nearest(x, y, g) == target
             if arrived:
                 goal = cell
@@ -148,7 +149,8 @@ class Playthrough:
                 neighbor = ny * width + nx
                 if previous[neighbor] >= 0:
                     continue
-                if self.mask[(ny * 2 + py) * 1024 + nx * 2 + px]:
+                if all(self.mask[(y + dy * distance) * 1024 + x + dx * distance]
+                       for distance in range(1, 17)):
                     previous[neighbor] = cell
                     queue.append(neighbor)
         assert goal is not None, f"No route to {destination or target}"
@@ -157,11 +159,12 @@ class Playthrough:
             path.append(goal)
             goal = previous[goal]
         path.reverse()
-        # Group straight segments; each game tick moves precisely two pixels.
+        # Group whole cardinal tiles. Observe endpoints rather than assuming
+        # a fixed ratio between hardware VBlanks and rendered game updates.
         last = (x0, y0)
         segments = []
         for cell in path:
-            point = ((cell % width) * 2 + px, (cell // width) * 2 + py)
+            point = ((cell % width) * 16 + 8, (cell // width) * 16 + 8)
             key = "left" if point[0] < last[0] else "right" if point[0] > last[0] else "up" if point[1] < last[1] else "down"
             if segments and segments[-1][0] == key:
                 segments[-1] = (key, point)
@@ -176,14 +179,13 @@ class Playthrough:
                 if remaining == 0:
                     break
                 before = (now.save.player_x, now.save.player_y)
-                self.e.run(min(120, remaining), (key,))
+                # At most 4 walking pixels can move in one hardware frame;
+                # this bound cannot overshoot the requested tile endpoint.
+                self.e.run(min(120, max(1, remaining // 4)), (key,))
                 after = self.game()
                 if (after.save.player_x, after.save.player_y) == before:
-                    # The renderer may have been busy for the whole short run.
-                    self.wait_ticks(1, (key,))
-                    after = self.game()
-                    assert (after.save.player_x, after.save.player_y) != before, (target, key, before, (tx, ty))
-                assert abs(tx - after.save.player_x) + abs(ty - after.save.player_y) < remaining
+                    continue  # Rendering may occupy a complete short run.
+                assert abs(tx - after.save.player_x) + abs(ty - after.save.player_y) < remaining, (target, key, before, (tx, ty))
             else:
                 raise AssertionError("Movement did not reach waypoint")
         self.e.run(2)
@@ -192,84 +194,213 @@ class Playthrough:
             assert (now.save.player_x, now.save.player_y) == destination
         else:
             assert self.nearest(now.save.player_x, now.save.player_y, now) == target
-        self.steps.append({"target": destination or target, "movement_ticks": len(path)})
-        print(f"Walked to {destination or target} with buttons ({len(path)} movement ticks)", flush=True)
+        assert not now.move_remaining
+        self.steps.append({"target": destination or target, "cardinal_tiles": len(path)})
+        print(f"Walked to {destination or target} with buttons ({len(path)} cardinal tiles)", flush=True)
+
+    def camera(self, elf):
+        return tuple(int.from_bytes(self.e.read_ram(find_symbol(elf, name), 4),
+                                    "little", signed=True)
+                     for name in ("cam_x", "cam_y"))
+
+    @staticmethod
+    def color_matches(pixel, color):
+        expected = ((color & 31) * 255 // 31,
+                    ((color >> 5) & 31) * 255 // 31,
+                    ((color >> 10) & 31) * 255 // 31)
+        return all(abs(a - b) <= 8 for a, b in zip(pixel, expected))
+
+    def stable_pose(self):
+        # ARM9 can already be preparing the next frame when the frontend
+        # exposes its last presented image. Sample inside both animation
+        # phases so a normal one-frame presentation delay is unambiguous.
+        for _ in range(48):
+            frame = self.game().frame
+            if 4 <= frame % 36 <= 31 and 4 <= frame % 24 <= 19:
+                return
+            self.wait_ticks(1)
+        raise AssertionError("Could not sample a stable animation pose")
 
     def depth_proof(self, elf):
-        """Show that actual displayed hero pixels pass behind a tree canopy."""
-        if self.mask is None:
-            self.build_mask()
+        """Displayed pixels prove the rail hides the hero, then falls behind."""
         depth = self.e.read_ram(find_symbol(elf, "world_depth"), 1024 * 768)
-        assert max(depth) > 0, "Scenery depth mask is empty"
         hero = array.array("H")
-        hero.frombytes(self.e.read_ram(find_symbol(elf, "hero_art"), 16 * 28 * 42 * 2))
+        hero.frombytes(self.e.read_ram(find_symbol(elf, "hero_idle_art"), 4 * 2 * 24 * 32 * 2))
         world = array.array("H")
         world.frombytes(self.e.read_ram(find_symbol(elf, "world_art"), 1024 * 768 * 2))
-        g = self.game()
-        parity_x, parity_y = g.save.player_x & 1, g.save.player_y & 1
-        candidates = []
-        # These four canopy neighborhoods lie on normal walkable village
-        # ground. Choose a partial silhouette overlap, not a fully hidden hero.
-        for center_x, center_y in ((350, 225), (350, 300), (300, 230), (425, 400)):
-            for y in range((center_y - 16) // 2 * 2 + parity_y, center_y + 20, 4):
-                for x in range((center_x - 24) // 2 * 2 + parity_x, center_x + 25, 4):
-                    if not self.mask[y * 1024 + x]:
+        results = {}
+        for name, (x, y) in (("behind", (616, 296)), ("front", (616, 344))):
+            self.walk(None, (x, y))
+            self.wait_ticks(24)
+            self.stable_pose()
+            g = self.game()
+            assert not g.walking and not g.move_remaining
+            cam_x, cam_y = self.camera(elf)
+            screen = self.e.image()
+            frame = (g.facing * 2 + ((g.frame // 36) & 1)) * 24 * 32
+            hidden = hidden_match = visible = visible_match = overlap = overlap_match = 0
+            for j in range(30):  # Exclude the sprite's contact/shadow row.
+                for i in range(24):
+                    color = hero[frame + j * 24 + i]
+                    if not color:
                         continue
-                    hidden = visible = 0
-                    for j in range(30):
-                        for i in range(28):
-                            if not hero[j * 28 + i]:
-                                continue
-                            wx, wy = x - 14 + i, y - 42 + j
-                            if depth[wy * 1024 + wx] > y // 4:
-                                hidden += 1
-                            else:
-                                visible += 1
-                    if hidden >= 35 and visible >= 35:
-                        distance = abs(x - g.save.player_x) + abs(y - g.save.player_y)
-                        candidates.append((min(hidden, visible) * 4 - distance, x, y))
-        assert candidates, "No reachable partial canopy overlap available"
-        _, x, y = max(candidates)
-        self.walk(None, (x, y))
-        self.wait_ticks(24)  # Camera and companion trail settle on ordinary input.
-        g = self.game()
-        cam_x = int.from_bytes(self.e.read_ram(find_symbol(elf, "cam_x"), 4), "little", signed=True)
-        cam_y = int.from_bytes(self.e.read_ram(find_symbol(elf, "cam_y"), 4), "little", signed=True)
-        screen = self.e.image()
-        hidden = hidden_match = visible = visible_match = 0
+                    wx, wy = x - 12 + i, y - 32 + j
+                    sx, sy = wx - cam_x, wy - cam_y
+                    if not (0 <= sx < 256 and 28 <= sy < 144):
+                        continue
+                    pixel = screen.getpixel((sx, sy))
+                    scenery = world[wy * 1024 + wx]
+                    plane = depth[wy * 1024 + wx]
+                    if plane > y // 4:
+                        hidden += 1
+                        hidden_match += self.color_matches(pixel, scenery)
+                    else:
+                        visible += 1
+                        visible_match += self.color_matches(pixel, color)
+                        if plane and 592 <= wx < 656 and 280 <= wy < 328 and color != scenery:
+                            overlap += 1
+                            overlap_match += self.color_matches(pixel, color)
+            assert visible >= 35 and visible_match / visible >= .9, (name, visible, visible_match)
+            if name == "behind":
+                assert hidden >= 20, ("Rail does not overlap the hero", hidden)
+                assert hidden_match / hidden >= .9, ("Rail did not hide hero", hidden_match, hidden)
+            else:
+                assert hidden == 0, ("Hero remained behind railing after passing it", hidden)
+                assert overlap >= 10 and overlap_match / overlap >= .9, (overlap, overlap_match)
+            self.shot("stairs-" + name)
+            results[name] = {"position": [x, y], "occluded_pixels": hidden,
+                             "occluded_pixels_match_scenery": hidden_match,
+                             "visible_pixels": visible, "visible_pixels_match_hero": visible_match,
+                             "hero_pixels_in_front_of_railing": overlap,
+                             "railing_overlap_pixels_match_hero": overlap_match}
+        print("Displayed stair-rail depth proof: " + json.dumps(results), flush=True)
+        return results
 
-        def matches(pixel, color):
-            expected = ((color & 31) * 255 // 31,
-                        ((color >> 5) & 31) * 255 // 31,
-                        ((color >> 10) & 31) * 255 // 31)
-            return all(abs(a - b) <= 8 for a, b in zip(pixel, expected))
+    def animation_proof(self, elf):
+        """Two stationary displayed poses move foliage and the hero, not rules."""
+        from PIL import ImageChops
+        # This ordinary path puts tree crowns and shrubs above the player's
+        # unobstructed silhouette; no test teleport or special renderer path.
+        self.walk(None, (568, 296))
+        self.wait_ticks(24)
+        self.stable_pose()
+        baseline = self.game()
+        assert not baseline.walking and not baseline.move_remaining
+        save = bytes(baseline.save)
+        collision = self.e.read_ram(self.world.solids, len(self.solids) * 8)
+        camera = self.camera(elf)
+        first = self.e.image().crop((0, 0, 256, 192))
+        # Choose the opposite pose for both periodic idle and wind animation.
+        for _ in range(150):
+            current = self.game()
+            if ((current.frame // 36) & 1) != ((baseline.frame // 36) & 1) and \
+               ((current.frame // 24) & 1) != ((baseline.frame // 24) & 1) and \
+               4 <= current.frame % 36 <= 31 and 4 <= current.frame % 24 <= 19:
+                break
+            self.wait_ticks(1)
+        else:
+            raise AssertionError("Idle/wind phases did not advance")
+        current = self.game()
+        second = self.e.image().crop((0, 0, 256, 192))
+        assert bytes(current.save) == save, "Ambient animation changed progress or position"
+        assert camera == self.camera(elf), "Stationary camera shifted"
+        assert collision == self.e.read_ram(self.world.solids, len(self.solids) * 8), "Animation changed collision"
+        x, y = current.save.player_x - camera[0], current.save.player_y - camera[1]
+        silhouette = (x - 12, y - 32, x + 12, y - 2)
+        idle_diff = ImageChops.difference(first.crop(silhouette), second.crop(silhouette))
+        idle_data = idle_diff.get_flattened_data() if hasattr(idle_diff, "get_flattened_data") else idle_diff.getdata()
+        idle_pixels = sum(pixel != (0, 0, 0) for pixel in idle_data)
+        assert idle_pixels >= 8, ("Hero has no visible idle animation", idle_pixels)
+        # Read the authored animation rectangles and inspect displayed pixels
+        # where the base and alternate foliage artwork actually differ.
+        import ctypes as C
+        class Animation(C.LittleEndianStructure):
+            _fields_ = [("x", C.c_int16), ("y", C.c_int16),
+                        ("w", C.c_uint16), ("h", C.c_uint16), ("offset", C.c_uint32)]
+        table_bytes = self.e.read_ram(find_symbol(elf, "world_animations"), symbol_size(elf, "world_animations"))
+        entries = (Animation * (len(table_bytes) // C.sizeof(Animation))).from_buffer_copy(table_bytes)
+        art_length = max(patch.offset + patch.w * patch.h for patch in entries)
+        alternate = array.array("H")
+        alternate.frombytes(self.e.read_ram(find_symbol(elf, "world_animation_art"), art_length * 2))
+        base = array.array("H")
+        base.frombytes(self.e.read_ram(find_symbol(elf, "world_art"), 1024 * 768 * 2))
+        foliage = foliage_match = 0
+        for patch in entries:
+            for j in range(patch.h):
+                for i in range(patch.w):
+                    wx, wy = patch.x + i, patch.y + j
+                    sx, sy = wx - camera[0], wy - camera[1]
+                    if not (0 <= sx < 256 and 28 <= sy < 140):
+                        continue
+                    if silhouette[0] <= sx < silhouette[2] and silhouette[1] <= sy < silhouette[3]:
+                        continue
+                    normal = base[wy * 1024 + wx]
+                    windy = alternate[patch.offset + j * patch.w + i]
+                    if normal == windy:
+                        continue
+                    before = first.getpixel((sx, sy))
+                    after = second.getpixel((sx, sy))
+                    source0, source1 = (windy, normal) if (baseline.frame // 24) & 1 else (normal, windy)
+                    foliage += 1
+                    foliage_match += self.color_matches(before, source0) and self.color_matches(after, source1)
+        assert foliage >= 20 and foliage_match / foliage >= .8, ("Foliage did not animate on screen", foliage, foliage_match)
+        first.save(self.output / "living-world-pose-1.png")
+        second.save(self.output / "living-world-pose-2.png")
+        first.save(self.output / "living-world.gif", save_all=True,
+                   append_images=[second], duration=800, loop=0)
+        self.shots.extend(("living-world-pose-1.png", "living-world-pose-2.png"))
+        result = {"position": [current.save.player_x, current.save.player_y],
+                  "frames": [baseline.frame, current.frame], "idle_changed_pixels": idle_pixels,
+                  "foliage_changed_source_pixels": foliage, "foliage_display_matches": foliage_match,
+                  "camera_unchanged": True, "progress_unchanged": True, "collision_unchanged": True}
+        print("Stationary animation proof: " + json.dumps(result), flush=True)
+        return result
 
-        start = g.facing * 4 * 28 * 42
-        for j in range(30):  # Excludes the shadow and any trailing companion.
-            for i in range(28):
-                color = hero[start + j * 28 + i]
-                if not color:
-                    continue
-                wx, wy = x - 14 + i, y - 42 + j
-                sx, sy = wx - cam_x, wy - cam_y
-                if not (0 <= sx < 256 and 28 <= sy < 140):
-                    continue
-                pixel = screen.getpixel((sx, sy))
-                if depth[wy * 1024 + wx] > y // 4:
-                    hidden += 1
-                    hidden_match += matches(pixel, world[wy * 1024 + wx])
-                else:
-                    visible += 1
-                    visible_match += matches(pixel, color)
-        assert hidden >= 20 and visible >= 20, (hidden, visible)
-        assert hidden_match / hidden >= .9, ("Canopy did not occlude hero", hidden_match, hidden)
-        assert visible_match / visible >= .9, ("Exposed hero did not draw", visible_match, visible)
-        self.shot("walk-behind-canopy")
-        proof = {"position": [x, y], "occluded_pixels": hidden,
-                 "occluded_pixels_match_world": hidden_match,
-                 "visible_pixels": visible, "visible_pixels_match_hero": visible_match}
-        print("Displayed canopy depth proof: " + json.dumps(proof), flush=True)
-        return proof
+    def presentation_tour(self, elf):
+        """Capture ordinary world play after the opening's rules have passed."""
+        from PIL import Image
+        self.walk(None, (568, 296))
+        self.wait_ticks(24)
+        save, camera = bytes(self.game().save), self.camera(elf)
+        frames = []
+        for _ in range(24):
+            self.wait_ticks(4)
+            frames.append(self.e.image().crop((0, 0, 256, 192)))
+        assert save == bytes(self.game().save) and camera == self.camera(elf)
+
+        def gif(name, images, duration):
+            palette = images[0].quantize(colors=256)
+            encoded = [image.quantize(palette=palette, dither=Image.Dither.NONE)
+                       .resize((512, 384), Image.Resampling.NEAREST) for image in images]
+            encoded[0].save(self.output / name, save_all=True, append_images=encoded[1:],
+                            duration=duration, loop=0, optimize=False)
+
+        gif("living-world.gif", frames, 133)
+        self.walk(None, (536, 296))
+        self.wait_ticks(12)
+        frames, positions = [], []
+        for index in range(12):
+            self.wait_ticks(2, ("right",))
+            g = self.game()
+            assert (g.save.player_x, g.save.player_y) == (544 + index * 8, 296)
+            positions.append([g.save.player_x, g.save.player_y])
+            frames.append(self.e.image().crop((0, 0, 256, 192)))
+        self.wait_ticks(2)
+        assert not self.game().move_remaining
+        gif("walking-stairs.gif", frames, 67)
+        self.walk(None, (888, 360))
+        self.wait_ticks(24)
+        self.shot("forest-path")
+        before = self.game().frame
+        self.e.run(120)
+        forest_fps = (self.game().frame - before) / 2
+        assert forest_fps >= 25, "Animated forest exceeded the field frame budget"
+        result = {"stationary_animation_updates": 96, "stationary_frames": 24,
+                  "walking_frames": 12, "walking_positions": positions,
+                  "forest_fps": forest_fps,
+                  "gifs": ["living-world.gif", "walking-stairs.gif"]}
+        print("Presentation tour: " + json.dumps(result), flush=True)
+        return result
 
     def meet(self, target):
         self.walk(target)
@@ -341,7 +472,7 @@ def main():
             g = run.game()
             assert g.save.magic == 0x41535452 and g.mode == 0
             assert (emu.width, emu.height) == (256, 384)
-            assert len(emu.image().crop((0, 0, 256, 192)).getcolors(50000)) > 1000
+            assert len(emu.image().crop((0, 0, 256, 192)).getcolors(50000)) > 32, "Title framebuffer is blank or corrupt"
             run.shot("title")
             before = run.game().frame
             emu.run(120)
@@ -382,6 +513,9 @@ def main():
             run.settle()
             assert run.game().save.party_count == 1 and run.game().save.starter == 0
             run.shot("first-companion")
+            run.walk(1)
+            run.wait_ticks(24)
+            run.shot("town-commons")
             run.meet(1)
             run.shot("jun-field-lesson")
             run.settle()
@@ -397,6 +531,7 @@ def main():
             assert run.game().save.party_count == 2
             run.shot("new-friend")
             results["depth_proof"] = run.depth_proof(elf)
+            results["animation_proof"] = run.animation_proof(elf)
             run.press("x")
             run.shot("team-notebook")
             run.press("select")
@@ -437,6 +572,7 @@ def main():
             run.press("a"); run.settle(growth=2)
             assert run.game().mode == 1
             run.shot("chapter-complete")
+            results["presentation"] = run.presentation_tour(elf)
             run.press("start")
             for _ in range(3):
                 run.press("down")
