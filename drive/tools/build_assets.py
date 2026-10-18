@@ -1,6 +1,6 @@
 """Pack Coastline's original artwork, typography and music for the Nintendo DS.
 
-The two source atlases are original generated artwork. Curated boxes retain the
+The source atlases are original generated artwork. Curated boxes retain the
 whole bus, gantry and other tall/wide shapes where the painted grid varies.
 Runtime assets use transparent RGB555 and compact .incbin assembly declarations.
 """
@@ -24,9 +24,12 @@ ALPHA = 110
 VEHICLE_W, VEHICLE_H = 48, 72
 TRAFFIC_W, TRAFFIC_H = 40, 64
 PROP_W, PROP_H = 64, 96
-YAW = (-12, -6, 0, 6, 12)
+# Front offsets emulate a shallow road-plane turn while keeping the rear tire
+# contact and rear bumper level. Rotating the whole picture would tilt its
+# vertical body height and make the vehicle appear to bank off the pavement.
+YAW_FRONT_OFFSETS = (-4, -2, 0, 2, 4)
 
-# Pixel coordinates refer to the original 1382x1138 and 1448x1086 atlases.
+# Pixel coordinates refer to the original 1382x1138 vehicle atlas.
 VEHICLE_BOXES = (
     (35, 18, 324, 370), (390, 20, 680, 370),
     (723, 8, 1008, 370), (1080, 50, 1365, 370),
@@ -35,17 +38,28 @@ VEHICLE_BOXES = (
     (32, 732, 325, 1120), (390, 770, 681, 1120),
     (722, 730, 1008, 1120), (1082, 715, 1368, 1125),
 )
+# Four new garage vehicles, in ID order 6..9, in the 1269x1240 atlas.
+EXPANSION_BOXES = (
+    (215, 105, 595, 622), (705, 40, 1080, 656),
+    (210, 675, 598, 1198), (667, 695, 1115, 1206),
+)
 PROP_BOXES = (
-    (42, 8, 337, 395), (395, 25, 711, 400),
-    (718, 48, 1136, 398), (1153, 55, 1445, 398),
-    (37, 398, 327, 728), (365, 414, 722, 730),
-    (752, 465, 1095, 735), (1138, 436, 1447, 734),
-    (104, 735, 294, 1050), (319, 759, 779, 1048),
-    (800, 747, 1136, 1051), (1214, 708, 1394, 1065),
+    (25, 8, 343, 402), (378, 24, 656, 405),
+    (677, 65, 1076, 408), (1074, 6, 1383, 414),
+    (32, 403, 333, 749), (339, 401, 680, 748),
+    (699, 505, 1040, 748), (1041, 442, 1372, 724),
+    (40, 752, 262, 1104), (271, 760, 728, 1091),
+    (729, 760, 1067, 1093), (1105, 721, 1317, 1126),
+)
+PROP_EXPANSION_BOXES = (
+    (0, 4, 545, 514), (566, 67, 990, 488),
+    (1035, 4, 1530, 489), (4, 526, 500, 1004),
+    (493, 515, 1058, 996), (1116, 495, 1462, 1011),
 )
 PROP_NAMES = (
     "GLASS", "BRICK", "WAREHOUSE", "PALM", "PINE", "TREE",
     "SHRUB", "ROCK", "LAMP", "GANTRY", "BILLBOARD", "BOAT",
+    "MANGROVE", "CITRUS", "HOTEL", "REEDS", "VILLA", "PIER",
 )
 ASSETS: list[tuple[str, str, int]] = []
 
@@ -71,6 +85,17 @@ def rgb555(im: Image.Image) -> bytes:
     return values.tobytes()
 
 
+def silhouette_bounds(images: list[Image.Image]) -> bytes:
+    """Exact visible bounds for chassis-grounded shadows; right/bottom exclusive."""
+    result = bytearray()
+    for im in images:
+        box = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
+        if box is None:
+            raise ValueError("Cannot bound an empty sprite")
+        result.extend(box)
+    return bytes(result)
+
+
 def content(im: Image.Image) -> Image.Image:
     im = im.convert("RGBA")
     box = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
@@ -94,15 +119,22 @@ def atlas_crops(path: Path, boxes: tuple, expected_size: tuple[int, int]) -> lis
     return [content(source.crop(box)) for box in boxes]
 
 
-def vehicle_pose(source: Image.Image, angle: int) -> Image.Image:
-    # All yaw poses have equal physical scale, and none clip the front or rear.
+def vehicle_pose(source: Image.Image, front_offset: int) -> Image.Image:
+    # All poses retain their physical height, fixed rear contact and body scale.
+    # The neutral pose matches the original car art exactly.
     body = source.copy()
     body.thumbnail((36, 60), Image.Resampling.LANCZOS)
-    body = body.rotate(-angle, Image.Resampling.BICUBIC, expand=True)
     result = Image.new("RGBA", (VEHICLE_W, VEHICLE_H))
-    if body.width > VEHICLE_W or body.height > VEHICLE_H:
-        raise ValueError("Yaw pose exceeded its native canvas")
-    result.alpha_composite(body, ((VEHICLE_W - body.width) // 2, (VEHICLE_H - body.height) // 2))
+    top = (VEHICLE_H - body.height) // 2
+    result.alpha_composite(body, ((VEHICLE_W - body.width) // 2, top))
+    if front_offset:
+        slope = front_offset / (body.height - 1)
+        # Pillow uses the inverse mapping from destination to source pixels.
+        result = result.transform(
+            result.size, Image.Transform.AFFINE,
+            (1, slope, -front_offset - slope * top, 0, 1, 0),
+            resample=Image.Resampling.BICUBIC,
+        )
     return result
 
 
@@ -117,15 +149,29 @@ def preview(name: str, images: list[Image.Image], cols: int, scale: int = 2) -> 
 
 def artwork() -> None:
     cars = atlas_crops(ART / "vehicles.png", VEHICLE_BOXES, (1382, 1138))
-    poses = [vehicle_pose(car, angle) for car in cars[:6] for angle in YAW]
-    raw("vehicle_art", b"".join(rgb555(im) for im in poses), "uint16_t", 6 * 5 * VEHICLE_W * VEHICLE_H)
+    expansion = atlas_crops(ART / "vehicles-expansion.png", EXPANSION_BOXES, (1269, 1240))
+    player_cars = cars[:6] + expansion
+    poses = [vehicle_pose(car, offset) for car in player_cars for offset in YAW_FRONT_OFFSETS]
+    raw("vehicle_art", b"".join(rgb555(im) for im in poses), "uint16_t", 10 * 5 * VEHICLE_W * VEHICLE_H)
+    raw("vehicle_bounds", silhouette_bounds(poses), "uint8_t", 10 * 5 * 4)
     traffic = [contain(car, TRAFFIC_W, TRAFFIC_H) for car in cars[6:]]
     raw("traffic_art", b"".join(rgb555(im) for im in traffic), "uint16_t", 6 * TRAFFIC_W * TRAFFIC_H)
-    props = [contain(im, PROP_W, PROP_H, bottom=True) for im in atlas_crops(ART / "scenery.png", PROP_BOXES, (1448, 1086))]
-    raw("prop_art", b"".join(rgb555(im) for im in props), "uint16_t", 12 * PROP_W * PROP_H)
+    raw("traffic_bounds", silhouette_bounds(traffic), "uint8_t", 6 * 4)
+    prop_sources = atlas_crops(ART / "scenery.png", PROP_BOXES, (1383, 1137))
+    prop_sources += atlas_crops(ART / "scenery-expansion.png", PROP_EXPANSION_BOXES, (1536, 1024))
+    props = [contain(im, PROP_W, PROP_H, bottom=True) for im in prop_sources]
+    raw("prop_art", b"".join(rgb555(im) for im in props), "uint16_t", len(props) * PROP_W * PROP_H)
+    # Offline filtering avoids high-frequency scintillation when scenery scales
+    # down and streams past at speed. Resize the entire framed sprite so its
+    # normalized ground contact and padding stay consistent across all levels.
+    for width in (48, 32, 16):
+        height = width * PROP_H // PROP_W
+        lod = [im.resize((width, height), Image.Resampling.LANCZOS) for im in props]
+        raw(f"prop_lod{width}", b"".join(rgb555(im) for im in lod), "uint16_t", len(props) * width * height)
+        preview(f"scenery-lod{width}.png", lod, 6, 3)
     preview("vehicle-poses.png", poses, 5)
     preview("traffic-preview.png", traffic, 6)
-    preview("scenery-preview.png", props, 4)
+    preview("scenery-preview.png", props, 6)
 
 
 def fonts() -> None:
@@ -189,6 +235,8 @@ def declarations(music_bytes: int, music_rate: int) -> None:
     for stem, width, height in (("VEHICLE", VEHICLE_W, VEHICLE_H), ("TRAFFIC", TRAFFIC_W, TRAFFIC_H), ("PROP", PROP_W, PROP_H)):
         lines.extend((f"#define ASSET_{stem}_W {width}", f"#define ASSET_{stem}_H {height}"))
     lines.extend(f"#define ASSET_PROP_{name} {index}" for index, name in enumerate(PROP_NAMES))
+    lines.append(f"#define ASSET_PROP_COUNT {len(PROP_NAMES)}")
+    lines.append("#define ASSET_VEHICLE_COUNT 10")
     lines.extend((f"#define MUSIC_BYTES {music_bytes}", f"#define MUSIC_RATE {music_rate}", "#endif", ""))
     (OUT / "assets.h").write_text("\n".join(lines))
     with (OUT / "assets.c").open("w") as output:

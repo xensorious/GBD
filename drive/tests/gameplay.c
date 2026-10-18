@@ -54,16 +54,16 @@ static void controls(void) {
 }
 static void awards(void) {
  Game g;begin(&g);g.run_ticks=100;g.speed_q8=150*Q;
- g.traffic[0]=(Traffic){25*Q,1*Q,0,1,0,0,1,0};
+ g.traffic[0]=(Traffic){.x_q8=25*Q,.z_q8=1*Q,.serial=1,.active=1,.lane=2,.target_lane=2};
  step(&g,K_R,0);CHECK(g.run.count[B_NEAR]==1 && g.run.points[B_NEAR]==100);
  for(int i=0;i<12;i++) {step(&g,K_R,0);}
  CHECK(g.run.count[B_NEAR]==1);
  begin(&g);g.run_ticks=100;g.speed_q8=150*Q;
- g.traffic[0]=(Traffic){0,1*Q,0,1,0,0,1,0};
+ g.traffic[0]=(Traffic){.x_q8=0,.z_q8=1*Q,.serial=1,.active=1,.lane=2,.target_lane=2};
  step(&g,K_R,0);CHECK(g.health<100 && !g.run.count[B_NEAR]);
  uint8_t health=g.health;step(&g,K_R,0);CHECK(g.health==health);
  begin(&g);g.run_ticks=100;g.speed_q8=150*Q;
- g.traffic[0]=(Traffic){55*Q,1*Q,0,1,0,0,1,0};step(&g,K_R,0);CHECK(!g.run.count[B_NEAR]);
+ g.traffic[0]=(Traffic){.x_q8=55*Q,.z_q8=1*Q,.serial=1,.active=1,.lane=3,.target_lane=3};step(&g,K_R,0);CHECK(!g.run.count[B_NEAR]);
  begin(&g);g.speed_q8=150*Q;
  g.pickups[0]=(Pickup){0,2*Q,3,1,0};step(&g,K_R,0);
  CHECK(g.run.count[B_COIN]==1 && g.run.points[B_COIN]==10 && !g.pickups[0].active);
@@ -98,7 +98,7 @@ static void awards(void) {
  /* Every finished run has an exact receipt and can only be banked once. */
  game_finish_run(&g);CHECK(g.mode==M_RECEIPT && g.run.banked);
  CHECK(g.run.total_points==sum(g.run.points));
- CHECK(g.run.total_cash==g.run.count[B_COIN]*5+g.run.total_points/100);
+ CHECK(g.run.total_cash==g.run.count[B_COIN]*5+g.run.total_points/60+g.run.cash_bonus);
  uint32_t cash=g.save.cash,runs=g.save.total_runs,total=g.save.total_distance;
  game_finish_run(&g);game_finish_run(&g);
  CHECK(g.save.cash==cash && g.save.total_runs==runs && g.save.total_distance==total);
@@ -110,20 +110,20 @@ static void economy(void) {
  g.save.cash=vehicles[1].price;step(&g,K_A,K_A);
  CHECK(g.save.owned&2u);CHECK(!g.save.cash && g.save.selected_vehicle==1 && g.save_requested);
  step(&g,K_A,K_A);CHECK(!g.save.cash); /* re-equipping is free */
- g.selection=2;g.cursor=2;g.save.cash=10000;
+ g.selection=2;g.garage_tab=1;g.cursor=1;g.save.cash=10000;
  uint32_t cash=g.save.cash;step(&g,K_A,K_A);CHECK(g.save.cash==cash && !g.save.engine[2]);
- g.selection=1;
+ g.selection=1;g.save.mastery_xp[1]=1000000;
  for(int kind=0;kind<3;kind++) {
-  g.cursor=(uint8_t)(2+kind);
-  for(int level=0;level<3;level++) {
+  g.cursor=(uint8_t)(1+kind);
+  for(int level=0;level<UPGRADE_MAX;level++) {
    int cost=game_upgrade_cost(&g,kind);CHECK(cost>0);cash=g.save.cash;
    step(&g,K_A,K_A);CHECK(g.save.cash==cash-(unsigned)cost);
   }
   CHECK(game_upgrade_cost(&g,kind)==0);cash=g.save.cash;step(&g,K_A,K_A);CHECK(g.save.cash==cash);
  }
- CHECK(g.save.engine[1]==3 && g.save.grip[1]==3 && g.save.armor[1]==3);
+ CHECK(g.save.engine[1]==UPGRADE_MAX && g.save.grip[1]==UPGRADE_MAX && g.save.armor[1]==UPGRADE_MAX);
  CHECK(!game_upgrade_cost(&g,-1) && !game_upgrade_cost(&g,3));
- g.cursor=5;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
+ g.garage_tab=0;g.cursor=2;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
  g.paint_choice=2;step(&g,K_A,K_A);CHECK(g.save.paint[1]==2);
  g.mode=M_DEPARTURES;g.cursor=1;g.save.cash=locations[1].price-1;
  step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&2u));
@@ -131,30 +131,35 @@ static void economy(void) {
  step(&g,K_A,K_A);CHECK(!g.save.cash); /* no repeat charge */
  g.cursor=2;g.save.cash=10000;step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&4u));
  /* Standard motorcycle is a cash purchase and is never challenge gated. */
- CHECK(vehicles[3].bike && vehicles[3].price==650 && !vehicles[3].unlock);
- CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.cursor=1;g.save.cash=650;
+ CHECK(vehicles[3].bike && vehicles[3].price>0 && !vehicles[3].unlock);
+ CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.garage_tab=0;g.cursor=1;g.save.cash=vehicles[3].price;
  step(&g,K_A,K_A);CHECK((g.save.owned&(1u<<3)) && !g.save.cash);
  /* Challenge rewards are applied to the completed run's best statistics. */
  begin(&g);g.run.count[B_NEAR]=10;g.run.distance_m=6000;g.run.drift_points=1500;
  g.run.best_speed_hold=8*DRIVE_HZ;g.run.wheelie_points=1000;
- game_finish_run(&g);CHECK(g.save.unlocked_locations==29 && (g.save.owned&(1u<<5)) && g.save.paints==63);
+ game_finish_run(&g);CHECK((g.save.unlocked_locations&31u)==29 && (g.save.owned&(1u<<5)) && g.save.paints==63);
  CHECK(!(g.save.owned&(1u<<3))); /* near misses must not gift a standard bike */
  for(int i=0;i<5;i++) {int goal=0;CHECK(game_challenge_progress(&g,i,&goal)==goal && goal>0);CHECK(*game_challenge_name(i));CHECK(*game_challenge_reward(i));}
  CHECK(!game_can_vehicle(&g,-1) && !game_can_vehicle(&g,VEHICLE_COUNT));
  CHECK(!game_can_location(&g,-1) && !game_can_location(&g,LOCATION_COUNT));
 }
 static void saves(void) {
- CHECK(sizeof(Save)==100);Game g,loaded;Save s;
+ CHECK(sizeof(Save)==204);Game g,loaded;Save s;
  game_init(&g,0);game_make_save(&g,&s);CHECK(game_save_valid(&s));
  game_init(&loaded,7);CHECK(game_load(&loaded,&s));CHECK(loaded.has_save && loaded.mode==M_HOME);
  for(size_t i=0;i<sizeof s;i++) {Save bad=s;((unsigned char*)&bad)[i]^=0x40;CHECK(!game_save_valid(&bad));}
  Save bad=s;bad.magic=0x52424d42u;CHECK(!game_load(&loaded,&bad));CHECK(!game_save_valid(NULL));
  /* Re-signing malformed fields still cannot bypass semantic validation. */
  #define INVALID(field,value) do {game_init(&g,9);g.save.field=(value);game_make_save(&g,&bad);CHECK(!game_save_valid(&bad));} while(0)
- INVALID(selected_vehicle,6);INVALID(selected_vehicle,1);INVALID(selected_location,5);
- INVALID(owned,0);INVALID(owned,65);INVALID(unlocked_locations,0);INVALID(unlocked_locations,33);
- INVALID(paints,0);INVALID(paints,127);INVALID(engine[0],4);INVALID(grip[0],4);INVALID(armor[0],4);
+ INVALID(selected_vehicle,VEHICLE_COUNT);INVALID(selected_vehicle,1);INVALID(selected_location,LOCATION_COUNT);
+ INVALID(owned,0);INVALID(owned,1025);INVALID(unlocked_locations,0);INVALID(unlocked_locations,(1u<<LOCATION_COUNT)|1u);
+ INVALID(paints,0);INVALID(paints,127);INVALID(engine[0],UPGRADE_MAX+1);INVALID(grip[0],UPGRADE_MAX+1);INVALID(armor[0],UPGRADE_MAX+1);
  INVALID(paint[0],6);INVALID(paint[0],3);INVALID(cash,UINT32_MAX);INVALID(seed,0);INVALID(best_score,UINT32_MAX);
+ INVALID(music_on,2);INVALID(sfx_on,2);INVALID(music_volume,101);INVALID(sfx_volume,101);
+ INVALID(skin,SKIN_COUNT);INVALID(shake,2);INVALID(units,2);INVALID(motion,3);
+ INVALID(mastery_xp[0],UINT32_MAX);INVALID(career_xp,UINT32_MAX);INVALID(perks[0],4);INVALID(perks[0],1);
+ INVALID(power_tune[0],3);INVALID(handling_tune[0],3);INVALID(chassis_tune[0],3);
+ INVALID(power_tune[0],1);INVALID(handling_tune[0],1);INVALID(chassis_tune[0],1);
  #undef INVALID
  game_init(&g,5);game_save_result(&g,0);CHECK(!g.save_ok && !g.has_save);
  game_save_result(&g,1);CHECK(g.save_ok && g.has_save && !g.save_requested);
@@ -164,7 +169,7 @@ static void grip_response(void) {
   * stock grip was already above the old binary response threshold. */
  for(int v=0;v<VEHICLE_COUNT;v++) {
   int32_t last_response=0,last_damping=INT32_MAX,last_slide=0;
-  for(int level=0;level<=3;level++) {
+  for(int level=0;level<=UPGRADE_MAX;level++) {
    Game normal,slide,damping;
    begin(&normal);normal.vehicle=(uint8_t)v;normal.save.grip[v]=(uint8_t)level;
    normal.speed_q8=120*Q;slide=normal;damping=normal;

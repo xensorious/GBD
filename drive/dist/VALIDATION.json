@@ -2,25 +2,29 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 720384,
-    "sha256": "610acd38ab739711cb25233a48c2b14348f57078799d147b7ff4cf336223770f",
+    "bytes": 1161728,
+    "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 688396
+        "bytes": 1129324
       },
       "arm7": {
-        "offset": 705024,
+        "offset": 1145856,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
       }
     },
     "native": [
-      "road: 15172296 checks, 2,441,989 consecutive samples; all five biomes, reverse travel, boundary continuity and extreme coordinates pass",
-      "gameplay: 4211925 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass"
+      "road: 15610090 checks, 2,441,989 consecutive samples; all 8 biomes, reverse travel, exact transition endpoints, boundary continuity and extreme coordinates pass",
+      "gameplay: 5840259 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
+      "legacy_save: 274 checks; exact 100-byte v1 migration preserves cash, six-car upgrades and unlocks, adds defaults, rejects corrupt/invalid saves and emits valid v2",
+      "traffic: 78329849 checks; deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass",
+      "progression: 199 checks; mastery gates, effective setup tradeoffs, career perks, bank-once XP/cash and persistent settings pass",
+      "graphics: 27852 pixel-exact checks passed across 128 asset frames; cache/paint/LOD/clipping/capacity"
     ],
     "core": {
       "name": "DeSmuME",
@@ -28,10 +32,33 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 1571430,
-      "nonzero_batches": 2122
+      "samples": 2213820,
+      "nonzero_batches": 2767
     },
     "events": [
+      {
+        "check": "independent audio settings",
+        "music": {
+          "samples_observed": 5520,
+          "rms": 385.7576201263006
+        },
+        "muted_music": {
+          "samples_observed": 5520,
+          "rms": 0.0
+        },
+        "effects_on": {
+          "samples_observed": 736,
+          "rms": 1430.5304703607103
+        },
+        "effects_off": {
+          "samples_observed": 736,
+          "rms": 0.0
+        },
+        "restored_music": {
+          "samples_observed": 5520,
+          "rms": 361.415459575666
+        }
+      },
       {
         "check": "gas/turbo/precision",
         "normal_q8": 44800,
@@ -40,39 +67,46 @@
       },
       {
         "check": "actual cartridge update rate",
-        "updates": 60,
+        "updates": 59,
         "hardware_frames": 120,
-        "hz": 30.0
+        "hz": 29.5
       }
     ],
     "receipt": {
       "count": [
-        1116,
-        23,
+        1210,
+        25,
         0,
-        11,
+        13,
         0,
         0,
-        6
+        15
       ],
       "points": [
-        1116,
-        115,
+        1210,
+        125,
         0,
-        690,
+        890,
         0,
         0,
-        60
+        150
       ],
-      "points_total": 1981,
-      "cash": 49,
-      "distance_m": 1116,
-      "max_combo_q8": 1280
+      "points_total": 2375,
+      "cash": 114,
+      "distance_m": 1210,
+      "max_combo_q8": 1280,
+      "mastery_xp": 331,
+      "career_xp": 331,
+      "cash_bonus": 0
     },
     "screenshots": [
       "home.png",
+      "settings.png",
       "controls.png",
+      "career.png",
       "garage.png",
+      "garage-parts.png",
+      "garage-tuning.png",
       "departures.png",
       "challenges.png",
       "race-city.png",
@@ -84,15 +118,283 @@
       "race-drift.png",
       "run-receipt.png",
       "home-after-run.png",
+      "career-earned.png",
+      "career-earned-perk.png",
+      "garage-upgraded.png",
       "save-reloaded.png"
     ],
     "battery_save_reload": true,
-    "upgrade_purchased": false,
+    "upgrade_purchased": true,
+    "earned_career_perk": true,
     "inputs": "joypad only; touch used solely to assert it is ignored",
     "ram_access": "read only; no emulator-state restore"
   },
   "visual_fixture": {
     "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1161728,
+      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1129324
+        },
+        "arm7": {
+          "offset": 1145856,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "source": "documented native-generated battery fixture; vehicles, departures, cash, mastery and career pre-seeded for review",
+    "ram_access": "read only; joypad input only; no save-state restore",
+    "screenshots": [
+      "scenery-city.png",
+      "scenery-coast.png",
+      "scenery-causeway.png",
+      "scenery-pines.png",
+      "scenery-canyon.png",
+      "scenery-marina.png",
+      "scenery-wetlands.png",
+      "scenery-groves.png",
+      "vehicle-pacer.png",
+      "vehicle-vela.png",
+      "vehicle-nomad.png",
+      "vehicle-kestrel.png",
+      "vehicle-vector.png",
+      "vehicle-sundown.png",
+      "vehicle-mariner.png",
+      "vehicle-regent.png",
+      "vehicle-rallye.png",
+      "vehicle-tempest.png",
+      "garage-parts-upgraded.png",
+      "garage-tune-preview-power_tune.png",
+      "garage-tune-preview-handling_tune.png",
+      "garage-tune-preview-chassis_tune.png",
+      "career-perks.png",
+      "career-reset.png",
+      "settings-classic.png",
+      "dashboard-classic.png",
+      "settings-digital.png",
+      "dashboard-digital.png",
+      "settings-utility.png",
+      "dashboard-utility.png",
+      "settings-bike.png",
+      "dashboard-bike.png",
+      "motorcycle-wheelie.png",
+      "settings-luxury.png",
+      "dashboard-luxury.png",
+      "settings-race.png",
+      "dashboard-race.png",
+      "settings-sundown.png",
+      "dashboard-sundown.png",
+      "settings-mariner.png",
+      "dashboard-mariner.png",
+      "settings-rallye.png",
+      "dashboard-rallye.png",
+      "settings-tempest.png",
+      "dashboard-tempest.png",
+      "advanced-save-reloaded.png"
+    ],
+    "biome_update_rates": [
+      {
+        "name": "city",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "name": "coast",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "name": "causeway",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "name": "pines",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "name": "canyon",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "name": "marina",
+        "updates": 58,
+        "hardware_frames": 120,
+        "hz": 29.0
+      },
+      {
+        "name": "wetlands",
+        "updates": 58,
+        "hardware_frames": 120,
+        "hz": 29.0
+      },
+      {
+        "name": "groves",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      }
+    ],
+    "cluster_update_rates": [
+      {
+        "name": "classic",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 0,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "digital",
+        "updates": 58,
+        "hardware_frames": 120,
+        "hz": 29.0,
+        "vehicle": 1,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "utility",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 2,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "bike",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5,
+        "vehicle": 3,
+        "skin": 0,
+        "units": 1
+      },
+      {
+        "name": "luxury",
+        "updates": 57,
+        "hardware_frames": 120,
+        "hz": 28.5,
+        "vehicle": 7,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "race",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 4,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 61,
+        "hardware_frames": 120,
+        "hz": 30.5,
+        "vehicle": 5,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "mariner",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 6,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "rallye",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 8,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "tempest",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 9,
+        "skin": 0,
+        "units": 0
+      }
+    ],
+    "fixture_funded_actions": [
+      {
+        "fixture_funded_part": "engine",
+        "cost": 60,
+        "level": 1
+      },
+      {
+        "fixture_funded_part": "grip",
+        "cost": 54,
+        "level": 1
+      },
+      {
+        "fixture_funded_part": "armor",
+        "cost": 57,
+        "level": 1
+      },
+      {
+        "free_tune_applied": "power_tune",
+        "value": 1
+      },
+      {
+        "free_tune_applied": "handling_tune",
+        "value": 1
+      },
+      {
+        "free_tune_applied": "chassis_tune",
+        "value": 1
+      }
+    ],
+    "fresh_process_reload": true
+  },
+  "save_migration": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1161728,
+      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1129324
+        },
+        "arm7": {
+          "offset": 1145856,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "baseline_rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
       "bytes": 720384,
@@ -112,47 +414,54 @@
         }
       }
     },
-    "source": "ordinary native-generated battery-save fixture; all departures and vehicles pre-unlocked for visual review",
-    "ram_access": "read only; joypad input only; no save-state restore",
+    "profile_source": "documented native-generated 100-byte legacy fixture, accepted by original v1 ROM",
+    "preserved": "cash, six-car parts and paint, selected motorcycle/departure, all run records and unlocks",
+    "legacy_bytes": 100,
+    "migrated_bytes": 204,
+    "fresh_process_reload": true,
+    "inputs": "ordinary cartridge boot; no emulator RAM writes or state restores",
     "screenshots": [
-      "scenery-city.png",
-      "scenery-coast.png",
-      "scenery-causeway.png",
-      "scenery-pines.png",
-      "scenery-canyon.png",
-      "motorcycle-wheelie.png"
-    ],
-    "biome_update_rates": [
-      {
-        "biome": "city",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0
-      },
-      {
-        "biome": "coast",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0
-      },
-      {
-        "biome": "causeway",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0
-      },
-      {
-        "biome": "pines",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0
-      },
-      {
-        "biome": "canyon",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0
+      "legacy-migrated.png",
+      "legacy-reloaded.png"
+    ]
+  },
+  "region_transition": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1161728,
+      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1129324
+        },
+        "arm7": {
+          "offset": 1145856,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
       }
+    },
+    "profile_source": "labelled native-generated Nomad/mastery/parts/perks fixture; start distance zero",
+    "ram_access": "read only; all travel uses R + Down precision and steering buttons; no checkpoint restore",
+    "distance_driven_m": 7062,
+    "world_distance": 21186,
+    "elapsed_game_ticks": 4663,
+    "hardware_frames": 9326,
+    "update_hz": 30.0,
+    "biomes_seen": [
+      1,
+      2
+    ],
+    "health": 26,
+    "screenshots": [
+      "transition-before.png",
+      "transition-mid.png",
+      "transition-after.png"
     ]
   }
 }

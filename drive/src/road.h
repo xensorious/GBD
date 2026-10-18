@@ -16,7 +16,10 @@ enum RoadFeature {
  ROAD_F_HARBOR   = 1u << 3,
  ROAD_F_PINES    = 1u << 4,
  ROAD_F_ROCKS    = 1u << 5,
- ROAD_F_CITY     = 1u << 6
+ ROAD_F_CITY     = 1u << 6,
+ ROAD_F_MARINA   = 1u << 7,
+ ROAD_F_WETLANDS = 1u << 8,
+ ROAD_F_GROVES   = 1u << 9
 };
 
 typedef struct {
@@ -24,7 +27,8 @@ typedef struct {
   * d(center)/d(distance), scaled by 256. Subtract the center at the player's
   * distance before projecting a point ahead. Both remain smooth at nodes. */
  int16_t center,curve;
- uint8_t biome,next_biome,blend,lanes,feature;
+ uint8_t biome,next_biome,blend,lanes;
+ uint16_t feature;
 } RoadSample;
 
 /* Stateless hashes: neither function changes gameplay RNG state. */
@@ -38,7 +42,11 @@ uint32_t road_landmark(uint32_t seed,uint32_t segment,int side);
  *
  * Continuity checks: sample +/-1 around every ROAD_NODE_LENGTH boundary.
  * Centers differ by at most one unit and tangent tends to zero at the node.
- * A full five-biome cycle returns to the starting biome after 105,000 units.
+ * The eight-biome cycle returns to its start after 168,000 units. At every
+ * section boundary, the preceding sample is next_biome at blend=255 and the
+ * new sample is that same biome at blend=0: blended colors match exactly.
+ * Scenery should keep an identity based on its world anchor, not the current
+ * camera biome, to preserve it when driving through a transition or reversing.
  */
 void road_sample(uint32_t seed,int32_t distance,int start_biome,RoadSample *out);
 

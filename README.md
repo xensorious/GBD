@@ -1,8 +1,9 @@
 # Coastline: Endless Drive
 
 An original **Nintendo DS** procedural highway driving game for Delta.
-Drive from the city to tropical coastlines, an ocean causeway, pine forests and
-red-rock canyons. Earn points and cash, bank an itemized run receipt, and return
+Drive from the city to tropical coastlines, an ocean causeway, pine forests,
+red-rock canyons, a neon marina, mangrove wetlands and citrus groves.
+Earn points and cash, bank an itemized run receipt, and return
 to the garage to buy, tune and paint your vehicles.
 
 - [Download the DS cartridge](drive/dist/Coastline.nds)
@@ -18,13 +19,16 @@ modifiers are held. Start pauses. All menus use buttons on the lower screen;
 while driving, that screen becomes a noninteractive instrument dashboard.
 Touch input is ignored throughout.
 
-The first draft contains six vehicles, five regions, seeded traffic and road
-coins, close-overtake bonuses, capped speed/drift/wheelie streaks, engine/grip/
-armor upgrades, paint previews, challenges, unlockable departures, audio and
-cartridge battery saves. The standard motorcycle is a cash purchase without a
-challenge requirement. Special gear, paint and locations use challenge rewards.
+This version contains ten vehicles, eight regions, seeded traffic and road
+coins, close-overtake bonuses, capped speed/drift/wheelie streaks, six-stage
+parts, vehicle mastery, handling setups and shared career perks. Glass menus,
+vehicle-specific dashboard designs and three interface skins accompany
+independent music/SFX settings. Purchases and progression persist in cartridge
+battery saves, including migration from the first draft. The standard motorcycle
+is a cash purchase without a challenge requirement. Special gear, paint and
+locations use challenge rewards.
 
-![Five environments and the motorcycle](drive/dist/Locations.png)
+![Eight environments and the motorcycle](drive/dist/Locations.png)
 
 Scenery captures use a documented pre-unlocked battery-save fixture for visual
 review. The main validation plays a fresh profile and checks normal earnings,
@@ -38,6 +42,8 @@ make -C drive -j2
 bash drive/tests/setup_emulator.sh
 make -C drive test
 python3 drive/tests/scenery.py
+python3 drive/tests/migration.py
+python3 drive/tests/transition.py
 python3 drive/tools/package.py
 ```
 

@@ -203,6 +203,12 @@ int ds_play_sample(const int8_t *data, unsigned samples, unsigned rate,
     message.SoundPlay.format=SoundFormat_8Bit;
     message.SoundPlay.dataSize=samples>>2;
     fifoSendDatamsg(FIFO_SOUND, sizeof(message), (uint8_t *)&message);
+    /* ARM7 normally replies within a few microseconds. Let its FIFO IRQ run
+     * before yielding a whole LCD frame; otherwise every road-coin sound
+     * spends 16.7 ms waiting even when the reply is already on its way. Keep
+     * the existing bounded frame fallback for an unusually busy ARM7. */
+    for (unsigned spin=0;spin<8192 && !fifoCheckValue32(FIFO_SOUND);++spin)
+        __asm__ volatile("nop");
     for (int frame=0; frame<60 && !fifoCheckValue32(FIFO_SOUND); ++frame)
         ds_vblank();
     if (!fifoCheckValue32(FIFO_SOUND)) { audio_ready=0; return -1; }
@@ -210,13 +216,29 @@ int ds_play_sample(const int8_t *data, unsigned samples, unsigned rate,
 }
 void ds_stop_sample(int channel) { if (channel >= 0) soundKill(channel); }
 
+static int music_mix=70,sfx_mix=75,music_enabled=1,sfx_enabled=1;
+static int mix_volume(int volume,int mix,int enabled) {
+    if (!enabled) return 0;
+    int scaled=volume*mix/100;
+    return scaled<0?0:scaled>127?127:scaled;
+}
+void ds_audio_settings(int music_on,int music_volume,int sfx_on,int sfx_volume) {
+    int changed=music_enabled!=!!music_on || music_mix!=music_volume;
+    music_enabled=!!music_on; sfx_enabled=!!sfx_on;
+    music_mix=music_volume<0?0:music_volume>100?100:music_volume;
+    sfx_mix=sfx_volume<0?0:sfx_volume>100?100:sfx_volume;
+    if (changed && music_channel>=0)
+        soundSetVolume(music_channel,(uint8_t)mix_volume(58,music_mix,music_enabled));
+}
 void ds_audio_start(const int8_t *data, unsigned bytes, int frequency) {
     if (music_channel >= 0) soundKill(music_channel);
     music_channel=-1;
     if (data && bytes >= 4 && frequency > 0)
-        music_channel=ds_play_sample(data, bytes & ~3u, frequency, 58, 1);
+        music_channel=ds_play_sample(data, bytes & ~3u, frequency,
+                                    mix_volume(58,music_mix,music_enabled),1);
 }
 void ds_audio_click(int kind) {
+    if (!sfx_enabled || !sfx_mix) return;
     if (!clicks_ready) {
         for (int k=0; k<4; ++k) {
             unsigned phase=0;
@@ -232,7 +254,7 @@ void ds_audio_click(int kind) {
         }
         clicks_ready=1;
     }
-    ds_play_sample(click_samples[kind&3], 1024, 16000, 85, 0);
+    ds_play_sample(click_samples[kind&3],1024,16000,mix_volume(85,sfx_mix,sfx_enabled),0);
 }
 
 /* Three persistent channels avoid waiting on the ARM7 for every rev change. */
@@ -268,6 +290,9 @@ void ds_drive_audio(int speed,int accelerating,int drift,int horn,int active) {
     int rate=5000+(speed%45)*130+(accelerating?1600:0);
     int ev=active?18+(accelerating?16:0)+speed/18:0;
     int rv=active?(drift?38:speed/15):0,hv=active&&horn?72:0;
+    ev=mix_volume(ev,sfx_mix,sfx_enabled);
+    rv=mix_volume(rv,sfx_mix,sfx_enabled);
+    hv=mix_volume(hv,sfx_mix,sfx_enabled);
     if(engine_channel>=0){
         if(rate!=old_rate)soundSetFreq(engine_channel,(uint16_t)rate);
         if(ev!=old_engine)soundSetVolume(engine_channel,(uint8_t)ev);

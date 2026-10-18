@@ -19,7 +19,6 @@ with Emulator(a.rom,a.save_dir) as e:
     assert g.mode==0 and g.has_save
     g.save.checksum=0
     assert bytes(g.save)==a.expected.read_bytes()
-    assert g.save.total_runs==1
     e.screenshot(a.output)
     print(json.dumps({'fresh_process_load':True,'total_runs':g.save.total_runs,
                       'cash':g.save.cash,'save_bytes':len(bytes(g.save))}))

@@ -22,14 +22,16 @@ from inspect_rom import inspect
 def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c'])]:
         target=ROOT/'build'/('test-'+name)
-        cmd=['gcc','-std=c99','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
-             '-fsanitize=address,undefined','-I',str(ROOT/'src'),str(ROOT/'tests'/(name+'.c'))]
-        cmd += [str(ROOT/'src'/s) for s in sources]
-        subprocess.run(cmd+['-o',str(target)],check=True)
-        run=subprocess.run([str(target)],check=True,capture_output=True,text=True)
-        print(run.stdout,end='',flush=True); results.append(run.stdout.strip())
+        cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
+             '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
+        cmd += [str(ROOT/('build' if s=='assets.c' else 'src')/s) for s in sources]
+        subprocess.run(cmd+['-o',str(target)],check=True,cwd=ROOT)
+        run=subprocess.run([str(target)],capture_output=True,text=True,cwd=ROOT)
+        print(run.stdout,end='',flush=True)
+        if run.stderr:print(run.stderr,file=sys.stderr,end='',flush=True)
+        run.check_returncode();results.append(run.stdout.strip())
     return results
 
 
@@ -61,7 +63,7 @@ class DriveThrough:
         g=self.game(); x=g.x_q8/256;vx=g.vx_q8/256
         # Predict the lateral momentum before changing steering. This driver
         # uses the same public joypad as a player, without changing physics.
-        projected=x+vx*8
+        projected=x+vx*2.5
         if projected<target-3: return ('right',)
         if projected>target+3: return ('left',)
         return ()
@@ -70,15 +72,25 @@ class DriveThrough:
         candidates=(-72,-24,24,72)
         best,best_cost=0,float('inf')
         for lane in candidates:
-            cost=abs(lane-x)*.15
+            cost=abs(lane-x)*.7
+            settle=abs(lane-x)/1.65+4
             for car in g.traffic:
-                if not car.active: continue
+                if not car.active:continue
                 dz=(car.z_q8-g.position_q8)/256
-                if -55<dz<340:
-                    dx=abs(car.x_q8/256-lane)
-                    if dx<30:
-                        cost += (30-dx)*(4 if dz<160 else 1)
-            if cost<best_cost: best,best_cost=lane,cost
+                relative=(g.speed_q8-car.speed_q8)/8192
+                if dz < -80 or dz > 650:continue
+                dx=abs(car.x_q8/256-lane)
+                time=(dz-72)/max(.2,relative)
+                if dx<25 and dz>-72:
+                    urgency=1000 if time<20 else 220 if time<55 else 60 if time<110 else 8
+                    cost+=urgency*(25-dx)/25
+                # Reject a lane-change route that crosses a nearby car, even
+                # when the destination lane itself would be unobstructed.
+                cx=car.x_q8/256
+                if min(x,lane)-17<cx<max(x,lane)+17:
+                    crossing=0 if abs(lane-x)<1 else max(0,min(1,(cx-x)/(lane-x)))
+                    if abs(dz-relative*settle*crossing)<80:cost+=850
+            if cost<best_cost:best,best_cost=lane,cost
         return best
     def autopilot(self,ticks,keys=('r',),capture=False):
         begin=self.game().frame
@@ -107,9 +119,48 @@ def emulator_tests(rom,elf,output):
         before=(g.mode,g.cursor,g.save.cash)
         p.ticks(4,touch=(120,60));g=p.game()
         assert (g.mode,g.cursor,g.save.cash)==before
-        p.menu(4);p.press('a');assert p.game().mode==6;p.shot('controls')
+        p.menu(5);p.press('a');assert p.game().mode==9
+        p.shot('settings')
+        # Settings respond only to physical buttons and persist in the same
+        # battery profile as garage and career progress.
+        p.menu(0);music=p.game().save.music_on;p.press('a')
+        assert p.game().save.music_on!=music;p.press('a')
+        assert p.game().save.music_on==music
+        p.menu(2);sfx=p.game().save.sfx_on;p.press('a')
+        assert p.game().save.sfx_on!=sfx;p.press('a')
+        assert p.game().save.sfx_on==sfx
+        p.menu(1);mv=p.game().save.music_volume;p.press('left')
+        assert p.game().save.music_volume==max(0,mv-5)
+        p.menu(3);sv=p.game().save.sfx_volume;p.press('left')
+        assert p.game().save.sfx_volume==max(0,sv-5)
+        p.menu(6);shake=p.game().save.shake;p.press('a')
+        assert p.game().save.shake!=shake
+        # Audio settings are verified from the emulator's actual sample stream.
+        p.ticks(12);e.begin_audio_probe();e.run(30)
+        music_level=e.end_audio_probe();assert music_level['rms']>0
+        p.menu(0);p.press('a');assert not p.game().save.music_on
+        p.ticks(12);e.begin_audio_probe();e.run(30)
+        quiet_level=e.end_audio_probe();assert quiet_level['rms']<music_level['rms']*.1
+        p.menu(8);p.ticks(12);e.begin_audio_probe();p.press('right')
+        effects_on=e.end_audio_probe();assert effects_on['rms']>0
+        p.menu(2);p.press('a');assert not p.game().save.sfx_on
+        p.menu(8);p.ticks(12);e.begin_audio_probe();p.press('right')
+        effects_off=e.end_audio_probe();assert effects_off['rms']<effects_on['rms']*.1
+        p.menu(2);p.press('a');p.menu(0);p.press('a')
+        assert p.game().save.music_on and p.game().save.sfx_on
+        p.ticks(12);e.begin_audio_probe();e.run(30)
+        restored_music=e.end_audio_probe();assert restored_music['rms']>0
+        p.record('independent audio settings',music=music_level,muted_music=quiet_level,
+                 effects_on=effects_on,effects_off=effects_off,restored_music=restored_music)
+        p.menu(8);p.press('a');assert p.game().mode==6;p.shot('controls')
+        p.press('b');assert p.game().mode==9
+        p.press('b');assert p.game().mode==0
+        p.menu(4);p.press('a');assert p.game().mode==8;p.shot('career')
         p.press('b');assert p.game().mode==0
         p.menu(1);p.press('a');assert p.game().mode==3;p.shot('garage')
+        p.press('r');assert p.game().garage_tab==1;p.shot('garage-parts')
+        p.press('r');assert p.game().garage_tab==2;p.shot('garage-tuning')
+        p.press('l');p.press('l');assert p.game().garage_tab==0
         p.press('b');assert p.game().mode==0
         p.menu(2);p.press('a');assert p.game().mode==4;p.shot('departures')
         p.press('b');assert p.game().mode==0
@@ -164,22 +215,34 @@ def emulator_tests(rom,elf,output):
         g=p.game(); assert g.run.banked and g.run.total_points==sum(g.run.points)
         assert g.run.points[0] and g.run.points[1] and g.run.distance_m>0
         assert g.save.total_runs==1 and g.save.cash==g.run.total_cash
+        assert g.run.mastery_xp>0 and g.run.career_xp>0
+        assert g.save.mastery_xp[g.vehicle]==g.run.mastery_xp
+        assert g.save.career_xp==g.run.career_xp
         assert g.run.max_combo_q8<=5*256
         p.shot('run-receipt')
         receipt={'count':list(g.run.count),'points':list(g.run.points),
                  'points_total':g.run.total_points,'cash':g.run.total_cash,
-                 'distance_m':g.run.distance_m,'max_combo_q8':g.run.max_combo_q8}
+                 'distance_m':g.run.distance_m,'max_combo_q8':g.run.max_combo_q8,
+                 'mastery_xp':g.run.mastery_xp,'career_xp':g.run.career_xp,'cash_bonus':g.run.cash_bonus}
         cash=g.save.cash;p.ticks(40);assert p.game().save.cash==cash
         p.press('a');assert p.game().mode==0
         p.shot('home-after-run')
+        p.menu(4);p.press('a');assert p.game().mode==8
+        p.shot('career-earned');earned_perk=False
+        if p.game().save.career_xp>=200:
+            p.menu(0);p.press('a');assert p.game().save.perks[0]==1
+            earned_perk=True;p.shot('career-earned-perk')
+        p.press('b');assert p.game().mode==0
         p.menu(1);p.press('a');assert p.game().mode==3
         # Buy a modest engine upgrade if this ordinary run earned its price.
-        cost=175
+        cost=game_grip_cost=54
         purchased=False
         if cash>=cost:
-            p.menu(3);before=p.game().save.cash;p.press('a');g=p.game()
-            if g.save.grip[0]:
-                assert g.save.cash<before;purchased=True;p.shot('garage-upgraded')
+            p.press('r');assert p.game().garage_tab==1
+            p.menu(2);before=p.game().save.cash;p.press('a');g=p.game()
+            assert g.save.grip[0]==1
+            assert g.save.cash==before-game_grip_cost
+            purchased=True;p.shot('garage-upgraded')
         p.press('b');p.ticks(20)
         expected=p.game().save
         expected.checksum=0
@@ -200,7 +263,7 @@ def emulator_tests(rom,elf,output):
         '--output',str(output/'save-reloaded.png')],check=True)
     shots.append('save-reloaded.png')
     return {'core':core,'audio':audio,'events':events,'receipt':receipt,
-            'screenshots':shots,'battery_save_reload':True,'upgrade_purchased':purchased,
+            'screenshots':shots,'battery_save_reload':True,'upgrade_purchased':purchased,'earned_career_perk':earned_perk,
             'inputs':'joypad only; touch used solely to assert it is ignored',
             'ram_access':'read only; no emulator-state restore'}
 
@@ -208,12 +271,22 @@ def emulator_tests(rom,elf,output):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native-only',action='store_true')
+    parser.add_argument('--emulator-only',action='store_true',help='Run cartridge checks while native verification runs separately')
     parser.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
     parser.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
     parser.add_argument('--output',type=Path,default=ROOT/'build'/'validation')
     args=parser.parse_args()
-    native=native_tests()
-    if args.native_only:return
+    if args.native_only and args.emulator_only:parser.error('Choose only one verification mode')
+    native=[] if args.emulator_only else native_tests()
+    if args.native_only:
+        report=args.output/'results.json'
+        if report.exists() and args.rom.exists():
+            current=json.loads(report.read_text())
+            if current.get('sha256')==inspect(args.rom)['sha256']:
+                current['native']=native
+                current['native_verified_separately']=True
+                report.write_text(json.dumps(current,indent=2)+'\n')
+        return
     result=inspect(args.rom);result['native']=native
     result.update(emulator_tests(args.rom,args.elf,args.output))
     (args.output/'results.json').write_text(json.dumps(result,indent=2)+'\n')

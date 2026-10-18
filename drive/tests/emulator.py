@@ -95,6 +95,7 @@ class Emulator:
         self.video_frames = 0
         self.audio_samples = 0
         self.audio_nonzero = 0
+        self._audio_probe = None
         self.keys = set()
         self.touch = None
         self.messages = []
@@ -210,13 +211,32 @@ class Emulator:
     def _audio(self, left, right):
         self.audio_samples += 1
         self.audio_nonzero += bool(left or right)
+        if self._audio_probe is not None:
+            self._audio_probe[0] += left*left+right*right
+            self._audio_probe[1] += 2
 
     def _audio_batch(self, data, count):
         self.audio_samples += count
         if data and count:
             raw = C.string_at(data, count * 4)
             self.audio_nonzero += any(raw)
+            if self._audio_probe is not None:
+                values = array.array("h")
+                values.frombytes(raw)
+                observed = values[::8]
+                self._audio_probe[0] += sum(v*v for v in observed)
+                self._audio_probe[1] += len(observed)
         return count
+
+    def begin_audio_probe(self):
+        """Observe sample energy without altering the cartridge or audio."""
+        self._audio_probe = [0, 0]
+
+    def end_audio_probe(self):
+        squared, count = self._audio_probe or (0, 0)
+        self._audio_probe = None
+        return {"samples_observed": count,
+                "rms": (squared / count) ** .5 if count else 0.0}
 
     def _input(self, port, device, index, key):
         if port != 0:

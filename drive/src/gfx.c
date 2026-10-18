@@ -103,24 +103,44 @@ void __attribute__((noinline)) gfx_init(void){
  for(int p=1;p<6;p++)for(int c=0;c<32768;c++)paint_lookup[p-1][c]=paint_color((uint16_t)(c|0x8000),p);
  paint_ready=1;
 }
-/* Exact scaled sprites are retained as opaque row runs. Repeated scenery
-   therefore copies contiguous halfwords instead of resampling every pixel.
-   The fixed pool stays below 800 KiB and is independent of road length. */
+/* Exact scaled sprites are retained as opaque row runs. Most perspective
+   sprites are small, so a separate small pool keeps far scenery cached
+   without reserving a full 64x96 buffer for every distant tree. Both pools
+   have fixed memory use, independent of road length. */
 typedef struct {uint16_t x,y,length,offset;} SpriteRun;
 typedef struct {
  const uint16_t *source;
  unsigned used;
  uint16_t sw,sh,w,h,paint,count;
- SpriteRun runs[512];
- uint16_t pixels[6144];
+ SpriteRun *runs;
+ uint16_t *pixels;
+ uint16_t run_capacity,pixel_capacity;
 } SpriteCache;
-static SpriteCache sprite_cache[48];
+#define SMALL_CACHE_COUNT 96
+#define LARGE_CACHE_COUNT 32
+#define CACHE_COUNT (SMALL_CACHE_COUNT+LARGE_CACHE_COUNT)
+static SpriteCache sprite_cache[CACHE_COUNT];
+static SpriteRun small_runs[SMALL_CACHE_COUNT][256],large_runs[LARGE_CACHE_COUNT][512];
+static uint16_t small_pixels[SMALL_CACHE_COUNT][2048] __attribute__((aligned(4)));
+static uint16_t large_pixels[LARGE_CACHE_COUNT][6144] __attribute__((aligned(4)));
 static unsigned sprite_clock;
+static int sprite_cache_ready;
 static SpriteCache * __attribute__((noinline)) scaled_cache(const uint16_t *source,int sw,int sh,int w,int h,int paint){
  if(w>64||h>96)return 0;
- SpriteCache *entry=&sprite_cache[0];
+ if(!sprite_cache_ready){
+  for(int n=0;n<CACHE_COUNT;n++){
+   SpriteCache*c=&sprite_cache[n];int small=n<SMALL_CACHE_COUNT,index=small?n:n-SMALL_CACHE_COUNT;
+   c->runs=small?small_runs[index]:large_runs[index];
+   c->pixels=small?small_pixels[index]:large_pixels[index];
+   c->run_capacity=small?256:512;c->pixel_capacity=small?2048:6144;
+  }
+  sprite_cache_ready=1;
+ }
+ int first=w<=32&&h<=64?0:SMALL_CACHE_COUNT;
+ int end=first?CACHE_COUNT:SMALL_CACHE_COUNT;
+ SpriteCache *entry=&sprite_cache[first];
  ++sprite_clock;
- for(int n=0;n<48;n++){
+ for(int n=first;n<end;n++){
   SpriteCache*c=&sprite_cache[n];
   if(c->source==source&&c->sw==sw&&c->sh==sh&&c->w==w&&c->h==h&&c->paint==paint){c->used=sprite_clock;return c;}
   if(c->used<entry->used)entry=c;
@@ -137,11 +157,11 @@ static SpriteCache * __attribute__((noinline)) scaled_cache(const uint16_t *sour
    uint16_t c=row[columns[i]];
    if(!c){run=0;continue;}
    if(!run){
-    if(entry->count>=512)return 0;
+    if(entry->count>=entry->run_capacity)return 0;
     run=&entry->runs[entry->count++];
     *run=(SpriteRun){(uint16_t)i,(uint16_t)j,0,(uint16_t)stored};
    }
-   if(stored>=6144)return 0;
+   if(stored>=entry->pixel_capacity)return 0;
    entry->pixels[stored++]=map?map[c&32767]:c;
    run->length++;
   }
@@ -177,4 +197,19 @@ void FAST gfx_vehicle(Surface*s,int x,int y,const uint16_t*p,int sw,int sh,int d
   for(int i=left;i<right;i++){uint16_t c=row[columns[i]];if(c)dest[i]=map?map[c&32767]:c;}
  }
 }
-void FAST gfx_scaled_sprite(Surface*s,int x,int y,const uint16_t*p,int sw,int sh,int dw,int dh){gfx_vehicle(s,x,y,p,sw,sh,dw,dh,0);}
+void FAST gfx_scaled_sprite(Surface*s,int x,int y,const uint16_t*p,int sw,int sh,int dw,int dh){
+ /* Pre-filtered scenery preserves broad leaf, roof and rock shapes as the
+    perspective changes. Each level still uses the ordinary cached opaque
+    runs; there is no filtering cost in a warm driving frame. */
+ if(sw==ASSET_PROP_W&&sh==ASSET_PROP_H){
+  uintptr_t address=(uintptr_t)p,base=(uintptr_t)prop_art;
+  unsigned stride=ASSET_PROP_W*ASSET_PROP_H*sizeof(uint16_t);
+  if(address>=base&&address-base<ASSET_PROP_COUNT*stride&&(address-base)%stride==0){
+   unsigned id=(unsigned)((address-base)/stride);
+   if(dw<=16&&dh<=24){p=prop_lod16+id*16*24;sw=16;sh=24;}
+   else if(dw<=32&&dh<=48){p=prop_lod32+id*32*48;sw=32;sh=48;}
+   else if(dw<=48&&dh<=72){p=prop_lod48+id*48*72;sw=48;sh=72;}
+  }
+ }
+ gfx_vehicle(s,x,y,p,sw,sh,dw,dh,0);
+}

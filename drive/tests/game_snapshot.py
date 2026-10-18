@@ -8,20 +8,33 @@ import subprocess
 from pathlib import Path
 
 U8,U16,U32,I16,I32=C.c_uint8,C.c_uint16,C.c_uint32,C.c_int16,C.c_int32
-class Save(C.LittleEndianStructure):
+class LegacySave(C.LittleEndianStructure):
     _fields_=[(n,U32) for n in (
         'magic','version','checksum','cash','owned','unlocked_locations','paints',
         'best_score','best_distance','best_near','best_drift','best_speed_hold',
         'best_wheelie','best_coins','total_runs','total_distance','total_cash','seed')]+[
         ('selected_vehicle',U8),('selected_location',U8),('paint',U8*6),
         ('engine',U8*6),('grip',U8*6),('armor',U8*6),('reserved',U8*2)]
+class Save(C.LittleEndianStructure):
+    _fields_=[(n,U32) for n in (
+        'magic','version','checksum','cash','owned','unlocked_locations','paints',
+        'best_score','best_distance','best_near','best_drift','best_speed_hold',
+        'best_wheelie','best_coins','total_runs','total_distance','total_cash','seed')]+[
+        ('selected_vehicle',U8),('selected_location',U8),('paint',U8*10),
+        ('engine',U8*10),('grip',U8*10),('armor',U8*10),
+        ('mastery_xp',U32*10),('career_xp',U32),('power_tune',U8*10),
+        ('handling_tune',U8*10),('chassis_tune',U8*10),('perks',U8*3)]+[
+        (n,U8) for n in ('music_on','sfx_on','music_volume','sfx_volume',
+                        'skin','shake','units','motion')]+[('reserved',U8*3)]
 class RunStats(C.LittleEndianStructure):
     _fields_=[('count',U32*7),('points',U32*7)]+[(n,U32) for n in (
         'total_points','total_cash','distance_m','elapsed_ticks','max_speed',
-        'max_combo_q8','best_speed_hold','drift_points','wheelie_points')]+[('banked',U8)]
+        'max_combo_q8','best_speed_hold','drift_points','wheelie_points',
+        'mastery_xp','career_xp','cash_bonus')]+[('banked',U8)]
 class Traffic(C.LittleEndianStructure):
-    _fields_=[('x_q8',I32),('z_q8',I32),('speed_q8',I32),('serial',U16),
-              ('kind',U8),('paint',U8),('active',U8),('near_awarded',U8)]
+    _fields_=[('x_q8',I32),('z_q8',I32),('speed_q8',I32),('cruise_q8',I32),('serial',U16),
+              ('kind',U8),('paint',U8),('active',U8),('near_awarded',U8),
+              ('lane',U8),('target_lane',U8)]
 class Pickup(C.LittleEndianStructure):
     _fields_=[('x_q8',I32),('z_q8',I32),('serial',U16),('active',U8),('reserved',U8)]
 class Game(C.LittleEndianStructure):
@@ -34,8 +47,9 @@ class Game(C.LittleEndianStructure):
         ('steering',I16),('yaw',I16)]+[(n,U8) for n in (
         'mode','cursor','selection','health','vehicle','start_biome','biome','turbo',
         'slow','drifting','wheelie','save_requested','save_ok','has_save','muted','paused_from')]+[
-        ('notice_timer',U16),('notice',C.c_char*88),('paint_choice',U8)]
-MODES=('home','run','receipt','garage','departures','challenges','controls','pause')
+        ('notice_timer',U16),('notice',C.c_char*88),('paint_choice',U8),
+        ('garage_tab',U8),('menu_return',U8),('repair_used',U8),('tune_choice',U8)]
+MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings')
 BONUSES=('distance','survival','near miss','speed hold','drift','wheelie','coins')
 def symbol(elf:Path,name:str):
     text=subprocess.run(['readelf','-sW',str(elf)],check=True,capture_output=True,text=True).stdout

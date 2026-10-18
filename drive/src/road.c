@@ -31,7 +31,7 @@ static int road_center(uint32_t seed,int32_t node)
  return (int)(road_hash(seed ^ 0xa54ff53au,(uint32_t)node)%97u)-48;
 }
 
-static uint8_t feature_for(int biome,int32_t within)
+static uint16_t feature_for(int biome,int32_t within)
 {
  switch(biome) {
  case CITY:
@@ -40,7 +40,11 @@ static uint8_t feature_for(int biome,int32_t within)
  case COAST: return ROAD_F_PALMS | ROAD_F_HARBOR;
  case CAUSEWAY: return ROAD_F_BRIDGE;
  case PINES: return ROAD_F_PINES;
- default: return ROAD_F_ROCKS;
+ case CANYON: return ROAD_F_ROCKS;
+ case MARINA: return ROAD_F_MARINA | ROAD_F_HARBOR | ROAD_F_CITY | ROAD_F_PALMS;
+ case WETLANDS: return ROAD_F_WETLANDS | ROAD_F_BRIDGE | ROAD_F_PALMS;
+ case GROVES: return ROAD_F_GROVES | ROAD_F_PALMS;
+ default: return 0;
  }
 }
 

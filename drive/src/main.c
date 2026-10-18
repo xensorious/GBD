@@ -25,6 +25,7 @@ int main(void){
  ds_init();gfx_init();game_init(&game,0x434f4153u);
  Save saved;
  if(ds_save_read(&saved,sizeof(saved)))game_load(&game,&saved);
+ ds_audio_settings(game.save.music_on,game.save.music_volume,game.save.sfx_on,game.save.sfx_volume);
  ds_audio_start(music_pcm,MUSIC_BYTES,MUSIC_RATE);
  ds_drive_audio(0,0,0,0,0);
  for(;;){
@@ -32,11 +33,13 @@ int main(void){
   Input input={map_keys(ds_keys_held()),map_keys(ds_keys_down())};
   unsigned old_mode=game.mode,health=game.health,coins=game.run.count[B_COIN];
   game_update(&game,&input);
+  ds_audio_settings(game.save.music_on,game.save.music_volume,game.save.sfx_on,game.save.sfx_volume);
   if(old_mode!=M_RUN&&(input.pressed&(K_A|K_B|K_LEFT|K_RIGHT)))ds_audio_click(0);
   if(game.mode==M_RECEIPT&&old_mode!=M_RECEIPT)ds_audio_click(2);
   else if(game.mode==M_RUN&&game.health<health)ds_audio_click(2);
   else if(game.run.count[B_COIN]>coins)ds_audio_click(3);
-  if(!(game.frame&1u))ds_drive_audio(game.speed_q8/Q,!!(input.held&K_R),game.drifting,game.horn_timer,game.mode==M_RUN);
+  if(!(game.frame&1u))ds_drive_audio(game.speed_q8/Q,
+      !!(input.held&K_R)&&!(input.held&K_L),game.drifting,game.horn_timer,game.mode==M_RUN);
   if(game.save_requested){game_make_save(&game,&saved);game_save_result(&game,ds_save_write(&saved,sizeof(saved)));}
   int changed=render_game(&game,top_buffer,bottom_buffer);
   ds_present(changed&1?top_buffer:0,changed&2?bottom_buffer:0);

@@ -25,6 +25,8 @@ int ds_play_sample(const int8_t *data, unsigned samples, unsigned rate,
                    int volume, int loop);
 void ds_stop_sample(int channel);
 void ds_audio_start(const int8_t *data, unsigned bytes, int frequency);
+/* Independent live mixers; muted loops keep their phase and need no restart. */
+void ds_audio_settings(int music_on,int music_volume,int sfx_on,int sfx_volume);
 void ds_audio_click(int kind);
 void ds_drive_audio(int speed,int accelerating,int drift,int horn,int active);
 unsigned ds_profile_clock(void);
