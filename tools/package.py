@@ -14,16 +14,19 @@ assert rom.exists(),'Build the ROM first.'
 shutil.copyfile(rom,dist/'Bramblebound.gba')
 instructions=(root/'docs/PLAY.md').read_text()
 (dist/'PLAY.txt').write_text(instructions)
-images=['starter-selection','garden-helper','rival-battle','first-trail-pin']
-sheet=Image.new('RGB',(960,672),'#263b40')
+images=[('visual-town-house','MOSSBELL COMMONS'),
+        ('visual-trail-camp','FERNWAY TRAIL'),
+        ('starter-selection','CHOOSE A COMPANION'),
+        ('rival-battle','RIVAL DUEL')]
+sheet=Image.new('RGB',(960,672),'#172c40')
 draw=ImageDraw.Draw(sheet)
-for i,name in enumerate(images):
+for i,(name,label) in enumerate(images):
     p=build/(name+'.png')
     assert p.exists(),f'Run emulator tests to generate {p.name}.'
     im=Image.open(p).convert('RGB').resize((480,320),Image.Resampling.NEAREST)
     x=(i%2)*480;y=(i//2)*336
     sheet.paste(im,(x,y+16))
-    draw.text((x+8,y+2),name.replace('-',' ').upper(),fill='#f4ecd6')
+    draw.text((x+8,y+2),label,fill='#fff2cf')
 sheet.save(dist/'Preview.png')
 names=['Bramblebound.gba','PLAY.txt','Preview.png']
 checksums=''.join(hashlib.sha256((dist/n).read_bytes()).hexdigest()+'  '+n+'\n' for n in names)

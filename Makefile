@@ -7,7 +7,7 @@ LDFLAGS := -nostdlib -Wl,-T,src/gba.ld,--gc-sections,-Map,build/bramblebound.map
 .PHONY: all clean test
 all: build/Bramblebound.gba
 
-build/assets.h: tools/assets.py
+build/assets.h: tools/assets.py tools/art_overhaul.py
 	mkdir -p build
 	python3 tools/assets.py
 
@@ -15,7 +15,7 @@ build/start.o: src/start.s
 	mkdir -p build
 	$(CC) -mcpu=arm7tdmi -c $< -o $@
 
-build/game.o: src/game.c build/assets.h
+build/game.o: src/game.c src/world_render.inc src/ui_render.inc build/assets.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 build/bramblebound.elf: build/start.o build/game.o src/gba.ld

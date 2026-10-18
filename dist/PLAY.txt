@@ -33,6 +33,11 @@ Use START > SAVE JOURNEY. Important milestones and area transitions also save au
 
 This ROM uses 32 KB SRAM battery saves. Automatic save-type detection should recognize `SRAM_V113`; if your emulator needs a manual save-type setting, choose SRAM / 32 KB. Keep the emulator's `.sav` file. Let the emulator finish flushing its save before copying or closing it. Emulator save states are separate from the game's own save system.
 
+The visual-overhaul edition accepts original First Light battery saves. Keep the
+ROM filename and its matching `.sav` filename together, or import that battery
+save through your emulator. Use the game's CONTINUE option after upgrading;
+emulator save states may depend on the exact ROM build.
+
 ## Where this draft ends
 
 Iris waits at the northeast lookout across the bridge. Meet a second companion first. Your team is healed before the duel. Winning awards the first Trail Pin and completes this opening. You can keep exploring, try another growth path, help the garden, and save afterward.

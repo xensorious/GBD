@@ -36,6 +36,8 @@ volatile int screen=TITLE;
 u8 world[2][32*24];
 static u8 fb[240*160] __attribute__((aligned(4)));
 static u32 frame;
+static const u8 *scene_depth;
+static int scene_cutoff;
 static u16 keys,pressed,previous;
 static int cursor,hasSave,confirmCursor;
 static int camx,camy,moveDelay,walkFrame,followx,followy,growIndex;
@@ -84,11 +86,14 @@ static int fieldcamp(void){return g.map==0||near(7,12);}
 static void rect(int x,int y,int w,int h,int c){
  int x1=MAX(0,x),y1=MAX(0,y),x2=MIN(240,x+w),y2=MIN(160,y+h);
  if(x2<=x1||y2<=y1)return;
+ if(scene_depth){for(int j=y1;j<y2;j++){u8*p=fb+j*240+x1;const u8*m=scene_depth+j*512+x1;for(int i=x1;i<x2;i++,p++,m++)if(*m<=scene_cutoff)*p=c;}return;}
  u32 pattern=(u8)c*0x01010101u;
  for(int j=y1;j<y2;j++){u8*p=fb+j*240+x1;int n=x2-x1;if(n<=0)continue;while(((u32)p&3)&&n){*p++=c;n--;}while(n>=4){*(u32*)p=pattern;p+=4;n-=4;}while(n--)*p++=c;}
 }
 static void panel(int x,int y,int w,int h,int accent){
- rect(x+1,y+2,w,h,1);rect(x,y,w,h,2);rect(x,y,w,1,1);rect(x,y+h-1,w,1,1);rect(x,y,1,h,1);rect(x+w-1,y,1,h,1);rect(x+2,y+2,w-4,2,accent);
+ rect(x+2,y+3,w-1,h-1,72);rect(x+1,y,w-2,h,56);rect(x,y+1,w,h-2,56);
+ rect(x+2,y+2,w-4,h-4,61);rect(x+3,y+2,w-6,1,3);
+ rect(x+2,y+h-4,w-4,2,68);rect(x+3,y+3,w-6,2,accent);
 }
 static void text(int x,int y,const char*s,int color){
  while(*s){unsigned ch=(unsigned char)*s++;if(ch>='a'&&ch<='z')ch-=32;
@@ -108,14 +113,38 @@ static void wrap(int x,int y,const char*s,int cols,int rows,int color){
  }if(n&&row<rows){out[n]=0;text(x,y+row*10,out,color);}
 }
 static void art(int x,int y,const u8*s,int w,int h,int scale,int flip){
- int x0=MAX(0,-x/scale),y0=MAX(0,-y/scale),x1=MIN(w,(240-x+scale-1)/scale),y1=MIN(h,(160-y+scale-1)/scale);
- if(scale==1){for(int j=y0;j<y1;j++)for(int i=x0;i<x1;i++){int c=s[j*w+(flip?w-1-i:i)];if(c&&x+i>=0&&y+j>=0)fb[(y+j)*240+x+i]=c;}}
- else for(int j=y0;j<y1;j++)for(int i=x0;i<x1;i++){int c=s[j*w+(flip?w-1-i:i)];if(c)rect(x+i*scale,y+j*scale,scale,scale,c);}
+ int x0=MAX(0,-x/scale),y0=MAX(0,-y/scale);
+ int x1=MIN(w,(240-x+scale-1)/scale),y1=MIN(h,(160-y+scale-1)/scale);
+ if(x0>=x1||y0>=y1)return;
+ if(scale==1&&scene_depth){
+  for(int j=y0;j<y1;j++){u8*d=fb+(y+j)*240+x+x0;const u8*m=scene_depth+(y+j)*512+x+x0;for(int i=x0;i<x1;i++,d++,m++){int c=s[j*w+(flip?w-1-i:i)];if(c&&*m<=scene_cutoff)*d=c;}}
+ }else if(scale==1){
+  for(int j=y0;j<y1;j++){
+   u8*d=fb+(y+j)*240+x+x0;int i=x0;
+   /* Four transparent pixels at once: opaque interiors become word copies. */
+   if(!flip){
+    const u8*p=s+j*w+x0;
+    if(!(((u32)p^(u32)d)&3)){
+     while(i<x1&&((u32)d&3)){if(*p)*d=*p;p++;d++;i++;}
+     while(i+4<=x1){u32 v=*(const u32*)p;if(v){u32 nz=(((v&0x7f7f7f7f)+0x7f7f7f7f)|v)&0x80808080u;
+       if(nz==0x80808080u)*(u32*)d=v;else{u32 mask=(nz>>7)*255u;*(u32*)d=(*(u32*)d&~mask)|v;}}
+      p+=4;d+=4;i+=4;
+     }
+    }
+    while(i<x1){if(*p)*d=*p;p++;d++;i++;}
+   }else for(;i<x1;i++,d++){int c=s[j*w+w-1-i];if(c)*d=c;}
+  }
+ }else if(scale==2&&!(x&1)){
+  for(int j=y0;j<y1;j++)for(int i=x0;i<x1;i++){
+   int c=s[j*w+(flip?w-1-i:i)];if(!c)continue;int px=x+i*2,py=y+j*2;
+   if(px<0||px>238||py<0||py>158){rect(px,py,2,2,c);continue;}
+   u16 v=c|(c<<8);*(u16*)(fb+py*240+px)=v;*(u16*)(fb+(py+1)*240+px)=v;
+  }
+ }else for(int j=y0;j<y1;j++)for(int i=x0;i<x1;i++){int c=s[j*w+(flip?w-1-i:i)];if(c)rect(x+i*scale,y+j*scale,scale,scale,c);}
 }
 static void creature(int x,int y,int s,int scale,int flip){art(x,y,creature_art+s*1024,32,32,scale,flip);}
 static void person(int x,int y,int id,int dir,int step){art(x,y,people_art+(id*8+dir*2+(step&1))*384,16,24,1,0);}
 static void ellipse(int x,int y,int w,int h,int color){for(int j=0;j<h;j++)for(int i=0;i<w;i++){int a=2*i-w,b=2*j-h;if(a*a*h*h+b*b*w*w<=w*w*h*h)rect(x+i,y+j,1,1,color);}}
-static void bar(int x,int y,int w,int amount,int total,int c){rect(x,y,w,4,1);rect(x+1,y+1,(w-2)*MAX(0,amount)/MAX(1,total),2,c);}
 
 static u32 checksum(const Save*s){const u8*b=(const u8*)s;u32 h=2166136261u;for(unsigned i=0;i<offsetof(Save,checksum);i++){h^=b[i];h*=16777619u;}return h;}
 static int valid(const Save*s){return s->magic==0x42424e44&&s->version==1&&s->count>0&&s->count<=6&&s->map<2&&s->x<32&&s->y<24&&s->checksum==checksum(s);}
@@ -345,112 +374,9 @@ static void growthinput(void){
  if(pressed&A){Friend*f=&g.friends[growIndex];int old=maxhp(f);f->path=cursor+1;f->hp=MIN(maxhp(f),f->hp+MAX(0,maxhp(f)-old));f->energy=maxenergy(f);savegame();char b[400];copy(b,species[f->species].name);append(b,cursor?" chose WARDEN!|More health and defense. SHELTER heals and softens the next hit.":" chose STRIDER!|More attack and energy. BURST is a powerful signature strike.");append(b,"|The same friend, a new way to help. Revise for free at camp.");say("GROWING TOGETHER",b,FIELD_BACK);tone(1568,12,0);}
 }
 
-static void marker(int x,int y,int color){rect(x+5,y-8,5,5,1);rect(x+6,y-7,3,3,color);rect(x+7,y-2,1,1,1);}
-static void drawfield(void){
- if(absval(visualx-g.x*16)>32||absval(visualy-g.y*16)>32){visualx=g.x*16;visualy=g.y*16;visualfx=followx;visualfy=followy;}
- visualx+=CLAMP(g.x*16-visualx,-4,4);visualy+=CLAMP(g.y*16-visualy,-4,4);
- visualfx+=CLAMP(followx-visualfx,-4,4);visualfy+=CLAMP(followy-visualfy,-4,4);
- camx=CLAMP(visualx-112,0,512-240);camy=CLAMP(visualy-72,0,384-160);
- const u8*bg=map_art+g.map*512*384+camy*512+camx;
- for(int y=0;y<160;y++)memcpy(fb+y*240,bg+y*512,240);
- if(!g.map){
-  person(15*16-camx,10*16-camy-8,1,0,0);person(6*16-camx,11*16-camy-8,2,0,0);person(24*16-camx,14*16-camy-8,3,1,0);person(11*16-camx,16*16-camy-8,4,2,0);
-  if(!g.count){marker(15*16-camx,10*16-camy-8,37);for(int i=0;i<3;i++)creature((13+i*2)*16-camx,8*16-camy-12,i,1,0);}
-  if(g.job)for(int x=22;x<28;x++){int sx=x*16-camx,sy=11*16-camy;rect(sx+4,sy+3,2,8,29);rect(sx+2,sy+2,6,3,28);rect(sx+4,sy,2,7,37);}
-  for(int i=0;i<g.count;i++)if(g.friends[i].stationed)creature(25*16-camx,12*16-camy-10,g.friends[i].species,1,0);
- }else{
-  for(int i=0;i<6;i++)if(!encounters[i].cooldown){Encounter*e=&encounters[i];creature(e->x*16-camx-8,e->y*16-camy-16+(frame/35%2),e->species,1,0);}
-  person(4*16-camx,19*16-camy-8,2,0,0);if(!g.scout)marker(4*16-camx,19*16-camy-8,37);
-  int cx=7*16-camx,cy=12*16-camy;rect(cx-5,cy-12,2,24,16);rect(cx-8,cy-12,8,8,37);rect(cx-7,cy-11,6,6,38);
-  person(26*16-camx,5*16-camy-8,4,0,0);if(!g.rival)marker(26*16-camx,5*16-camy-8,37);
-  rect(26*16-camx,3*16-camy,16,2,36);rect(26*16-camx+7,3*16-camy-12,2,12,16);rect(26*16-camx+5,3*16-camy-14,6,5,37);
- }
- const u8 px[3]={9,8,22},py[3]={16,20,12},pm[3]={0,1,1};
- for(int i=0;i<3;i++)if(g.map==pm[i]&&!(g.pickups&(1<<i))){int x=px[i]*16-camx,y=py[i]*16-camy;rect(x+4,y+5,9,8,16);rect(x+5,y+4,7,7,37);rect(x+7,y+2,3,4,36);}
- if(g.count){int fx=visualfx-camx,fy=visualfy-camy;const u8*s=creature_art+g.friends[g.lead].species*1024;
-  for(int j=0;j<16;j++)for(int i=0;i<16;i++){int c=s[(j*2)*32+i*2];if(c)rect(fx+i,fy+j-3,1,1,c);}}
- person(visualx-camx,visualy-camy-8,0,g.dir,walkFrame);
- panel(3,3,234,17,29);text(9,8,places[g.map],1);
- if(g.count){text(180,8,"TEAM",1);smallnum(210,8,g.count,1);}
- rect(0,148,240,12,1);text(4,151,objective(),2);
- if(!g.count||screen==MENU){text(4,137,"A TALK   B RUN   START JOURNAL",1);}
-}
-static void drawdialog(void){panel(4,103,232,54,29);text(11,110,speaker,4);wrap(11,122,dialog+dialogPos,35,3,1);if(frame/20%2)text(226,146,">",4);}
-static void drawtitle(void){
- memcpy(fb,title_art,sizeof(fb));
- for(int i=0;i<19;i++)rect((i*47+frame/10)%240,(i*29)%92,1,1,i%2?6:37);
- panel(13,12,214,53,36);center(23,"BRAMBLEBOUND",1);center(39,"F I R S T  L I G H T",4);center(53,"AN ORIGINAL GBA ADVENTURE",9);
- creature(15,78,0,1,0);creature(192,77,1,1,1);creature(106,60,2,1,0);
- panel(52,95,136,49,29);
- if(hasSave){text(70,104,"CONTINUE",1);text(70,117,"NEW JOURNEY",1);text(70,130,"CONTROLS",1);text(59,104+cursor*13,">",4);}
- else{text(70,106,"NEW JOURNEY",1);text(70,126,"CONTROLS",1);text(59,106+cursor*20,">",4);}
- center(151,"D-PAD CHOOSE     A CONFIRM",2);
-}
-static void drawchoose(void){
- rect(0,0,240,160,41);panel(4,4,232,25,29);center(13,"WHO WILL WALK WITH YOU?",1);
- for(int i=0;i<3;i++){int x=5+i*78;panel(x,35,74,83,cursor==i?36:5);creature(x+20,44,i,1,0);text(x+7,82,species[i].name,1);text(x+7,96,types[species[i].type],4);if(cursor==i)text(x+32,106,">",1);}
- const char*h[]={"Steady and gentle. SETTLE restores extra health.","A bold little spark. Strong attacks, lighter defenses.","A patient river friend. SETTLE restores extra energy."};
- wrap(9,124,h[cursor],37,2,1);center(151,"LEFT/RIGHT CHOOSE   A PARTNER",1);
-}
-static void drawmenu(void){drawfield();panel(69,25,164,116,29);text(80,34,"TRAIL JOURNAL",4);for(int i=0;i<6;i++){text(91,50+i*14,menuItems[i],1);if(i==cursor)text(79,50+i*14,">",4);}text(177,106,g.mute?"OFF":"ON",4);}
-static void drawteam(void){
- rect(0,0,240,160,41);panel(3,3,234,19,29);text(10,9,"YOUR COMPANIONS",1);text(181,9,"A LEAD",4);
- for(int i=0;i<g.count;i++){Friend*f=&g.friends[i];int y=27+i*18;rect(4,y,105,17,cursor==i?7:13);if(i==g.lead)text(6,y+5,">",4);text(14,y+2,species[f->species].name,1);text(15,y+10,f->stationed?"IN TOWN":"LV",9);if(!f->stationed)smallnum(33,y+10,f->level,9);}
- Friend*f=&g.friends[cursor];panel(113,26,123,117,29);creature(157,32,f->species,1,0);text(121,69,types[species[f->species].type],4);
- text(121,80,"HP",1);smallnum(145,80,f->hp,1);text(163,80,"/",1);smallnum(173,80,maxhp(f),1);
- text(121,91,"ENERGY",1);smallnum(169,91,f->energy,1);
- text(121,102,f->path==1?"STRIDER":f->path==2?"WARDEN":"PATH AT LV3",4);
- text(121,113,"BOND",1);smallnum(158,113,f->bond,1);text(121,125,species[f->species].trait,9);
- center(151,"SELECT PATH   B BACK   A LEAD",1);
-}
-static void drawgrowth(void){
- Friend*f=&g.friends[growIndex];rect(0,0,240,160,41);panel(4,4,232,23,29);center(13,"GROW WITHOUT LOSING YOURSELF",1);
- creature(104,32,f->species,1,0);center(68,species[f->species].name,1);
- panel(5,82,112,57,cursor==0?36:29);panel(123,82,112,57,cursor==1?36:29);
- text(17,91,"STRIDER",1);text(135,91,"WARDEN",1);text(13,104,"+2 ATK +1 ENERGY",9);text(131,104,"+6 HP +2 DEF",9);
- text(13,117,"BURST: BIG HIT",4);text(131,117,"SHELTER: HEAL",4);text(131,127,"+ SOFTEN A HIT",4);
- center(146,"A CHOOSE  B LATER  FREE AT CAMP",1);
-}
-static void drawguide(void){
- rect(0,0,240,160,41);panel(3,3,234,20,29);text(10,10,"FIELD GUIDE",1);text(157,10,"L/R PAGES",4);
- if(menuPage==0){
-  for(int i=0;i<6;i++){int y=28+i*19;rect(5,y,94,18,cursor==i?7:13);text(11,y+5,(g.seen&(1<<i))?species[i].name:"????",1);}
-  panel(104,28,132,115,29);if(g.seen&(1<<cursor)){creature(152,33,cursor,1,0);text(113,70,types[species[cursor].type],4);text(113,83,species[cursor].trait,1);wrap(113,96,species[cursor].hint,19,4,9);}else wrap(114,60,"An unknown neighbor. Explore Fernway to meet them.",18,6,1);
- }else{wrap(10,33,"LEAF > TIDE > EMBER > LEAF\n\nSTONE resists EMBER, but LEAF and TIDE crack its shell.\n\nNUDGE saves energy. SETTLE restores it. Read the next move before choosing.\n\nBEFRIEND works at half HP or after SOOTHE. One treat, no luck roll.",36,12,1);}
- center(151,"UP/DOWN CREATURES  B BACK",1);
-}
-static void drawjournal(void){
- rect(0,0,240,160,41);panel(4,4,232,23,29);center(12,"YOUR FIRST TRAIL",1);
- const char*tasks[]={"CHOOSE A PARTNER","MEET TAVI","BEFRIEND A WILD CREATURE","CHOOSE A GROWTH PATH","EARN IRIS'S TRAIL PIN","OPTIONAL: HELP NELL'S GARDEN"};
- int done[6]={g.count>0,g.scout,g.count>=2,g.count&&g.friends[0].path,g.rival,g.job};
- for(int i=0;i<6;i++){text(10,38+i*15,done[i]?"+":"-",done[i]?4:9);text(24,38+i*15,tasks[i],done[i]?4:1);}
- text(10,133,"TREATS",1);smallnum(58,133,g.treats,1);text(89,133,"TONICS",1);smallnum(138,133,g.tonics,1);
- center(151,"REST IS FREE. YOUR FRIENDS ARE SAFE.",1);
-}
-static const char*movename(Friend*f,int m){return m==0?"NUDGE":m==1?species[f->species].move:m==2?"SETTLE":f->path==1?"BURST":f->path==2?"SHELTER":"SOOTHE";}
-static void drawbattle(void){
- rect(0,0,240,160,41);rect(0,32,240,75,5);rect(0,32,240,12,6);
- for(int i=0;i<16;i++)rect((i*43)%240,37+(i*17)%65,2,1,30);
- int f=MIN(battle.foe,battle.count-1);Friend*p=&g.friends[battle.active],*e=&battle.foes[f];int shake=battle.shake?(battle.shake&2?2:-2):0;
- ellipse(147,76,81,16,4);ellipse(18,94,83,13,4);creature(158+shake,22,e->species,2,0);creature(25-shake,48,p->species,2,1);
- panel(4,3,139,29,29);text(10,10,species[e->species].name,1);text(105,10,"LV",9);smallnum(120,10,e->level,9);bar(10,22,103,e->hp,maxhp(e),e->hp>maxhp(e)/2?29:19);smallnum(117,21,e->hp,1);
- text(152,6,battle.trainer?"IRIS / DUEL":"WILD / MEETING",1);text(152,17,battle.calm?"CALM: TREAT OK":"",4);
- panel(110,70,126,35,29);text(117,77,species[p->species].name,1);text(202,77,"L",9);smallnum(210,77,p->level,9);bar(117,89,74,p->hp,maxhp(p),p->hp>maxhp(p)/3?29:19);smallnum(196,88,p->hp,1);text(117,96,"ENERGY",9);smallnum(159,96,p->energy,4);
- if(battle.logPos<battle.logCount){panel(3,108,234,49,29);wrap(10,118,battle.logs[battle.logPos],36,3,1);if(frame/20%2)text(226,146,">",4);return;}
- panel(3,108,234,49,29);
- if(battle.menu==2){for(int i=0;i<g.count;i++){int x=i<3?10:126,y=118+(i%3)*11;text(x,y,battle.cursor==i?">":" ",4);text(x+8,y,species[g.friends[i].species].name,available(i)?1:9);smallnum(x+76,y,g.friends[i].hp,9);}return;}
- if(battle.menu==3){text(15,120,"TONIC / RESTORE 18 HP",1);smallnum(181,120,g.tonics,4);text(15,137,battle.trainer?"DUEL: NO RUNNING":"LEAVE SAFELY",1);text(7,120+battle.cursor*17,">",4);return;}
- for(int i=0;i<4;i++){int x=12+(i%2)*114,y=117+(i/2)*16;const char*label=battle.menu==0?(i==0?"MOVES":i==1?"BEFRIEND":i==2?"SWAP":"PACK"):movename(p,i);text(x,y,label,1);if(battle.cursor==i)text(x-7,y,">",4);
-  if(battle.menu==1){int cost=i==1?2:i==3?(p->path==1?3:p->path==2?2:1):0;smallnum(x+91,y,cost,9);}}
- if(battle.menu==0){text(6,147,"NEXT:",9);text(42,147,battle.turn%3==1&&e->energy>=2?species[e->species].move:"NUDGE",9);smallnum(180,147,g.treats,9);text(192,147,"TREATS",9);}
-}
-static void drawending(void){
- rect(0,0,240,160,40);panel(12,10,216,137,36);center(21,"YOUR FIRST TRAIL PIN",1);
- ellipse(104,39,32,32,36);ellipse(110,45,20,20,37);rect(118,47,3,16,29);rect(113,53,13,3,29);
- center(80,"IRIS: THAT WAS A REAL TEAM.",4);center(95,"YOU FOUND YOUR OWN WAY HERE.",1);
- text(27,111,"FRIENDS MET",9);smallnum(180,111,g.count,4);text(27,123,"GARDEN HELPED",9);text(180,123,g.job?"YES":"NOT YET",4);
- center(151,"A KEEP EXPLORING  /  SAVED",2);
-}
+#include "world_render.inc"
+#include "ui_render.inc"
+
 static void render(void){
  if(screen==TITLE||screen==CONFIRM){drawtitle();if(screen==CONFIRM){panel(15,52,210,67,19);center(62,"START A NEW JOURNEY?",1);center(78,"THIS REPLACES YOUR SAVE.",9);text(64,99,confirmCursor?"  CANCEL     > NEW":"> CANCEL       NEW",1);}}
  else if(screen==CHOOSE)drawchoose();else if(screen==BATTLE)drawbattle();else if(screen==TEAM)drawteam();else if(screen==GROWTH)drawgrowth();else if(screen==GUIDE)drawguide();else if(screen==JOURNAL)drawjournal();else if(screen==ENDING)drawending();else if(screen==MENU)drawmenu();else{if(screen==DIALOG&&dialogReturn==TITLE)drawtitle();else drawfield();if(screen==DIALOG)drawdialog();}

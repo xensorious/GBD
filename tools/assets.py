@@ -1,155 +1,15 @@
-"""Original indexed pixel artwork and a tiny hand-drawn font, generated reproducibly."""
+"""Export original polished indexed artwork and unchanged collision maps.
+
+Tall objects are not baked into map_art: the runtime sorts them with actors by
+WORLD ground-contact depth. See art_overhaul.py for all hand-drawn sprite art.
+"""
 from pathlib import Path
 from PIL import Image, ImageDraw
 import random
+from art_overhaul import *
 
-OUT = Path(__file__).resolve().parents[1] / 'build'
+OUT=Path(__file__).resolve().parents[1]/'build'
 OUT.mkdir(exist_ok=True)
-HEX = ['000000','263b40','f4ecd6','ffffff','487357','79a66a','a9c77c','d3c99b',
-       'b09b77','867857','659fa1','86bfba','416b7c','dce8cf','d9a75b','b87848',
-       '8b5340','e8c091','f2d4aa','c06848','e39254','f2bd6d','f9dfa0','593c48',
-       '6f9dba','9ccbd0','cadfda','cd8996','e6acb1','5b865e','96ba76','c3d69a',
-       '677277','919592','b9b7a3','d4cdb2','c7a65d','f2dc87','f8eabc','485b62',
-       '355e57','c6d8b8','375e48','edcf98','aa6f68','d59d7b','789088','bbd6ca',
-       'bd8e64','e2bda0','ba6f4f','ead3b0','edaa72','6b7b59','344c51','8fbc95']
-RGB = [tuple(bytes.fromhex(h)) for h in HEX]
-PAL = sum((list(c) for c in RGB), []) + [0] * (768-len(RGB)*3)
-def image(w,h,fill=0):
-    im=Image.new('P',(w,h),fill); im.putpalette(PAL); return im
-def outline(d,box,fill,edge=1): d.ellipse(box,fill=fill,outline=edge)
-
-tiles=[]
-for k in range(16):
-    im=image(16,16,5); d=ImageDraw.Draw(im); rng=random.Random(172+k)
-    if k in (0,4,5,13):
-        for _ in range(12):
-            x,y=rng.randrange(16),rng.randrange(16);d.point((x,y),fill=6 if _%3 else 4)
-    if k==1:
-        d.rectangle((0,0,15,15),fill=7)
-        for _ in range(9):d.point((rng.randrange(16),rng.randrange(16)),fill=8)
-    if k==2:
-        d.rectangle((0,0,15,15),fill=10)
-        d.line((2,4,6,4),fill=11);d.line((10,10,14,10),fill=11);d.point((1,13),12)
-    if k==3:
-        d.rectangle((6,8,9,15),fill=16)
-        d.polygon([(8,0),(14,5),(12,5),(15,10),(13,13),(2,13),(0,10),(3,5),(1,5)],fill=42)
-        d.polygon([(8,1),(12,5),(10,5),(13,9),(6,9),(4,7)],fill=4)
-        d.line((3,11,11,11),fill=40);d.point((8,3),fill=6)
-    if k==4:
-        for x,y in [(4,5),(11,11)]:
-            d.rectangle((x,y,x+1,y+3),fill=4);d.line((x-1,y,x+2,y),fill=28);d.point((x,y-1),fill=38)
-    if k==5:
-        for y in (5,11,15):
-            for x in (1,5,10,14):d.line((x,y,x-1,y-3),fill=4);d.line((x,y,x+2,y-2),fill=6)
-    if k==6:
-        d.rectangle((0,0,15,15),fill=34)
-        d.line((0,7,15,7),fill=32);d.line((7,0,7,6),fill=32);d.line((3,8,3,15),fill=32)
-    if k==7:
-        d.rectangle((0,0,15,15),fill=15)
-        for y in range(1,16,4):d.line((0,y,15,y),fill=17);d.line((0,y+2,15,y+2),fill=16)
-        d.rectangle((0,0,1,15),fill=16);d.rectangle((14,0,15,15),fill=16)
-    if k==8:
-        d.rectangle((0,0,15,15),fill=18);d.line((0,7,15,7),fill=17);d.line((7,0,7,6),fill=17)
-    if k==9:
-        d.rectangle((0,0,15,15),fill=19)
-        for y in range(2,16,5):d.line((0,y,15,y),fill=16)
-        d.line((7,0,7,15),fill=20)
-    if k==10:
-        d.rectangle((0,5,15,7),fill=17);d.rectangle((2,2,4,14),fill=15);d.rectangle((11,2,13,14),fill=15)
-        d.line((0,8,15,8),fill=16)
-    if k==11:
-        d.rectangle((7,7,9,15),fill=16);d.rounded_rectangle((1,1,14,10),radius=1,fill=17,outline=16)
-        d.line((4,4,11,4),fill=16);d.line((4,7,9,7),fill=16)
-    if k==12:
-        d.ellipse((0,4,15,15),fill=34,outline=32);d.ellipse((2,5,13,13),fill=10);d.line((5,8,10,8),fill=26)
-    if k==13:
-        d.rectangle((1,2,14,13),fill=16)
-        for x in (3,8,12):d.line((x,3,x,12),fill=8);d.ellipse((x-1,3,x+2,6),fill=6)
-    if k==14:
-        d.rectangle((0,0,15,15),fill=7);d.rectangle((5,7,11,15),fill=16);d.polygon([(2,8),(8,1),(14,8)],fill=19)
-    if k==15:
-        d.rectangle((0,0,15,15),fill=5);d.ellipse((2,6,13,13),fill=32);d.ellipse((3,4,12,11),fill=34)
-    tiles.append(im)
-
-creatures=[]
-for n in range(6):
-    im=image(32,32);d=ImageDraw.Draw(im)
-    if n==0: # Mossprig: leaf-eared woodland rabbit
-        d.polygon([(10,15),(6,5),(9,1),(14,13)],fill=29,outline=1)
-        d.polygon([(17,14),(21,1),(25,4),(23,17)],fill=30,outline=1)
-        d.line((10,5,12,12),fill=31);d.line((22,5,20,13),fill=31)
-        outline(d,(8,13,25,28),30);outline(d,(5,16,22,27),30)
-        d.ellipse((9,21,19,27),fill=31);d.ellipse((5,26,12,29),fill=29);d.ellipse((19,26,26,29),fill=29)
-        d.polygon([(24,21),(30,15),(29,25),(25,27)],fill=29,outline=1)
-        d.rectangle((9,18,10,20),fill=1);d.rectangle((18,18,19,20),fill=1);d.point((9,18),fill=3)
-        d.point((14,22),fill=16);d.line((11,24,15,24),fill=29)
-    elif n==1: # Cindlet: ember fox
-        d.polygon([(21,24),(28,24),(30,16),(27,18),(27,9),(23,15),(20,14)],fill=20,outline=1)
-        d.polygon([(26,21),(28,17),(26,17),(25,13),(23,19)],fill=22)
-        outline(d,(8,15,24,28),19)
-        d.polygon([(5,19),(5,5),(12,10),(20,5),(23,18),(19,23),(10,24)],fill=20,outline=1)
-        d.polygon([(7,8),(10,12),(7,13)],fill=23);d.polygon([(19,8),(21,14),(17,12)],fill=23)
-        d.polygon([(6,18),(13,20),(22,17),(19,24),(10,25)],fill=22)
-        d.rectangle((9,15,10,17),fill=1);d.rectangle((18,15,19,17),fill=1);d.point((14,20),fill=1)
-        d.rectangle((9,27,13,29),fill=16);d.rectangle((20,27,24,29),fill=16)
-    elif n==2: # Rillip: river axolotl
-        d.polygon([(21,26),(30,26),(30,18),(26,20),(24,14),(21,19)],fill=24,outline=1)
-        outline(d,(7,15,24,28),24)
-        for x,sgn in [(6,-1),(24,1)]:
-            for y in (10,15,19):d.line((x,y,x+sgn*4,y-3),fill=27,width=2)
-        outline(d,(5,8,25,23),25)
-        d.ellipse((9,18,20,25),fill=26);d.rectangle((9,13,10,16),fill=1);d.rectangle((20,13,21,16),fill=1)
-        d.line((13,19,17,19),fill=12);d.point((10,13),fill=3)
-        d.rectangle((6,26,11,28),fill=25);d.rectangle((20,26,25,28),fill=25)
-    elif n==3: # Pebblit: stone-shell turtle
-        outline(d,(4,12,27,27),32);d.polygon([(6,15),(12,8),(23,10),(28,19),(22,25),(7,25)],fill=33,outline=1)
-        d.polygon([(12,10),(20,11),(23,18),(17,23),(9,19)],fill=34,outline=32)
-        d.line((14,11,13,18,18,22),fill=35);d.ellipse((2,20,13,28),fill=35,outline=1)
-        d.rectangle((5,27,10,29),fill=32);d.rectangle((22,26,27,29),fill=32)
-        d.rectangle((5,22,6,24),fill=1);d.point((4,19),fill=6);d.line((14,8,19,7),fill=29)
-    elif n==4: # Luma: lantern moth
-        d.polygon([(14,16),(7,4),(1,5),(1,15),(9,21),(3,24),(5,29),(14,23)],fill=36,outline=1)
-        d.polygon([(18,16),(25,4),(30,5),(30,15),(23,21),(29,24),(27,29),(18,23)],fill=37,outline=1)
-        d.ellipse((3,8,10,16),fill=38);d.ellipse((22,8,28,16),fill=38)
-        d.ellipse((6,23,10,26),fill=20);d.ellipse((23,23,26,26),fill=20)
-        outline(d,(13,12,19,27),23);outline(d,(12,10,20,17),37)
-        d.line((14,11,11,5),fill=1);d.line((18,11,21,5),fill=1)
-        d.point((14,13),fill=1);d.point((18,13),fill=1);d.ellipse((14,20,18,24),fill=38)
-    else: # Burrbit: bramble hedgehog
-        d.polygon([(4,23),(2,16),(7,17),(5,8),(11,12),(13,5),(17,11),(23,7),(23,14),(29,14),(26,21),(30,24),(23,28),(9,28)],fill=29,outline=1)
-        d.polygon([(7,18),(10,13),(14,15),(18,10),(20,17),(25,16),(23,23),(10,25)],fill=30)
-        outline(d,(4,19,20,28),18);d.rectangle((5,27,10,29),fill=16);d.rectangle((20,27,25,29),fill=16)
-        d.rectangle((8,21,9,23),fill=1);d.rectangle((16,21,17,23),fill=1);d.point((4,24),fill=1)
-    creatures.append(im)
-
-people=[]
-for n in range(5):
-    for facing in range(4):
-        for frame in range(2):
-            im=image(16,24);d=ImageDraw.Draw(im)
-            shirt=[24,29,27,36,19][n]
-            d.ellipse((3,20,13,23),fill=4)
-            d.rectangle((4,16,7,21-frame),fill=1);d.rectangle((9,16,12,20+frame),fill=1)
-            d.rectangle((3,10,12,17),fill=shirt);d.rectangle((2,12,4,16),fill=18);d.rectangle((12,12,14,16),fill=18)
-            d.rectangle((4,3,12,10),fill=18);d.rectangle((3,2,12,5),fill=23)
-            if n==0:
-                d.rectangle((2,1,12,4),fill=19);d.rectangle((6,0,12,2),fill=20)
-                d.rectangle((2,5,4,8),fill=23);d.rectangle((4,11,7,14),fill=43)
-            if facing==0:d.point((6,7),fill=1);d.point((10,7),fill=1)
-            elif facing==1:d.point((4,7),fill=1);d.rectangle((10,4,12,9),fill=23)
-            elif facing==2:d.point((12,7),fill=1);d.rectangle((3,4,5,9),fill=23)
-            else:d.rectangle((3,4,12,8),fill=23)
-            people.append(im)
-
-building=image(64,64);d=ImageDraw.Draw(building)
-d.rectangle((6,22,57,59),fill=18,outline=1);d.rectangle((9,40,54,59),fill=17)
-d.polygon([(1,26),(12,7),(48,7),(62,26)],fill=16,outline=1)
-for y in (11,16,21):d.line((10-(y-11)//2,y,50+(y-11)//2,y),fill=19,width=3)
-d.rectangle((27,38,39,60),fill=16);d.rectangle((29,40,37,59),fill=1);d.point((35,49),fill=37)
-for x in (12,44):d.rectangle((x,32,x+9,42),fill=12,outline=16);d.line((x+1,33,x+1,39),fill=25);d.line((x+5,33,x+5,41),fill=17)
-d.rectangle((23,25,42,32),fill=2,outline=16);d.line((29,28,36,28),fill=29);d.line((32,26,32,31),fill=29)
-
-# Precompose static scenery so the GBA spends its time on actors and input.
 maps=[]
 for m in range(2):
     grid=[[0 for x in range(32)] for y in range(24)]
@@ -179,19 +39,6 @@ for m,x,y,w,h in [(0,2,2,2,4),(0,6,2,4,2),(0,11,20,2,3),(0,28,2,2,3),
 box(1,8,2,3,2,2);box(1,18,17,5,3,2)
 for m,x,y in [(0,11,6),(0,20,12),(0,20,17),(0,10,15),(1,12,10),(1,17,10),(1,6,16),(1,23,12),(1,25,17)]:
     if maps[m][y][x]==0:maps[m][y][x]=4
-map_images=[]
-for m,grid in enumerate(maps):
-    im=image(512,384)
-    for y,row in enumerate(grid):
-        for x,t in enumerate(row):im.paste(tiles[t],(x*16,y*16))
-    if m==0:
-        for x,y in [(4,6),(22,5),(25,17)]:im.paste(building,(x*16,y*16-6),building.point(lambda v:255 if v else 0).convert('1'))
-    map_images.append(im)
-title=image(240,160,40);td=ImageDraw.Draw(title);td.rectangle((0,96,239,159),fill=4)
-for i in range(12):
-    tree=tiles[3].resize((48,48),Image.Resampling.NEAREST)
-    # Grass under the tree is deliberately part of the silhouette.
-    title.paste(tree,((i*43+11)%260-10,80+(i%3)*8))
 
 GLYPHS={
 'A':'01110 10001 10001 11111 10001 10001 10001','B':'11110 10001 10001 11110 10001 10001 11110',
@@ -223,22 +70,234 @@ GLYPHS={
 font=[]
 for c in range(32,128):
     rows=GLYPHS.get(chr(c).upper(),'0 0 0 0 0 0 0').split()
-    font.extend(int(v.ljust(5,'0'),2) for v in rows)
+    # The three-pixel I is centered within the fixed five-pixel cell.
+    font.extend(int(('0'+v+'0') if chr(c).upper()=='I' else v.ljust(5,'0'),2) for v in rows)
+
+def ground_map(m,grid):
+    """Continuous terrain, only low flowers/grass/bridge remain in map_art."""
+    im=image(512,384,5);d=ImageDraw.Draw(im);rng=random.Random(807+m)
+    # Broad, restrained patches prevent the lawn reading as noisy wallpaper.
+    for y in range(0,384,4):
+        for x in range(0,512,4):
+            if rng.randrange(11)==0:
+                d.line((x,y,x+2,y),fill=GRASS_LIT)
+            elif rng.randrange(17)==0:
+                d.line((x,y,x+1,y),fill=GRASS_DARK)
+    def near(x,y):return grid[y][x] if 0<=x<32 and 0<=y<24 else 3
+    for ty,row in enumerate(grid):
+        for tx,t in enumerate(row):
+            x,y=tx*16,ty*16;r=random.Random(3701+tx*41+ty*173+m*907)
+            if t==1: # Warm winding footpath, rounded grass fringes at exposed edges.
+                d.rectangle((x,y,x+15,y+15),fill=7)
+                for k in range(5):
+                    xx,yy=x+r.randrange(16),y+r.randrange(16)
+                    d.line((xx,yy,xx+1,yy),fill=SAND_LIGHT if k%2 else 8)
+                for dx,dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+                    if near(tx+dx,ty+dy) in (1,6,7):continue
+                    if dx:
+                        ex=x if dx<0 else x+15
+                        d.line((ex,y,ex,y+15),fill=SAND_DARK)
+                        for oy in (2,7,12):
+                            d.line((ex, y+oy,ex+(1 if dx<0 else -1),y+oy+2),fill=GRASS_DARK)
+                    else:
+                        ey=y if dy<0 else y+15
+                        d.line((x,ey,x+15,ey),fill=SAND_DARK)
+                        if dy>0:d.line((x+1,ey-1,x+14,ey-1),fill=SAND_LIGHT)
+                        for ox in (3,10):d.point((x+ox,ey),fill=GRASS_DARK)
+            elif t==2: # Blue-green water with directional shoreline and glints.
+                d.rectangle((x,y,x+15,y+15),fill=10)
+                for k in range(3):
+                    xx=x+r.randrange(12);yy=y+r.randrange(14)
+                    d.line((xx,yy,xx+2+r.randrange(3),yy),fill=WATER_LIGHT if k else WATER_MID)
+                if (tx+ty)%4==0:
+                    d.line((x+5,y+8,x+8,y+8),fill=WATER_GLINT);d.point((x+9,y+7),fill=WATER_LIGHT)
+                for dx,dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+                    if near(tx+dx,ty+dy) in (2,7,12):continue
+                    if dx:
+                        ex=x if dx<0 else x+15;inside=1 if dx<0 else -1
+                        d.line((ex,y,ex,y+15),fill=BANK)
+                        d.line((ex+inside,y,ex+inside,y+15),fill=WATER_DARK)
+                        for oy in (2,9):d.line((ex+inside*2,y+oy,ex+inside*2,y+oy+3),fill=WATER_LIGHT)
+                    else:
+                        ey=y if dy<0 else y+15;inside=1 if dy<0 else -1
+                        d.line((x,ey,x+15,ey),fill=BANK)
+                        d.line((x,ey+inside,x+15,ey+inside),fill=WATER_DARK)
+                        d.line((x+2,ey+inside*2,x+12,ey+inside*2),fill=FOAM if dy>0 else WATER_LIGHT)
+            elif t==6: # Staggered little cobbles join into a single plaza.
+                d.rectangle((x,y,x+15,y+15),fill=STONE_DARK)
+                for sy in range(0,16,8):
+                    offset=0 if (ty*2+sy//8)%2 else -4
+                    for sx in range(offset,16,8):
+                        x0=max(x,x+sx);x1=min(x+15,x+sx+6)
+                        if x1<x0:continue
+                        d.rectangle((x0,y+sy,x1,y+sy+6),fill=STONE_LIGHT if (tx+ty+sx)%3 else STONE_MID)
+                        d.line((x0,y+sy,x1,y+sy),fill=STONE_TOP)
+                        d.line((x0,y+sy+6,x1,y+sy+6),fill=STONE_MID)
+            elif t==7: # Footbridge: visible bank-to-bank deck with rails.
+                d.rectangle((x,y,x+15,y+15),fill=16)
+                for sy in range(1,16,4):
+                    d.rectangle((x,y+sy,x+15,y+sy+2),fill=BARK_MID)
+                    d.line((x,y+sy,x+15,y+sy),fill=17)
+                    if sy==9:d.line((x+4,y+sy+1,x+9,y+sy+1),fill=BARK_DARK)
+                if near(tx,ty-1)!=7:
+                    d.rectangle((x,y,x+15,y+2),fill=BARK_DARK);d.line((x,y,x+15,y),fill=43)
+                if near(tx,ty+1)!=7:
+                    d.rectangle((x,y+13,x+15,y+15),fill=BARK_DARK);d.line((x,y+13,x+15,y+13),fill=17)
+            elif t==5: # Wild meadow: leaf clusters, not stripes.
+                for k in range(7):
+                    xx=x+2+r.randrange(12);yy=y+4+r.randrange(11)
+                    d.line((xx-1,yy,xx-3,yy-4),fill=GRASS_DEEP)
+                    d.line((xx,yy,xx+2,yy-5),fill=29)
+                    d.line((xx+1,yy,xx+4,yy-3),fill=GRASS_LIT)
+                    d.point((xx+2,yy-5),fill=GRASS_SUN)
+            elif t==4:
+                for xx,yy in [(x+4,y+6),(x+11,y+12)]:
+                    d.line((xx,yy,xx,yy+3),fill=29)
+                    d.line((xx-1,yy,xx+1,yy),fill=28)
+                    d.line((xx,yy-1,xx,yy+1),fill=28);d.point((xx,yy),fill=38)
+                    d.point((xx+1,yy+3),fill=6)
+            elif t in (8,13):
+                # Foundation/soil grounds exist, but roof, wall and plants do not.
+                if t==13:
+                    d.rectangle((x,y+6,x+15,y+15),fill=GRASS_SHADOW)
+    # Small ground-only environment details never change walkability.
+    for tx,ty in [(11,6),(20,17),(10,15)] if m==0 else [(12,10),(25,17)]:
+        if grid[ty][tx] in (0,4):
+            x,y=tx*16,ty*16
+            d.ellipse((x+3,y+9,x+9,y+12),fill=STONE_MID)
+            d.line((x+4,y+9,x+7,y+9),fill=STONE_TOP)
+    return im
+
+map_images=[ground_map(m,grid) for m,grid in enumerate(maps)]
+scene_objects=[];scene_starts=[0]
+for m,grid in enumerate(maps):
+    objects=[]
+    for y,row in enumerate(grid):
+        for x,t in enumerate(row):
+            depth=(y+1)*16
+            if t==3:
+                kind=(x*7+y*11+m*3)%9
+                kind=2 if kind==0 else 1 if kind==1 else 0
+                objects.append((x*16-8,depth-48,depth,kind))
+            elif t==10:objects.append((x*16,depth-24,depth,7))
+            elif t==11:objects.append((x*16-4,depth-28,depth,6))
+            elif t==12:objects.append((x*16-6,depth-34,depth,9))
+            elif t==15:objects.append((x*16-2,depth-22,depth,8))
+            elif t==13:objects.append((x*16,depth-24,depth,10))
+    if m==0:
+        for kind,(x,y) in enumerate([(4,6),(22,5),(25,17)],3):
+            objects.append((x*16-8,(y+4)*16-88,(y+4)*16,kind))
+    else:
+        for x,y in [(7,12),(26,3)]:objects.append((x*16-4,(y+1)*16-44,(y+1)*16,11))
+    scene_objects.extend(sorted(objects,key=lambda o:(o[2],o[0])))
+    scene_starts.append(len(scene_objects))
+
+# Precompose static scenery once, retaining a per-pixel foot-depth plane. The
+# runtime can then depth-test actors against this plane without redrawing all
+# static props on every frame. Zero means terrain, positive means depth / 16.
+map_scenes=[];map_depths=[]
+for m,ground in enumerate(map_images):
+    composed=ground.copy();depth_plane=Image.new('L',ground.size,0)
+    for x,y,depth,kind in scene_objects[scene_starts[m]:scene_starts[m+1]]:
+        prop=scenery[kind];paste(composed,prop,(x,y))
+        mask=Image.frombytes('L',prop.size,bytes(255 if v else 0 for v in prop.tobytes()))
+        depth_plane.paste(depth//16,(x,y,x+prop.width,y+prop.height),mask)
+    map_scenes.append(composed);map_depths.append(depth_plane)
+
+def scenic_backdrop(title=False):
+    im=image(240,160,SKY_HIGH);d=ImageDraw.Draw(im)
+    d.rectangle((0,27,239,57),fill=SKY_LOW)
+    # Pixel clouds and distant ridges establish perspective without gradients.
+    for x,y,w in [(8,18,34),(93,12,42),(174,25,47)]:
+        d.rectangle((x,y+3,x+w,y+7),fill=26)
+        d.rectangle((x+5,y,x+w-8,y+5),fill=26)
+        d.line((x+7,y,x+w-13,y),fill=3)
+    poly(d,[(0,54),(15,47),(36,50),(57,39),(78,44),(106,35),(130,45),(151,40),(178,48),(204,40),(239,47),(239,85),(0,85)],HILL_FAR)
+    poly(d,[(0,68),(23,58),(45,60),(70,48),(96,56),(117,52),(143,62),(166,49),(190,57),(216,51),(239,64),(239,99),(0,99)],HILL_MID)
+    poly(d,[(0,83),(25,76),(54,82),(78,66),(102,75),(130,69),(155,80),(181,68),(208,73),(239,69),(239,117),(0,117)],HILL_NEAR)
+    # A sunlit river recedes toward the middle of the horizon.
+    poly(d,[(130,63),(137,63),(132,75),(140,84),(133,92),(154,108),(170,132),(151,160),(90,160),(119,134),(126,114),(116,96),(125,83),(122,74)],10)
+    for yy,x0,x1 in [(77,126,133),(89,125,133),(106,130,145),(121,132,153),(140,118,155),(150,108,147)]:
+        d.line((x0,yy,x1,yy),fill=WATER_LIGHT)
+        d.line((x0+3,yy+2,x1-4,yy+2),fill=25)
+    poly(d,[(0,102),(43,90),(80,95),(116,119),(101,146),(95,160),(0,160)],5)
+    poly(d,[(239,88),(206,90),(174,104),(153,131),(160,160),(239,160)],GRASS_DARK)
+    rng=random.Random(911)
+    for k in range(140):
+        xx=rng.randrange(240);yy=rng.randrange(93,160)
+        if im.getpixel((xx,yy)) in (5,GRASS_DARK):
+            d.line((xx,yy,xx+2,yy),fill=GRASS_LIT if k%3 else GRASS_DEEP)
+    if title:
+        # Foreground trees frame the vista. A village roof sits at the far bend.
+        house=scenery[3].resize((40,44),Image.Resampling.NEAREST)
+        paste(im,house,(174,62))
+        for xx,yy in [(-12,44),(12,57),(219,46),(201,69),(-3,92),(219,109)]:
+            paste(im,scenery[0],(xx,yy))
+        # Little flowers across the foreground riverbank.
+        for x,y in [(27,136),(39,142),(195,131),(211,141),(69,151)]:
+            d.line((x,y,x,y-3),fill=29);d.line((x-1,y-4,x+1,y-4),fill=28);d.point((x,y-4),fill=38)
+    else:
+        # Battle clears retain a horizon and quiet readable sprite platforms.
+        d.rectangle((0,90,239,159),fill=5)
+        poly(d,[(0,111),(34,104),(58,111),(93,108),(137,113),(181,108),(239,119),(239,159),(0,159)],GRASS_LIT)
+        d.ellipse((130,63,229,97),fill=GRASS_DEEP)
+        d.ellipse((134,62,225,92),fill=6)
+        d.ellipse((141,65,217,86),fill=GRASS_LIT)
+        d.line((150,67,199,67),fill=GRASS_SUN)
+        d.ellipse((-12,105,121,149),fill=GRASS_DEEP)
+        d.ellipse((-9,102,118,142),fill=6)
+        d.ellipse((1,105,106,131),fill=GRASS_LIT)
+        for x,y in [(6,86),(17,93),(222,100),(229,106),(119,109)]:
+            d.line((x,y,x-2,y-4),fill=29);d.line((x,y,x+2,y-5),fill=GRASS_SUN)
+    return im
+title=scenic_backdrop(True);battle=scenic_backdrop(False)
 
 def array(f,name,data,ctype='unsigned char',width=24):
-    f.write(f'static const {ctype} {name}[{len(data)}] = {{\n')
+    f.write(f'static const {ctype} {name}[{len(data)}] __attribute__((aligned(4))) = {{\n')
     for j in range(0,len(data),width):f.write(','.join(str(x) for x in data[j:j+width])+',\n')
     f.write('};\n')
 with (OUT/'assets.h').open('w') as f:
-    f.write('/* Generated original artwork. Run tools/assets.py to rebuild. */\n')
+    f.write('/* Generated original artwork. tools/assets.py / art_overhaul.py. */\n')
     array(f,'palette',[(r>>3)|((g>>3)<<5)|((b>>3)<<10) for r,g,b in RGB],'unsigned short')
-    array(f,'creature_art',sum((list(im.tobytes()) for im in creatures),[]))
-    array(f,'people_art',sum((list(im.tobytes()) for im in people),[]))
+    array(f,'creature_art',b''.join(im.tobytes() for im in creatures))
+    array(f,'creature_back_art',b''.join(im.tobytes() for im in creature_backs))
+    array(f,'creature_field_art',b''.join(im.tobytes() for im in creature_fields))
+    array(f,'people_art',b''.join(im.tobytes() for im in people))
     array(f,'font_art',font)
     array(f,'map_tiles',[v for grid in maps for row in grid for v in row])
-    array(f,'map_art',sum((list(im.tobytes()) for im in map_images),[]))
-    array(f,'title_art',list(title.tobytes()))
-sheet=image(256,128,2)
-for n,im in enumerate(creatures):sheet.paste(im.resize((64,64),Image.Resampling.NEAREST),(n%4*64,n//4*64),im.resize((64,64),Image.Resampling.NEAREST).point(lambda x:255 if x else 0).convert('1'))
+    array(f,'map_art',b''.join(im.tobytes() for im in map_images))
+    array(f,'map_scene_art',b''.join(im.tobytes() for im in map_scenes))
+    array(f,'map_scene_depth',b''.join(im.tobytes() for im in map_depths))
+    array(f,'title_art',title.tobytes());array(f,'battle_art',battle.tobytes())
+    offsets=[];offset=0
+    for im in scenery:offsets.append(offset);offset+=im.width*im.height
+    array(f,'scenery_art',b''.join(im.tobytes() for im in scenery))
+    array(f,'scenery_offsets',offsets,'unsigned int')
+    array(f,'scenery_widths',[im.width for im in scenery],'unsigned short')
+    array(f,'scenery_heights',[im.height for im in scenery],'unsigned short')
+    f.write('typedef struct {short x,y,depth; unsigned short kind;} SceneObject;\n')
+    f.write('static const SceneObject scene_objects[] = {\n')
+    for obj in scene_objects:f.write('{'+','.join(map(str,obj))+'},\n')
+    f.write('};\n');array(f,'scene_starts',scene_starts,'unsigned short')
+
+# Developer previews: composed world, ground-only layers and original sprite art.
+for m,im in enumerate(map_images):
+    im.convert('RGB').save(OUT/f'ground-{m}.png')
+    map_scenes[m].convert('RGB').save(OUT/f'world-{m}.png')
+    map_depths[m].point(lambda v:v*10).save(OUT/f'world-depth-{m}.png')
+title.convert('RGB').save(OUT/'title-art.png');battle.convert('RGB').save(OUT/'battle-art.png')
+sheet=image(384,200,2)
+for n in range(6):
+    paste(sheet,creatures[n].resize((64,64),Image.Resampling.NEAREST),(n*64,0))
+    paste(sheet,creature_backs[n].resize((64,64),Image.Resampling.NEAREST),(n*64,67))
+    paste(sheet,creature_fields[n].resize((32,40),Image.Resampling.NEAREST),(n*64+16,140))
 sheet.convert('RGB').save(OUT/'creatures.png')
-print('Generated palette, original sprites, tiles and font.')
+prop_sheet=image(480,128,2)
+for i,im in enumerate(scenery):
+    if i<6:paste(prop_sheet,im,(i*80,0))
+    else:paste(prop_sheet,im,((i-6)*64,90))
+prop_sheet.convert('RGB').save(OUT/'scenery.png')
+people_sheet=image(320,192,2)
+for i,im in enumerate(people):paste(people_sheet,im.resize((32,48),Image.Resampling.NEAREST),((i%10)*32,(i//10)*48))
+people_sheet.convert('RGB').save(OUT/'people.png')
+print(f'Generated {len(RGB)} colors, six creatures, forty people frames, {len(scene_objects)} depth-sorted scenery objects.')
