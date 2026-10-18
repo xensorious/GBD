@@ -9,6 +9,8 @@ to the garage to buy, tune and paint your vehicles.
 - [Download the DS cartridge](drive/dist/Coastline.nds)
 - [Download the complete ZIP](drive/dist/Coastline-DS.zip)
 - [Watch actual cartridge gameplay](drive/dist/highway-motion.gif)
+- [See the turbo dashboard and guide](drive/dist/Turbo.png)
+- [See grounded roadside and water scenery](drive/dist/Grounding.png)
 - [Controls, progression and build instructions](drive/README.md)
 
 ![Actual Nintendo DS screens](drive/dist/Preview.png)
@@ -18,6 +20,15 @@ Slow, B is the handbrake, and A is the horn or motorcycle wheelie. All driving
 modifiers are held. Start pauses. All menus use buttons on the lower screen;
 while driving, that screen becomes a noninteractive instrument dashboard.
 Touch input is ignored throughout.
+
+The driving dashboard puts health, combo, points, cash and the new turbo reserve
+above the gauges. Turbo lasts eight seconds from full and refills through near
+misses, controlled drifts, motorcycle wheelies and Slow recovery. A 5x score
+combo gives 2x skill recharge. The Turbo Guide explains the rates in game.
+
+Roadside buildings now face inward from projected foundations, trees and lamps
+use measured ground contacts, and boats and piers sit on the water plane.
+Overhead signs and the awkward bridge sign frames are removed.
 
 This version contains ten vehicles, eight regions, seeded traffic and road
 coins, close-overtake bonuses, capped speed/drift/wheelie streaks, six-stage

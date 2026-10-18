@@ -18,7 +18,7 @@ needed. The game never uses touch input.
 | R | Accelerate |
 | L | Brake, then reverse; braking takes priority over acceleration |
 | Left / Right | Steer continuously |
-| Up + R | Hold Turbo for more acceleration and a higher top speed |
+| Up + R | Hold Turbo to spend reserve for more acceleration and a higher top speed |
 | Down + R | Hold Slow for gentler acceleration and a lower cruising speed |
 | B | Hold the handbrake; steer while moving to drift |
 | A | Sound the horn in cars; hold a wheelie on the motorcycle |
@@ -30,14 +30,38 @@ between Showroom, Parts and Setup. Left/Right on the vehicle row browses models;
 on Paint or a setup row it previews a choice, then A applies it.
 
 The upper screen shows driving from a lower chase camera, with a thin flat
-horizon and a longer view of approaching traffic. The lower screen is a noninteractive dashboard
-with speed and acceleration gauges, a mileage counter, points, pending cash,
-armor and the current bonus multiplier. Every menu is on the lower screen;
+horizon and a longer view of approaching traffic. The lower screen is a noninteractive
+dashboard. Health, combo, points and pending cash sit at the top, followed by
+the turbo reserve, mileage and coins. Speed and acceleration instruments sit
+underneath that information. Every menu is on the lower screen;
 the upper screen shows an animated drive or a vehicle in the showroom. Instrument
 clusters change with the vehicle, including classic dials, digital sports
 clusters, utility instruments and a motorcycle display. Miami, Sunset and
 Midnight skins are available in Settings, along with independent music and
 sound-effect toggles and volumes, road motion, camera shake and speed units.
+
+### Turbo reserve
+
+Each run begins with eight seconds of boost. A new boost needs at least 10%
+reserve. When the tank empties, release Up before boosting again. R continues
+to accelerate normally when reserve is empty. The meter shows the remaining
+percentage, boost time and recharge state.
+
+| Clean driving action | Base recharge |
+| --- | --- |
+| Near miss | 10% immediately |
+| Controlled drift held for at least 0.75 seconds | 4% per second |
+| Motorcycle wheelie held for at least one second | 3% per second |
+| Slow mode, Down + R, above 40 km/h | 2% per second |
+
+Near-miss, drift and wheelie recharge grows with the score combo, reaching
+**2x recharge at a 5x combo**. Slow recovery stays at its fixed rate. Continuous
+sources use the strongest qualifying action rather than stacking. Recharge
+stops during active boost, impacts, reverse travel and wall grinding. Ordinary
+straight-line acceleration, idling and coins do not refill the tank.
+
+Open Controls from Settings or Pause and use L/R to switch between the button
+guide and the Turbo Guide. All guide pages use buttons.
 
 ## Runs and rewards
 
@@ -90,8 +114,9 @@ can also appear naturally during a continuous run. Each region lasts about
 
 Cash, vehicles, parts, setups, mastery, career perks, paints, departures,
 settings, records and challenge progress save automatically after banking a
-run or making a menu change. First-draft cartridge battery saves migrate to
-the expanded format, retaining their purchases and records. Delta
+run or making a menu change. Battery saves from the previous coastal release
+retain their full progression and settings. First-draft cartridge battery saves
+migrate to the expanded format, retaining their purchases and records. Delta
 stores this as cartridge battery data. An unfinished run is not saved. Keep an
 exported battery save when moving devices; save states include program state
 and can depend on the exact ROM version. This game's save is separate from

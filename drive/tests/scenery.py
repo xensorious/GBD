@@ -34,17 +34,24 @@ subprocess.run(['gcc','-shared','-fPIC','-O2','-std=c11','-I',str(ROOT/'src'),
 lib=C.CDLL(str(libpath));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 lib.game_make_save.argtypes=[C.POINTER(Game),C.POINTER(Save)]
 lib.game_save_valid.argtypes=[C.POINTER(Save)]
+lib.road_landmark.argtypes=[C.c_uint32,C.c_uint32,C.c_int]
+lib.road_landmark.restype=C.c_uint32
 profile=Game();lib.game_init(C.byref(profile),0x434f4153)
 profile.save.owned=(1<<10)-1;profile.save.unlocked_locations=255;profile.save.paints=63
 profile.save.cash=9999;profile.save.career_xp=50000
 for i in range(10):profile.save.mastery_xp[i]=10000
+# A durable touring setup makes the finite-turbo checks repeatable without
+# changing the cartridge's world position, traffic or run rewards.
+profile.save.engine[2]=2;profile.save.grip[2]=4;profile.save.armor[2]=6
+profile.save.chassis_tune[2]=2
+profile.save.armor[3]=6;profile.save.chassis_tune[3]=2
 profile.save.best_near=10;profile.save.best_distance=6000
 profile.save.best_drift=1500;profile.save.best_speed_hold=240;profile.save.best_wheelie=1000
 out=Save();lib.game_make_save(C.byref(profile),C.byref(out));assert lib.game_save_valid(C.byref(out))
 fixture=a.output/'scenery-fixture-save';shutil.rmtree(fixture,ignore_errors=True)
 write_battery(real_save,fixture/'Coastline.dsv',bytes(out))
 address=find_symbol(a.elf,'game');assert symbol_size(a.elf,'game')==C.sizeof(Game)
-shots=[];rates=[];cluster_rates=[];actions=[]
+shots=[];rates=[];cluster_rates=[];actions=[];turbo_checks=[];water_captures=[]
 with Emulator(a.rom,fixture) as e:
     e.run(180);d=DriveThrough(e,address,a.output);assert d.game().has_save
     def shot(name,keys=()):
@@ -72,10 +79,34 @@ with Emulator(a.rom,fixture) as e:
             if d.game().selection==vehicle:return
             d.press('right')
         raise AssertionError('Garage could not browse all ten vehicles')
+    def capture_water_contact(biome,name):
+        # Choose a photograph from the real drive when a deterministic water
+        # anchor is nearby. The read-only world hash is used only to time the
+        # screenshot; all travel remains joypad-controlled at normal speed.
+        for _ in range(180):
+            state=d.game();position=state.position_q8//256
+            optical_scale=(205,307,384)[state.save.motion]
+            optical=(position//128)*optical_scale+(position%128)*optical_scale//128
+            for n in range((optical+230)//88,(optical+340)//88+1):
+                h=lib.road_landmark(state.run_seed,n,-1)
+                anchor=n*88+((h>>10)%25);z=anchor-optical
+                desired=(h&3)==0 if biome==1 else (h&3)!=0
+                if desired and 230<=z<=340:
+                    shot(name,('r',));after=d.game()
+                    after_position=after.position_q8//256
+                    after_optical=(after_position//128)*optical_scale+(after_position%128)*optical_scale//128
+                    water_captures.append({'object':'broadside boat' if biome==1 else 'horizontal pier',
+                        'screenshot':name+'.png','biome':biome,'frame':after.frame,
+                        'anchor':anchor,'world_z_ahead':anchor-after_optical})
+                    return
+            d.autopilot(2,('r',));assert d.game().mode==1
+        raise AssertionError('No nearby water object observed in the generated drive')
     for biome,name in enumerate(BIOMES):
         depart(biome);d.menu(0);d.press('a');d.autopilot(165,('r',))
         assert d.game().mode==1 and d.game().biome==biome
-        shot('scenery-'+name,('r',));rates.append(rate(name));finish()
+        shot('scenery-'+name,('r',));rates.append(rate(name))
+        if biome in (1,5):capture_water_contact(biome,'grounded-'+('boat' if biome==1 else 'pier'))
+        finish()
     d.menu(1);d.press('a');assert d.game().mode==3
     for v,name in enumerate(VEHICLES):
         garage_vehicle(v);shot('vehicle-'+name)
@@ -101,27 +132,102 @@ with Emulator(a.rom,fixture) as e:
     assert list(d.game().save.perks)==[1,1,1];shot('career-perks')
     d.menu(3);d.press('a');assert list(d.game().save.perks)==[0,0,0]
     assert d.game().save.cash==cash;shot('career-reset');d.press('b')
-    # Each distinct dashboard family gets an actual driving capture; the six
-    # cases cover all ten vehicles, three skins and both speed-unit settings.
+    # Observe exhaustion, the held-button latch, deliberate Slow recovery and
+    # reactivation in the real ARM cartridge. All driving uses normal buttons.
+    d.menu(1);d.press('a');garage_vehicle(2);d.menu(1);d.press('a');d.press('b')
+    depart(2);d.menu(0);d.press('a');d.autopilot(100,('r',))
+    full=8*30*256;assert d.game().turbo_charge_q8==full
+    started=d.game().frame;lowest=full
+    while d.game().mode==1 and d.game().frame-started<300:
+        d.autopilot(2,('r','up'));state=d.game()
+        lowest=min(lowest,state.turbo_charge_q8)
+        if state.turbo_latched:break
+    assert d.game().mode==1 and d.game().turbo_latched
+    drain_ticks=state.frame-started
+    # The final funded boost tick consumes the last Q8 unit; the following
+    # update disables acceleration while preserving the held-button latch.
+    d.autopilot(2,('r','up'))
+    assert not d.game().turbo and lowest==0,(lowest,d.game().turbo)
+    shot('turbo-empty',('r','up'))
+    d.autopilot(60,('r','up'));assert d.game().mode==1
+    assert d.game().turbo_latched and not d.game().turbo
+    held_charge=d.game().turbo_charge_q8
+    before_slow=d.game().turbo_charge_q8
+    slow_started=d.game().frame
+    recovery_goal=min(full,before_slow+full//10)
+    while d.game().mode==1 and d.game().frame-slow_started<360:
+        d.autopilot(2,('r','down'));state=d.game()
+        if (state.frame-slow_started>=90 and state.turbo_charge_q8>=recovery_goal
+                and state.turbo_source==4):break # TS_SLOW, observed read only.
+    assert d.game().mode==1
+    charged=d.game().turbo_charge_q8
+    assert charged>before_slow and charged>=full//10
+    assert not d.game().turbo_latched and d.game().turbo_recharging
+    shot('turbo-recharging',('r','down'))
+    d.autopilot(2,('r','up'));assert d.game().mode==1 and d.game().turbo
+    assert d.game().turbo_charge_q8<charged
+    shot('turbo-rearmed',('r','up'))
+    turbo_checks.append({'check':'finite turbo depletion, held-button latch and Slow recovery',
+        'full_q8':full,'minimum_observed_q8':lowest,'drain_ticks':drain_ticks,
+        'charge_after_held_empty_q8':held_charge,'charge_after_precision_q8':charged,
+        'precision_recovery_ticks':state.frame-slow_started,
+        'boost_reactivated':True,'controls':'R + Up; keep held; release Up for R + Down; R + Up again'})
+    finish()
+    # Demonstrate a committed slide from a fresh opening position instead of
+    # steering across traffic after the preceding long boost/recovery drive.
+    # This spends genuine fuel and reaches drift speed before turning inward.
+    d.menu(0);d.press('a');d.ticks(40,('r','up'));state=d.game()
+    before_drift=state.turbo_charge_q8
+    drift_start={'frame':state.frame,'health':state.health,'x_q8':state.x_q8,
+                 'speed_q8':state.speed_q8,'charge_q8':before_drift}
+    d.ticks(27,('r','b','right'));state=d.game()
+    drift_end={'frame':state.frame,'health':state.health,'x_q8':state.x_q8,
+               'speed_q8':state.speed_q8,'charge_q8':state.turbo_charge_q8,
+               'drift_hold':state.drift_hold,'source':state.turbo_source}
+    print('Committed drift '+json.dumps({'before':drift_start,'after':drift_end}),flush=True)
+    assert state.mode==1 and state.drifting and state.drift_hold>=23,drift_end
+    assert state.turbo_source==2 and state.turbo_charge_q8>before_drift,drift_end # TS_DRIFT
+    shot('turbo-drift-recharge',('r','b','right'))
+    turbo_checks.append({'check':'deliberate drift replenishes used turbo',
+        'before_q8':before_drift,'after_q8':state.turbo_charge_q8,
+        'drift_hold_ticks':state.drift_hold,'combo_q8':state.combo_q8,
+        'fresh_run':True,'trace':{'before':drift_start,'after':drift_end}})
+    finish()
+    # Every vehicle and every skin gets an actual driving capture and update
+    # cadence sample. The named primary captures remain useful for packaging.
     families=((0,0,0,'classic'),(1,1,5,'digital'),(2,2,7,'utility'),
               (3,0,1,'bike'),(7,1,5,'luxury'),(4,2,4,'race'),
               (5,2,4,'sundown'),(6,0,1,'mariner'),
               (8,1,7,'rallye'),(9,0,2,'tempest'))
-    for vehicle,skin,biome,family in families:
+    for vehicle,primary_skin,biome,family in families:
+      for skin in range(3):
         d.menu(5);d.press('a');assert d.game().mode==9;d.menu(4)
         while d.game().save.skin!=skin:d.press('right')
         d.menu(7)
         target_units=1 if family=='bike' else 0
         while d.game().save.units!=target_units:d.press('right')
-        shot('settings-'+family);d.press('b')
+        if skin==primary_skin:shot('settings-'+family)
+        d.press('b')
         d.menu(1);d.press('a');garage_vehicle(vehicle);d.menu(1);d.press('a');d.press('b')
         assert d.game().save.selected_vehicle==vehicle
         depart(biome);d.menu(0);d.press('a')
         keys=('r','a') if vehicle==3 else ('r',)
         d.autopilot(150,keys);assert d.game().mode==1
-        shot('dashboard-'+family,keys)
+        shot('dashboard-'+family+'-skin'+str(skin),keys)
+        if skin==primary_skin:shot('dashboard-'+family,keys)
         if vehicle==3:
-            assert d.game().wheelie;shot('motorcycle-wheelie',keys)
+            assert d.game().wheelie
+            if skin==primary_skin:shot('motorcycle-wheelie',keys)
+            if skin==0:
+                d.autopilot(200,('r','up'));assert d.game().mode==1
+                wheelie_before=d.game().turbo_charge_q8
+                d.autopilot(120,('r','a'));state=d.game()
+                assert state.mode==1 and state.wheelie
+                assert state.turbo_charge_q8>wheelie_before
+                shot('turbo-wheelie-recharge',('r','a'))
+                turbo_checks.append({'check':'sustained wheelie replenishes used turbo',
+                    'before_q8':wheelie_before,'after_q8':state.turbo_charge_q8,
+                    'wheelie_hold_ticks':state.wheelie_hold,'combo_q8':state.combo_q8})
         measured=rate(family,keys);measured.update(vehicle=vehicle,skin=skin,units=target_units)
         cluster_rates.append(measured);finish()
     g=d.game();g.save.checksum=0;expected=bytes(g.save)
@@ -132,9 +238,13 @@ subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
     '--output',str(a.output/'advanced-save-reloaded.png')],check=True)
 shots.append('advanced-save-reloaded.png')
 result={'rom':inspect(a.rom),'source':'documented native-generated battery fixture; vehicles, departures, cash, mastery and career pre-seeded for review',
+        'durable_turbo_fixture':{'nomad':{'engine':2,'grip':4,'armor':6,'chassis_tune':2},
+                                 'kestrel':{'armor':6,'chassis_tune':2}},
         'ram_access':'read only; joypad input only; no save-state restore',
         'screenshots':shots,'biome_update_rates':rates,'cluster_update_rates':cluster_rates,
-        'fixture_funded_actions':actions,'fresh_process_reload':True}
+        'fixture_funded_actions':actions,'finite_turbo_checks':turbo_checks,
+        'water_contact_captures':water_captures,
+        'dashboard_vehicle_skin_combinations':len(cluster_rates),'fresh_process_reload':True}
 (a.output/'scenery-results.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))
 
@@ -155,3 +265,6 @@ labels=('Metro Dawn','Palm Coast','Skywater Causeway','Pine Ridge','Redrock Pass
 sheet(list(zip(('scenery-'+b for b in BIOMES),labels))+[('motorcycle-wheelie','Kestrel motorcycle')],'Locations.png')
 sheet([('vehicle-'+v,v.title()) for v in VEHICLES],'Vehicles.png')
 sheet([('dashboard-'+f,f.title()) for f in ('classic','digital','utility','bike','luxury','race','sundown','mariner','rallye','tempest')],'Dashboards.png',True)
+sheet([('dashboard-'+f+'-skin'+str(s),f.title()+' / skin '+str(s+1))
+       for f in ('classic','digital','utility','bike','luxury','race','sundown','mariner','rallye','tempest')
+       for s in range(3)],'Dashboard-Skins.png',True)

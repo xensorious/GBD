@@ -48,7 +48,9 @@ class Game(C.LittleEndianStructure):
         'mode','cursor','selection','health','vehicle','start_biome','biome','turbo',
         'slow','drifting','wheelie','save_requested','save_ok','has_save','muted','paused_from')]+[
         ('notice_timer',U16),('notice',C.c_char*88),('paint_choice',U8),
-        ('garage_tab',U8),('menu_return',U8),('repair_used',U8),('tune_choice',U8)]
+        ('garage_tab',U8),('menu_return',U8),('repair_used',U8),('tune_choice',U8),
+        ('turbo_charge_q8',U16),('turbo_latched',U8),('turbo_recharging',U8),
+        ('turbo_source',U8),('controls_page',U8),('turbo_remainder',U16)]
 MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings')
 BONUSES=('distance','survival','near miss','speed hold','drift','wheelie','coins')
 def symbol(elf:Path,name:str):

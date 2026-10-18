@@ -22,7 +22,7 @@ from inspect_rom import inspect
 def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -153,6 +153,10 @@ def emulator_tests(rom,elf,output):
         p.record('independent audio settings',music=music_level,muted_music=quiet_level,
                  effects_on=effects_on,effects_off=effects_off,restored_music=restored_music)
         p.menu(8);p.press('a');assert p.game().mode==6;p.shot('controls')
+        assert p.game().controls_page==0
+        p.press('r');assert p.game().controls_page==1;p.shot('turbo-guide')
+        p.ticks(2,touch=(128,90));assert p.game().controls_page==1
+        p.press('l');assert p.game().controls_page==0
         p.press('b');assert p.game().mode==9
         p.press('b');assert p.game().mode==0
         p.menu(4);p.press('a');assert p.game().mode==8;p.shot('career')
@@ -167,17 +171,23 @@ def emulator_tests(rom,elf,output):
         p.menu(3);p.press('a');assert p.game().mode==5;p.shot('challenges')
         p.press('b');assert p.game().mode==0
         p.menu(0);p.press('a');assert p.game().mode==1
+        assert p.game().turbo_charge_q8==8*30*256
         # R accelerates, Up boosts while gas is held, Down is precision mode.
         p.ticks(120,('r',)); normal=p.game().speed_q8
         assert normal>20*256
         p.shot('race-city',('r',))
+        charge_before=p.game().turbo_charge_q8
         p.autopilot(80,('r','up'),capture=True);assert p.game().mode==1
         boosted=p.game().speed_q8;assert boosted>normal
+        charge_after=p.game().turbo_charge_q8
+        assert charge_after<charge_before and p.game().turbo
         p.shot('race-turbo',('r','up'))
         e.image().crop((0,192,256,384)).save(output/'dashboard.png')
         p.autopilot(35,('r','down'));assert p.game().mode==1
         assert p.game().speed_q8<boosted and p.game().slow
-        p.record('gas/turbo/precision',normal_q8=normal,turbo_q8=boosted,slow_q8=p.game().speed_q8)
+        p.record('gas/turbo/precision',normal_q8=normal,turbo_q8=boosted,slow_q8=p.game().speed_q8,
+                 charge_before_q8=charge_before,charge_after_boost_q8=charge_after,
+                 charge_after_precision_q8=p.game().turbo_charge_q8)
         p.shot('race-slow',('r','down'))
         before=p.game().speed_q8
         p.ticks(1,('l','r','up'));assert p.game().speed_q8<before and not p.game().turbo
@@ -199,11 +209,21 @@ def emulator_tests(rom,elf,output):
         p.shot('race-drift',('r','b','right'))
         p.autopilot(50,('r',))
         # A fixed interval measures actual ARM9 updates against hardware frames.
-        before=p.game().frame;ef=e.frames
+        sample=p.game();before=sample.frame;ef=e.frames
+        start_state={'mode':MODES[sample.mode],'health':sample.health,
+                     'position_q8':sample.position_q8,'frame':sample.frame}
         e.run(120,('r',));updates=p.game().frame-before
         rate=updates/(120/e.fps)
-        assert 28<=rate<=31.5,rate
-        p.record('actual cartridge update rate',updates=updates,hardware_frames=e.frames-ef,hz=rate)
+        sample=p.game()
+        timing={'updates':updates,'hardware_frames':e.frames-ef,'hz':rate,
+                'start':start_state,'end':{'mode':MODES[sample.mode],
+                'health':sample.health,'position_q8':sample.position_q8,'frame':sample.frame}}
+        for name,size in (('render_profile',5),('scenery_profile',6)):
+            try:timing[name]=list((C.c_uint32*size).from_buffer_copy(e.read_ram(find_symbol(elf,name),size*4)))
+            except RuntimeError:pass
+        print('Cartridge timing '+json.dumps(timing),flush=True)
+        assert 28<=rate<=31.5,timing
+        p.record('actual cartridge update rate',**timing)
         p.autopilot(1200,('r',),capture=True)
         if p.game().mode==1:
             # Intentionally drive into the verge until the run ends. The

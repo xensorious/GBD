@@ -2,17 +2,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 1161728,
-    "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+    "bytes": 1366528,
+    "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1129324
+        "bytes": 1334132
       },
       "arm7": {
-        "offset": 1145856,
+        "offset": 1350656,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -20,11 +20,12 @@
     },
     "native": [
       "road: 15610090 checks, 2,441,989 consecutive samples; all 8 biomes, reverse travel, exact transition endpoints, boundary continuity and extreme coordinates pass",
-      "gameplay: 5840259 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
+      "gameplay: 5934573 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
       "legacy_save: 274 checks; exact 100-byte v1 migration preserves cash, six-car upgrades and unlocks, adds defaults, rejects corrupt/invalid saves and emits valid v2",
       "traffic: 78329849 checks; deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass",
       "progression: 199 checks; mastery gates, effective setup tradeoffs, career perks, bank-once XP/cash and persistent settings pass",
-      "graphics: 27852 pixel-exact checks passed across 128 asset frames; cache/paint/LOD/clipping/capacity"
+      "turbo: 12415 checks; exact 8s fuel, release/re-arm reserve, skill-only recharge, 5x-to-2x balance, exclusions, pause and unchanged saves pass",
+      "graphics: 34489 pixel-exact checks passed across 158 asset frames; cache/paint/LOD/clipping/capacity"
     ],
     "core": {
       "name": "DeSmuME",
@@ -32,15 +33,15 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 2213820,
-      "nonzero_batches": 2767
+      "samples": 2618070,
+      "nonzero_batches": 3316
     },
     "events": [
       {
         "check": "independent audio settings",
         "music": {
           "samples_observed": 5520,
-          "rms": 385.7576201263006
+          "rms": 364.34729858406695
         },
         "muted_music": {
           "samples_observed": 5520,
@@ -48,7 +49,7 @@
         },
         "effects_on": {
           "samples_observed": 736,
-          "rms": 1430.5304703607103
+          "rms": 1381.5840226655716
         },
         "effects_off": {
           "samples_observed": 736,
@@ -56,53 +57,76 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 361.415459575666
+          "rms": 348.68452037103225
         }
       },
       {
         "check": "gas/turbo/precision",
         "normal_q8": 44800,
         "turbo_q8": 55808,
-        "slow_q8": 28160
+        "slow_q8": 28160,
+        "charge_before_q8": 61440,
+        "charge_after_boost_q8": 40960,
+        "charge_after_precision_q8": 41922
       },
       {
         "check": "actual cartridge update rate",
-        "updates": 59,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.5
+        "hz": 30.0,
+        "start": {
+          "mode": "run",
+          "health": 100,
+          "position_q8": 462405,
+          "frame": 1006
+        },
+        "end": {
+          "mode": "run",
+          "health": 100,
+          "position_q8": 546405,
+          "frame": 1066
+        },
+        "render_profile": [
+          11311,
+          1,
+          11344,
+          3023,
+          7917
+        ]
       }
     ],
     "receipt": {
       "count": [
-        1210,
-        25,
+        1760,
+        35,
+        1,
+        21,
         0,
-        13,
         0,
-        0,
-        15
+        9
       ],
       "points": [
-        1210,
-        125,
+        1760,
+        175,
+        100,
+        1240,
         0,
-        890,
         0,
-        0,
-        150
+        90
       ],
-      "points_total": 2375,
-      "cash": 114,
-      "distance_m": 1210,
+      "points_total": 3365,
+      "cash": 101,
+      "distance_m": 1760,
       "max_combo_q8": 1280,
-      "mastery_xp": 331,
-      "career_xp": 331,
+      "mastery_xp": 486,
+      "career_xp": 486,
       "cash_bonus": 0
     },
     "screenshots": [
       "home.png",
       "settings.png",
       "controls.png",
+      "turbo-guide.png",
       "career.png",
       "garage.png",
       "garage-parts.png",
@@ -133,17 +157,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1161728,
-      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "bytes": 1366528,
+      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1129324
+          "bytes": 1334132
         },
         "arm7": {
-          "offset": 1145856,
+          "offset": 1350656,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -151,14 +175,28 @@
       }
     },
     "source": "documented native-generated battery fixture; vehicles, departures, cash, mastery and career pre-seeded for review",
+    "durable_turbo_fixture": {
+      "nomad": {
+        "engine": 2,
+        "grip": 4,
+        "armor": 6,
+        "chassis_tune": 2
+      },
+      "kestrel": {
+        "armor": 6,
+        "chassis_tune": 2
+      }
+    },
     "ram_access": "read only; joypad input only; no save-state restore",
     "screenshots": [
       "scenery-city.png",
       "scenery-coast.png",
+      "grounded-boat.png",
       "scenery-causeway.png",
       "scenery-pines.png",
       "scenery-canyon.png",
       "scenery-marina.png",
+      "grounded-pier.png",
       "scenery-wetlands.png",
       "scenery-groves.png",
       "vehicle-pacer.png",
@@ -177,27 +215,62 @@
       "garage-tune-preview-chassis_tune.png",
       "career-perks.png",
       "career-reset.png",
+      "turbo-empty.png",
+      "turbo-recharging.png",
+      "turbo-rearmed.png",
+      "turbo-drift-recharge.png",
       "settings-classic.png",
+      "dashboard-classic-skin0.png",
       "dashboard-classic.png",
+      "dashboard-classic-skin1.png",
+      "dashboard-classic-skin2.png",
+      "dashboard-digital-skin0.png",
       "settings-digital.png",
+      "dashboard-digital-skin1.png",
       "dashboard-digital.png",
+      "dashboard-digital-skin2.png",
+      "dashboard-utility-skin0.png",
+      "dashboard-utility-skin1.png",
       "settings-utility.png",
+      "dashboard-utility-skin2.png",
       "dashboard-utility.png",
       "settings-bike.png",
+      "dashboard-bike-skin0.png",
       "dashboard-bike.png",
       "motorcycle-wheelie.png",
+      "turbo-wheelie-recharge.png",
+      "dashboard-bike-skin1.png",
+      "dashboard-bike-skin2.png",
+      "dashboard-luxury-skin0.png",
       "settings-luxury.png",
+      "dashboard-luxury-skin1.png",
       "dashboard-luxury.png",
+      "dashboard-luxury-skin2.png",
+      "dashboard-race-skin0.png",
+      "dashboard-race-skin1.png",
       "settings-race.png",
+      "dashboard-race-skin2.png",
       "dashboard-race.png",
+      "dashboard-sundown-skin0.png",
+      "dashboard-sundown-skin1.png",
       "settings-sundown.png",
+      "dashboard-sundown-skin2.png",
       "dashboard-sundown.png",
       "settings-mariner.png",
+      "dashboard-mariner-skin0.png",
       "dashboard-mariner.png",
+      "dashboard-mariner-skin1.png",
+      "dashboard-mariner-skin2.png",
+      "dashboard-rallye-skin0.png",
       "settings-rallye.png",
+      "dashboard-rallye-skin1.png",
       "dashboard-rallye.png",
+      "dashboard-rallye-skin2.png",
       "settings-tempest.png",
+      "dashboard-tempest-skin0.png",
       "dashboard-tempest.png",
+      "dashboard-tempest-skin1.png",
+      "dashboard-tempest-skin2.png",
       "advanced-save-reloaded.png"
     ],
     "biome_update_rates": [
@@ -221,27 +294,27 @@
       },
       {
         "name": "pines",
-        "updates": 60,
+        "updates": 59,
         "hardware_frames": 120,
-        "hz": 30.0
+        "hz": 29.5
       },
       {
         "name": "canyon",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5
+      },
+      {
+        "name": "marina",
         "updates": 60,
         "hardware_frames": 120,
         "hz": 30.0
       },
       {
-        "name": "marina",
-        "updates": 58,
-        "hardware_frames": 120,
-        "hz": 29.0
-      },
-      {
         "name": "wetlands",
-        "updates": 58,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.0
+        "hz": 30.0
       },
       {
         "name": "groves",
@@ -261,12 +334,57 @@
         "units": 0
       },
       {
-        "name": "digital",
-        "updates": 58,
+        "name": "classic",
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.0,
+        "hz": 30.0,
+        "vehicle": 0,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "classic",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 0,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "digital",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 1,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "digital",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
         "vehicle": 1,
         "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "digital",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 1,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "utility",
+        "updates": 61,
+        "hardware_frames": 120,
+        "hz": 30.5,
+        "vehicle": 2,
+        "skin": 0,
         "units": 0
       },
       {
@@ -275,24 +393,87 @@
         "hardware_frames": 120,
         "hz": 30.0,
         "vehicle": 2,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "utility",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5,
+        "vehicle": 2,
         "skin": 2,
         "units": 0
       },
       {
         "name": "bike",
-        "updates": 59,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.5,
+        "hz": 30.0,
         "vehicle": 3,
         "skin": 0,
         "units": 1
       },
       {
-        "name": "luxury",
-        "updates": 57,
+        "name": "bike",
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 28.5,
+        "hz": 30.0,
+        "vehicle": 3,
+        "skin": 1,
+        "units": 1
+      },
+      {
+        "name": "bike",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 3,
+        "skin": 2,
+        "units": 1
+      },
+      {
+        "name": "luxury",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
         "vehicle": 7,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "luxury",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 7,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "luxury",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 7,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "race",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 4,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "race",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 4,
         "skin": 1,
         "units": 0
       },
@@ -307,9 +488,27 @@
       },
       {
         "name": "sundown",
-        "updates": 61,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 30.5,
+        "hz": 30.0,
+        "vehicle": 5,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 5,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
         "vehicle": 5,
         "skin": 2,
         "units": 0
@@ -324,12 +523,48 @@
         "units": 0
       },
       {
+        "name": "mariner",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 6,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "mariner",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 6,
+        "skin": 2,
+        "units": 0
+      },
+      {
         "name": "rallye",
         "updates": 60,
         "hardware_frames": 120,
         "hz": 30.0,
         "vehicle": 8,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "rallye",
+        "updates": 61,
+        "hardware_frames": 120,
+        "hz": 30.5,
+        "vehicle": 8,
         "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "rallye",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 8,
+        "skin": 2,
         "units": 0
       },
       {
@@ -339,6 +574,24 @@
         "hz": 30.0,
         "vehicle": 9,
         "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "tempest",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 9,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "tempest",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 9,
+        "skin": 2,
         "units": 0
       }
     ],
@@ -371,23 +624,88 @@
         "value": 1
       }
     ],
+    "finite_turbo_checks": [
+      {
+        "check": "finite turbo depletion, held-button latch and Slow recovery",
+        "full_q8": 61440,
+        "minimum_observed_q8": 0,
+        "drain_ticks": 240,
+        "charge_after_held_empty_q8": 0,
+        "charge_after_precision_q8": 6144,
+        "precision_recovery_ticks": 150,
+        "boost_reactivated": true,
+        "controls": "R + Up; keep held; release Up for R + Down; R + Up again"
+      },
+      {
+        "check": "deliberate drift replenishes used turbo",
+        "before_q8": 51200,
+        "after_q8": 51651,
+        "drift_hold_ticks": 27,
+        "combo_q8": 371,
+        "fresh_run": true,
+        "trace": {
+          "before": {
+            "frame": 2984,
+            "health": 100,
+            "x_q8": -6144,
+            "speed_q8": 21480,
+            "charge_q8": 51200
+          },
+          "after": {
+            "frame": 3011,
+            "health": 100,
+            "x_q8": 4238,
+            "speed_q8": 29094,
+            "charge_q8": 51651,
+            "drift_hold": 27,
+            "source": 2
+          }
+        }
+      },
+      {
+        "check": "sustained wheelie replenishes used turbo",
+        "before_q8": 10240,
+        "after_q8": 17568,
+        "wheelie_hold_ticks": 120,
+        "combo_q8": 768
+      }
+    ],
+    "water_contact_captures": [
+      {
+        "object": "broadside boat",
+        "screenshot": "grounded-boat.png",
+        "biome": 1,
+        "frame": 596,
+        "anchor": 2486,
+        "world_z_ahead": 215
+      },
+      {
+        "object": "horizontal pier",
+        "screenshot": "grounded-pier.png",
+        "biome": 5,
+        "frame": 1641,
+        "anchor": 2567,
+        "world_z_ahead": 296
+      }
+    ],
+    "dashboard_vehicle_skin_combinations": 30,
     "fresh_process_reload": true
   },
   "save_migration": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1161728,
-      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "bytes": 1366528,
+      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1129324
+          "bytes": 1334132
         },
         "arm7": {
-          "offset": 1145856,
+          "offset": 1350656,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -423,23 +741,54 @@
     "screenshots": [
       "legacy-migrated.png",
       "legacy-reloaded.png"
-    ]
+    ],
+    "previous_v2_compatibility": {
+      "baseline_rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 1161728,
+        "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 1129324
+          },
+          "arm7": {
+            "offset": 1145856,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "profile_source": "documented 204-byte v2 fixture accepted by previous coastal release",
+      "bytes": 204,
+      "byte_exact_on_load": true,
+      "fresh_process_reload": true,
+      "preserved": "all ten cars, parts, mastery, tuning, career perks, money, records, departures, paint and settings",
+      "screenshots": [
+        "coastal-save-preserved.png",
+        "coastal-save-reloaded.png"
+      ]
+    }
   },
   "region_transition": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1161728,
-      "sha256": "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242",
+      "bytes": 1366528,
+      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1129324
+          "bytes": 1334132
         },
         "arm7": {
-          "offset": 1145856,
+          "offset": 1350656,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -448,10 +797,10 @@
     },
     "profile_source": "labelled native-generated Nomad/mastery/parts/perks fixture; start distance zero",
     "ram_access": "read only; all travel uses R + Down precision and steering buttons; no checkpoint restore",
-    "distance_driven_m": 7062,
-    "world_distance": 21186,
-    "elapsed_game_ticks": 4663,
-    "hardware_frames": 9326,
+    "distance_driven_m": 7060,
+    "world_distance": 21181,
+    "elapsed_game_ticks": 4662,
+    "hardware_frames": 9324,
     "update_hz": 30.0,
     "biomes_seen": [
       1,

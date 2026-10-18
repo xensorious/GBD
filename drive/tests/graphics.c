@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=128 };
+enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=192 };
 typedef struct {
  uint16_t before[GUARD],pixels[WIDTH*HEIGHT],after[GUARD];
 } GuardedFrame;
@@ -121,6 +121,17 @@ static void catalog(void)
  for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod48+i*48*72,48,72,1,-1,"LOD48");
  for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod32+i*32*48,32,48,1,-1,"LOD32");
  for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod16+i*16*24,16,24,1,-1,"LOD16");
+ /* Side sprites have already-selected LOD sources in the scene renderer.
+  * They intentionally use the generic scaling contract here, rather than
+  * the automatic prop_art-pointer LOD selection used by the original set. */
+ for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_art+i*64*96,64,96,1,-1,"opposite shoulder");
+ for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod48+i*48*72,48,72,1,-1,"side LOD48");
+ for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod32+i*32*48,32,48,1,-1,"side LOD32");
+ for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod16+i*16*24,16,24,1,-1,"side LOD16");
+ add_asset(boat_ground,ASSET_BOAT_GROUND_W,ASSET_BOAT_GROUND_H,1,-1,"planar yacht");
+ add_asset(pier_ground,ASSET_PIER_GROUND_W,ASSET_PIER_GROUND_H,1,-1,"planar pier");
+ if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_COUNT*4+ASSET_PROP_SIDE_COUNT*4+2)
+  fail("incomplete asset catalog",asset_count,0,0,0,0,0,0);
  for(unsigned i=0;i<asset_count;i++) {
   unsigned visible=0;
   for(int n=0;n<assets[i].width*assets[i].height;n++) {
@@ -129,6 +140,92 @@ static void catalog(void)
    visible+=(c!=0);
   }
   if(!visible)fail("empty asset",i,0,0,0,0,0,0);
+  checks++;
+ }
+}
+static void ground_metadata(void)
+{
+ static const struct {
+  const uint16_t *pixels;
+  const uint8_t *bounds;
+  int width,height,count;
+ } silhouettes[]={
+  {prop_art,prop_bounds,64,96,ASSET_PROP_COUNT},
+  {prop_lod48,prop_lod48_bounds,48,72,ASSET_PROP_COUNT},
+  {prop_lod32,prop_lod32_bounds,32,48,ASSET_PROP_COUNT},
+  {prop_lod16,prop_lod16_bounds,16,24,ASSET_PROP_COUNT},
+  {prop_side_art,prop_side_bounds,64,96,ASSET_PROP_SIDE_COUNT},
+  {prop_side_lod48,prop_side_lod48_bounds,48,72,ASSET_PROP_SIDE_COUNT},
+  {prop_side_lod32,prop_side_lod32_bounds,32,48,ASSET_PROP_SIDE_COUNT},
+  {prop_side_lod16,prop_side_lod16_bounds,16,24,ASSET_PROP_SIDE_COUNT}
+ };
+ for(unsigned group=0;group<sizeof silhouettes/sizeof silhouettes[0];group++) {
+  int w=silhouettes[group].width,h=silhouettes[group].height;
+  for(int id=0;id<silhouettes[group].count;id++) {
+   int left=w,right=-1,top=h,bottom=-1;
+   const uint16_t *source=silhouettes[group].pixels+id*w*h;
+   for(int row=0;row<h;row++)for(int col=0;col<w;col++)if(source[row*w+col]) {
+    if(col<left)left=col;
+    if(col>right)right=col;
+    if(row<top)top=row;
+    if(row>bottom)bottom=row;
+   }
+   const uint8_t *bounds=silhouettes[group].bounds+id*4;
+   if(bounds[0]!=left||bounds[1]!=top||bounds[2]!=right+1||bounds[3]!=bottom+1)
+    fail("silhouette bounds omit or expand pixels",group,0,w,h,id,0,0);
+   checks++;
+  }
+ }
+ static const int side_ids[]={ASSET_PROP_GLASS,ASSET_PROP_BRICK,ASSET_PROP_WAREHOUSE,
+  ASSET_PROP_ROCK,ASSET_PROP_LAMP,ASSET_PROP_HOTEL,ASSET_PROP_VILLA};
+ static const int side_indices[]={ASSET_PROP_SIDE_GLASS,ASSET_PROP_SIDE_BRICK,
+  ASSET_PROP_SIDE_WAREHOUSE,ASSET_PROP_SIDE_ROCK,ASSET_PROP_SIDE_LAMP,
+  ASSET_PROP_SIDE_HOTEL,ASSET_PROP_SIDE_VILLA};
+ if(sizeof side_ids/sizeof side_ids[0]!=ASSET_PROP_SIDE_COUNT)
+  fail("side metadata coverage",asset_count,0,0,0,0,0,0);
+ for(int id=0;id<ASSET_PROP_COUNT;id++) {
+  int x=prop_anchor[id*2],y=prop_anchor[id*2+1],lowest=-1;
+  if(x>=ASSET_PROP_W||y>=ASSET_PROP_H)
+   fail("ground anchor outside sprite",(unsigned)id,0,ASSET_PROP_W,ASSET_PROP_H,x,y,0);
+  const uint16_t *source=prop_art+id*ASSET_PROP_W*ASSET_PROP_H;
+  for(int row=0;row<ASSET_PROP_H;row++)for(int col=0;col<ASSET_PROP_W;col++)
+   if(source[row*ASSET_PROP_W+col])lowest=row;
+  /* Anchors may sit just beside a transparent ground corner. They must still
+   * coincide with the foot's vertical band, rather than a roof or canopy. */
+  if(lowest<0||y<lowest-4||y>lowest+1)
+   fail("ground anchor above foot",(unsigned)id,0,ASSET_PROP_W,ASSET_PROP_H,x,y,lowest);
+  checks++;
+ }
+ for(int side=0;side<ASSET_PROP_SIDE_COUNT;side++) {
+  int id=side_ids[side];
+  if(side_indices[side]!=side||prop_side_anchor[side*2]!=ASSET_PROP_W-1-prop_anchor[id*2]
+    ||prop_side_anchor[side*2+1]!=prop_anchor[id*2+1])
+   fail("opposite shoulder anchor mirror",(unsigned)side,0,ASSET_PROP_W,ASSET_PROP_H,0,0,id);
+  for(int row=0;row<ASSET_PROP_H;row++)for(int col=0;col<ASSET_PROP_W;col++)
+   if(prop_side_art[(side*ASSET_PROP_H+row)*ASSET_PROP_W+col]
+     !=prop_art[(id*ASSET_PROP_H+row)*ASSET_PROP_W+ASSET_PROP_W-1-col])
+    fail("opposite shoulder art mirror",(unsigned)side,0,ASSET_PROP_W,ASSET_PROP_H,col,row,id);
+  checks++;
+ }
+ if(ASSET_BOAT_GROUND_W!=128||ASSET_BOAT_GROUND_H!=64
+   ||ASSET_PIER_GROUND_W!=64||ASSET_PIER_GROUND_H!=128)
+  fail("water-plane texture format",asset_count,0,0,0,0,0,0);
+ /* Boats run across their source width; piers run along source height. This
+  * catches an accidental upright yacht or a transposed pier at pack time. */
+ const uint16_t *planes[]={boat_ground,pier_ground};
+ const int widths[]={ASSET_BOAT_GROUND_W,ASSET_PIER_GROUND_W};
+ const int heights[]={ASSET_BOAT_GROUND_H,ASSET_PIER_GROUND_H};
+ for(int plane=0;plane<2;plane++) {
+  int left=widths[plane],right=-1,top=heights[plane],bottom=-1;
+  for(int row=0;row<heights[plane];row++)for(int col=0;col<widths[plane];col++)
+   if(planes[plane][row*widths[plane]+col]) {
+    if(col<left)left=col;
+    if(col>right)right=col;
+    if(row<top)top=row;
+    if(row>bottom)bottom=row;
+   }
+  if(right<left||bottom<top||(plane==0?right-left<=bottom-top:bottom-top<=right-left))
+   fail("water-plane texture orientation",(unsigned)plane,0,widths[plane],heights[plane],left,top,0);
   checks++;
  }
 }
@@ -210,6 +307,7 @@ int main(void)
 {
  gfx_init();
  catalog();
+ ground_metadata();
  all_scales_and_edges();
  all_paints();
  palette_contract();

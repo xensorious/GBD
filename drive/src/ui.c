@@ -177,18 +177,54 @@ static void settings(Surface*s,const Game*g){
  footer(s,"Left/Right: Adjust","A: Cycle   B: Back");
 }
 static void controls(Surface*s,const Game*g){
- header(s,"DRIVING CONTROLS",g);static const char*const keys[8]={"R","L","Left / Right","Up + R","Down + R","B","A","Start"};static const char*const actions[8]={"Accelerate","Brake / reverse","Steer","Turbo (hold)","Slow (hold)","Handbrake / drift","Horn / bike wheelie","Pause"};for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,15,0);center(s,12,y+3,75,keys[i],t->accent);gfx_text(s,96,y+3,actions[i],t->ink);}footer(s,"Buttons only","B: Back");
+ header(s,g->controls_page?"TURBO GUIDE  2 / 2":"DRIVING CONTROLS  1 / 2",g);
+ if(!g->controls_page){
+  static const char*const keys[8]={"R","L","Left / Right","Up + R","Down + R","B","A","Start"};
+  static const char*const actions[8]={"Accelerate","Brake / reverse","Steer","Turbo (uses charge)","Slow / recharge","Handbrake / drift","Horn / bike wheelie","Pause"};
+  for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,15,0);center(s,12,y+3,75,keys[i],t->accent);gfx_text(s,96,y+3,actions[i],t->ink);}
+ }else{
+  glass(s,11,34,234,36,0);gfx_text(s,19,39,"Hold Up + R to boost. Full = 8 sec.",t->ink);gfx_text_small(s,19,52,"At least 10% charge starts a new boost.",t->muted);gfx_text_small(s,19,62,"Empty? Release Up before boosting again.",t->muted);
+  static const char*const labels[4]={"Near miss","Drift > 0.75 sec","Wheelie > 1 sec","Slow > 40 km/h (fixed)"};
+  static const char*const rates[4]={"+10%","+4% / sec","+3% / sec","+2% / sec"};
+  for(int i=0;i<4;i++){int y=75+i*20;glass(s,11,y,234,18,0);gfx_text_small(s,19,y+5,labels[i],t->ink);right(s,236,y+4,rates[i],t->accent);}
+  gfx_text_small(s,16,158,"5x combo = 2x skill recharge.",t->ink);
+  gfx_text_small(s,16,168,"Straight gas and coins do not recharge.",t->muted);
+ }
+ footer(s,"L / R: Change page","B: Back");
 }
 static void pause_menu(Surface*s,const Game*g){
  header(s,"TAKE A BREATHER",g);char info[64]="";number(info,g->run.distance_m,sizeof info);append(info," m  /  ",sizeof info);time_text(info,g->run_ticks,sizeof info);center(s,11,37,234,info,t->muted);static const char*const names[4]={"Resume driving","Bank this run","Controls","Settings"};static const char*const values[4]={"GO","CASH OUT","VIEW","ADJUST"};for(int i=0;i<4;i++)row(s,57+i*28,24,names[i],values[i],g->cursor==i,0);footer(s,"A: Choose","B / Start: Resume");
 }
 
-/* Vehicle-specific cockpit silhouettes. The shared lower trip computer stays
- * in one place while the actual speed/acceleration instruments change. */
+/* Critical information stays next to the top game screen. Each vehicle keeps
+ * its own instruments in the lower cockpit, below the shared trip computer. */
 enum Cluster { CL_CLASSIC,CL_DIGITAL,CL_UTILITY,CL_BIKE,CL_LUXURY,CL_RACE };
 static int cluster_for(int v){return v==0||v==5?CL_CLASSIC:v==1||v==6?CL_DIGITAL:v==2||v==8?CL_UTILITY:v==3?CL_BIKE:v==7?CL_LUXURY:CL_RACE;}
 static uint16_t dashboard_art[256*192] __attribute__((aligned(4)));
 static int dashboard_key=-1;
+/* Small opaque field caches keep the doubled, antialiased readouts exact
+ * without rebuilding unchanged glyphs every dashboard update. */
+static uint16_t body_art[68*42] __attribute__((aligned(4)));
+static uint16_t combo_art[68*42] __attribute__((aligned(4)));
+static uint16_t location_art[113*14] __attribute__((aligned(4)));
+static int body_key=-1,body_value=-1,combo_key=-1,combo_value=-1;
+static int location_key=-1,location_value=-1;
+typedef struct {
+ int speed,accel,ratio,reverse,health,combo,location,charge,turbo,latched,recharging,source,driving,impact;
+ uint32_t points,cash,distance,coins;
+} DashboardReadout;
+static DashboardReadout dashboard_previous;
+static uint16_t *dashboard_target;
+static int dashboard_target_key=-1;
+static void field_background(uint16_t *pixels,int x,int y,int w,int h){
+ for(int row=0;row<h;row++)gfx_copy(pixels+row*w,dashboard_art+(y+row)*256+x,w);
+}
+static void field_copy(Surface*s,const uint16_t*pixels,int x,int y,int w,int h){
+ for(int row=0;row<h;row++)gfx_copy(s->pixels+(y+row)*s->w+x,pixels+row*w,w);
+}
+static void dashboard_restore(Surface*s,int x,int y,int w,int h){
+ for(int row=0;row<h;row++)gfx_copy(s->pixels+(y+row)*s->w+x,dashboard_art+(y+row)*256+x,w);
+}
 static void digit(Surface*s,int x,int y,int n,int scale,uint16_t color,uint16_t off){
  static const unsigned char masks[10]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};unsigned bits=masks[clamp(n,0,9)];int a=scale,b=scale*4;
  for(int i=0;i<7;i++){uint16_t c=(bits&(1u<<i))?color:off;switch(i){case 0:gfx_rect(s,x+a,y,b,a,c);break;case 1:gfx_rect(s,x+a+b,y+a,a,b,c);break;case 2:gfx_rect(s,x+a+b,y+2*a+b,a,b,c);break;case 3:gfx_rect(s,x+a,y+2*(a+b),b,a,c);break;case 4:gfx_rect(s,x,y+2*a+b,a,b,c);break;case 5:gfx_rect(s,x,y+a,a,b,c);break;default:gfx_rect(s,x+a,y+a+b,b,a,c);break;}}
@@ -206,11 +242,18 @@ static void analog_face(Surface*s,int x,int y,int r,int accel,int cream,int unit
 static void needle(Surface*s,int x,int y,int radius,int index,uint16_t color){index=clamp(index,0,30);int dx=needle_xy[index][0],dy=needle_xy[index][1],ex=x+dx*radius/1024,ey=y+dy*radius/1024;gfx_line(s,x+1,y+1,ex+1,ey+1,DARK);gfx_line(s,x-dx*5/1024,y-dy*5/1024,ex,ey,color);gfx_line(s,x,y+1,ex,ey+1,color);disc(s,x,y,4,C(150,172,178));disc(s,x,y,2,DARK);}
 static void cockpit_panel(Surface*s,int x,int y,int w,int h){gfx_card(s,x,y+2,w,h,DARK,DARK);gfx_card(s,x,y,w,h,C(8,27,38),C(88,120,133));gfx_rect(s,x+6,y+2,w-12,1,C(61,91,107));}
 static void dashboard_background(const Game*g,int family,int key){
- Surface cache={dashboard_art,256,192};Surface*s=&cache;int v=g->vehicle;
+ Surface cache={dashboard_art,256,192},instruments={dashboard_art+76*256,256,116};Surface*s=&cache;int v=g->vehicle;
  gradient(s,0,0,256,192,t->cockpit_top,t->cockpit_bottom);
- if(v==5){for(int y=18;y<120;y++){uint16_t c=C(72+(y*13%11),49+(y*7%8),40+(y%6));gfx_rect(s,0,y,256,1,mix(c,t->cockpit_top,75));}for(int y=25;y<115;y+=19)gfx_line(s,0,y,256,y+5,C(51,37,34));}
- if(family==CL_RACE){for(int y=19;y<120;y+=5)for(int x=(y&4)?0:-4;x<256;x+=8)gfx_line(s,x,y,x+4,y+4,mix(t->cockpit_top,DARK,85));}
- gfx_text_small(s,12,5,vehicles[v].name,LIGHT);
+ gfx_text_small(s,12,4,vehicles[v].name,LIGHT);
+ glass(s,11,16,68,42,0);glass(s,84,16,68,42,0);glass(s,157,16,88,42,0);
+ gfx_text_small(s,18,20,"BODY",t->muted);gfx_text_small(s,91,20,"COMBO",t->muted);
+ gfx_text_small(s,164,20,"POINTS",t->muted);gfx_text_small(s,164,45,"CASH",t->muted);
+ cockpit_panel(s,11,62,234,21);gfx_text_small(s,18,65,"TURBO",SOFT);
+ gfx_rect(s,11,96,234,1,mix(t->light,DARK,150));
+ gfx_text_small(s,12,86,"TRIP",SOFT);gfx_text_small(s,114,86,"COINS",SOFT);
+ s=&instruments;
+ if(v==5){for(int y=21;y<116;y++){uint16_t c=C(72+(y*13%11),49+(y*7%8),40+(y%6));gfx_rect(s,0,y,256,1,mix(c,t->cockpit_top,75));}for(int y=25;y<115;y+=19)gfx_line(s,0,y,256,y+5,C(51,37,34));}
+ if(family==CL_RACE){for(int y=21;y<116;y+=5)for(int x=(y&4)?0:-4;x<256;x+=8)gfx_line(s,x,y,x+4,y+4,mix(t->cockpit_top,DARK,85));}
  const char*unit=g->save.units?"mph":"km/h";
  switch(family){
  case CL_CLASSIC:
@@ -233,9 +276,6 @@ static void dashboard_background(const Game*g,int family,int key){
   cockpit_panel(s,12,42,43,58);cockpit_panel(s,190,42,54,58);gfx_text_small(s,20,46,"GEAR",SOFT);gfx_text_small(s,196,46,"ACCEL",SOFT);gfx_text_small(s,200,85,"m/s2",SOFT);
   for(int i=0;i<28;i++){gfx_rect(s,16+i*8,25,6,9,C(30,47,58));}center(s,64,105,124,unit,SOFT);break;
  }
- gfx_rect(s,11,120,234,1,mix(t->light,DARK,150));gfx_rect(s,11,121,234,1,DARK);
- gfx_text_small(s,12,130,"ODOMETER",SOFT);for(int i=0;i<6;i++){int x=78+i*12;gfx_card(s,x,126,11,17,C(3,15,24),C(52,80,94));gfx_rect(s,x+1,127,9,1,C(32,59,73));}gfx_text_small(s,153,132,"m",SOFT);
- gfx_text_small(s,12,152,"POINTS",SOFT);gfx_text_small(s,164,152,"CASH",SOFT);gfx_text_small(s,12,167,"BODY",SOFT);cockpit_panel(s,155,163,89,14);gfx_text_small(s,162,167,"COMBO",SOFT);gfx_text_small(s,12,183,"Start: Pause",SOFT);
  dashboard_key=key;
 }
 static int display_speed(int speed,int units){return units?(speed*621+500)/1000:speed;}
@@ -247,8 +287,40 @@ static void dynamic_tach(Surface*s,int count,int width,int y,int h,int ratio){
 static void dashboard(Surface*s,const Game*g){
  int v=clamp(g->vehicle,0,VEHICLE_COUNT-1),family=cluster_for(v),key=v+VEHICLE_COUNT*(g->save.skin+SKIN_COUNT*g->save.units);
  if(dashboard_key!=key)dashboard_background(g,family,key);
- gfx_copy(s->pixels,dashboard_art,256*192);limited(s,130,4,113,locations[g->biome<LOCATION_COUNT?g->biome:0].name,t->light);
- int native=g->speed_q8<0?-g->speed_q8:g->speed_q8;native=(native+Q/2)/Q;int speed=display_speed(native,g->save.units),accel=clamp(g->accel_q8*100/(Q*36),-999,999);char a[16]="";accel_text(a,accel,sizeof a);int ratio=native*100/(game_top_speed(g)>0?game_top_speed(g):1);const char*gear=g->speed_q8<0?"R":"D";uint16_t off=C(27,52,60);
+ int native=g->speed_q8<0?-g->speed_q8:g->speed_q8;native=(native+Q/2)/Q;
+ int speed=display_speed(native,g->save.units),accel=clamp(g->accel_q8*100/(Q*36),-999,999);
+ int ratio=native*100/(game_top_speed(g)>0?game_top_speed(g):1),combo_tenth=g->combo_q8*10/Q;
+ int location=g->biome<LOCATION_COUNT?g->biome:0;
+ DashboardReadout now={speed,accel,ratio,g->speed_q8<0,g->health,combo_tenth,location,
+  g->turbo_charge_q8,g->turbo,g->turbo_latched,g->turbo_recharging,g->turbo_source,
+  g->wheelie?1:g->drifting?2:g->slow?3:g->turbo?4:0,g->crash_timer!=0,
+  g->run.total_points,g->run.total_cash,g->run.distance_m,g->run.count[B_COIN]};
+ const DashboardReadout *old=&dashboard_previous;
+ int refresh=dashboard_target!=s->pixels || dashboard_target_key!=key;
+ int header_dirty=refresh || old->location!=now.location || old->impact!=now.impact;
+ int instruments_dirty=refresh || old->speed!=speed || old->accel!=accel || old->ratio!=ratio ||
+  old->reverse!=now.reverse || (family==CL_UTILITY && old->health!=now.health);
+ int body_dirty=refresh || old->health!=now.health,combo_dirty=refresh || old->combo!=combo_tenth;
+ int score_dirty=refresh || old->points!=now.points || old->cash!=now.cash;
+ int turbo_dirty=refresh || old->charge!=now.charge || old->turbo!=now.turbo || old->latched!=now.latched ||
+  old->recharging!=now.recharging || old->source!=now.source;
+ int trip_dirty=refresh || old->distance!=now.distance || old->coins!=now.coins || old->driving!=now.driving;
+ /* The caller retains this RAM bitmap between updates. Restore only fields
+  * whose displayed values changed; menus and new targets force a full fill. */
+ if(refresh)gfx_copy(s->pixels,dashboard_art,256*192);
+ if(header_dirty){
+  if(!refresh)dashboard_restore(s,0,0,256,16);
+  if(location_key!=key || location_value!=location){
+   field_background(location_art,130,3,113,14);Surface label={location_art,113,14};
+   limited(&label,0,0,113,locations[location].name,t->light);location_key=key;location_value=location;
+  }
+  field_copy(s,location_art,130,3,113,14);
+  if(g->crash_timer){gfx_card(s,190,1,57,13,C(81,39,44),WARN);center(s,190,3,57,"IMPACT",LIGHT);}
+ }
+ if(instruments_dirty){
+ if(!refresh)dashboard_restore(s,0,97,256,95);
+ char a[16]="";accel_text(a,accel,sizeof a);const char*gear=g->speed_q8<0?"R":"D";uint16_t off=C(27,52,60);
+ Surface instruments={s->pixels+76*s->w,s->w,s->h-76};Surface*full=s;s=&instruments;
  switch(family){
  case CL_CLASSIC:
   needle(s,65,67,30,g->save.units?speed/6:speed/10,v==5?C(145,48,31):t->light);needle(s,191,67,30,15+accel*15/400,v==5?C(145,48,31):t->light);
@@ -264,11 +336,47 @@ static void dashboard(Surface*s,const Game*g){
  case CL_RACE:
   digits(s,79,48,speed,4,t->light,off);center(s,12,70,43,gear,GOLD);center(s,190,67,54,a,accel<0?WARN:t->light);dynamic_tach(s,28,8,25,9,ratio);break;
  }
- uint32_t metres=g->run.distance_m;int div=100000;for(int i=0;i<6;i++){char d[2]={(char)('0'+(metres/div)%10),0};center(s,78+i*12,129,11,d,LIGHT);div/=10;}
- const char*mode=g->wheelie?"WHEELIE":g->drifting?"DRIFT":g->slow?"CRUISE":g->turbo?"TURBO":"DRIVE";right(s,244,130,mode,g->turbo||g->drifting||g->wheelie?GOLD:t->light);
- char score[24]="";number(score,g->run.total_points,sizeof score);right(s,140,150,score,LIGHT);char cash[24]="";money(cash,g->run.total_cash,sizeof cash);right(s,244,150,cash,GOLD);meter(s,45,170,88,g->health,100,g->health<30?WARN:t->light,DARK);
- char combo[16]="x";number(combo,g->combo_q8/Q,sizeof combo);append(combo,".",sizeof combo);number(combo,(g->combo_q8%Q)*10/Q,sizeof combo);right(s,237,166,combo,GOLD);char coins[24]="COINS ";number(coins,g->run.count[B_COIN],sizeof coins);right(s,244,182,coins,GOLD);
- if(g->crash_timer){gfx_card(s,85,23,86,15,C(81,39,44),WARN);center(s,85,26,86,"IMPACT",LIGHT);}
+ s=full;
+ }
+ if(body_dirty){
+ if(body_key!=key || body_value!=g->health){
+  field_background(body_art,11,16,68,42);Surface body={body_art,68,42};
+  char health[12]="";number(health,g->health,sizeof health);append(health,"%",sizeof health);
+  large_text(&body,6,13,health,g->health<30?t->coral:t->ink);
+  meter(&body,7,35,54,g->health,100,g->health<30?WARN:t->accent,mix(t->card_bottom,t->shadow,110));
+  body_key=key;body_value=g->health;
+ }
+ field_copy(s,body_art,11,16,68,42);
+ }
+ if(combo_dirty){
+ if(combo_key!=key || combo_value!=combo_tenth){
+  field_background(combo_art,84,16,68,42);Surface readout={combo_art,68,42};
+  char combo[16]="x";number(combo,combo_tenth/10,sizeof combo);append(combo,".",sizeof combo);number(combo,combo_tenth%10,sizeof combo);
+  large_text(&readout,6,13,combo,t->accent);combo_key=key;combo_value=combo_tenth;
+ }
+ field_copy(s,combo_art,84,16,68,42);
+ }
+ if(score_dirty){
+ if(!refresh)dashboard_restore(s,157,30,88,28);
+ char score[24]="";number(score,g->run.total_points,sizeof score);right(s,237,32,score,t->ink);char cash[24]="";money(cash,g->run.total_cash,sizeof cash);right(s,237,44,cash,t->accent);
+ }
+ if(turbo_dirty){
+ if(!refresh)dashboard_restore(s,11,62,234,22);
+ int charge=clamp(g->turbo_charge_q8,0,TURBO_MAX_Q8),percent=charge*100/TURBO_MAX_Q8;
+ uint16_t turbo_color=g->turbo?t->light:charge<TURBO_START_Q8?WARN:g->turbo_recharging?C(104,226,221):t->light;
+ meter(s,61,66,139,charge,TURBO_MAX_Q8,turbo_color,DARK);char turbo[12]="";number(turbo,percent,sizeof turbo);append(turbo,"%",sizeof turbo);right(s,237,64,turbo,turbo_color);
+ const char*status=g->turbo?"BOOST ACTIVE":g->turbo_latched?"RELEASE UP TO REARM":charge<TURBO_START_Q8?"BUILD CHARGE TO 10%":g->turbo_recharging?g->turbo_source==TS_NEAR?"RECHARGE / NEAR MISS":g->turbo_source==TS_DRIFT?"RECHARGE / DRIFT":g->turbo_source==TS_WHEELIE?"RECHARGE / WHEELIE":"RECHARGE / SLOW":"READY / HOLD UP + R";
+ gfx_text_small(s,18,75,status,g->turbo_latched||charge<TURBO_START_Q8?WARN:SOFT);
+ char seconds[12]="";number(seconds,charge/(DRIVE_HZ*Q),sizeof seconds);append(seconds,".",sizeof seconds);number(seconds,(charge%(DRIVE_HZ*Q))*10/(DRIVE_HZ*Q),sizeof seconds);append(seconds,"s",sizeof seconds);right(s,237,74,seconds,turbo_color);
+ }
+ if(trip_dirty){
+ if(!refresh)dashboard_restore(s,11,85,234,12);
+ char trip[24]="";number(trip,g->run.distance_m,sizeof trip);append(trip," m",sizeof trip);right(s,105,85,trip,LIGHT);
+ char coins[24]="";number(coins,g->run.count[B_COIN],sizeof coins);right(s,177,85,coins,GOLD);
+ const char*mode=g->wheelie?"WHEELIE":g->drifting?"DRIFT":g->slow?"CRUISE":g->turbo?"TURBO":"DRIVE";
+ right(s,244,85,mode,g->turbo||g->drifting||g->wheelie?GOLD:t->light);
+ }
+ dashboard_previous=now;dashboard_target=s->pixels;dashboard_target_key=key;
 }
 static void receipt(Surface*s,const Game*g){
  uint16_t paper=C(246,247,231),ink=C(33,73,80),muted=C(93,127,127);gradient(s,0,0,256,192,t->sky,t->shore);gfx_rect(s,12,7,236,170,t->shadow);gfx_rect(s,8,3,236,170,paper);for(int x=8;x<244;x+=8){gfx_rect(s,x,173,7,1,paper);gfx_rect(s,x+1,174,5,1,paper);gfx_rect(s,x+2,175,3,1,paper);gfx_rect(s,x+3,176,1,1,paper);}
@@ -278,7 +386,9 @@ static void receipt(Surface*s,const Game*g){
  gfx_rect(s,17,137,218,1,C(124,165,160));gfx_text(s,18,141,"TOTAL POINTS",ink);char total[28]="";number(total,g->run.total_points,sizeof total);right(s,234,141,total,ink);char label[50]="CASH";if(g->run.cash_bonus){append(label," (+",sizeof label);money(label,g->run.cash_bonus,sizeof label);append(label," perk)",sizeof label);}else append(label," EARNED",sizeof label);gfx_text(s,18,153,label,ink);char cash[24]="";money(cash,g->run.total_cash,sizeof cash);right(s,234,153,cash,ink);char xp[70]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  |  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);center_small(s,8,164,236,xp,muted);center(s,0,181,256,"A: Continue",t->ink);
 }
 void ui_draw_bottom(Surface*s,const Game*g){
- t=&themes[g->save.skin%SKIN_COUNT];if(g->mode==M_RUN){dashboard(s,g);return;}if(g->mode==M_RECEIPT){receipt(s,g);return;}
+ t=&themes[g->save.skin%SKIN_COUNT];if(g->mode==M_RUN){dashboard(s,g);return;}
+ dashboard_target=0;
+ if(g->mode==M_RECEIPT){receipt(s,g);return;}
  backdrop(s,g->save.skin%SKIN_COUNT);
  switch(g->mode){case M_HOME:home(s,g);break;case M_GARAGE:garage(s,g);break;case M_DEPARTURES:departures(s,g);break;case M_CHALLENGES:challenges(s,g);break;case M_CONTROLS:controls(s,g);break;case M_PAUSE:pause_menu(s,g);break;case M_CAREER:career(s,g);break;case M_SETTINGS:settings(s,g);break;default:home(s,g);break;}
  if(g->notice_timer&&g->notice[0]){glass(s,10,155,236,21,1);limited(s,18,160,220,g->notice,t->selected_ink);}

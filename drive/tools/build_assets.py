@@ -56,6 +56,15 @@ PROP_EXPANSION_BOXES = (
     (1035, 4, 1530, 489), (4, 526, 500, 1004),
     (493, 515, 1058, 996), (1116, 495, 1462, 1011),
 )
+# Grounded roadside set: low camera, narrow roof bands, inward-facing facades.
+# The lower boat/pier crops are true top views for water-plane projection.
+PROP_GROUNDED_BOXES = (
+    (0, 0, 440, 396), (440, 0, 863, 398), (864, 70, 1312, 396),
+    (0, 396, 451, 797), (456, 405, 911, 794), (965, 390, 1265, 793),
+    (0, 860, 530, 1135), (610, 790, 802, 1199), (972, 792, 1200, 1199),
+)
+PROP_GROUNDED_IDS = (0, 1, 2, 14, 16, 8, 7)
+PROP_SIDE_IDS = (0, 1, 2, 7, 8, 14, 16)
 PROP_NAMES = (
     "GLASS", "BRICK", "WAREHOUSE", "PALM", "PINE", "TREE",
     "SHRUB", "ROCK", "LAMP", "GANTRY", "BILLBOARD", "BOAT",
@@ -112,6 +121,25 @@ def contain(im: Image.Image, w: int, h: int, *, bottom: bool = False) -> Image.I
     return result
 
 
+def ground_contact(im: Image.Image, *, inner_corner: bool = False) -> tuple[int, int]:
+    """Ground reference in the final framed sprite, never the canopy centre.
+
+    Frontage uses its road-facing corner; foliage and street lights use the
+    centre of their actual foot in the lowest few opaque rows. An anchor lets
+    the renderer project the contact point independently of the upright art.
+    """
+    mask = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0)
+    box = mask.getbbox()
+    if box is None:
+        raise ValueError("Cannot anchor an empty sprite")
+    left, _, right, bottom = box
+    if inner_corner:
+        return right - 2, bottom - 1
+    foot = mask.crop((left, max(0, bottom - 4), right, bottom)).getbbox()
+    assert foot is not None
+    return left + (foot[0] + foot[2] - 1) // 2, bottom - 1
+
+
 def atlas_crops(path: Path, boxes: tuple, expected_size: tuple[int, int]) -> list[Image.Image]:
     source = Image.open(path).convert("RGBA")
     if source.size != expected_size:
@@ -159,8 +187,25 @@ def artwork() -> None:
     raw("traffic_bounds", silhouette_bounds(traffic), "uint8_t", 6 * 4)
     prop_sources = atlas_crops(ART / "scenery.png", PROP_BOXES, (1383, 1137))
     prop_sources += atlas_crops(ART / "scenery-expansion.png", PROP_EXPANSION_BOXES, (1536, 1024))
+    grounded = atlas_crops(ART / "scenery-grounded.png", PROP_GROUNDED_BOXES, (1312, 1199))
+    for prop_id, source in zip(PROP_GROUNDED_IDS, grounded[:7]):
+        prop_sources[prop_id] = source
     props = [contain(im, PROP_W, PROP_H, bottom=True) for im in prop_sources]
+    frontage = (0, 1, 2, 14, 16)
+    anchors = [ground_contact(im, inner_corner=i in frontage or i == 7)
+               for i, im in enumerate(props)]
+    side_props = [props[i].transpose(Image.Transpose.FLIP_LEFT_RIGHT) for i in PROP_SIDE_IDS]
+    side_anchors = [(PROP_W - 1 - anchors[i][0], anchors[i][1]) for i in PROP_SIDE_IDS]
     raw("prop_art", b"".join(rgb555(im) for im in props), "uint16_t", len(props) * PROP_W * PROP_H)
+    raw("prop_bounds", silhouette_bounds(props), "uint8_t", len(props) * 4)
+    raw("prop_anchor", bytes(v for xy in anchors for v in xy), "uint8_t", len(props) * 2)
+    raw("prop_side_art", b"".join(rgb555(im) for im in side_props), "uint16_t", len(side_props) * PROP_W * PROP_H)
+    raw("prop_side_bounds", silhouette_bounds(side_props), "uint8_t", len(side_props) * 4)
+    raw("prop_side_anchor", bytes(v for xy in side_anchors for v in xy), "uint8_t", len(side_props) * 2)
+    boat = contain(grounded[7].transpose(Image.Transpose.ROTATE_270), 128, 64)
+    pier = contain(grounded[8], 64, 128)
+    raw("boat_ground", rgb555(boat), "uint16_t", 128 * 64)
+    raw("pier_ground", rgb555(pier), "uint16_t", 64 * 128)
     # Offline filtering avoids high-frequency scintillation when scenery scales
     # down and streams past at speed. Resize the entire framed sprite so its
     # normalized ground contact and padding stay consistent across all levels.
@@ -168,10 +213,17 @@ def artwork() -> None:
         height = width * PROP_H // PROP_W
         lod = [im.resize((width, height), Image.Resampling.LANCZOS) for im in props]
         raw(f"prop_lod{width}", b"".join(rgb555(im) for im in lod), "uint16_t", len(props) * width * height)
+        raw(f"prop_lod{width}_bounds", silhouette_bounds(lod), "uint8_t", len(props) * 4)
+        side_lod = [im.resize((width, height), Image.Resampling.LANCZOS) for im in side_props]
+        raw(f"prop_side_lod{width}", b"".join(rgb555(im) for im in side_lod), "uint16_t", len(side_lod) * width * height)
+        raw(f"prop_side_lod{width}_bounds", silhouette_bounds(side_lod), "uint8_t", len(side_lod) * 4)
         preview(f"scenery-lod{width}.png", lod, 6, 3)
     preview("vehicle-poses.png", poses, 5)
     preview("traffic-preview.png", traffic, 6)
     preview("scenery-preview.png", props, 6)
+    preview("scenery-side-preview.png", side_props, 7, 3)
+    boat.save(OUT / "boat-ground-preview.png")
+    pier.save(OUT / "pier-ground-preview.png")
 
 
 def fonts() -> None:
@@ -236,6 +288,11 @@ def declarations(music_bytes: int, music_rate: int) -> None:
         lines.extend((f"#define ASSET_{stem}_W {width}", f"#define ASSET_{stem}_H {height}"))
     lines.extend(f"#define ASSET_PROP_{name} {index}" for index, name in enumerate(PROP_NAMES))
     lines.append(f"#define ASSET_PROP_COUNT {len(PROP_NAMES)}")
+    lines.append(f"#define ASSET_PROP_SIDE_COUNT {len(PROP_SIDE_IDS)}")
+    lines.extend(f"#define ASSET_PROP_SIDE_{PROP_NAMES[prop_id]} {index}"
+                 for index, prop_id in enumerate(PROP_SIDE_IDS))
+    lines.extend(("#define ASSET_BOAT_GROUND_W 128", "#define ASSET_BOAT_GROUND_H 64",
+                  "#define ASSET_PIER_GROUND_W 64", "#define ASSET_PIER_GROUND_H 128"))
     lines.append("#define ASSET_VEHICLE_COUNT 10")
     lines.extend((f"#define MUSIC_BYTES {music_bytes}", f"#define MUSIC_RATE {music_rate}", "#endif", ""))
     (OUT / "assets.h").write_text("\n".join(lines))

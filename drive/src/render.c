@@ -42,14 +42,18 @@ enum { SC_BUILDING=0,SC_SHOP=1,SC_WAREHOUSE=2,SC_PALM=3,SC_PINE=4,SC_TREE=5,
        SC_BUSH=6,SC_ROCK=7,SC_LAMP=8,SC_GANTRY=9,SC_BILLBOARD=10,SC_SAIL=11,
        SC_MANGROVE=12,SC_CITRUS=13,SC_HOTEL=14,SC_REEDS=15,SC_VILLA=16,SC_PIER=17,
        SC_BARRIER=18 };
-enum { ITEM_PROP,ITEM_CAR,ITEM_COIN,ITEM_PLAYER,ITEM_OVERPASS,ITEM_BACK_PROP };
-typedef struct { int z,x,kind,id,variant; } DrawItem;
+enum { ITEM_PROP,ITEM_CAR,ITEM_COIN,ITEM_PLAYER,ITEM_BACK_PROP };
+typedef struct { int z,x,kind,id,variant,side; } DrawItem;
 typedef struct { int x,z;unsigned tick; } TireMark;
 typedef struct {
  unsigned seed,frame;
  int position,visual_position,visual_scale,center,cam_x,start,attract,speed,motion;
 } View;
 
+#define DEPTH_CACHE_MIN (-44)
+#define DEPTH_CACHE_COUNT (ROAD_VIEW+128-DEPTH_CACHE_MIN+1)
+static int16_t depth_y[DEPTH_CACHE_COUNT],depth_scale[DEPTH_CACHE_COUNT];
+static uint32_t vertical_step[256];
 static int row_z[VH],row_scale[VH],road_x[VH],road_half[VH];
 static uint8_t row_biome[VH];
 static uint16_t row_feature[VH];
@@ -75,13 +79,19 @@ static uint16_t blend_color(uint16_t a,uint16_t b,int amount)
 static int material_blend(unsigned amount)
 {return (int)amount+(amount>=128);}
 
-/* A high, close chase camera: the bottom of the frame has useful lateral
- * space, while the upper frame can show distant bends without a horizon. */
+/* The established low chase projection is shared by the road, vehicles and
+ * scenery ground contacts.  Upright scenery keeps its vertical height. */
 static int project_y(int z)
-{return HORIZON+((PLAYER_Y-HORIZON)*CAMERA)/(z+CAMERA);}
+{
+ unsigned index=(unsigned)(z-DEPTH_CACHE_MIN);
+ return index<DEPTH_CACHE_COUNT?depth_y[index]:HORIZON+((PLAYER_Y-HORIZON)*CAMERA)/(z+CAMERA);
+}
 
 static int project_scale(int z)
-{return (276*CAMERA)/(z+CAMERA);}
+{
+ unsigned index=(unsigned)(z-DEPTH_CACHE_MIN);
+ return index<DEPTH_CACHE_COUNT?depth_scale[index]:(276*CAMERA)/(z+CAMERA);
+}
 
 static int item_x(const View *v,int world_x,int z)
 {return 128+((world_x-v->center-v->cam_x)*project_scale(z))/256;}
@@ -91,6 +101,12 @@ static void init_projection(void)
  static int initialized;
  if(initialized)return;
  initialized=1;
+ for(int i=0;i<DEPTH_CACHE_COUNT;i++) {
+  int z=i+DEPTH_CACHE_MIN;
+  depth_y[i]=(int16_t)(HORIZON+((PLAYER_Y-HORIZON)*CAMERA)/(z+CAMERA));
+  depth_scale[i]=(int16_t)((276*CAMERA)/(z+CAMERA));
+ }
+ for(int i=1;i<256;i++)vertical_step[i]=65536u/(unsigned)i;
  for(int y=0;y<VH;y++) {
   if(y<=HORIZON){row_z[y]=FAR_DISTANCE;row_scale[y]=0;continue;}
   row_z[y]=clampi(((PLAYER_Y-y)*CAMERA)/(y-HORIZON),-44,FAR_DISTANCE);
@@ -376,13 +392,13 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
  }
 }
 
-static void add_item(DrawItem *items,int *count,int z,int x,int kind,int id,int variant)
+static void add_item(DrawItem *items,int *count,int z,int x,int kind,int id,int variant,int side)
 {
  if(*count>=DRAW_MAX || z < -44 || z>ROAD_VIEW)return;
  int at=(*count)++;
  /* Far to near.  Props are queued before the vehicle on equal coordinates. */
  while(at>0 && items[at-1].z<z){items[at]=items[at-1];at--;}
- items[at]=(DrawItem){z,x,kind,id,variant};
+ items[at]=(DrawItem){z,x,kind,id,variant,side};
 }
 
 static int prop_for_biome(int biome,uint32_t hash,int side)
@@ -390,12 +406,11 @@ static int prop_for_biome(int biome,uint32_t hash,int side)
  switch(biome) {
  case CITY:
   if((hash&15)==0)return SC_LAMP;
-  if((hash&15)==1)return SC_BILLBOARD;
   return (int)((hash>>4)%3);
  case COAST:
   if(side<0)return SC_SAIL;
   return (hash&7)?SC_PALM:SC_VILLA;
- case CAUSEWAY:return (hash&1)?SC_LAMP:SC_BARRIER;
+ case CAUSEWAY:return SC_LAMP;
  case PINES:return (hash&3)?SC_PINE:SC_TREE;
  case CANYON:return (hash&3)?SC_ROCK:SC_BUSH;
  case MARINA:return side<0?((hash&3)?SC_PIER:SC_SAIL):((hash&7)?SC_HOTEL:SC_LAMP);
@@ -419,7 +434,7 @@ static void queue_scenery(DrawItem *items,int *count,const View *v)
   int kind=prop_for_biome(biome,h,side);
   int mix=material_blend(identity.blend);
   int water=(biome_water(identity.biome,side)*(256-mix)+biome_water(identity.next_biome,side)*mix)/256;
-  int bridge_prop=kind==SC_BARRIER || (kind==SC_LAMP && bridge_region(biome));
+  int bridge_prop=kind==SC_LAMP && bridge_region(biome);
   int wet_plant=kind==SC_MANGROVE || kind==SC_REEDS;
   int floating=kind==SC_SAIL || kind==SC_PIER;
   /* Material belongs to this immutable anchor too.  Leave transition banks
@@ -428,50 +443,232 @@ static void queue_scenery(DrawItem *items,int *count,const View *v)
   if(floating && water<256)continue;
   if(biome==COAST && side<0 && (h&3))continue;
   if(biome==CAUSEWAY && (n&1))continue;
-  int x=sample.center+side*(125+(int)((h>>6)%26));
+  int building=kind==SC_BUILDING || kind==SC_SHOP || kind==SC_WAREHOUSE || kind==SC_HOTEL || kind==SC_VILLA;
+  int setback=building?ROAD_HALF+34:125;
+  int x=sample.center+side*(setback+(int)((h>>6)%22));
   if(biome==CAUSEWAY)x=sample.center+side*(ROAD_HALF+7);
   if(biome==WETLANDS)x=sample.center+side*(kind==SC_REEDS?108:140);
-  if(biome==MARINA && kind==SC_PIER)x=sample.center+side*130;
+  if(biome==MARINA && kind==SC_PIER)x=sample.center+side*137;
   /* Boats sit offshore, beyond the shoreline rather than on the shoulder. */
-  if(kind==SC_SAIL)x+=side*27;
+  if(kind==SC_SAIL)x+=side*45;
   if(!(n&1) && (biome==CITY || biome==PINES || biome==GROVES || (biome==MARINA && side>0))) {
    int back_kind=biome==PINES?SC_PINE:biome==GROVES?SC_CITRUS:biome==MARINA?SC_HOTEL:SC_BUILDING;
-   add_item(items,count,z,sample.center+side*(188+(int)((h>>18)%25)),ITEM_BACK_PROP,back_kind,(int)h);
+   add_item(items,count,z,sample.center+side*(188+(int)((h>>18)%25)),ITEM_BACK_PROP,back_kind,(int)h,side);
   }
-  add_item(items,count,z,x,ITEM_PROP,kind,(int)h);
+  add_item(items,count,z,x,ITEM_PROP,kind,(int)h,side);
  }
- /* A gantry is deliberately open over the lanes: posts live outside the
-  * collision boundary and a shallow header does not hide approaching cars. */
- int segment=floor_div(v->visual_position,6400);
- for(int n=segment;n<=segment+1;n++) {
-  int absolute=n*6400+4840;
-  int z=absolute-v->visual_position;
-  RoadSample r;road_sample(v->seed,v->position+z,v->start,&r);
-  if(r.biome==CITY)add_item(items,count,z,r.center,ITEM_OVERPASS,0,0);
+}
+
+/* Scenery is authored upright, but its footprint belongs to the same road
+ * plane as tyres and lane paint.  Water objects are entirely ground-plane
+ * textures; buildings keep vertical columns above their receding foundation. */
+static int side_variant(int id)
+{
+ switch(id) {
+ case SC_BUILDING:return 0;case SC_SHOP:return 1;case SC_WAREHOUSE:return 2;
+ case SC_ROCK:return 3;case SC_LAMP:return 4;case SC_HOTEL:return 5;
+ case SC_VILLA:return 6;default:return -1;
+ }
+}
+
+static const uint16_t *prop_source(int id,int side,int projected_width,
+ int *source_width,int *source_height,const uint8_t **anchor,const uint8_t **bounds)
+{
+ int variant=side>0?side_variant(id):-1;
+ const uint16_t *pixels;
+ int width=projected_width>=40?64:projected_width>=27?48:projected_width>=13?32:16;
+ int height=width*PROP_H/PROP_W;
+ if(variant>=0) {
+  pixels=width==64?prop_side_art:width==48?prop_side_lod48:
+         width==32?prop_side_lod32:prop_side_lod16;
+  pixels+=variant*width*height;
+  *anchor=prop_side_anchor+variant*2;
+  *bounds=(width==64?prop_side_bounds:width==48?prop_side_lod48_bounds:
+           width==32?prop_side_lod32_bounds:prop_side_lod16_bounds)+variant*4;
+ } else {
+  pixels=width==64?prop_art:width==48?prop_lod48:width==32?prop_lod32:prop_lod16;
+  pixels+=id*width*height;
+  *anchor=prop_anchor+id*2;
+  *bounds=(width==64?prop_bounds:width==48?prop_lod48_bounds:
+           width==32?prop_lod32_bounds:prop_lod16_bounds)+id*4;
+ }
+ *source_width=width;*source_height=height;
+ return pixels;
+}
+
+/* Inverse projected rows need one division per scanline, never per texel.
+ * Transparent top-view wood/hull texels preserve the actual water beneath. */
+static FAST __attribute__((noinline)) void ground_plane(Surface *s,const View *v,
+ int world_x,int world_z,int width,int depth,const uint16_t *pixels,
+ int source_width,int source_height,uint16_t color)
+{
+ int near=world_z-depth/2,far=world_z+(depth+1)/2;
+ if(far < -44 || near>ROAD_VIEW+depth)return;
+ int top=clampi(project_y(far),HORIZON+1,VH-1);
+ int bottom=clampi(project_y(near < -44?-44:near),HORIZON+1,VH-1);
+ for(int y=top;y<=bottom;y++) {
+  int z=row_z[y];if(z<near || z>far)continue;
+  int scale=row_scale[y],w=width*scale/256;
+  if(w<1)continue;
+  int left=128+((world_x-v->center-v->cam_x)*scale)/256-w/2;
+  int begin=left<0?-left:0,end=left+w>VW?VW-left:w;
+  if(end<=begin)continue;
+  uint16_t *dest=s->pixels+y*s->w+left+begin;
+  if(!pixels) {
+   for(int x=begin;x<end;x++)*dest++=color;
+  } else {
+   int sy=clampi(((far-z)*source_height)/depth,0,source_height-1);
+   const uint16_t *row=pixels+sy*source_width;
+   unsigned step=vertical_step[clampi(w,1,255)]*(unsigned)source_width;
+   unsigned sample=(unsigned)begin*step;
+   for(int x=begin;x<end;x++,sample+=step) {
+    uint16_t pixel=row[sample>>16];
+    if(pixel)*dest=pixel;
+    dest++;
+   }
+  }
+ }
+}
+
+/* A diagonal foundation is a small 2.5D facade: every vertical strip rises
+ * from its own projected ground contact.  Whole-image rotation or skew would
+ * lean the building and leave one end of the front steps below the road. */
+static FAST __attribute__((noinline)) void upright_facade(Surface *s,const View *v,
+ const DrawItem *item,const uint16_t *pixels,int source_width,int source_height,
+ const uint8_t *anchor,const uint8_t *bounds,int world_width,int world_depth)
+{
+ typedef struct {int16_t top,active_top;uint16_t height,source_x;unsigned step;} FacadeColumn;
+ FacadeColumn columns[VW];
+ uint32_t assigned[VW/32]={0};
+ int first_row=VH,last_row=0,first_x=VW,last_x=0;
+ int world_height=world_width*PROP_H/PROP_W;
+ int side=item->side;
+ int dx_q16=-anchor[0]*world_width*1024;
+ int dz_q16=-side*anchor[0]*world_depth*1024;
+ int dx_step=(world_width*65536)/source_width;
+ int dz_step=(side*world_depth*65536)/source_width;
+ unsigned source_inverse=(65536u+(unsigned)source_height-1)/(unsigned)source_height;
+ dx_q16+=bounds[0]*dx_step;dz_q16+=bounds[0]*dz_step;
+ int end_dx=dx_q16+(bounds[2]-bounds[0])*dx_step;
+ int end_dz=dz_q16+(bounds[2]-bounds[0])*dz_step;
+ int first_z=item->z+dz_q16/65536,last_z=item->z+end_dz/65536;
+ if(first_z>=-44 && last_z>=-44) {
+  int first=item_x(v,item->x+dx_q16/65536,first_z);
+  int last=item_x(v,item->x+end_dx/65536,last_z);
+  if((first < -2 && last < -2) || (first>VW+2 && last>VW+2))return;
+ }
+ for(int col=bounds[0];col<bounds[2];col++,dx_q16+=dx_step,dz_q16+=dz_step) {
+  int dx=dx_q16/65536,next_dx=(dx_q16+dx_step)/65536;
+  int z=item->z+dz_q16/65536;
+  int next_z=item->z+(dz_q16+dz_step)/65536;
+  if(z < -44 || next_z < -44)continue;
+  int scale=project_scale(z),height=world_height*scale/256;
+  int next_scale=project_scale(next_z);
+  int left=128+((item->x+dx-v->center-v->cam_x)*scale)/256;
+  int right=128+((item->x+next_dx-v->center-v->cam_x)*next_scale)/256;
+  if(right<=left || height<2 || right<=0 || left>=VW)continue;
+  int top=project_y(z)-anchor[1]*height/PROP_H;
+  int x0=clampi(left,0,VW),x1=clampi(right,0,VW);
+  int active_top=top+(int)((bounds[1]*height*source_inverse)>>16)-1;
+  int active_bottom=top+(int)((bounds[3]*height*source_inverse)>>16)+1;
+  if(active_top<top)active_top=top;
+  if(active_bottom>top+height)active_bottom=top+height;
+  int y0=clampi(active_top,0,VH),y1=clampi(active_bottom,0,VH);
+  if(y1<=y0)continue;
+  FacadeColumn descriptor={(int16_t)top,(int16_t)active_top,(uint16_t)(active_bottom-active_top),
+    (uint16_t)col,vertical_step[clampi(height,1,255)]*(unsigned)source_height};
+  for(int x=x0;x<x1;x++){columns[x]=descriptor;assigned[x>>5]|=1u<<(x&31);}
+  if(x0<first_x)first_x=x0;
+  if(x1>last_x)last_x=x1;
+  if(y0<first_row)first_row=y0;
+  if(y1>last_row)last_row=y1;
+ }
+ /* Degenerate/clipped columns can leave a screen pixel unassigned.  Clear
+  * only those sparse holes rather than memset a full 3KB array per building. */
+ for(int x=first_x;x<last_x;x++)if(!(assigned[x>>5]&(1u<<(x&31))))
+  columns[x]=(FacadeColumn){0,0,0,0,0};
+ /* Row-major drawing matters on ARM9: vertical texture reads would repeatedly
+  * evict the same source rows and framebuffer cache lines.  The facade still
+  * has upright columns, but both source and destination reads stay local. */
+ for(int y=first_row;y<last_row;y++) {
+  uint16_t *dest=s->pixels+y*s->w+first_x;
+  for(int x=first_x;x<last_x;x++,dest++) {
+   const FacadeColumn *column=&columns[x];
+   unsigned active_row=(unsigned)(y-column->active_top);
+   if(active_row>=column->height)continue;
+   /* The active interval is a subset of [top, top+height): reciprocal
+    * flooring guarantees sample>>16 remains below source_height. */
+   unsigned sample=(unsigned)(y-column->top)*column->step;
+   uint16_t pixel=pixels[(sample>>16)*source_width+column->source_x];
+   if(pixel)*dest=pixel;
+  }
+ }
+}
+
+static void draw_water_prop(Surface *s,const View *v,const DrawItem *item)
+{
+ int scale=project_scale(item->z),x=item_x(v,item->x,item->z),y=project_y(item->z);
+ if(item->id==SC_SAIL) {
+  int width=64,depth=34;
+  int w=width*scale/256;
+  int near=item->z-depth/2,far=item->z+depth/2;
+  int h=clampi(project_y(near < -44?-44:near)-project_y(far),1,18);
+  if(w<3)return;
+  /* Small light waterline rings replace the old floating black drop shadow. */
+  uint16_t sea=sea_color(row_biome[clampi(y,HORIZON+1,VH-1)]);
+  ellipse(s,x,y,w+4,h+3,blend_color(sea,C(172,226,220),50));
+  ellipse(s,x,y,w+1,h,sea);
+  ground_plane(s,v,item->x,item->z,width,depth,boat_ground,128,64,0);
+  if(w>13) {
+   int aft=x-w/2-2;
+   gfx_rect(s,aft,y+1,clampi(w/7,2,5),1,blend_color(sea,C(205,237,223),100));
+  }
+ } else {
+  /* A pier recedes along the water surface instead of standing like a wall. */
+  ground_plane(s,v,item->x,item->z,29,92,pier_ground,64,128,0);
  }
 }
 
 static void draw_prop(Surface *s,const View *v,const DrawItem *item)
 {
+ if(item->id==SC_SAIL || item->id==SC_PIER){draw_water_prop(s,v,item);return;}
  int y=project_y(item->z),x=item_x(v,item->x,item->z);
- int scale=project_scale(item->z);
- int size=(scale*190)/256;
- if(item->kind==ITEM_BACK_PROP)size=size*218/256;
- int w=PROP_W*size/256,h=PROP_H*size/256;
+ int scale=project_scale(item->z),world_width=48;
+ int building=item->id==SC_BUILDING || item->id==SC_SHOP || item->id==SC_WAREHOUSE ||
+              item->id==SC_HOTEL || item->id==SC_VILLA;
+ if(building)world_width=62;
+ if(item->id==SC_LAMP)world_width=36;
+ if(item->id==SC_ROCK)world_width=48;
+ if(item->kind==ITEM_BACK_PROP)world_width=world_width*218/256;
+ int w=world_width*scale/256,h=w*PROP_H/PROP_W;
  if(w<2 || h<3)return;
- if(item->id==SC_BARRIER) {
-  int span=clampi(scale*20/256,11,25),height=clampi(scale*13/256,7,16);
-  shadow(s,x,y,span,3);
-  gfx_rect(s,x-span/2,y-height,3,height,C(203,217,195));
-  gfx_rect(s,x+span/2-3,y-height,3,height,C(170,193,183));
-  gfx_rect(s,x-span/2,y-height,span,3,C(229,231,200));
-  gfx_rect(s,x-span/2,y-height+3,span,2,C(94,139,145));
+ int source_width,source_height;
+ const uint8_t *anchor,*bounds;
+ const uint16_t *pixels=prop_source(item->id,item->side,w,&source_width,&source_height,&anchor,&bounds);
+ if(building) {
+  int depth=36;
+  uint16_t paving=row_biome[clampi(y,HORIZON+1,VH-1)]==MARINA?C(92,123,138):C(197,199,179);
+  /* The apron starts well behind the guardrail.  Its nearest corner and the
+   * facade share exactly the same immutable world anchor. */
+  ground_plane(s,v,item->x+item->side*world_width/2,item->z+depth/2,
+               world_width+5,depth+7,0,0,0,blend_color(paving,C(65,93,94),36));
+  upright_facade(s,v,item,pixels,source_width,source_height,anchor,bounds,world_width,depth);
   return;
  }
- if(item->id==SC_LAMP){w=w*3/4;h=h*3/4;}
- shadow(s,x,y-1,w*2/3,clampi(w/5,2,8));
- if(item->id==SC_REEDS || item->id==SC_BUSH)x+=(v->frame/14+(unsigned)item->variant)&1;
- gfx_scaled_sprite(s,x-w/2,y-h,prop_art+item->id*PROP_W*PROP_H,PROP_W,PROP_H,w,h);
+ if(item->id==SC_ROCK) {
+  ground_plane(s,v,item->x+item->side*world_width/3,item->z+4,
+               world_width*2/3,12,0,0,0,C(139,111,82));
+  upright_facade(s,v,item,pixels,source_width,source_height,anchor,bounds,world_width,10);
+  return;
+ }
+ /* A palm is anchored at its trunk; a lamp at its pole foot, not at the
+  * midpoint between its pole and its cantilevered light. */
+ int contact_width=item->id==SC_LAMP?clampi(w/8,1,4):clampi(w/5,2,8);
+ ellipse(s,x,y,contact_width,clampi(contact_width/3,1,3),C(53,81,73));
+ int sway=(item->id==SC_REEDS || item->id==SC_BUSH)?
+             (int)((v->frame/14+(unsigned)item->variant)&1):0;
+ gfx_scaled_sprite(s,x-anchor[0]*w/PROP_W+sway,y-anchor[1]*h/PROP_H,
+                   pixels,source_width,source_height,w,h);
 }
 
 static void draw_coin(Surface *s,const View *v,const DrawItem *item)
@@ -542,21 +739,6 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
  }
 }
 
-static void draw_gantry(Surface *s,const View *v,const DrawItem *item)
-{
- int y=project_y(item->z),x=item_x(v,item->x,item->z),scale=project_scale(item->z);
- int half=(ROAD_HALF+12)*scale/256;
- int height=20*scale/256;
- gfx_rect(s,x-half,y-height,3,height,C(111,134,136));
- gfx_rect(s,x+half-2,y-height,3,height,C(111,134,136));
- gfx_rect(s,x-half,y-height,half*2,3,C(210,216,191));
- gfx_rect(s,x-half,y-height+3,half*2,2,C(79,111,119));
- if(scale>185) {
-  int width=clampi(80*scale/256,52,90);
-  gfx_card(s,x-width/2,y-height-12,width,14,C(29,108,101),C(178,213,187));
-  gfx_text_small(s,x-width/2+5,y-height-11,"NORTH  /  COAST",C(240,239,202));
- }
-}
 
 static void draw_ambient(Surface *s,const View *v)
 {
@@ -612,30 +794,30 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
    int z=70+(int)((g->frame*(2+i%2)+i*113)%550);
    RoadSample r;road_sample(v.seed,v.position+z,v.start,&r);
    int lane=(i*3+1)%4;
-   add_item(items,&count,z,r.center-72+lane*48,ITEM_CAR,i%6,i%6);
+   add_item(items,&count,z,r.center-72+lane*48,ITEM_CAR,i%6,i%6,0);
   }
  } else {
   for(int i=0;i<TRAFFIC_COUNT;i++)if(g->traffic[i].active) {
    int z=(g->traffic[i].z_q8-g->position_q8)/Q;
    RoadSample r;road_sample(v.seed,g->traffic[i].z_q8/Q,v.start,&r);
    add_item(items,&count,z,r.center+g->traffic[i].x_q8/Q,ITEM_CAR,
-            g->traffic[i].kind%6,g->traffic[i].paint);
+            g->traffic[i].kind%6,g->traffic[i].paint,0);
   }
   for(int i=0;i<PICKUP_COUNT;i++)if(g->pickups[i].active) {
    int z=(g->pickups[i].z_q8-g->position_q8)/Q;
    RoadSample r;road_sample(v.seed,g->pickups[i].z_q8/Q,v.start,&r);
    add_item(items,&count,z,r.center+g->pickups[i].x_q8/Q,ITEM_COIN,
-            g->pickups[i].serial,0);
+            g->pickups[i].serial,0,0);
   }
  }
- add_item(items,&count,0,v.center+(attract?0:g->x_q8/Q),ITEM_PLAYER,0,0);
+ add_item(items,&count,0,v.center+(attract?0:g->x_q8/Q),ITEM_PLAYER,0,0,0);
  for(int i=0;i<count;i++) {
   switch(items[i].kind) {
   case ITEM_PROP:case ITEM_BACK_PROP:draw_prop(s,&v,&items[i]);break;
   case ITEM_CAR:draw_traffic(s,&v,&items[i]);break;
   case ITEM_COIN:draw_coin(s,&v,&items[i]);break;
   case ITEM_PLAYER:draw_player(s,g,&v,&items[i]);break;
-  default:draw_gantry(s,&v,&items[i]);break;
+  default:break;
   }
  }
  draw_ambient(s,&v);

@@ -155,6 +155,7 @@ void game_init(Game *g,uint32_t seed) {
  g->save.seed=seed?seed:0x73bda521u; g->save.owned=1; g->save.unlocked_locations=1;
  default_settings(&g->save);
  g->save.paints=7; g->mode=M_HOME; g->health=100; g->combo_q8=Q;
+ g->turbo_charge_q8=TURBO_MAX_Q8;
 }
 
 static int challenge_done(const Game *g,int id) {
@@ -280,6 +281,50 @@ static void run_cash(Game *g) {
  if(bonus>MONEY_LIMIT-base)bonus=MONEY_LIMIT-base;
  g->run.cash_bonus=bonus;g->run.total_cash=base+bonus;
 }
+static int turbo_clean(const Game *g) {
+ return g->mode==M_RUN && !g->turbo && !g->crash_timer && !g->damage_cooldown &&
+        g->speed_q8>0 && absi(g->x_q8)<80*Q;
+}
+static int turbo_charge_factor(const Game *g) {
+ /* Five times the score combo doubles fuel income rather than multiplying
+  * it by five. The tank remains a resource even during long skill streaks. */
+ return Q+(clampi(g->combo_q8,Q,COMBO_MAX_Q8)-Q)/4;
+}
+static void turbo_add(Game *g,int amount,int source) {
+ if(amount<=0 || g->turbo_charge_q8>=TURBO_MAX_Q8) return;
+ int fuel=g->turbo_charge_q8+amount;
+ g->turbo_charge_q8=(uint16_t)(fuel>TURBO_MAX_Q8?TURBO_MAX_Q8:fuel);
+ g->turbo_recharging=1;
+ /* Keep a just-earned near miss visible when a continuous source also pays. */
+ if(g->turbo_source!=TS_NEAR)g->turbo_source=(uint8_t)source;
+ if(g->turbo_charge_q8==TURBO_MAX_Q8)g->turbo_remainder=0;
+}
+static void turbo_near(Game *g,uint32_t count) {
+ if(!turbo_clean(g))return;
+ int amount=TURBO_MAX_Q8/10*turbo_charge_factor(g)/Q;
+ if(count>10)count=10; /* A callback cannot overflow even with malformed input. */
+ turbo_add(g,amount*(int)count,TS_NEAR);
+}
+static void turbo_recharge(Game *g) {
+ if(!turbo_clean(g))return;
+ if(g->turbo_charge_q8>=TURBO_MAX_Q8) {g->turbo_remainder=0;return;}
+ int percent=0,source=TS_NONE,factor=turbo_charge_factor(g);
+ /* A wall-bound handbrake or an unmoving steering sprite is not a slide. */
+ if(g->drifting && g->drift_hold>=(3*DRIVE_HZ+3)/4 && absi(g->vx_q8)>Q/2) {
+  percent=4;source=TS_DRIFT;
+ } else if(g->wheelie && g->wheelie_hold>=DRIVE_HZ) {
+  percent=3;source=TS_WHEELIE;
+ } else if(g->slow && g->speed_q8>40*Q) {
+  percent=2;source=TS_SLOW;factor=Q;
+ }
+ if(!percent)return;
+ /* MAX is a whole number of Q units. Keep the remainder over a denominator
+  * of 3000 so all three rates are exact over time without floating point. */
+ int numerator=(TURBO_MAX_Q8/Q)*percent*factor+g->turbo_remainder;
+ int amount=numerator/(100*DRIVE_HZ);
+ g->turbo_remainder=(uint16_t)(numerator%(100*DRIVE_HZ));
+ turbo_add(g,amount,source);
+}
 static void points(Game *g,int category,uint32_t count,uint32_t amount) {
  /* Keep the receipt sum exact even at the deliberately remote score cap. */
  uint32_t room=STAT_LIMIT-g->run.total_points;
@@ -287,6 +332,7 @@ static void points(Game *g,int category,uint32_t count,uint32_t amount) {
  g->run.count[category]=add_sat(g->run.count[category],count,STAT_LIMIT);
  g->run.points[category]+=amount; g->run.total_points+=amount;
  run_cash(g);
+ if(category==B_NEAR)turbo_near(g,count);
 }
 static int combo_for(const Game *g,uint32_t hold) {
  uint32_t window=(uint32_t)(8*DRIVE_HZ*(100-15*g->save.perks[1])/100);
@@ -304,6 +350,8 @@ void game_begin_run(Game *g) {
  g->steering=g->yaw=0; g->health=100; g->vehicle=g->save.selected_vehicle;
  g->start_biome=g->save.selected_location; g->biome=g->start_biome;
  g->turbo=g->slow=g->drifting=g->wheelie=0; g->notice_timer=0;
+ g->turbo_charge_q8=TURBO_MAX_Q8;
+ g->turbo_latched=g->turbo_recharging=g->turbo_source=0;g->turbo_remainder=0;
  g->repair_used=0;
  g->mode=M_RUN; g->cursor=0; g->next_spawn_q8=200*Q; traffic_spawn_ahead(g);
 }
@@ -330,6 +378,7 @@ void game_finish_run(Game *g) {
  if(g->run.count[B_COIN]>g->save.best_coins) g->save.best_coins=g->run.count[B_COIN];
  reward_unlocks(g); g->save_requested=1; g->mode=M_RECEIPT; g->cursor=0;
  g->turbo=g->slow=g->drifting=g->wheelie=0;
+ g->turbo_recharging=g->turbo_source=0;
 }
 
 static void damage(Game *g,int raw,int rail) {
@@ -388,8 +437,18 @@ static void run_tick(Game *g,const Input *in) {
  if(g->shake) --g->shake;
  int v=g->vehicle,brake=(in->held&K_L)!=0;
  int gas=(in->held&K_R)!=0 && !brake;
+ g->turbo_recharging=g->turbo_source=0;
  g->slow=(uint8_t)(gas && (in->held&K_DOWN));
- g->turbo=(uint8_t)(gas && !g->slow && (in->held&K_UP));
+ if(!(in->held&K_UP))g->turbo_latched=0;
+ int turbo_requested=gas && !g->slow && (in->held&K_UP) && !g->turbo_latched;
+ g->turbo=(uint8_t)(turbo_requested && g->turbo_charge_q8 &&
+                    (g->turbo || g->turbo_charge_q8>=TURBO_START_Q8));
+ if(g->turbo) {
+  if(g->turbo_charge_q8<=Q) {g->turbo_charge_q8=0;g->turbo_latched=1;}
+  else g->turbo_charge_q8-=Q;
+  g->turbo_remainder=0;
+ }
+ uint16_t fuel_before_recharge=g->turbo_charge_q8;
  int base=game_top_speed(g),target=g->slow?base*62/100:g->turbo?base*125/100:base;
  int32_t oldspeed=g->speed_q8;
  int acceleration=game_vehicle_stat(g,v,STAT_ACCEL);
@@ -458,6 +517,11 @@ static void run_tick(Game *g,const Input *in) {
  g->accel_q8=(g->speed_q8-oldspeed)*DRIVE_HZ;
  if(g->speed_q8>0 && (uint32_t)(g->speed_q8/Q)>g->run.max_speed) g->run.max_speed=(uint32_t)(g->speed_q8/Q);
  bonus_tick(g,target,motion);
+ /* A near miss earlier in this update cannot pay fuel if another NPC hits
+  * the player later in the same update. Scores retain their existing rules. */
+ if(g->crash_timer || g->damage_cooldown) {
+  g->turbo_charge_q8=fuel_before_recharge;g->turbo_recharging=g->turbo_source=0;
+ } else turbo_recharge(g);
  if(!g->health || g->position_q8>=WORLD_LIMIT) game_finish_run(g);
 }
 
@@ -552,7 +616,7 @@ static void settings_tick(Game *g,const Input *in) {
  if(in->pressed&K_B) {g->mode=g->menu_return==M_PAUSE?M_PAUSE:M_HOME;g->cursor=g->mode==M_PAUSE?3:5;return;}
  g->cursor=(uint8_t)((g->cursor+9+vertical(in))%9);
  int dx=horizontal(in),confirm=(in->pressed&K_A)!=0;
- if(g->cursor==8) {if(confirm){g->mode=M_CONTROLS;g->paused_from=M_SETTINGS;}return;}
+ if(g->cursor==8) {if(confirm){g->mode=M_CONTROLS;g->paused_from=M_SETTINGS;g->controls_page=0;}return;}
  if(!dx&&!confirm)return;
  uint8_t *value;
  int choices=2;
@@ -601,6 +665,7 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&(K_A|K_B)) {g->mode=M_HOME;g->cursor=3;}
    break;
   case M_CONTROLS:
+   if(in->pressed&(K_L|K_R))g->controls_page^=1;
    if(in->pressed&(K_A|K_B)) {
     g->mode=g->paused_from==M_PAUSE?M_PAUSE:g->paused_from==M_SETTINGS?M_SETTINGS:M_HOME;
     g->cursor=g->mode==M_PAUSE?2:g->mode==M_SETTINGS?8:5;
@@ -612,7 +677,7 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&K_A) {
     if(g->cursor==0) g->mode=M_RUN;
     else if(g->cursor==1) game_finish_run(g);
-    else if(g->cursor==2) {g->mode=M_CONTROLS;g->paused_from=M_PAUSE;}
+    else if(g->cursor==2) {g->mode=M_CONTROLS;g->paused_from=M_PAUSE;g->controls_page=0;}
     else {g->mode=M_SETTINGS;g->cursor=0;g->menu_return=M_PAUSE;}
    }
    break;

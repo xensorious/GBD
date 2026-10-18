@@ -14,10 +14,15 @@ validation=BUILD/'validation'
 report=json.loads((validation/'results.json').read_text())
 assert report['sha256']==digest,'Validate this exact ROM before packaging.'
 assert report['battery_save_reload'],'Battery-save round trip has not passed.'
+assert len(report['native'])==7,'Run all seven native sanitizer suites before packaging.'
 scenery=json.loads((validation/'scenery-results.json').read_text())
-assert scenery['rom']['sha256']==digest,'Capture scenery from this exact ROM.'
+assert scenery['rom']['sha256']==digest and scenery['fresh_process_reload'],'Capture scenery and reload the review profile from this exact ROM.'
+assert scenery['dashboard_vehicle_skin_combinations']==30,'Review every vehicle and dashboard skin.'
+assert len(scenery['finite_turbo_checks'])==3,'Verify depletion, recovery, drift and wheelie recharge.'
+assert {item['screenshot'] for item in scenery['water_contact_captures']}=={'grounded-boat.png','grounded-pier.png'},'Capture the actual grounded water objects.'
 migration=json.loads((validation/'migration-results.json').read_text())
 assert migration['rom']['sha256']==digest and migration['fresh_process_reload'],'Verify legacy saves with this exact ROM.'
+assert migration['previous_v2_compatibility']['byte_exact_on_load'] and migration['previous_v2_compatibility']['fresh_process_reload'],'Preserve and reload saves from the previous coastal release.'
 transition=json.loads((validation/'transition-results.json').read_text())
 assert transition['rom']['sha256']==digest and transition['biomes_seen']==[1,2],'Drive a region boundary with this exact ROM.'
 shutil.copyfile(rom,DIST/rom.name)
@@ -52,11 +57,30 @@ for i,(name,title) in enumerate((('home','DRIVE CLUB'),('settings','PERSONAL SET
     d.text((x+10,y+5),title,font=font,fill='#f4eac8')
     interface.paste(im.crop((0,192,256,384)).resize((512,384),Image.Resampling.NEAREST),(x,y+24))
 interface.save(DIST/'Interface.png')
+for filename,bottom,items in (
+    ('Turbo.png',True,(('turbo-guide','BUTTON-OPERATED TURBO GUIDE'),
+                       ('turbo-empty','EMPTY RESERVE / RELEASE UP'),
+                       ('turbo-recharging','SLOW RECOVERY'),
+                       ('turbo-rearmed','BOOST REACTIVATED'))),
+    ('Grounding.png',False,(('scenery-city','GROUNDED CITY FACADES / NO SIGNS'),
+                           ('scenery-causeway','OPEN CAUSEWAY / ANCHORED LAMPS'),
+                           ('grounded-boat','BOAT ON THE WATER PLANE'),
+                           ('grounded-pier','PIER ON THE WATER PLANE'))),
+):
+    contact=Image.new('RGB',(1024,816),'#142b36');d=ImageDraw.Draw(contact)
+    for i,(name,title) in enumerate(items):
+        im=Image.open(validation/(name+'.png')).convert('RGB')
+        assert im.size==(256,384),(name,im.size)
+        x=(i%2)*512;y=(i//2)*408
+        d.text((x+10,y+5),title,font=font,fill='#f4eac8')
+        contact.paste(im.crop((0,192 if bottom else 0,256,384 if bottom else 192))
+                      .resize((512,384),Image.Resampling.NEAREST),(x,y+24))
+    contact.save(DIST/filename)
 shutil.copyfile(validation/'highway-motion.gif',DIST/'highway-motion.gif')
 shutil.copyfile(validation/'biome-transition.gif',DIST/'biome-transition.gif')
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Locations.png','Vehicles.png','Dashboards.png','Interface.png','highway-motion.gif','biome-transition.gif','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Locations.png','Vehicles.png','Dashboards.png','Interface.png','Turbo.png','Grounding.png','highway-motion.gif','biome-transition.gif','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 with zipfile.ZipFile(DIST/'Coastline-DS.zip','w',zipfile.ZIP_DEFLATED) as archive:
     for name in files+['SHA256SUMS.txt']:

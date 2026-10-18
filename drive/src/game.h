@@ -15,6 +15,9 @@
 #define ROAD_HALF 96
 #define ROAD_VIEW 1200
 #define COMBO_MAX_Q8 (5*Q)
+/* One Q unit is one update of boost: a full tank lasts eight seconds. */
+#define TURBO_MAX_Q8 (8*DRIVE_HZ*Q)
+#define TURBO_START_Q8 (TURBO_MAX_Q8/10)
 
 enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
  K_A=16u,K_B=32u,K_L=64u,K_R=128u,K_START=256u,K_SELECT=512u };
@@ -22,6 +25,7 @@ typedef struct { uint32_t held,pressed; } Input;
 enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS };
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
 enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
+enum TurboSource { TS_NONE,TS_NEAR,TS_DRIFT,TS_WHEELIE,TS_SLOW };
 enum Biome { CITY,COAST,CAUSEWAY,PINES,CANYON,MARINA,WETLANDS,GROVES };
 typedef struct {
  const char *name,*description,*requirement;
@@ -75,6 +79,10 @@ typedef struct {
  uint16_t notice_timer;
  char notice[88];
  uint8_t paint_choice,garage_tab,menu_return,repair_used,tune_choice;
+ /* Run-only fuel never changes the versioned battery-save layout. */
+ uint16_t turbo_charge_q8;
+ uint8_t turbo_latched,turbo_recharging,turbo_source,controls_page;
+ uint16_t turbo_remainder;
 } Game;
 
 void game_init(Game *g,uint32_t seed);

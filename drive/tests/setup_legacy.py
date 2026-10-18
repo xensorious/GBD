@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Prepare the original cartridge/ELF pair for reproducible v1 save checks.
+"""Prepare a trusted released cartridge/ELF pair for reproducible save checks.
 
-Reuse an existing verified pair, or extract only drive/ from the fixed original
+Reuse an existing verified pair, or extract only drive/ from the selected pinned
 release commit and rebuild it in ignored build storage. This never creates a
 worktree or changes the current checkout. A rebuild must match the published
 original ROM byte for byte before its ELF is accepted.
@@ -25,17 +25,19 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 ORIGINAL_COMMIT = "9f6293ad23181e95787f23269ae71b77a1e5a9d9"
 ORIGINAL_SHA256 = "610acd38ab739711cb25233a48c2b14348f57078799d147b7ff4cf336223770f"
+COASTAL_COMMIT = "27eab74da2dd4b9f09c37ecf7d6ed79eb3e7f1dd"
+COASTAL_SHA256 = "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242"
 
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def verify_pair(rom_path: Path, elf_path: Path) -> None:
+def verify_pair(rom_path: Path, elf_path: Path, expected_sha256: str = ORIGINAL_SHA256) -> None:
     """Check the trusted ROM hash and every ARM9 ELF load byte against it."""
     rom = rom_path.read_bytes()
-    if hashlib.sha256(rom).hexdigest() != ORIGINAL_SHA256:
-        raise ValueError(f"{rom_path} is not the original published cartridge ({ORIGINAL_SHA256})")
+    if hashlib.sha256(rom).hexdigest() != expected_sha256:
+        raise ValueError(f"{rom_path} is not the trusted published cartridge ({expected_sha256})")
     elf = elf_path.read_bytes()
     if elf[:7] != b"\x7fELF\x01\x01\x01" or len(elf) < 52:
         raise ValueError(f"{elf_path} is not a little-endian ELF32 image")
@@ -81,20 +83,22 @@ def git_bytes(*args: str) -> bytes:
     return subprocess.check_output(["git", "-C", str(REPO), *args])
 
 
-def rebuild(source_root: Path, jobs: int) -> Path:
+def rebuild(source_root: Path, jobs: int, commit: str = ORIGINAL_COMMIT,
+            expected_sha256: str = ORIGINAL_SHA256) -> Path:
     try:
-        git_bytes("cat-file", "-e", ORIGINAL_COMMIT + "^{commit}")
+        git_bytes("cat-file", "-e", commit + "^{commit}")
     except subprocess.CalledProcessError as exc:
         raise RuntimeError(
-            f"Original release commit is missing. Run git fetch origin {ORIGINAL_COMMIT}, then retry."
+            f"Release commit is missing. Run git fetch origin {commit}, then retry."
         ) from exc
     if source_root.exists():
         # Remove only our generated extraction directory, never a repository.
-        if source_root.resolve() != (ROOT / "build" / "legacy-source").resolve():
-            raise ValueError("Refusing to replace an extraction directory outside drive/build/legacy-source")
+        allowed = [(ROOT / "build" / name).resolve() for name in ("legacy-source", "coastal-source")]
+        if source_root.resolve() not in allowed:
+            raise ValueError("Refusing to replace an extraction directory outside the dedicated baseline source directories")
         shutil.rmtree(source_root)
     source_root.mkdir(parents=True)
-    archive = git_bytes("archive", "--format=tar", ORIGINAL_COMMIT, "drive")
+    archive = git_bytes("archive", "--format=tar", commit, "drive")
     with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as bundle:
         for member in bundle.getmembers():
             target = (source_root / member.name).resolve()
@@ -105,33 +109,39 @@ def rebuild(source_root: Path, jobs: int) -> Path:
     subprocess.run(["make", "-C", str(project), f"-j{jobs}"], check=True)
     built = project / "build" / "Coastline.nds"
     published = project / "dist" / "Coastline.nds"
-    if sha256(published) != ORIGINAL_SHA256 or sha256(built) != ORIGINAL_SHA256:
+    if sha256(published) != expected_sha256 or sha256(built) != expected_sha256:
         raise RuntimeError(
             "The original source rebuild differs from its published cartridge. "
             "The ROM/ELF pair was not installed. Check the SDK/compiler, Pillow "
             "and DejaVu font versions against the original setup; generated "
             f"files remain in {project / 'build'} for diagnosis."
         )
-    verify_pair(built, project / "build" / "arm9.elf")
+    verify_pair(built, project / "build" / "arm9.elf", expected_sha256)
     return project / "build"
 
 
-def prepare(output: Path, source_baseline: Path | None, battery_template: Path | None, jobs: int) -> Path:
+def prepare(output: Path, source_baseline: Path | None, battery_template: Path | None, jobs: int,
+            release: str = "original") -> Path:
+    if release not in ("original", "coastal"):
+        raise ValueError("Choose a pinned original or coastal release")
+    commit = ORIGINAL_COMMIT if release == "original" else COASTAL_COMMIT
+    expected_sha256 = ORIGINAL_SHA256 if release == "original" else COASTAL_SHA256
     output = output.resolve()
     if output in (REPO.resolve(), ROOT.resolve(), (ROOT / "build").resolve()):
         raise ValueError("Choose a dedicated baseline subdirectory; the current project/build cannot be replaced")
     if source_baseline is not None:
         source_baseline = source_baseline.resolve()
-        verify_pair(source_baseline / "Coastline.nds", source_baseline / "arm9.elf")
+        verify_pair(source_baseline / "Coastline.nds", source_baseline / "arm9.elf", expected_sha256)
         source = source_baseline
         origin = "existing verified baseline"
     elif (output / "Coastline.nds").is_file() and (output / "arm9.elf").is_file():
-        verify_pair(output / "Coastline.nds", output / "arm9.elf")
+        verify_pair(output / "Coastline.nds", output / "arm9.elf", expected_sha256)
         source = output
         origin = "existing verified baseline"
     else:
-        print("Rebuilding the fixed original release in drive/build/legacy-source...", flush=True)
-        source = rebuild(ROOT / "build" / "legacy-source", jobs)
+        source_name = "legacy-source" if release == "original" else "coastal-source"
+        print(f"Rebuilding the pinned {release} release in drive/build/{source_name}...", flush=True)
+        source = rebuild(ROOT / "build" / source_name, jobs, commit, expected_sha256)
         origin = "byte-identical rebuild of trusted release"
     if battery_template is None:
         candidates = [source / "validation" / "save" / "Coastline.dsv",
@@ -156,7 +166,7 @@ def prepare(output: Path, source_baseline: Path | None, battery_template: Path |
         os.replace(stage / "arm9.elf", output / "arm9.elf")
         os.replace(stage / "Coastline.dsv", output / "validation" / "save" / "Coastline.dsv")
     manifest = {
-        "commit": ORIGINAL_COMMIT, "rom_sha256": ORIGINAL_SHA256,
+        "commit": commit, "rom_sha256": expected_sha256,
         "elf_sha256": sha256(output / "arm9.elf"),
         "elf_load_bytes_match_rom": True, "source": origin,
         "battery_template": str(battery_template),
@@ -168,7 +178,8 @@ def prepare(output: Path, source_baseline: Path | None, battery_template: Path |
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "build" / "legacy-baseline")
+    parser.add_argument("--output", type=Path, help="Dedicated generated baseline directory")
+    parser.add_argument("--release", choices=("original", "coastal"), default="original")
     parser.add_argument("--source-baseline", type=Path, help="Reuse an existing original ROM/ELF pair without rebuilding")
     parser.add_argument("--battery-template", type=Path, help="Existing emulator battery save; only its footer is reused")
     parser.add_argument("--jobs", type=int, default=2)
@@ -176,11 +187,12 @@ def main() -> int:
     if not 1 <= args.jobs <= 16:
         parser.error("--jobs must be between 1 and 16")
     try:
-        output = prepare(args.output, args.source_baseline, args.battery_template, args.jobs)
+        destination = args.output or ROOT / "build" / ("legacy-baseline" if args.release == "original" else "coastal-baseline")
+        output = prepare(destination, args.source_baseline, args.battery_template, args.jobs, args.release)
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"Legacy setup failed: {exc}", file=sys.stderr)
         return 1
-    print(f"Verified original cartridge, matching ELF and battery template: {output}")
+    print(f"Verified {args.release} cartridge, matching ELF and battery template: {output}")
     return 0
 
 
