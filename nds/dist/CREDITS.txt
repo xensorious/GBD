@@ -1,0 +1,18 @@
+ASTERWILD: LANTERN ISLES
+
+An original creature-catching RPG opening created for this project.
+
+Original illustrated environments, characters and creatures were generated for
+Asterwild, then composed, scaled and converted into native DS assets. The world
+geometry, sprite layering, interface, gameplay and original PCM music were
+created for this game. No graphics or ROM content from commercial games are
+included. Checked-in artwork allows rebuilding without an image service.
+
+Text and title lettering use DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.
+Native platform: libnds, devkitARM startup/linker files, newlib and GCC runtime.
+libnds license: licenses/libnds.txt. Pinned upstream sources and platform details
+are documented in platform/README.md and tools/setup_nds.sh. Startup sources:
+https://github.com/devkitPro/devkitarm-crtls/tree/1c0c10257c44bbb5a433453bb6bba91582825492
+
+Delta is the intended iPhone frontend. The game was tested in native Nintendo
+DS emulation with DeSmuME. Delta itself and a physical DS were not tested here.
