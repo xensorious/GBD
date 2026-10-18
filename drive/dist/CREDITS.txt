@@ -1,0 +1,18 @@
+COASTLINE: ENDLESS DRIVE
+
+An original Nintendo DS procedural highway game created for this project.
+Original vehicle and roadside illustrations were generated for Coastline and
+prepared as native RGB555 sprites. Road geometry, driving, traffic, scoring,
+progression, dashboard, menus, synthesized music and engine/road/horn sounds
+were created for the game. No commercial vehicle logos, game art or ROM data
+are required. Checked-in source art permits rebuilding without an image service.
+
+Text uses DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.
+Native platform: libnds, devkitARM startup/linker files, newlib and GCC runtime.
+libnds license: licenses/libnds.txt. Pinned source revisions and installation
+steps are in tools/setup_nds.sh and platform/build_sdk.py. The established
+Nintendo DS platform boundary was reused from this repository's Asterwild
+project; driving gameplay, procedural world and interface are separate.
+
+Delta is the intended phone frontend. Validation here uses a native Nintendo
+DS emulator. No physical iPhone or DS testing is claimed.

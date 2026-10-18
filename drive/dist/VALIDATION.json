@@ -1,0 +1,158 @@
+{
+  "cartridge": {
+    "title": "COASTLINE",
+    "game_code": "KCWE",
+    "bytes": 720384,
+    "sha256": "610acd38ab739711cb25233a48c2b14348f57078799d147b7ff4cf336223770f",
+    "executables": {
+      "arm9": {
+        "offset": 16384,
+        "entry": "0x2000800",
+        "load": "0x2000000",
+        "bytes": 688396
+      },
+      "arm7": {
+        "offset": 705024,
+        "entry": "0x2380000",
+        "load": "0x2380000",
+        "bytes": 10136
+      }
+    },
+    "native": [
+      "road: 15172296 checks, 2,441,989 consecutive samples; all five biomes, reverse travel, boundary continuity and extreme coordinates pass",
+      "gameplay: 4211925 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass"
+    ],
+    "core": {
+      "name": "DeSmuME",
+      "version": "SVN",
+      "fps": 60.0
+    },
+    "audio": {
+      "samples": 1571430,
+      "nonzero_batches": 2122
+    },
+    "events": [
+      {
+        "check": "gas/turbo/precision",
+        "normal_q8": 44800,
+        "turbo_q8": 55808,
+        "slow_q8": 28160
+      },
+      {
+        "check": "actual cartridge update rate",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      }
+    ],
+    "receipt": {
+      "count": [
+        1116,
+        23,
+        0,
+        11,
+        0,
+        0,
+        6
+      ],
+      "points": [
+        1116,
+        115,
+        0,
+        690,
+        0,
+        0,
+        60
+      ],
+      "points_total": 1981,
+      "cash": 49,
+      "distance_m": 1116,
+      "max_combo_q8": 1280
+    },
+    "screenshots": [
+      "home.png",
+      "controls.png",
+      "garage.png",
+      "departures.png",
+      "challenges.png",
+      "race-city.png",
+      "race-turbo.png",
+      "race-slow.png",
+      "race-reverse.png",
+      "pause.png",
+      "race-horn.png",
+      "race-drift.png",
+      "run-receipt.png",
+      "home-after-run.png",
+      "save-reloaded.png"
+    ],
+    "battery_save_reload": true,
+    "upgrade_purchased": false,
+    "inputs": "joypad only; touch used solely to assert it is ignored",
+    "ram_access": "read only; no emulator-state restore"
+  },
+  "visual_fixture": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 720384,
+      "sha256": "610acd38ab739711cb25233a48c2b14348f57078799d147b7ff4cf336223770f",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 688396
+        },
+        "arm7": {
+          "offset": 705024,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "source": "ordinary native-generated battery-save fixture; all departures and vehicles pre-unlocked for visual review",
+    "ram_access": "read only; joypad input only; no save-state restore",
+    "screenshots": [
+      "scenery-city.png",
+      "scenery-coast.png",
+      "scenery-causeway.png",
+      "scenery-pines.png",
+      "scenery-canyon.png",
+      "motorcycle-wheelie.png"
+    ],
+    "biome_update_rates": [
+      {
+        "biome": "city",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "biome": "coast",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "biome": "causeway",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "biome": "pines",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      },
+      {
+        "biome": "canyon",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0
+      }
+    ]
+  }
+}

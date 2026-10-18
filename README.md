@@ -1,61 +1,52 @@
-# Asterwild: Lantern Isles
+# Coastline: Endless Drive
 
-A new, original **Nintendo DS** creature-catching RPG opening. Explore an
-illustrated coastal island, choose a companion, meet wild creatures, help the
-gardens, and challenge the first lantern trial.
+An original **Nintendo DS** procedural highway driving game for Delta.
+Drive from the city to tropical coastlines, an ocean causeway, pine forests and
+red-rock canyons. Earn points and cash, bank an itemized run receipt, and return
+to the garage to buy, tune and paint your vehicles.
 
-Exploration uses classic four-direction tile movement, a fixed overhead view,
-and a directly following camera. Illustrated buildings and trees have height;
-sideways stairs have foreground railings. Walking and idle poses, swaying
-foliage, fireflies, occasional leaf gusts and coastal birds bring the island to
-life. The creature designs and battle systems are retained from the first DS
-release.
+- [Download the DS cartridge](drive/dist/Coastline.nds)
+- [Download the complete ZIP](drive/dist/Coastline-DS.zip)
+- [Watch actual cartridge gameplay](drive/dist/highway-motion.gif)
+- [Controls, progression and build instructions](drive/README.md)
 
-- [Download the DS ROM](nds/dist/Asterwild.nds)
-- [Download the complete ZIP](nds/dist/Asterwild-DS.zip)
-- [Controls, gameplay and build instructions](nds/README.md)
+![Actual Nintendo DS screens](drive/dist/Preview.png)
 
-![Screens captured from the actual DS ROM](nds/dist/Preview.png)
+R accelerates, L brakes/reverses, Left/Right steer, Up adds Turbo, Down adds
+Slow, B is the handbrake, and A is the horn or motorcycle wheelie. All driving
+modifiers are held. Start pauses. All menus use buttons on the lower screen;
+while driving, that screen becomes a noninteractive instrument dashboard.
+Touch input is ignored throughout.
 
-[Watch the staircase movement](nds/dist/walking-stairs.gif) ·
-[Watch the idle and foliage animation](nds/dist/living-world.gif)
+The first draft contains six vehicles, five regions, seeded traffic and road
+coins, close-overtake bonuses, capped speed/drift/wheelie streaks, engine/grip/
+armor upgrades, paint previews, challenges, unlockable departures, audio and
+cartridge battery saves. The standard motorcycle is a cash purchase without a
+challenge requirement. Special gear, paint and locations use challenge rewards.
 
-The lower screen displays the island map during exploration. **Select** switches
-focus to its notebook; **L/R** change tabs, and the **D-pad and A/B** navigate.
-Select returns focus to exploration. The game uses buttons throughout; there
-are no touch controls.
+![Five environments and the motorcycle](drive/dist/Locations.png)
 
-The opening includes three starter choices, six original creature designs,
-visible encounters, guaranteed trust-based recruitment, tactical battles,
-shared experience, two growth paths, a side quest, a party, a field guide,
-a journal, music, cartridge saves and a first-trial ending.
+Scenery captures use a documented pre-unlocked battery-save fixture for visual
+review. The main validation plays a fresh profile and checks normal earnings,
+purchases and save reloads. No emulator RAM writes or save-state restores are used.
 
-## Build
-
-```sh
-bash nds/tools/setup_nds.sh
-make -C nds -j2
-```
-
-The native ARM9/ARM7 game, original artwork and asset pipeline are in `nds/`.
-The build produces `nds/build/Asterwild.nds`. See the [DS README](nds/README.md)
-for dependencies, controls and scope.
-
-## Validation
+## Build and validate
 
 ```sh
-bash nds/tests/setup_emulator.sh
-make -C nds test
+bash drive/tools/setup_nds.sh
+make -C drive -j2
+bash drive/tests/setup_emulator.sh
+make -C drive test
+python3 drive/tests/scenery.py
+python3 drive/tools/package.py
 ```
 
-Tests exercise the rules with sanitizers, check the authored tile-world routes,
-and play the native DS ROM using buttons in DeSmuME. They cover the opening,
-notebook focus and tabs, recruitment, the blossom quest, battle switching,
-growth, the trial, audio and a battery-save reload in a separate process. Pixel
-checks verify foreground railing overlap and stationary idle/foliage animation.
-Generated screenshots,
-test saves and reports stay under ignored `nds/build/`.
+The game, original artwork, procedural generator and test harness live in
+`drive/`. No web server is needed. The build creates `drive/build/Coastline.nds`;
+generated assets and emulator artifacts stay in ignored `drive/build/`.
+Tests execute native rules with sanitizers and the real ARM9/ARM7 cartridge in
+DeSmuME. Phone/Delta and physical hardware testing are separate.
 
-The earlier Bramblebound GBA experiment remains in the repository's original
-`src/`, `tools/` and `dist/` folders and its release branches. Asterwild has new
-artwork, world geometry, characters, rules, rendering and a separate save format.
+The earlier Asterwild DS game remains in [nds/](nds/README.md), and the original
+Bramblebound GBA experiments remain in `src/`, `tools/` and `dist/` and their
+release branches. Coastline has its own gameplay and save format.

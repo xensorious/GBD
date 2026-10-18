@@ -1,0 +1,86 @@
+#ifndef COASTLINE_GAME_H
+#define COASTLINE_GAME_H
+#include <stdint.h>
+
+#define DRIVE_HZ 30
+#define Q 256
+#define VEHICLE_COUNT 6
+#define LOCATION_COUNT 5
+#define TRAFFIC_COUNT 20
+#define PICKUP_COUNT 24
+#define BONUS_COUNT 7
+#define ROAD_HALF 96
+#define ROAD_VIEW 640
+#define COMBO_MAX_Q8 (5*Q)
+
+enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
+ K_A=16u,K_B=32u,K_L=64u,K_R=128u,K_START=256u,K_SELECT=512u };
+typedef struct { uint32_t held,pressed; } Input;
+enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE };
+enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
+enum Biome { CITY,COAST,CAUSEWAY,PINES,CANYON };
+typedef struct {
+ const char *name,*description,*requirement;
+ uint16_t price,top_speed,acceleration,grip,armor;
+ uint8_t bike,unlock;
+} VehicleDef;
+typedef struct { const char *name,*description,*requirement;uint16_t price;uint8_t unlock; } LocationDef;
+extern const VehicleDef vehicles[VEHICLE_COUNT];
+extern const LocationDef locations[LOCATION_COUNT];
+extern const char *const bonus_names[BONUS_COUNT];
+
+/* Fixed-width cartridge save. No pointers or native enums are persisted. */
+typedef struct {
+ uint32_t magic,version,checksum,cash,owned,unlocked_locations,paints;
+ uint32_t best_score,best_distance,best_near,best_drift,best_speed_hold,best_wheelie,best_coins;
+ uint32_t total_runs,total_distance,total_cash,seed;
+ uint8_t selected_vehicle,selected_location;
+ uint8_t paint[VEHICLE_COUNT],engine[VEHICLE_COUNT],grip[VEHICLE_COUNT],armor[VEHICLE_COUNT];
+ uint8_t reserved[2];
+} Save;
+typedef struct {
+ uint32_t count[BONUS_COUNT],points[BONUS_COUNT];
+ uint32_t total_points,total_cash,distance_m,elapsed_ticks,max_speed,max_combo_q8;
+ uint32_t best_speed_hold,drift_points,wheelie_points;
+ uint8_t banked;
+} RunStats;
+typedef struct {
+ int32_t x_q8,z_q8,speed_q8;
+ uint16_t serial;
+ uint8_t kind,paint,active,near_awarded;
+} Traffic;
+typedef struct {int32_t x_q8,z_q8;uint16_t serial;uint8_t active,reserved;} Pickup;
+typedef struct {
+ Save save;
+ RunStats run;
+ Traffic traffic[TRAFFIC_COUNT];
+ Pickup pickups[PICKUP_COUNT];
+ uint32_t frame,run_seed,run_ticks;
+ int32_t position_q8,furthest_q8,odometer_q8,x_q8,vx_q8,speed_q8,accel_q8;
+ int32_t next_spawn_q8;
+ uint32_t speed_hold,drift_hold,wheelie_hold;
+ uint16_t combo_q8,damage_cooldown,crash_timer,horn_timer,shake,spawn_serial;
+ int16_t steering,yaw;
+ uint8_t mode,cursor,selection,health,vehicle,start_biome,biome,turbo,slow,drifting,wheelie;
+ uint8_t save_requested,save_ok,has_save,muted,paused_from;
+ uint16_t notice_timer;
+ char notice[88];
+ uint8_t paint_choice;
+} Game;
+
+void game_init(Game *g,uint32_t seed);
+void game_update(Game *g,const Input *in);
+void game_begin_run(Game *g);
+void game_finish_run(Game *g);
+void game_make_save(const Game *g,Save *out);
+int game_load(Game *g,const Save *save);
+int game_save_valid(const Save *save);
+void game_save_result(Game *g,int okay);
+int game_top_speed(const Game *g);
+int game_upgrade_cost(const Game *g,int kind);
+int game_can_vehicle(const Game *g,int id);
+int game_can_location(const Game *g,int id);
+const char *game_challenge_name(int i);
+const char *game_challenge_reward(int i);
+int game_challenge_progress(const Game *g,int i,int *goal);
+#endif
