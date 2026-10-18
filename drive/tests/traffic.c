@@ -1,6 +1,8 @@
 /* Traffic safety checks run the actual fixed-pool NPC update for long mixed
  * speed runs. This is deliberately independent of player damage/economy. */
 #include "traffic.h"
+#include "road.h"
+#include "vehicle_projection.h"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +20,72 @@ static Traffic car(int lane,int z,int speed) {
  Traffic t;memset(&t,0,sizeof t);t.active=1;t.x_q8=(-72+48*lane)*Q;
  t.z_q8=z*Q;t.speed_q8=t.cruise_q8=speed*Q;t.lane=t.target_lane=(uint8_t)lane;
  return t;
+}
+
+/* Pixel oracle loads the actual packed artwork, independently of the compact
+ * contact metadata. It samples the same drawing rectangles as the renderer,
+ * then looks for a two-by-two patch of overlapping opaque car pixels. */
+static uint16_t player_pixels[VEHICLE_COUNT*5*48*72],npc_pixels[6*40*64];
+static void read_pixels(const char *path,uint16_t *pixels,size_t count) {
+ FILE *file=fopen(path,"rb");CHECK(file!=NULL);
+ CHECK(fread(pixels,sizeof(*pixels),count,file)==count);CHECK(fgetc(file)==EOF);
+ CHECK(fclose(file)==0);
+}
+static int opaque(const uint16_t *pixels,VehicleScreenRect r,int sw,int sh,int x,int y) {
+ if(r.width<=0 || r.height<=0 || x<r.left || y<r.top || x>=r.left+r.width || y>=r.top+r.height)return 0;
+ return pixels[((y-r.top)*sh/r.height)*sw+(x-r.left)*sw/r.width]!=0;
+}
+static int pixel_oracle(const Game *g,const Traffic *t) {
+ int z=(t->z_q8-g->position_q8)/Q;if(z < -44 || z>ROAD_VIEW)return 0;
+ RoadSample here,ahead;
+ road_sample(g->run_seed,g->position_q8/Q,g->start_biome,&here);
+ road_sample(g->run_seed,t->z_q8/Q,g->start_biome,&ahead);
+ int cam_x=g->x_q8/(Q*8);
+ if(g->save.shake && g->shake)cam_x+=(g->frame&1?1:-1)*(g->shake/4<2?g->shake/4:2);
+ int px=128+((g->x_q8/Q-cam_x)*276)/256;
+ int scale=276*190/(z+190);
+ int nx=128+((ahead.center+t->x_q8/Q-here.center-cam_x)*scale)/256;
+ int vehicle=g->vehicle<VEHICLE_COUNT?g->vehicle:0;
+ int pose=vehicle_yaw_pose(g->yaw);
+ VehicleScreenRect p=vehicle_player_rect(px,vehicle==3,g->wheelie?3+(g->frame/6&1):0);
+ VehicleScreenRect n=vehicle_traffic_rect(nx,z);
+ const uint16_t *pp=player_pixels+(vehicle*5+pose)*48*72,*np=npc_pixels+(t->kind%6)*40*64;
+ int left=p.left>n.left?p.left:n.left,right=p.left+p.width<n.left+n.width?p.left+p.width:n.left+n.width;
+ int top=p.top>n.top?p.top:n.top,bottom=p.top+p.height<n.top+n.height?p.top+p.height:n.top+n.height;
+ if(left<0)left=0;
+ if(right>256)right=256;
+ if(top<0)top=0;
+ if(bottom>192)bottom=192;
+ int previous=0;
+ for(int y=top;y<bottom;++y) {
+  int run=0,hit=0;
+  for(int x=left;x<right;++x) {
+   if(opaque(pp,p,48,72,x,y) && opaque(np,n,40,64,x,y)) {if(++run>=2)hit=1;}
+   else run=0;
+  }
+  if(hit && previous)return 1;
+  previous=hit;
+ }
+ return 0;
+}
+static void visible_contacts(void) {
+ read_pixels("build/vehicle_art.bin",player_pixels,sizeof player_pixels/sizeof *player_pixels);
+ read_pixels("build/traffic_art.bin",npc_pixels,sizeof npc_pixels/sizeof *npc_pixels);
+ static const int yaws[]={-100,-40,0,40,100};
+ static const int depths[]={-44,-38,-30,-22,-14,-6,0,6,14,22,30,38,46,54,62,70,82,100};
+ for(int vehicle=0;vehicle<VEHICLE_COUNT;++vehicle)for(int kind=0;kind<6;++kind)
+ for(int yaw=0;yaw<5;++yaw)for(int depth=0;depth<(int)(sizeof depths/sizeof *depths);++depth)
+ for(int x=-36;x<=36;x+=6) {
+  Game g;memset(&g,0,sizeof g);g.run_seed=0x26473a71u;g.vehicle=(uint8_t)vehicle;
+  g.position_q8=(1337+kind*819)*Q;g.x_q8=(vehicle%2?24:-24)*Q;g.yaw=(int16_t)yaws[yaw];
+  g.save.shake=(uint8_t)(kind&1);g.shake=8;g.frame=(unsigned)yaw;
+  g.wheelie=(uint8_t)(vehicle==3 && (kind&1));
+  Traffic t=car(1,0,0);t.z_q8=g.position_q8+depths[depth]*Q;t.x_q8=g.x_q8+x*Q;t.kind=(uint8_t)kind;
+  int expected=pixel_oracle(&g,&t),actual=traffic_body_contact(&g,&t);
+  if(expected!=actual)fprintf(stderr,"body mismatch vehicle=%d kind=%d yaw=%d z=%d dx=%d expected%d actual%d\n",
+                            vehicle,kind,g.yaw,depths[depth],x,expected,actual);
+  CHECK(expected==actual);
+ }
 }
 static void separation(const Game *g) {
  for(int i=0;i<TRAFFIC_COUNT;++i) {
@@ -48,17 +116,36 @@ static void interactions(void) {
  g.speed_q8=150*Q;g.position_q8=5*Q;near_count=damage_count=0;
  traffic_tick(&g,0,hit,award);CHECK(damage_count==1 && !near_count);
  CHECK(g.traffic[0].near_awarded);
- /* The close chase camera must not let the visible bodies ghost through
-  * one another before impact. Check both ordinary and long traffic shapes. */
+ /* Rear/front impact ranges are asymmetric in this chase camera. Detect the
+  * actual visible contact threshold separately for each model and approach;
+  * the old fixed +/-58/70 box incorrectly penalized several clear cut-ins. */
  for(int kind=0;kind<6;++kind) {
-  int length=kind>=4?70:58;
-  for(int edge=-1;edge<=1;++edge) {
-   memset(&g,0,sizeof g);g.traffic[0]=car(2,length+edge,0);
-   g.traffic[0].kind=(uint8_t)kind;g.traffic[0].x_q8=0;g.speed_q8=150*Q;
-   near_count=damage_count=0;traffic_tick(&g,0,hit,award);
-   CHECK(damage_count==(unsigned)(edge<0) && !near_count);
+  for(int dir=-1;dir<=1;dir+=2) {
+   int threshold=0;
+   for(int depth=1;depth<110;++depth) {
+    memset(&g,0,sizeof g);g.traffic[0]=car(2,depth*dir,0);
+    g.traffic[0].kind=(uint8_t)kind;g.traffic[0].x_q8=0;g.speed_q8=150*Q;
+    int expected=traffic_body_contact(&g,&g.traffic[0]);
+    near_count=damage_count=0;traffic_tick(&g,0,hit,award);
+    CHECK(damage_count==(unsigned)expected && !near_count);
+    if(expected)threshold=depth;
+   }
+   CHECK(threshold>10 && threshold<90);
   }
  }
+ /* A whole-car cut-in cannot tunnel across the player between two clear
+  * endpoints; a clear adjacent pass does not hit just because dz is small. */
+ memset(&g,0,sizeof g);g.traffic[0]=car(2,0,0);g.traffic[0].x_q8=0;
+ g.x_q8=40*Q;near_count=damage_count=0;
+ CHECK(!traffic_body_contact(&g,&g.traffic[0]));
+ traffic_tick_from(&g,0,-40*Q,0,hit,award);CHECK(damage_count==1);
+ memset(&g,0,sizeof g);g.traffic[0]=car(2,1,0);g.traffic[0].x_q8=25*Q;
+ g.position_q8=5*Q;g.speed_q8=280*Q;near_count=damage_count=0;
+ traffic_tick_from(&g,0,0,0,hit,award);CHECK(!damage_count && near_count==1);
+ /* The last visible rear slice is still collidable; a vehicle beyond the
+  * drawing plane cannot cause an invisible impact. */
+ memset(&g,0,sizeof g);g.traffic[0]=car(2,-45,0);g.traffic[0].x_q8=0;
+ near_count=damage_count=0;traffic_tick_from(&g,0,0,0,hit,award);CHECK(!damage_count);
 }
 static void pool_fairness(void) {
  Game g;memset(&g,0,sizeof g);g.run_seed=0x26473a71u;g.next_spawn_q8=200*Q;
@@ -161,7 +248,7 @@ static void long_runs(void) {
  }
 }
 int main(void) {
- interactions();following();horn();pool_fairness();long_runs();
- printf("traffic: %llu checks; deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass\n",checks);
+ visible_contacts();interactions();following();horn();pool_fairness();long_runs();
+ printf("traffic: %llu checks; pixel-accurate chassis contacts, swept cut-ins, deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass\n",checks);
  return 0;
 }

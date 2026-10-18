@@ -27,14 +27,14 @@ PROP_W, PROP_H = 64, 96
 # Front offsets emulate a shallow road-plane turn while keeping the rear tire
 # contact and rear bumper level. Rotating the whole picture would tilt its
 # vertical body height and make the vehicle appear to bank off the pavement.
-YAW_FRONT_OFFSETS = (-4, -2, 0, 2, 4)
+YAW_FRONT_OFFSETS = (-9, -5, 0, 5, 9)
 
-# Pixel coordinates refer to the original 1382x1138 vehicle atlas.
+# Curated cells of the cleaned 1383x1137 vehicle atlas.
 VEHICLE_BOXES = (
     (35, 18, 324, 370), (390, 20, 680, 370),
     (723, 8, 1008, 370), (1080, 50, 1365, 370),
     (25, 386, 327, 728), (389, 386, 679, 728),
-    (720, 388, 1008, 728), (1082, 388, 1368, 728),
+    (720, 388, 1008, 728), (1082, 388, 1368, 712),
     (32, 732, 325, 1120), (390, 770, 681, 1120),
     (722, 730, 1008, 1120), (1082, 715, 1368, 1125),
 )
@@ -65,6 +65,16 @@ PROP_GROUNDED_BOXES = (
 )
 PROP_GROUNDED_IDS = (0, 1, 2, 14, 16, 8, 7)
 PROP_SIDE_IDS = (0, 1, 2, 7, 8, 14, 16)
+# Each style is packed as independent flat faces. Perspective is supplied by
+# the renderer's geometry; no diagonal/isometric wall edges are baked here.
+BUILDING_IDS = (0, 1, 2, 14, 16)
+BUILDING_FACE_BOXES = (
+    ((4, 7, 365, 321), (375, 8, 629, 321), (643, 12, 963, 316)),
+    ((4, 332, 365, 646), (375, 332, 629, 646), (640, 331, 967, 646)),
+    ((4, 660, 365, 965), (375, 660, 629, 965), (641, 660, 679, 963)),
+    ((5, 981, 364, 1295), (375, 980, 629, 1295), (643, 982, 963, 1288)),
+    ((4, 1310, 365, 1613), (375, 1310, 629, 1613), (640, 1306, 967, 1612)),
+)
 PROP_NAMES = (
     "GLASS", "BRICK", "WAREHOUSE", "PALM", "PINE", "TREE",
     "SHRUB", "ROCK", "LAMP", "GANTRY", "BILLBOARD", "BOAT",
@@ -103,6 +113,47 @@ def silhouette_bounds(images: list[Image.Image]) -> bytes:
             raise ValueError("Cannot bound an empty sprite")
         result.extend(box)
     return bytes(result)
+
+
+def vehicle_geometry(poses: list[Image.Image], traffic: list[Image.Image]) -> None:
+    """Portable collision metadata from the final packed alpha silhouettes.
+
+    The gameplay rules deliberately do not link megabytes of sprite artwork.
+    Keeping row spans in a generated header gives rendering and collision the
+    same visible shape without a second hand-maintained vehicle hitbox.
+    """
+    lines = ["#ifndef COASTLINE_VEHICLE_GEOMETRY_H",
+             "#define COASTLINE_VEHICLE_GEOMETRY_H", "#include <stdint.h>"]
+    for name, images in (("vehicle_body_spans", poses), ("traffic_body_spans", traffic)):
+        height = images[0].height
+        lines.append(f"static const uint8_t {name}[{len(images)}][{height}][2] = {{")
+        for im in images:
+            mask = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0)
+            rows = []
+            for y in range(height):
+                box = mask.crop((0, y, im.width, y + 1)).getbbox()
+                rows.append("{0,0}" if box is None else f"{{{box[0]},{box[2]}}}")
+            lines.append(" {" + ",".join(rows) + "},")
+        lines.append("};")
+    # A row span is a cheap broad phase, but the motorcycle's handlebar/body
+    # gaps are real transparent pixels. Retain exact occupancy for the final
+    # collision test so a bounding span cannot bridge an invisible corner.
+    for name, images in (("vehicle_body_masks", poses), ("traffic_body_masks", traffic)):
+        height = images[0].height
+        lines.append(f"static const uint32_t {name}[{len(images)}][{height}][2] = {{")
+        for im in images:
+            mask = im.getchannel("A")
+            rows = []
+            for y in range(height):
+                words = [0, 0]
+                for x in range(im.width):
+                    if mask.getpixel((x, y)) >= ALPHA:
+                        words[x // 32] |= 1 << (x % 32)
+                rows.append("{" + ",".join(f"UINT32_C(0x{v:08x})" for v in words) + "}")
+            lines.append(" {" + ",".join(rows) + "},")
+        lines.append("};")
+    lines.extend(("#endif", ""))
+    (OUT / "vehicle_geometry.h").write_text("\n".join(lines))
 
 
 def content(im: Image.Image) -> Image.Image:
@@ -160,7 +211,9 @@ def vehicle_pose(source: Image.Image, front_offset: int) -> Image.Image:
         # Pillow uses the inverse mapping from destination to source pixels.
         result = result.transform(
             result.size, Image.Transform.AFFINE,
-            (1, slope, -front_offset - slope * top, 0, 1, 0),
+            # Share the yaw displacement between nose and rear. A nine-pixel
+            # drift sweep then fits the existing48px canvas without clipping.
+            (1, slope, -front_offset / 2 - slope * top, 0, 1, 0),
             resample=Image.Resampling.BICUBIC,
         )
     return result
@@ -176,7 +229,7 @@ def preview(name: str, images: list[Image.Image], cols: int, scale: int = 2) -> 
 
 
 def artwork() -> None:
-    cars = atlas_crops(ART / "vehicles.png", VEHICLE_BOXES, (1382, 1138))
+    cars = atlas_crops(ART / "vehicles.png", VEHICLE_BOXES, (1383, 1137))
     expansion = atlas_crops(ART / "vehicles-expansion.png", EXPANSION_BOXES, (1269, 1240))
     player_cars = cars[:6] + expansion
     poses = [vehicle_pose(car, offset) for car in player_cars for offset in YAW_FRONT_OFFSETS]
@@ -185,6 +238,7 @@ def artwork() -> None:
     traffic = [contain(car, TRAFFIC_W, TRAFFIC_H) for car in cars[6:]]
     raw("traffic_art", b"".join(rgb555(im) for im in traffic), "uint16_t", 6 * TRAFFIC_W * TRAFFIC_H)
     raw("traffic_bounds", silhouette_bounds(traffic), "uint8_t", 6 * 4)
+    vehicle_geometry(poses, traffic)
     prop_sources = atlas_crops(ART / "scenery.png", PROP_BOXES, (1383, 1137))
     prop_sources += atlas_crops(ART / "scenery-expansion.png", PROP_EXPANSION_BOXES, (1536, 1024))
     grounded = atlas_crops(ART / "scenery-grounded.png", PROP_GROUNDED_BOXES, (1312, 1199))
@@ -206,6 +260,47 @@ def artwork() -> None:
     pier = contain(grounded[8], 64, 128)
     raw("boat_ground", rgb555(boat), "uint16_t", 128 * 64)
     raw("pier_ground", rgb555(pier), "uint16_t", 64 * 128)
+    faces = Image.open(ART / "building-elevations.png").convert("RGBA")
+    if faces.size != (971, 1619):
+        raise ValueError("Building elevation atlas dimensions changed")
+    wall_faces, end_faces, roof_faces = [], [], []
+    for wall_box, end_box, roof_box in BUILDING_FACE_BOXES:
+        wall_faces.append(faces.crop(wall_box).resize((64, 64), Image.Resampling.LANCZOS))
+        end_faces.append(faces.crop(end_box).resize((32, 64), Image.Resampling.LANCZOS))
+        roof_faces.append(faces.crop(roof_box).resize((32, 32), Image.Resampling.LANCZOS))
+    raw("building_wall_art", b"".join(rgb555(im) for im in wall_faces), "uint16_t", 5 * 64 * 64)
+    raw("building_end_art", b"".join(rgb555(im) for im in end_faces), "uint16_t", 5 * 32 * 64)
+    raw("building_roof_art", b"".join(rgb555(im) for im in roof_faces), "uint16_t", 5 * 32 * 32)
+    # These opaque faces keep the full geometry while reducing texture working
+    # sets in the ARM9's small data cache. Distant facades also gain the same
+    # offline filtering as foliage, rather than dropping windows unpredictably.
+    for height in (32, 16):
+        wall_lod = [im.resize((height, height), Image.Resampling.LANCZOS) for im in wall_faces]
+        end_width = height // 2
+        end_lod = [im.resize((end_width, height), Image.Resampling.LANCZOS) for im in end_faces]
+        raw(f"building_wall_lod{height}", b"".join(rgb555(im) for im in wall_lod),
+            "uint16_t", 5 * height * height)
+        raw(f"building_end_lod{end_width}", b"".join(rgb555(im) for im in end_lod),
+            "uint16_t", 5 * end_width * height)
+        preview(f"building-walls-lod{height}.png", wall_lod, 5, 4)
+        preview(f"building-ends-lod{end_width}.png", end_lod, 5, 4)
+    # A raised broadside cabin and hull sit above an explicit waterline, as an
+    # upright billboard. The old overhead image is not reused as a profile.
+    boat_profile = contain(Image.open(ART / "boat-profile.png"), 64, 48, bottom=True)
+    raw("boat_profile", rgb555(boat_profile), "uint16_t", 64 * 48)
+    raw("boat_profile_anchor", bytes(ground_contact(boat_profile)), "uint8_t", 2)
+    # Only the uninterrupted central planking is reused. Cropping away the
+    # old end caps makes every segment meet the next with zero alpha gap.
+    dock = grounded[8]
+    dock = dock.crop((round(dock.width * .22), round(dock.height * .18),
+                      round(dock.width * .78), round(dock.height * .82)))
+    dock = dock.transpose(Image.Transpose.ROTATE_270).resize((64, 32), Image.Resampling.LANCZOS)
+    raw("dock_segment", rgb555(dock), "uint16_t", 64 * 32)
+    preview("building-walls-preview.png", wall_faces, 5, 3)
+    preview("building-ends-preview.png", end_faces, 5, 3)
+    preview("building-roofs-preview.png", roof_faces, 5, 4)
+    boat_profile.save(OUT / "boat-profile-preview.png")
+    dock.save(OUT / "dock-segment-preview.png")
     # Offline filtering avoids high-frequency scintillation when scenery scales
     # down and streams past at speed. Resize the entire framed sprite so its
     # normalized ground contact and padding stay consistent across all levels.
@@ -293,6 +388,12 @@ def declarations(music_bytes: int, music_rate: int) -> None:
                  for index, prop_id in enumerate(PROP_SIDE_IDS))
     lines.extend(("#define ASSET_BOAT_GROUND_W 128", "#define ASSET_BOAT_GROUND_H 64",
                   "#define ASSET_PIER_GROUND_W 64", "#define ASSET_PIER_GROUND_H 128"))
+    lines.extend(("#define ASSET_BUILDING_COUNT 5", "#define ASSET_BUILDING_WALL_W 64",
+                  "#define ASSET_BUILDING_WALL_H 64", "#define ASSET_BUILDING_END_W 32",
+                  "#define ASSET_BUILDING_END_H 64", "#define ASSET_BUILDING_ROOF_W 32",
+                  "#define ASSET_BUILDING_ROOF_H 32", "#define ASSET_BOAT_PROFILE_W 64",
+                  "#define ASSET_BOAT_PROFILE_H 48", "#define ASSET_DOCK_SEGMENT_W 64",
+                  "#define ASSET_DOCK_SEGMENT_H 32"))
     lines.append("#define ASSET_VEHICLE_COUNT 10")
     lines.extend((f"#define MUSIC_BYTES {music_bytes}", f"#define MUSIC_RATE {music_rate}", "#endif", ""))
     (OUT / "assets.h").write_text("\n".join(lines))

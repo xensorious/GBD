@@ -23,7 +23,7 @@ p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
 p.add_argument('--output',type=Path,default=ROOT/'build'/'validation')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 libpath=ROOT/'build'/'libdrive-transition.so'
-subprocess.run(['gcc','-shared','-fPIC','-O2','-std=c11','-I',str(ROOT/'src'),
+subprocess.run(['gcc','-shared','-fPIC','-O2','-std=c11','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),
     str(ROOT/'src'/'game.c'),str(ROOT/'src'/'road.c'),str(ROOT/'src'/'traffic.c'),'-o',str(libpath)],check=True)
 lib=C.CDLL(str(libpath));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 lib.game_make_save.argtypes=[C.POINTER(Game),C.POINTER(Save)]

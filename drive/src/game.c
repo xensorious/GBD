@@ -334,10 +334,12 @@ static void points(Game *g,int category,uint32_t count,uint32_t amount) {
  run_cash(g);
  if(category==B_NEAR)turbo_near(g,count);
 }
-static int combo_for(const Game *g,uint32_t hold) {
- uint32_t window=(uint32_t)(8*DRIVE_HZ*(100-15*g->save.perks[1])/100);
+static int combo_for(const Game *g,uint32_t hold,uint32_t base_window) {
+ uint32_t window=base_window*(uint32_t)(100-15*g->save.perks[1])/100;
  uint32_t capped=hold>window?window:hold;
- return Q+(int)(capped*4*Q/window);
+ /* Sixteen deliberate quarter steps. Merely reaching top speed must not
+  * grant the same quick ramp as actively holding a slide or wheelie. */
+ return Q+(int)(capped*16/window)*COMBO_STEP_Q8;
 }
 void game_begin_run(Game *g) {
  memset(&g->run,0,sizeof(g->run)); memset(g->traffic,0,sizeof(g->traffic)); memset(g->pickups,0,sizeof(g->pickups));
@@ -352,11 +354,13 @@ void game_begin_run(Game *g) {
  g->turbo=g->slow=g->drifting=g->wheelie=0; g->notice_timer=0;
  g->turbo_charge_q8=TURBO_MAX_Q8;
  g->turbo_latched=g->turbo_recharging=g->turbo_source=0;g->turbo_remainder=0;
+ g->police_ticks=0;g->police_pressure=0;g->end_reason=END_NONE;
  g->repair_used=0;
  g->mode=M_RUN; g->cursor=0; g->next_spawn_q8=200*Q; traffic_spawn_ahead(g);
 }
 void game_finish_run(Game *g) {
  if(g->run.banked) { g->mode=M_RECEIPT; return; }
+ if(g->end_reason==END_NONE)g->end_reason=END_BANKED;
  g->run.banked=1;
  run_cash(g);
  uint32_t skill=g->run.points[B_NEAR]+g->run.points[B_SPEED]+g->run.points[B_DRIFT]+g->run.points[B_WHEELIE];
@@ -412,20 +416,36 @@ static void bonus_tick(Game *g,int target,int motion) {
  g->drift_hold=g->drifting?g->drift_hold+1:0;
  g->wheelie_hold=g->wheelie?g->wheelie_hold+1:0;
  if(g->speed_hold>g->run.best_speed_hold) g->run.best_speed_hold=g->speed_hold;
- int best=combo_for(g,g->speed_hold),c=combo_for(g,g->drift_hold);
+ int best=combo_for(g,g->speed_hold,SPEED_COMBO_TICKS),c=combo_for(g,g->drift_hold,SKILL_COMBO_TICKS);
  if(c>best) best=c;
- c=combo_for(g,g->wheelie_hold);
+ c=combo_for(g,g->wheelie_hold,SKILL_COMBO_TICKS);
  if(c>best) best=c;
  g->combo_q8=(uint16_t)best;
  if(g->combo_q8>g->run.max_combo_q8) g->run.max_combo_q8=g->combo_q8;
- if(g->speed_hold && g->speed_hold%DRIVE_HZ==0) points(g,B_SPEED,1,(uint32_t)(20*combo_for(g,g->speed_hold)/Q));
+ if(g->speed_hold && g->speed_hold%DRIVE_HZ==0) points(g,B_SPEED,1,(uint32_t)(20*combo_for(g,g->speed_hold,SPEED_COMBO_TICKS)/Q));
  if(g->drift_hold && g->drift_hold%DRIVE_HZ==0) {
-  uint32_t p=(uint32_t)(35*combo_for(g,g->drift_hold)/Q); points(g,B_DRIFT,1,p);
+  uint32_t p=(uint32_t)(35*combo_for(g,g->drift_hold,SKILL_COMBO_TICKS)/Q); points(g,B_DRIFT,1,p);
   g->run.drift_points=add_sat(g->run.drift_points,p,STAT_LIMIT);
  }
  if(g->wheelie_hold && g->wheelie_hold%DRIVE_HZ==0) {
-  uint32_t p=(uint32_t)(35*combo_for(g,g->wheelie_hold)/Q); points(g,B_WHEELIE,1,p);
+  uint32_t p=(uint32_t)(35*combo_for(g,g->wheelie_hold,SKILL_COMBO_TICKS)/Q); points(g,B_WHEELIE,1,p);
   g->run.wheelie_points=add_sat(g->run.wheelie_points,p,STAT_LIMIT);
+ }
+}
+static void police_tick(Game *g) {
+ /* A brief launch grace makes starting, reading the dashboard and reversing
+  * away from an impact forgiving. Slow mode remains well above this limit. */
+ if(g->run_ticks<=POLICE_GRACE_TICKS) {
+  g->police_ticks=0;g->police_pressure=0;return;
+ }
+ if(g->speed_q8<=2*Q) {
+  if(g->police_ticks<POLICE_CATCH_TICKS)++g->police_ticks;
+ } else {
+  g->police_ticks=(uint16_t)(g->police_ticks>2?g->police_ticks-2:0);
+ }
+ g->police_pressure=(uint8_t)(g->police_ticks*100/POLICE_CATCH_TICKS);
+ if(g->police_ticks==POLICE_CATCH_TICKS) {
+  g->end_reason=END_STOPPED;game_finish_run(g);
  }
 }
 static void run_tick(Game *g,const Input *in) {
@@ -468,6 +488,8 @@ static void run_tick(Game *g,const Input *in) {
   else g->speed_q8=0;
  }
  g->steering=(int16_t)(((in->held&K_RIGHT)?1:0)-((in->held&K_LEFT)?1:0));
+ int32_t old_x=g->x_q8;
+ int old_yaw=g->yaw;
  int hand=(in->held&K_B)!=0;
  g->drifting=(uint8_t)(hand && g->steering && g->speed_q8>45*Q && !g->crash_timer);
  g->wheelie=(uint8_t)(vehicles[v].bike && (in->held&K_A) && g->speed_q8>50*Q && !hand && !g->crash_timer);
@@ -478,20 +500,23 @@ static void run_tick(Game *g,const Input *in) {
  }
  int speed=absi(g->speed_q8)/Q;
  int steering_power=clampi(speed,0,120)*4;
- if(hand) steering_power=steering_power*12/10;
+ if(g->drifting) steering_power=steering_power*112/100;
  if(g->wheelie) steering_power=steering_power*7/10;
  int desired=g->steering*steering_power;
  if(g->speed_q8<0) desired=-desired;
  int grip=game_vehicle_stat(g,v,STAT_GRIP);
- /* Grip changes both turn-in and recovery from a slide at every upgrade.
-    The handbrake keeps a much lower gain so sideways momentum survives. */
- int gain=hand?18+grip/4:clampi(2*grip-55,48,248);
+ /* A handbrake slide is a deliberate cornering aid, not free sideways
+  * momentum. Turn-in is prompt, countersteer catches the rear immediately,
+  * and releasing the steering/handbrake settles the car within a few ticks. */
+ int gain=g->drifting?clampi(140+grip/2,160,232):clampi(2*grip-55,48,248);
+ if(!g->steering && gain<200)gain=200;
+ if(desired && absi(g->vx_q8)>Q/4 && ((desired<0)!=(g->vx_q8<0)) && gain<224)gain=224;
  g->vx_q8+=(desired-g->vx_q8)*gain/Q;
  RoadSample road; road_sample(g->run_seed,g->position_q8/Q,g->start_biome,&road);
  g->biome=(road.blend>=128)?road.next_biome:road.biome;
  if(speed>15) g->vx_q8-=road.curve*g->speed_q8/(Q*400);
  g->x_q8+=g->vx_q8;
- int yaw_target=g->steering*(hand?90:42)+g->vx_q8/22;
+ int yaw_target=g->steering*(g->drifting?74:35)+g->vx_q8/(g->drifting?18:24);
  g->yaw=(int16_t)(g->yaw+(yaw_target-g->yaw)/3);
  g->yaw=(int16_t)clampi(g->yaw,-100,100);
  if(g->x_q8 > 88*Q) { g->x_q8=88*Q; g->vx_q8=-absi(g->vx_q8)/2; if(speed>12) damage(g,17,1); }
@@ -513,7 +538,7 @@ static void run_tick(Game *g,const Input *in) {
   ++g->run.elapsed_ticks;
   if(g->run.elapsed_ticks%DRIVE_HZ==0) points(g,B_SURVIVAL,1,5);
  }
- traffic_tick(g,old_position,damage,points); pickup_tick(g,old_position); traffic_spawn_ahead(g);
+ traffic_tick_from(g,old_position,old_x,old_yaw,damage,points); pickup_tick(g,old_position); traffic_spawn_ahead(g);
  g->accel_q8=(g->speed_q8-oldspeed)*DRIVE_HZ;
  if(g->speed_q8>0 && (uint32_t)(g->speed_q8/Q)>g->run.max_speed) g->run.max_speed=(uint32_t)(g->speed_q8/Q);
  bonus_tick(g,target,motion);
@@ -522,7 +547,9 @@ static void run_tick(Game *g,const Input *in) {
  if(g->crash_timer || g->damage_cooldown) {
   g->turbo_charge_q8=fuel_before_recharge;g->turbo_recharging=g->turbo_source=0;
  } else turbo_recharge(g);
- if(!g->health || g->position_q8>=WORLD_LIMIT) game_finish_run(g);
+ if(!g->health) {g->end_reason=END_CRASH;game_finish_run(g);}
+ else if(g->position_q8>=WORLD_LIMIT) {g->end_reason=END_LIMIT;game_finish_run(g);}
+ else police_tick(g);
 }
 
 static int vertical(const Input *in) {

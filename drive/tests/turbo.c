@@ -44,9 +44,11 @@ static void finite_tank(void) {
  CHECK(!g.turbo_charge_q8 && g.turbo_latched);
  ticks(&g,300,K_R|K_UP);
  CHECK(!g.turbo && !g.turbo_charge_q8 && g.turbo_latched);
- /* Holding the normal gas at a full 5x speed streak cannot refill fuel. */
- CHECK(g.combo_q8==COMBO_MAX_Q8 && g.run.points[B_SPEED]>0);
- ticks(&g,300,K_R);CHECK(!g.turbo_charge_q8 && !g.turbo_latched);
+ /* Even an established speed streak cannot refill fuel. Its deliberate
+  * quarter-step ramp now needs 48 seconds rather than eight. */
+ CHECK(g.combo_q8>Q && g.combo_q8<COMBO_MAX_Q8 && g.run.points[B_SPEED]>0);
+ ticks(&g,SPEED_COMBO_TICKS,K_R);
+ CHECK(g.combo_q8==COMBO_MAX_Q8 && !g.turbo_charge_q8 && !g.turbo_latched);
  CHECK(!g.turbo_recharging);
  /* There is no boost pulse before a 10% starting reserve is available. */
  g.turbo_charge_q8=TURBO_START_Q8-1;
@@ -77,7 +79,7 @@ static void near_miss_fuel(void) {
  for(int i=0;i<20;++i)step(&low,K_R,0);
  CHECK(low.run.count[B_NEAR]==1 && low.turbo_charge_q8==low_fuel);
  begin(&high,0);high.run_ticks=100;high.speed_q8=game_top_speed(&high)*Q;
- high.speed_hold=8*DRIVE_HZ;high.combo_q8=COMBO_MAX_Q8;high.turbo_charge_q8=0;
+ high.speed_hold=SPEED_COMBO_TICKS;high.combo_q8=COMBO_MAX_Q8;high.turbo_charge_q8=0;
  near_car(&high,0,25);step(&high,K_R,0);
  CHECK(high.combo_q8==COMBO_MAX_Q8 && high.turbo_charge_q8==2*low_fuel);
  /* Two distinct close passes may pay together; one NPC never pays twice. */
@@ -112,14 +114,14 @@ static void skill_recharge(void) {
  /* A max-combo controlled slide pays exactly 8%/second. It beats Slow's
   * fixed 2% source instead of adding the two rates together. */
  begin(&g,0);g.speed_q8=120*Q;g.turbo_charge_q8=0;
- g.drift_hold=8*DRIVE_HZ;g.combo_q8=COMBO_MAX_Q8;g.vx_q8=Q;
+ g.drift_hold=SKILL_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;g.vx_q8=Q;
  ticks(&g,DRIVE_HZ,K_R|K_DOWN|K_B|K_RIGHT);
  CHECK(g.turbo_source==TS_DRIFT && g.combo_q8==COMBO_MAX_Q8);
  CHECK(g.turbo_charge_q8==TURBO_MAX_Q8*8/100);
  CHECK(g.turbo_remainder==600);
  /* A handbrake pose without lateral slip cannot farm drift fuel. */
  begin(&g,0);g.speed_q8=120*Q;g.turbo_charge_q8=0;
- g.drift_hold=8*DRIVE_HZ;g.combo_q8=COMBO_MAX_Q8;g.vx_q8=-81;
+ g.drift_hold=SKILL_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;g.vx_q8=-3759; /* Cancel one frame of firm countersteer. */
  step(&g,K_R|K_B|K_RIGHT,0);
  CHECK(g.drifting && g.vx_q8<=Q/2 && g.vx_q8>=-Q/2);
  CHECK(!g.turbo_charge_q8 && !g.turbo_recharging);
@@ -128,7 +130,7 @@ static void skill_recharge(void) {
  ticks(&g,29,K_R|K_A);CHECK(g.wheelie && !g.turbo_charge_q8);
  ticks(&g,1,K_R|K_A);CHECK(g.turbo_charge_q8>0 && g.turbo_source==TS_WHEELIE);
  begin(&g,3);g.speed_q8=100*Q;g.turbo_charge_q8=0;
- g.wheelie_hold=8*DRIVE_HZ;g.combo_q8=COMBO_MAX_Q8;
+ g.wheelie_hold=SKILL_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;
  ticks(&g,DRIVE_HZ,K_R|K_A|K_DOWN);
  CHECK(g.turbo_source==TS_WHEELIE && g.turbo_charge_q8==TURBO_MAX_Q8*6/100);
  CHECK(g.turbo_remainder==1200);
@@ -163,7 +165,7 @@ static void exclusions_and_pause(void) {
  }
  /* Fast, plain driving and coins still award score, never fuel. */
  begin(&g,0);g.speed_q8=game_top_speed(&g)*Q;g.turbo_charge_q8=0;
- g.speed_hold=8*DRIVE_HZ;g.combo_q8=COMBO_MAX_Q8;
+ g.speed_hold=SPEED_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;
  g.pickups[0]=(Pickup){0,2*Q,3,1,0};step(&g,K_R,0);
  CHECK(g.run.count[B_COIN]==1 && g.run.points[B_COIN]==10 && !g.turbo_charge_q8);
  ticks(&g,90,K_R);CHECK(g.combo_q8==COMBO_MAX_Q8 && !g.turbo_charge_q8);

@@ -2,6 +2,8 @@
 #include "gfx.h"
 #include "assets.h"
 #include "road.h"
+#include "vehicle_projection.h"
+#include "vehicle_geometry.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +20,8 @@ static unsigned profile_clock(void){return 0;}
 #endif
 /* Microsecond-scale ARM9 timer ticks: top, bottom, total, road, objects. */
 volatile uint32_t render_profile[5];
+volatile uint32_t scenery_profile[8];
+static uint32_t scenery_work[8];
 
 #ifdef __arm__
 #define FAST __attribute__((section(".itcm"),long_call))
@@ -26,9 +30,9 @@ volatile uint32_t render_profile[5];
 #endif
 #define VW 256
 #define VH 192
-#define HORIZON 20
-#define CAMERA 190
-#define PLAYER_Y 160
+#define HORIZON DRIVE_HORIZON
+#define CAMERA DRIVE_CAMERA
+#define PLAYER_Y DRIVE_PLAYER_Y
 #define FAR_DISTANCE 2200
 #define DRAW_MAX 112
 #define CAR_W 48
@@ -141,19 +145,22 @@ static __attribute__((noinline)) int physical_anchor(int visual_position,int sca
 }
 
 static __attribute__((noinline)) void contact_shadow(Surface *s,int x,int y,int w,int h,
- const uint8_t *bounds,int source_w,int source_h,int yaw)
+ const uint8_t (*spans)[2],int source_w,int source_h)
 {
- int left=x+bounds[0]*w/source_w,top=y+bounds[1]*h/source_h;
- int width=(bounds[2]-bounds[0])*w/source_w;
- int height=(bounds[3]-bounds[1])*h/source_h;
- int bend=clampi(yaw/40,-2,2);
- /* The contact patch follows the complete chassis footprint.  Its front
-  * shears gently with the steering; the rear axle remains planted. */
- for(int row=0;row<height;row++) {
-  int edge=row<height-1-row?row:height-1-row;
-  int inset=edge==0?width/3:edge==1?width/5:edge<4?width/10:0;
-  int shift=bend*(height-1-row)/(height?height:1);
-  gfx_rect(s,left+shift+inset-1,top+row+1,width-inset*2+2,1,C(30,44,49));
+ if(w<=0 || h<=0)return;
+ /* A one-pixel contact rim follows the actual opaque chassis row by row.
+  * A filled bounding rectangle leaves black blocks around tapered bonnets,
+  * especially in the larger garage view. Source art supplies the steering
+  * silhouette, so the ground contact needs no additional shearing. */
+ unsigned y_step=((unsigned)source_h*65536u+(unsigned)h-1)/(unsigned)h;
+ unsigned x_step=((unsigned)w*65536u)/(unsigned)source_w;
+ for(int row=0;row<h;row++) {
+  unsigned sy=((unsigned)row*y_step)>>16;
+  int left=spans[sy][0],right=spans[sy][1];
+  if(right<=left)continue;
+  left=(int)(((unsigned)left*x_step)>>16);
+  right=(int)(((unsigned)right*x_step+65535u)>>16);
+  gfx_rect(s,x+left-1,y+row+1,right-left+2,1,C(36,51,56));
  }
 }
 
@@ -243,7 +250,7 @@ static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const Ro
 
 /* Road rows always have a valid y coordinate.  Keep the clipped fill in the
  * ITCM caller and avoid generic rectangle setup for each one-pixel span. */
-static FAST __attribute__((noinline)) void road_span(Surface *s,int x,int y,int width,uint16_t color)
+static FAST __attribute__((noinline,noclone)) void road_span(Surface *s,int x,int y,int width,uint16_t color)
 {
  if(x<0){width+=x;x=0;}
  if(x+width>VW)width=VW-x;
@@ -394,74 +401,125 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
 
 static void add_item(DrawItem *items,int *count,int z,int x,int kind,int id,int variant,int side)
 {
- if(*count>=DRAW_MAX || z < -44 || z>ROAD_VIEW)return;
+ if(*count>=DRAW_MAX || z < ((kind==ITEM_PROP || kind==ITEM_BACK_PROP)?-140:-44) || z>ROAD_VIEW)return;
  int at=(*count)++;
  /* Far to near.  Props are queued before the vehicle on equal coordinates. */
  while(at>0 && items[at-1].z<z){items[at]=items[at-1];at--;}
  items[at]=(DrawItem){z,x,kind,id,variant,side};
 }
 
-static int prop_for_biome(int biome,uint32_t hash,int side)
+/* Each category has its own immutable frontage rhythm.  Buildings occupy
+ * lots, lamps follow the shoulder, plants form irregular clusters, and large
+ * waterside structures have a much wider exclusion interval. */
+static int building_id(int id)
+{return id==SC_BUILDING || id==SC_SHOP || id==SC_WAREHOUSE || id==SC_HOTEL || id==SC_VILLA;}
+
+static int scenery_material(const View *v,int absolute,int side,uint32_t hash,int *water)
 {
- switch(biome) {
- case CITY:
-  if((hash&15)==0)return SC_LAMP;
-  return (int)((hash>>4)%3);
- case COAST:
-  if(side<0)return SC_SAIL;
-  return (hash&7)?SC_PALM:SC_VILLA;
- case CAUSEWAY:return SC_LAMP;
- case PINES:return (hash&3)?SC_PINE:SC_TREE;
- case CANYON:return (hash&3)?SC_ROCK:SC_BUSH;
- case MARINA:return side<0?((hash&3)?SC_PIER:SC_SAIL):((hash&7)?SC_HOTEL:SC_LAMP);
- case WETLANDS:return (hash&3)?SC_REEDS:SC_MANGROVE;
- default:return (hash&7)?SC_CITRUS:SC_WAREHOUSE;
- }
+ RoadSample identity;
+ road_sample(v->seed,physical_anchor(absolute,v->visual_scale),v->start,&identity);
+ int mix=material_blend(identity.blend);
+ *water=(biome_water(identity.biome,side)*(256-mix)+biome_water(identity.next_biome,side)*mix)/256;
+ return (int)((hash>>16)&255)<mix?identity.next_biome:identity.biome;
 }
 
-static void queue_scenery(DrawItem *items,int *count,const View *v)
+static void place_scenery(DrawItem *items,int *count,const View *v,int absolute,
+ int side,int offset,int kind,uint32_t hash,int back)
 {
- int first=floor_div(v->visual_position-45,88);
- int last=floor_div(v->visual_position+ROAD_VIEW,88);
+ int z=absolute-v->visual_position;
+ if(z < (building_id(kind)?-140:-44) || z>ROAD_VIEW)return;
+ int water;int biome=scenery_material(v,absolute,side,hash,&water);
+ int floating=kind==SC_SAIL || kind==SC_PIER;
+ int wet=kind==SC_MANGROVE || kind==SC_REEDS;
+ int bridge=kind==SC_LAMP && bridge_region(biome);
+ if((floating && water!=256) || (!floating && !wet && !bridge && water))return;
+ RoadSample road;road_sample(v->seed,v->position+z,v->start,&road);
+ add_item(items,count,z,road.center+side*offset,back?ITEM_BACK_PROP:ITEM_PROP,
+          kind,(int)hash,side);
+}
+
+static int dock_allowed(int biome,uint32_t hash,int side)
+{return side<0 && (biome==MARINA?(hash&3)!=0:biome==COAST && (hash&3)==0);}
+
+static __attribute__((noinline)) void queue_scenery(DrawItem *items,int *count,const View *v)
+{
+ /* A full lot remains stable while approaching it or reversing past it.
+  * Adjacent homes share a block setback; frontage spacing exceeds depth. */
+ int first=floor_div(v->visual_position-160,160);
+ int last=floor_div(v->visual_position+ROAD_VIEW,160);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
-  uint32_t h=road_landmark(v->seed,(uint32_t)n,side);
-  int absolute=n*88+(int)((h>>10)%25);
-  int z=absolute-v->visual_position;
-  RoadSample sample,identity;
-  road_sample(v->seed,v->position+z,v->start,&sample);
-  road_sample(v->seed,physical_anchor(absolute,v->visual_scale),v->start,&identity);
-  int biome=(int)((h>>16)&255)<material_blend(identity.blend)?identity.next_biome:identity.biome;
-  int kind=prop_for_biome(biome,h,side);
-  int mix=material_blend(identity.blend);
-  int water=(biome_water(identity.biome,side)*(256-mix)+biome_water(identity.next_biome,side)*mix)/256;
-  int bridge_prop=kind==SC_LAMP && bridge_region(biome);
-  int wet_plant=kind==SC_MANGROVE || kind==SC_REEDS;
-  int floating=kind==SC_SAIL || kind==SC_PIER;
-  /* Material belongs to this immutable anchor too.  Leave transition banks
-   * open instead of putting a building in a growing sea or a boat on grass. */
-  if(water && !bridge_prop && !wet_plant && !floating)continue;
-  if(floating && water<256)continue;
-  if(biome==COAST && side<0 && (h&3))continue;
-  if(biome==CAUSEWAY && (n&1))continue;
-  int building=kind==SC_BUILDING || kind==SC_SHOP || kind==SC_WAREHOUSE || kind==SC_HOTEL || kind==SC_VILLA;
-  int setback=building?ROAD_HALF+34:125;
-  int x=sample.center+side*(setback+(int)((h>>6)%22));
-  if(biome==CAUSEWAY)x=sample.center+side*(ROAD_HALF+7);
-  if(biome==WETLANDS)x=sample.center+side*(kind==SC_REEDS?108:140);
-  if(biome==MARINA && kind==SC_PIER)x=sample.center+side*137;
-  /* Boats sit offshore, beyond the shoreline rather than on the shoulder. */
-  if(kind==SC_SAIL)x+=side*45;
-  if(!(n&1) && (biome==CITY || biome==PINES || biome==GROVES || (biome==MARINA && side>0))) {
-   int back_kind=biome==PINES?SC_PINE:biome==GROVES?SC_CITRUS:biome==MARINA?SC_HOTEL:SC_BUILDING;
-   add_item(items,count,z,sample.center+side*(188+(int)((h>>18)%25)),ITEM_BACK_PROP,back_kind,(int)h,side);
+  uint32_t h=road_landmark(v->seed^0x4181u,(uint32_t)n,side);
+  uint32_t block=road_landmark(v->seed^0x20b1u,(uint32_t)floor_div(n,4),side);
+  int absolute=n*160+12+(int)((block>>9)%13);
+  int water,biome=scenery_material(v,absolute,side,h,&water),kind=-1;
+  if(biome==CITY)kind=(int)((block>>4)%3);
+  if(biome==MARINA && side>0 && (h&3)!=0)kind=SC_HOTEL;
+  if(biome==COAST && side>0 && (h&7)==0)kind=SC_VILLA;
+  if(biome==GROVES && (h&15)==0)kind=SC_WAREHOUSE;
+  if(kind>=0)place_scenery(items,count,v,absolute,side,ROAD_HALF+33+(int)((block>>12)&7),kind,h,0);
+ }
+ /* Street lamps are deliberately regular, with a small safe shoulder
+  * offset, rather than competing with houses for the same random slot. */
+ first=floor_div(v->visual_position-44,224);last=floor_div(v->visual_position+ROAD_VIEW,224);
+ for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
+  uint32_t h=road_landmark(v->seed^0x1a4bu,(uint32_t)n,side);
+  int absolute=n*224,water,biome=scenery_material(v,absolute,side,h,&water);
+  if(biome==CITY || biome==CAUSEWAY || (biome==MARINA && side>0))
+   place_scenery(items,count,v,absolute,side,ROAD_HALF+11,SC_LAMP,h,0);
+ }
+ /* Plant clusters use unequal spacing and lateral depths.  They are never
+  * laid out like a row of houses, and dense forest remains intentional. */
+ first=floor_div(v->visual_position-180,240);last=floor_div(v->visual_position+ROAD_VIEW,240);
+ for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
+  uint32_t h=road_landmark(v->seed^0x7ee5u,(uint32_t)n,side);
+  int base=n*240+(int)((h>>8)%43),water,biome=scenery_material(v,base,side,h,&water);
+  int kind=-1,number=1;
+  if(biome==PINES){kind=(h&3)?SC_PINE:SC_TREE;number=3+(int)(h&1);}
+  if(biome==GROVES){kind=SC_CITRUS;number=2+(int)(h&1);}
+  if(biome==COAST && side>0){kind=SC_PALM;number=2+(int)(h&1);}
+  if(biome==WETLANDS){kind=(h&3)?SC_REEDS:SC_MANGROVE;number=2+(int)(h&1);}
+  if(biome==CANYON){kind=(h&3)?SC_ROCK:SC_BUSH;number=1+(int)(h%3);}
+  if(biome==CITY && (h&3)==0){kind=SC_TREE;number=1;}
+  if(kind<0)continue;
+  for(int j=0;j<number;j++) {
+   uint32_t plant=road_hash(h,(uint32_t)j);
+   int absolute=base+j*34+(int)((plant>>10)%17);
+   int offset=118+(int)((plant>>3)%47)+(j&1)*17;
+   if(biome==CITY)offset=184+(int)(plant%21);
+   if(biome==WETLANDS)offset=kind==SC_REEDS?110+(int)(plant%16):137+(int)(plant%24);
+   if(kind==SC_ROCK)offset=122+(int)(plant%61);
+   place_scenery(items,count,v,absolute,side,offset,kind,plant,j&1);
   }
-  add_item(items,count,z,x,ITEM_PROP,kind,(int)h,side);
+ }
+ /* A dock is one whole shore-connected structure, never a run of unrelated
+  * cards.  At least 520 world units separate dock anchors; a structure has
+  * exactly one or two 60-unit sections extending across the water. */
+ first=floor_div(v->visual_position-44,520);last=floor_div(v->visual_position+ROAD_VIEW,520);
+ for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
+  uint32_t h=road_landmark(v->seed^0xd0c4u,(uint32_t)n,side);
+  int absolute=n*520+52,water,biome=scenery_material(v,absolute,side,h,&water);
+  if(dock_allowed(biome,h,side))
+   place_scenery(items,count,v,absolute,side,ROAD_HALF+7,SC_PIER,h,0);
+ }
+ /* Boats keep their own wide mooring intervals offshore, so a marina reads
+  * as water with occasional vessels instead of a tightly packed wall. */
+ first=floor_div(v->visual_position-44,408);last=floor_div(v->visual_position+ROAD_VIEW,408);
+ for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
+  uint32_t h=road_landmark(v->seed^0xb0a7u,(uint32_t)n,side);
+  int absolute=n*408+184+(int)((h>>10)%53),water,biome=scenery_material(v,absolute,side,h,&water);
+  if((biome==MARINA || biome==COAST) && side<0 && (h&3)!=0) {
+   int dock_n=floor_div(absolute-52+260,520),dock_absolute=dock_n*520+52;
+   uint32_t dock_hash=road_landmark(v->seed^0xd0c4u,(uint32_t)dock_n,side);
+   int dock_water,dock_biome=scenery_material(v,dock_absolute,side,dock_hash,&dock_water);
+   int separation=absolute-dock_absolute;if(separation<0)separation=-separation;
+   if(separation<58 && dock_water==256 && dock_allowed(dock_biome,dock_hash,side))continue;
+   place_scenery(items,count,v,absolute,side,190+(int)((h>>5)%42),SC_SAIL,h,0);
+  }
  }
 }
 
-/* Scenery is authored upright, but its footprint belongs to the same road
- * plane as tyres and lane paint.  Water objects are entirely ground-plane
- * textures; buildings keep vertical columns above their receding foundation. */
+/* Organic scenery uses upright, root-anchored art. Buildings are projected
+ * solids; broadside boats rise above water and docks follow its plane. */
 static int side_variant(int id)
 {
  switch(id) {
@@ -530,139 +588,314 @@ static FAST __attribute__((noinline)) void ground_plane(Surface *s,const View *v
  }
 }
 
-/* A diagonal foundation is a small 2.5D facade: every vertical strip rises
- * from its own projected ground contact.  Whole-image rotation or skew would
- * lean the building and leave one end of the front steps below the road. */
-static FAST __attribute__((noinline)) void upright_facade(Surface *s,const View *v,
- const DrawItem *item,const uint16_t *pixels,int source_width,int source_height,
- const uint8_t *anchor,const uint8_t *bounds,int world_width,int world_depth)
+/* Buildings are small world-space solids, not skewed isometric cards.  Every
+ * roof/wall vertex uses the road camera.  In particular, a constant-x edge
+ * along z converges on (128,HORIZON), while its vertical edges stay vertical.
+ * The wall elevations contain only flat, orthographic doors and windows. */
+typedef struct {int x,y;} SceneryPoint;
+
+static SceneryPoint scenery_point(const View *v,int x,int z,int height)
 {
- typedef struct {int16_t top,active_top;uint16_t height,source_x;unsigned step;} FacadeColumn;
- FacadeColumn columns[VW];
- uint32_t assigned[VW/32]={0};
- int first_row=VH,last_row=0,first_x=VW,last_x=0;
- int world_height=world_width*PROP_H/PROP_W;
- int side=item->side;
- int dx_q16=-anchor[0]*world_width*1024;
- int dz_q16=-side*anchor[0]*world_depth*1024;
- int dx_step=(world_width*65536)/source_width;
- int dz_step=(side*world_depth*65536)/source_width;
- unsigned source_inverse=(65536u+(unsigned)source_height-1)/(unsigned)source_height;
- dx_q16+=bounds[0]*dx_step;dz_q16+=bounds[0]*dz_step;
- int end_dx=dx_q16+(bounds[2]-bounds[0])*dx_step;
- int end_dz=dz_q16+(bounds[2]-bounds[0])*dz_step;
- int first_z=item->z+dz_q16/65536,last_z=item->z+end_dz/65536;
- if(first_z>=-44 && last_z>=-44) {
-  int first=item_x(v,item->x+dx_q16/65536,first_z);
-  int last=item_x(v,item->x+end_dx/65536,last_z);
-  if((first < -2 && last < -2) || (first>VW+2 && last>VW+2))return;
- }
- for(int col=bounds[0];col<bounds[2];col++,dx_q16+=dx_step,dz_q16+=dz_step) {
-  int dx=dx_q16/65536,next_dx=(dx_q16+dx_step)/65536;
-  int z=item->z+dz_q16/65536;
-  int next_z=item->z+(dz_q16+dz_step)/65536;
-  if(z < -44 || next_z < -44)continue;
-  int scale=project_scale(z),height=world_height*scale/256;
-  int next_scale=project_scale(next_z);
-  int left=128+((item->x+dx-v->center-v->cam_x)*scale)/256;
-  int right=128+((item->x+next_dx-v->center-v->cam_x)*next_scale)/256;
-  if(right<=left || height<2 || right<=0 || left>=VW)continue;
-  int top=project_y(z)-anchor[1]*height/PROP_H;
-  int x0=clampi(left,0,VW),x1=clampi(right,0,VW);
-  int active_top=top+(int)((bounds[1]*height*source_inverse)>>16)-1;
-  int active_bottom=top+(int)((bounds[3]*height*source_inverse)>>16)+1;
-  if(active_top<top)active_top=top;
-  if(active_bottom>top+height)active_bottom=top+height;
-  int y0=clampi(active_top,0,VH),y1=clampi(active_bottom,0,VH);
+ int scale=project_scale(z);
+ SceneryPoint point={128+((x-v->center-v->cam_x)*scale)/256,
+                     project_y(z)-height*scale/256};
+ return point;
+}
+
+static FAST __attribute__((noinline)) void scenery_polygon(Surface *s,const SceneryPoint *points,int count,uint16_t color)
+{
+ int left[VH],right[VH];
+ int first=VH,last=0;
+ for(int y=0;y<VH;y++){left[y]=VW;right[y]=-1;}
+ for(int edge=0;edge<count;edge++) {
+  SceneryPoint a=points[edge],b=points[(edge+1)%count];
+  if(a.y>b.y){SceneryPoint swap=a;a=b;b=swap;}
+  if(a.y==b.y)continue;
+  int y0=clampi(a.y,0,VH),y1=clampi(b.y,0,VH);
   if(y1<=y0)continue;
-  FacadeColumn descriptor={(int16_t)top,(int16_t)active_top,(uint16_t)(active_bottom-active_top),
-    (uint16_t)col,vertical_step[clampi(height,1,255)]*(unsigned)source_height};
-  for(int x=x0;x<x1;x++){columns[x]=descriptor;assigned[x>>5]|=1u<<(x&31);}
-  if(x0<first_x)first_x=x0;
-  if(x1>last_x)last_x=x1;
-  if(y0<first_row)first_row=y0;
-  if(y1>last_row)last_row=y1;
+  int step=((b.x-a.x)*65536)/(b.y-a.y);
+  int x=a.x*65536+step*(y0-a.y);
+  for(int y=y0;y<y1;y++,x+=step) {
+   int at=x/65536;
+   if(at<left[y])left[y]=at;
+   if(at>right[y])right[y]=at;
+  }
+  if(y0<first)first=y0;
+  if(y1>last)last=y1;
  }
- /* Degenerate/clipped columns can leave a screen pixel unassigned.  Clear
-  * only those sparse holes rather than memset a full 3KB array per building. */
- for(int x=first_x;x<last_x;x++)if(!(assigned[x>>5]&(1u<<(x&31))))
-  columns[x]=(FacadeColumn){0,0,0,0,0};
- /* Row-major drawing matters on ARM9: vertical texture reads would repeatedly
-  * evict the same source rows and framebuffer cache lines.  The facade still
-  * has upright columns, but both source and destination reads stay local. */
- for(int y=first_row;y<last_row;y++) {
-  uint16_t *dest=s->pixels+y*s->w+first_x;
-  for(int x=first_x;x<last_x;x++,dest++) {
-   const FacadeColumn *column=&columns[x];
-   unsigned active_row=(unsigned)(y-column->active_top);
-   if(active_row>=column->height)continue;
-   /* The active interval is a subset of [top, top+height): reciprocal
-    * flooring guarantees sample>>16 remains below source_height. */
-   unsigned sample=(unsigned)(y-column->top)*column->step;
-   uint16_t pixel=pixels[(sample>>16)*source_width+column->source_x];
-   if(pixel)*dest=pixel;
+ for(int y=first;y<last;y++)if(right[y]>=left[y])
+  road_span(s,left[y],y,right[y]-left[y]+1,color);
+}
+
+static int scenery_outcode(SceneryPoint p)
+{return (p.x<0?1:p.x>=VW?2:0)|(p.y<0?4:p.y>=VH?8:0);}
+
+static FAST __attribute__((noinline)) void scenery_edge(Surface *s,SceneryPoint a,SceneryPoint b,uint16_t color)
+{
+ /* A nearby roof can extend far outside the LCD.  Clip before Bresenham
+  * walks it; fully hidden tiles must cost no framebuffer pixel calls. */
+ int ca=scenery_outcode(a),cb=scenery_outcode(b);
+ for(int iteration=0;iteration<8;iteration++) {
+  if(!(ca|cb)) {
+   int dx=b.x-a.x,dy=b.y-a.y,sx=dx<0?-1:1,sy=dy<0?-1:1;
+   if(dx<0)dx=-dx;
+   if(dy<0)dy=-dy;
+   int error=dx-dy;
+   for(;;) {
+    s->pixels[a.y*VW+a.x]=color;
+    if(a.x==b.x && a.y==b.y)return;
+    int twice=error*2;
+    if(twice>-dy){error-=dy;a.x+=sx;}
+    if(twice<dx){error+=dx;a.y+=sy;}
+   }
+  }
+  if(ca&cb)return;
+  int code=ca?ca:cb;
+  SceneryPoint p;
+  if(code&8){p.y=VH-1;p.x=a.x+(b.x-a.x)*(p.y-a.y)/(b.y-a.y);}
+  else if(code&4){p.y=0;p.x=a.x+(b.x-a.x)*(p.y-a.y)/(b.y-a.y);}
+  else if(code&2){p.x=VW-1;p.y=a.y+(b.y-a.y)*(p.x-a.x)/(b.x-a.x);}
+  else {p.x=0;p.y=a.y+(b.y-a.y)*(p.x-a.x)/(b.x-a.x);}
+  if(code==ca){a=p;ca=scenery_outcode(a);}else {b=p;cb=scenery_outcode(b);}
+ }
+}
+
+/* One perspective division per visible screen column, followed by a compact
+ * row-major raster.  There is no matrix stack, z buffer, or per-pixel divide.
+ * Perspective-correct horizontal texture coordinates keep window rows and
+ * vertical window edges attached to the actual wall plane. */
+static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *v,
+ int ax,int az,int bx,int bz,int height,const uint16_t *texture,int tw,int th)
+{
+ if(az < -44 && bz < -44)return;
+ int ua=0,ub=tw-1;
+ if(az < -44) {ua=((-44-az)*(tw-1))/(bz-az);az=-44;}
+ if(bz < -44) {ub=((az+44)*(tw-1))/(az-bz);bz=-44;}
+ SceneryPoint a=scenery_point(v,ax,az,0),b=scenery_point(v,bx,bz,0);
+ SceneryPoint at=scenery_point(v,ax,az,height),bt=scenery_point(v,bx,bz,height);
+ int sa=project_scale(az),sb=project_scale(bz);
+ if(a.x>b.x) {
+  SceneryPoint swap=a;a=b;b=swap;swap=at;at=bt;bt=swap;
+  int temp=sa;sa=sb;sb=temp;temp=ua;ua=ub;ub=temp;
+ }
+ int span=b.x-a.x;
+ int x0=clampi(a.x,0,VW),x1=clampi(b.x+1,0,VW);
+ if(span<1 || x1<=x0)return;
+ typedef struct {int16_t top,bottom;uint16_t u;uint32_t step;} WallColumn;
+ WallColumn columns[VW];
+ int top_step=((bt.y-at.y)*65536)/span,bottom_step=((b.y-a.y)*65536)/span;
+ int scale_step=((sb-sa)*65536)/span;
+ int u_step=((ub*sb-ua*sa)*65536)/span;
+ int offset=x0-a.x;
+ int top=at.y*65536+top_step*offset,bottom=a.y*65536+bottom_step*offset;
+ int scale=sa*65536+scale_step*offset,u=ua*sa*65536+u_step*offset;
+ int first=VH,last=0;
+ for(int x=x0;x<x1;x++,top+=top_step,bottom+=bottom_step,scale+=scale_step,u+=u_step) {
+  int t=top/65536,base=bottom/65536;
+  if(base<=t || scale<=0){columns[x]=(WallColumn){0,0,0,0};continue;}
+  int tex=clampi(u/scale,0,tw-1);
+  columns[x]=(WallColumn){(int16_t)t,(int16_t)base,(uint16_t)tex,
+                           (uint32_t)((th*65536)/(base-t))};
+  int y0=clampi(t,0,VH),y1=clampi(base,0,VH);
+  if(y0<first)first=y0;
+  if(y1>last)last=y1;
+ }
+ /* Top and bottom boundaries are monotone across this vertical plane.
+  * Four advancing edge cursors give the exact occupied span of each row,
+  * including the original integer rounding. Empty trapezoid corners cost no
+  * texture fetches and the inner loop needs no coverage/alpha branches. */
+ int top_left=x0,top_right=top_step>=0?x0:x1;
+ int bottom_left=x0,bottom_right=x1;
+ if(top_step<0)top_left=x1;
+ for(int y=first;y<last;y++) {
+  if(top_step>=0) {
+   while(top_right<x1 && columns[top_right].top<=y)top_right++;
+  } else {
+   while(top_left>x0 && columns[top_left-1].top<=y)top_left--;
+  }
+  if(bottom_step>=0) {
+   while(bottom_left<x1 && columns[bottom_left].bottom<=y)bottom_left++;
+  } else {
+   while(bottom_right>x0 && columns[bottom_right-1].bottom<=y)bottom_right--;
+  }
+  int left=top_left>bottom_left?top_left:bottom_left;
+  int right=top_right<bottom_right?top_right:bottom_right;
+  uint16_t *dest=s->pixels+y*VW+left;
+  for(int x=left;x<right;x++,dest++) {
+   const WallColumn *column=&columns[x];
+   unsigned sy=((unsigned)(y-column->top)*column->step)>>16;
+   *dest=texture[sy*(unsigned)tw+column->u];
   }
  }
 }
 
+static int building_style(int id)
+{return id==SC_SHOP?1:id==SC_WAREHOUSE?2:id==SC_HOTEL?3:id==SC_VILLA?4:0;}
+
+static const uint16_t *building_end_texture(int style,int mirrored,int width)
+{
+ static uint16_t reflected[5][32*64+16*32+8*16];
+ static uint8_t ready[5];
+ int height=width*2;
+ int offset=width==32?0:width==16?32*64:32*64+16*32;
+ unsigned flag=width==32?1u:width==16?2u:4u;
+ const uint16_t *source=(width==32?building_end_art:
+                        width==16?building_end_lod16:building_end_lod8)+style*width*height;
+ if(!mirrored)return source;
+ if(!(ready[style]&flag)) {
+  for(int y=0;y<height;y++)for(int x=0;x<width;x++)
+   reflected[style][offset+y*width+x]=source[y*width+width-1-x];
+  ready[style]|=(uint8_t)flag;
+ }
+ return reflected[style]+offset;
+}
+
+static void building_end_wall(Surface *s,const View *v,int inner,int outer,int z,
+ int height,int style)
+{
+ if(z < -44)return;
+ SceneryPoint a=scenery_point(v,inner,z,0),b=scenery_point(v,outer,z,height);
+ int left=a.x<b.x?a.x:b.x,width=b.x-a.x;
+ if(width<0)width=-width;
+ int h=a.y-b.y;
+ if(width<1 || h<1 || left>=VW || left+width<0 || b.y>=VH || a.y<0)return;
+ /* Constant-z faces are opaque rectangles. They deliberately bypass the
+  * shared car/foliage cache: a newly resized wall must not evict traffic. */
+ width++;
+ int x0=clampi(left,0,VW),x1=clampi(left+width,0,VW);
+ int y0=clampi(b.y,0,VH),y1=clampi(a.y,0,VH);
+ if(x1<=x0 || y1<=y0)return;
+ int source_width=width<=8 && h<=16?8:width<=16 && h<=32?16:32;
+ int source_height=source_width*2;
+ const uint16_t *texture=building_end_texture(style,a.x>b.x,source_width);
+ uint8_t source_x[VW];
+ unsigned x_step=((unsigned)source_width*65536u+(unsigned)width-1)/(unsigned)width;
+ unsigned y_step=((unsigned)source_height*65536u+(unsigned)h-1)/(unsigned)h;
+ for(int x=x0;x<x1;x++)source_x[x]=(uint8_t)(((unsigned)(x-left)*x_step)>>16);
+ unsigned sample=(unsigned)(y0-b.y)*y_step;
+ for(int y=y0;y<y1;y++,sample+=y_step) {
+  const uint16_t *row=texture+(sample>>16)*(unsigned)source_width;
+  uint16_t *dest=s->pixels+y*VW+x0;
+  int x=x0;
+  for(;x+3<x1;x+=4) {
+   dest[0]=row[source_x[x]];dest[1]=row[source_x[x+1]];
+   dest[2]=row[source_x[x+2]];dest[3]=row[source_x[x+3]];dest+=4;
+  }
+  for(;x<x1;x++)*dest++=row[source_x[x]];
+ }
+}
+
+static FAST __attribute__((noinline)) void draw_building(Surface *s,const View *v,const DrawItem *item)
+{
+ static const uint8_t widths[5]={54,62,68,58,60};
+ static const uint8_t depths[5]={88,92,104,92,94};
+ static const uint8_t heights[5]={48,43,47,76,52};
+ static const uint8_t pitches[5]={18,12,8,10,20};
+ int style=building_style(item->id),width=widths[style],depth=depths[style];
+ int height=heights[style],pitch=pitches[style],side=item->side;
+ int inner=item->x,outer=inner+side*width,ridge=inner+side*(width/2);
+ int near=item->z,far=near+depth;
+ if(far < -44)return;
+ SceneryPoint ib=scenery_point(v,inner,far,0),ob=scenery_point(v,outer,far,0);
+ SceneryPoint inf=scenery_point(v,inner,near,0),onf=scenery_point(v,outer,near,0);
+ int minx=inf.x,maxx=onf.x;
+ if(minx>maxx){int temp=minx;minx=maxx;maxx=temp;}
+ if(ib.x<minx)minx=ib.x;
+ if(ib.x>maxx)maxx=ib.x;
+ if(ob.x<minx)minx=ob.x;
+ if(ob.x>maxx)maxx=ob.x;
+ if(maxx<0 || minx>=VW)return;
+ unsigned wall_start=profile_clock();
+ uint16_t paving=C(184,190,174);
+ ground_plane(s,v,inner+side*width/2,near+depth/2,width+6,depth+7,0,0,0,paving);
+ int projected_width=inf.x-ib.x;if(projected_width<0)projected_width=-projected_width;
+ int projected_height=height*project_scale(near < -44?-44:near)/256;
+ int resolution=projected_width<=16 && projected_height<=16?16:
+                projected_width<=32 && projected_height<=32?32:64;
+ const uint16_t *wall=(resolution==64?building_wall_art:
+                       resolution==32?building_wall_lod32:building_wall_lod16)+style*resolution*resolution;
+ building_wall(s,v,inner,near,inner,far,height,wall,resolution,resolution);
+ building_end_wall(s,v,inner,outer,near,height,style);
+ scenery_work[6]+=(profile_clock()-wall_start)&65535u;
+ unsigned roof_start=profile_clock();
+ SceneryPoint in=scenery_point(v,inner,near,height),iff=scenery_point(v,inner,far,height);
+ SceneryPoint out=scenery_point(v,outer,near,height),of=scenery_point(v,outer,far,height);
+ SceneryPoint rn=scenery_point(v,ridge,near,height+pitch),rf=scenery_point(v,ridge,far,height+pitch);
+ const uint16_t *roof=building_roof_art+style*32*32;
+ uint16_t roof_color=roof[16*32+16],roof_dark=blend_color(roof_color,C(26,49,53),36);
+ uint16_t seam=blend_color(roof[8*32+8],C(39,53,57),64);
+ SceneryPoint outer_plane[4]={out,of,rf,rn};
+ SceneryPoint inner_plane[4]={in,iff,rf,rn};
+ int camera_delta=ridge-v->center-v->cam_x;if(camera_delta<0)camera_delta=-camera_delta;
+ int outer_visible=(130-height-pitch)*(width/2)>pitch*camera_delta;
+ if(outer_visible)scenery_polygon(s,outer_plane,4,roof_dark);
+ scenery_polygon(s,inner_plane,4,roof_color);
+ /* Tile seams are world-space lines on the pitched roof.  Longitudinal
+  * seams share the road vanishing point; cross seams follow the roof slope. */
+ for(int u=1;u<4;u++) {
+  int x=inner+side*(width*u/8),y=height+pitch*u/4;
+  scenery_edge(s,scenery_point(v,x,near,y),scenery_point(v,x,far,y),seam);
+ }
+ for(int z=near+18;z<far;z+=18) {
+  scenery_edge(s,scenery_point(v,inner,z,height),scenery_point(v,ridge,z,height+pitch),seam);
+  if(outer_visible)scenery_edge(s,scenery_point(v,ridge,z,height+pitch),scenery_point(v,outer,z,height),seam);
+ }
+ if(near>=-44) {
+  SceneryPoint gable[3]={in,out,rn};
+  uint16_t wall=building_end_art[style*32*64+4*32+16];
+  scenery_polygon(s,gable,3,wall);
+  scenery_edge(s,in,rn,seam);scenery_edge(s,rn,out,seam);
+  scenery_edge(s,in,inf,C(86,104,102));scenery_edge(s,out,onf,C(86,104,102));
+ }
+ scenery_edge(s,in,iff,seam);scenery_edge(s,rn,rf,seam);
+ scenery_work[7]+=(profile_clock()-roof_start)&65535u;
+}
+
 static void draw_water_prop(Surface *s,const View *v,const DrawItem *item)
 {
+ if(item->z < -44)return;
  int scale=project_scale(item->z),x=item_x(v,item->x,item->z),y=project_y(item->z);
  if(item->id==SC_SAIL) {
-  int width=64,depth=34;
-  int w=width*scale/256;
-  int near=item->z-depth/2,far=item->z+depth/2;
-  int h=clampi(project_y(near < -44?-44:near)-project_y(far),1,18);
-  if(w<3)return;
-  /* Small light waterline rings replace the old floating black drop shadow. */
+  int w=78*scale/256,h=w*48/64;
+  if(w<3 || h<3)return;
   uint16_t sea=sea_color(row_biome[clampi(y,HORIZON+1,VH-1)]);
-  ellipse(s,x,y,w+4,h+3,blend_color(sea,C(172,226,220),50));
-  ellipse(s,x,y,w+1,h,sea);
-  ground_plane(s,v,item->x,item->z,width,depth,boat_ground,128,64,0);
-  if(w>13) {
-   int aft=x-w/2-2;
-   gfx_rect(s,aft,y+1,clampi(w/7,2,5),1,blend_color(sea,C(205,237,223),100));
-  }
+  ellipse(s,x,y+1,w+3,clampi(w/9,1,4),blend_color(sea,C(193,233,225),85));
+  gfx_scaled_sprite(s,x-boat_profile_anchor[0]*w/64,y-boat_profile_anchor[1]*h/48,
+                    boat_profile,64,48,w,h);
  } else {
-  /* A pier recedes along the water surface instead of standing like a wall. */
-  ground_plane(s,v,item->x,item->z,29,92,pier_ground,64,128,0);
+  int sections=1+(((unsigned)item->variant>>8)&1);
+  int width=60,depth=16;
+  /* The innermost edge is exactly the terrain shoreline (ROAD_HALF+7).
+   * Both sections share z and a common endpoint; they cannot float apart. */
+  for(int section=sections-1;section>=0;section--) {
+   int center=item->x+item->side*(section*width+width/2);
+   ground_plane(s,v,center,item->z,width,depth,dock_segment,64,32,0);
+   int far_x=item->x+item->side*((section+1)*width);
+   for(int edge=-1;edge<=1;edge+=2) {
+    int z=item->z+edge*(depth/2),sx=item_x(v,far_x,z),sy=project_y(z);
+    int high=clampi(5*project_scale(z)/256,1,5);
+    gfx_line(s,sx,sy,sx,sy-high,C(172,145,103));
+    gfx_rect(s,sx,sy-high,2,1,C(235,219,173));
+   }
+  }
  }
 }
 
 static void draw_prop(Surface *s,const View *v,const DrawItem *item)
 {
+ if(building_id(item->id)){draw_building(s,v,item);return;}
  if(item->id==SC_SAIL || item->id==SC_PIER){draw_water_prop(s,v,item);return;}
+ if(item->z < -44)return;
  int y=project_y(item->z),x=item_x(v,item->x,item->z);
  int scale=project_scale(item->z),world_width=48;
- int building=item->id==SC_BUILDING || item->id==SC_SHOP || item->id==SC_WAREHOUSE ||
-              item->id==SC_HOTEL || item->id==SC_VILLA;
- if(building)world_width=62;
  if(item->id==SC_LAMP)world_width=36;
- if(item->id==SC_ROCK)world_width=48;
  if(item->kind==ITEM_BACK_PROP)world_width=world_width*218/256;
  int w=world_width*scale/256,h=w*PROP_H/PROP_W;
  if(w<2 || h<3)return;
  int source_width,source_height;
  const uint8_t *anchor,*bounds;
  const uint16_t *pixels=prop_source(item->id,item->side,w,&source_width,&source_height,&anchor,&bounds);
- if(building) {
-  int depth=36;
-  uint16_t paving=row_biome[clampi(y,HORIZON+1,VH-1)]==MARINA?C(92,123,138):C(197,199,179);
-  /* The apron starts well behind the guardrail.  Its nearest corner and the
-   * facade share exactly the same immutable world anchor. */
-  ground_plane(s,v,item->x+item->side*world_width/2,item->z+depth/2,
-               world_width+5,depth+7,0,0,0,blend_color(paving,C(65,93,94),36));
-  upright_facade(s,v,item,pixels,source_width,source_height,anchor,bounds,world_width,depth);
-  return;
- }
- if(item->id==SC_ROCK) {
-  ground_plane(s,v,item->x+item->side*world_width/3,item->z+4,
-               world_width*2/3,12,0,0,0,C(139,111,82));
-  upright_facade(s,v,item,pixels,source_width,source_height,anchor,bounds,world_width,10);
-  return;
- }
- /* A palm is anchored at its trunk; a lamp at its pole foot, not at the
-  * midpoint between its pole and its cantilevered light. */
+ (void)bounds;
  int contact_width=item->id==SC_LAMP?clampi(w/8,1,4):clampi(w/5,2,8);
  ellipse(s,x,y,contact_width,clampi(contact_width/3,1,3),C(53,81,73));
  int sway=(item->id==SC_REEDS || item->id==SC_BUSH)?
@@ -687,28 +920,24 @@ static void draw_coin(Surface *s,const View *v,const DrawItem *item)
 
 static void draw_traffic(Surface *s,const View *v,const DrawItem *item)
 {
- int x=item_x(v,item->x,item->z),y=project_y(item->z);
- int size=(project_scale(item->z)*180)/256;
- int w=TRAFFIC_W*size/256,h=TRAFFIC_H*size/256;
- if(w<2 || h<3)return;
- contact_shadow(s,x-w/2,y-h/2,w,h,traffic_bounds+item->id*4,TRAFFIC_W,TRAFFIC_H,0);
- gfx_vehicle(s,x-w/2,y-h/2,traffic_art+item->id*TRAFFIC_W*TRAFFIC_H,
-             TRAFFIC_W,TRAFFIC_H,w,h,item->variant%6);
+ int x=item_x(v,item->x,item->z);
+ VehicleScreenRect r=vehicle_traffic_rect(x,item->z);
+ if(r.width<2 || r.height<3)return;
+ contact_shadow(s,r.left,r.top,r.width,r.height,traffic_body_spans[item->id],TRAFFIC_W,TRAFFIC_H);
+ gfx_vehicle(s,r.left,r.top,traffic_art+item->id*TRAFFIC_W*TRAFFIC_H,
+             TRAFFIC_W,TRAFFIC_H,r.width,r.height,item->variant%6);
 }
-
-static int car_pose(int yaw)
-{return yaw<-28?0:yaw<-8?1:yaw>28?4:yaw>8?3:2;}
 
 static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *item)
 {
  int x=item_x(v,item->x,0),y=PLAYER_Y;
  int vehicle=v->attract?g->save.selected_vehicle:g->vehicle;
  int yaw=v->attract?((int)(v->frame/32)%3-1)*12:g->yaw;
- int pose=car_pose(yaw);
- int w=29,h=42;
- if(vehicles[vehicle].bike){w=24;h=41;}
+ int pose=vehicle_yaw_pose(yaw);
  int lift=!v->attract && g->wheelie?3+(g->frame/6&1):0;
- contact_shadow(s,x-w/2,y-h/2,w,h,vehicle_bounds+(vehicle*5+pose)*4,CAR_W,CAR_H,yaw);
+ VehicleScreenRect r=vehicle_player_rect(x,vehicles[vehicle].bike,lift);
+ int w=r.width,h=r.height;
+ contact_shadow(s,x-w/2,y-h/2,w,h,vehicle_body_spans[vehicle*5+pose],CAR_W,CAR_H);
  if(!v->attract && g->turbo && g->speed_q8>40*Q) {
   int flick=(g->frame&1)*3;
   gfx_rect(s,x-6,y+17,3,9+flick,C(36,182,204));
@@ -727,7 +956,7 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
  const uint16_t *art=vehicle_art+(vehicle*5+pose)*CAR_W*CAR_H;
  int paint=g->save.paint[vehicle];
  if(!v->attract && g->damage_cooldown && (g->frame&2))paint=5;
- gfx_vehicle(s,x-w/2,y-h/2-lift,art,CAR_W,CAR_H,w,h,paint);
+ gfx_vehicle(s,r.left,r.top,art,CAR_W,CAR_H,w,h,paint);
  if(!v->attract && (g->slow || g->drifting)) {
   gfx_rect(s,x-w/2+5,y+h/2-5-lift,3,2,C(255,83,64));
   gfx_rect(s,x+w/2-7,y+h/2-5-lift,3,2,C(255,83,64));
@@ -739,6 +968,31 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
  }
 }
 
+
+static void draw_police(Surface *s,const Game *g,const View *v)
+{
+ if(v->attract)return;
+ int pressure=clampi(g->police_pressure,0,100);
+ int x=item_x(v,v->center+g->x_q8/Q,0);
+ int y=215-pressure*23/100,w=28,h=42;
+ x+=26*pressure/100;
+ /* Pursuit is a run-ending pressure system, separate from NPC traffic.
+  * The patrol approaches visibly from behind only when the player stops. */
+ if(pressure>5) {
+  gfx_vehicle(s,x-w/2,y-h/2,traffic_art,TRAFFIC_W,TRAFFIC_H,w,h,5);
+  gfx_rect(s,x-7,y-4,14,3,C(29,44,57));
+  int flash=(g->frame/4)&1;
+  gfx_rect(s,x-6,y-4,6,2,flash?C(255,80,66):C(96,45,56));
+  gfx_rect(s,x+1,y-4,6,2,flash?C(32,64,109):C(70,169,255));
+  gfx_rect(s,x-5,y+3,10,1,C(242,245,220));
+ }
+ if(pressure>25) {
+  int pulse=clampi(pressure/15,2,6);
+  uint16_t left=(g->frame/4)&1?C(226,88,84):C(72,129,192);
+  gfx_rect(s,0,VH-2,pulse,2,left);
+  gfx_rect(s,VW-pulse,VH-2,pulse,2,left);
+ }
+}
 
 static void draw_ambient(Surface *s,const View *v)
 {
@@ -788,7 +1042,12 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
  render_profile[3]=(profile_clock()-road_start)&65535u;
  unsigned object_start=profile_clock();
  DrawItem items[DRAW_MAX];int count=0;
+ /* Reserve the player before any optional scenery or pooled traffic. */
+ add_item(items,&count,0,v.center+(attract?0:g->x_q8/Q),ITEM_PLAYER,0,0,0);
+ unsigned queue_start=profile_clock();
  queue_scenery(items,&count,&v);
+ for(int q=0;q<8;q++)scenery_work[q]=0;
+ scenery_work[0]=(profile_clock()-queue_start)&65535u;
  if(attract) {
   for(int i=0;i<6;i++) {
    int z=70+(int)((g->frame*(2+i%2)+i*113)%550);
@@ -810,16 +1069,20 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
             g->pickups[i].serial,0,0);
   }
  }
- add_item(items,&count,0,v.center+(attract?0:g->x_q8/Q),ITEM_PLAYER,0,0,0);
  for(int i=0;i<count;i++) {
+  unsigned stage_start=profile_clock();
   switch(items[i].kind) {
-  case ITEM_PROP:case ITEM_BACK_PROP:draw_prop(s,&v,&items[i]);break;
-  case ITEM_CAR:draw_traffic(s,&v,&items[i]);break;
+  case ITEM_PROP:case ITEM_BACK_PROP:
+   draw_prop(s,&v,&items[i]);
+   scenery_work[building_id(items[i].id)?1:(items[i].id==SC_PIER || items[i].id==SC_SAIL)?3:2]+=
+      (profile_clock()-stage_start)&65535u;break;
+  case ITEM_CAR:draw_traffic(s,&v,&items[i]);scenery_work[4]+=(profile_clock()-stage_start)&65535u;break;
   case ITEM_COIN:draw_coin(s,&v,&items[i]);break;
-  case ITEM_PLAYER:draw_player(s,g,&v,&items[i]);break;
+  case ITEM_PLAYER:draw_player(s,g,&v,&items[i]);scenery_work[5]+=(profile_clock()-stage_start)&65535u;break;
   default:break;
   }
  }
+ draw_police(s,g,&v);
  draw_ambient(s,&v);
  if(!attract && v.motion && v.speed>145)for(int i=0;i<(g->turbo?3:2);i++) {
   int y=HORIZON+10+(int)(((unsigned)v.visual_position*2+(unsigned)i*67)%(VH-HORIZON-20));
@@ -827,6 +1090,7 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
   int x=road_x[y]+side*(road_half[y]-6);
   gfx_line(s,x,y,x+side*2,y+clampi(v.speed/35,4,10),C(137,176,180));
  }
+ for(int q=0;q<8;q++)scenery_profile[q]=scenery_work[q];
  render_profile[4]=(profile_clock()-object_start)&65535u;
 }
 
@@ -843,7 +1107,7 @@ static void copy_cached_card(Surface *s,int x,int y,const uint16_t *pixels,int s
 
 static void draw_run_overlay(Surface *s,const Game *g)
 {
- static uint16_t combo_art[39*18],location_art[LOCATION_COUNT][157*19],notice_art[240*17];
+ static uint16_t combo_art[48*18],location_art[LOCATION_COUNT][157*19],notice_art[240*17];
  static uint8_t location_ready[LOCATION_COUNT];
  static char old_notice[88];
  static int old_combo=-1,notice_width;
@@ -851,16 +1115,16 @@ static void draw_run_overlay(Surface *s,const Game *g)
  const StudioTheme *theme=theme_for(g);
  if(old_skin!=g->save.skin){memset(location_ready,0,sizeof(location_ready));old_combo=-1;notice_width=0;old_skin=g->save.skin;}
  if(g->combo_q8>Q+Q/8) {
-  int value=g->combo_q8*10/Q;
+  int value=g->combo_q8*100/Q;
   if(value!=old_combo) {
-   Surface cache={combo_art,39,18};
-   gfx_rect(&cache,0,0,39,18,0);
-   char combo[16];snprintf(combo,sizeof(combo),"%u.%ux",g->combo_q8/Q,(g->combo_q8%Q)*10/Q);
-   gfx_card(&cache,0,0,39,18,theme->pane,theme->rim);
+   Surface cache={combo_art,48,18};
+   gfx_rect(&cache,0,0,48,18,0);
+   char combo[16];snprintf(combo,sizeof(combo),"%u.%02ux",g->combo_q8/Q,(g->combo_q8%Q)*100/Q);
+   gfx_card(&cache,0,0,48,18,theme->pane,theme->rim);
    gfx_text(&cache,6,2,combo,theme->accent);
    old_combo=value;
   }
-  copy_cached_card(s,210,1,combo_art,39,39,18);
+  copy_cached_card(s,201,1,combo_art,48,48,18);
  }
  if(g->run_ticks<150) {
   int id=g->start_biome;
@@ -917,11 +1181,14 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  int pose=2,w=vehicles[id].bike?48:78,h=116,x=104-w/2,y=63;
  const uint16_t *art=vehicle_art+(id*5+pose)*CAR_W*CAR_H;
  int paint=!receipt && g->garage_tab==0 && g->cursor==2?g->paint_choice:g->save.paint[id];
- contact_shadow(scene,x,y,w,h,vehicle_bounds+(id*5+pose)*4,CAR_W,CAR_H,0);
+ contact_shadow(scene,x,y,w,h,vehicle_body_spans[id*5+pose],CAR_W,CAR_H);
  gfx_vehicle(scene,x,y,art,CAR_W,CAR_H,w,h,paint);
  gfx_card(scene,10,7,236,27,theme->pane,theme->rim);
- gfx_text(scene,18,11,receipt?"BACK AT THE STUDIO":"COASTLINE  /  MOTOR STUDIO",theme->ink);
- gfx_text_small(scene,18,24,receipt?"ANOTHER ROAD. ANOTHER STORY.":g->garage_tab==1?"PARTS  /  BUILT FOR THE LONG RUN":
+ const char *receipt_title=g->end_reason==END_STOPPED?"PURSUIT ENDED":
+                           g->end_reason==END_CRASH?"VEHICLE RECOVERED":"RUN BANKED";
+ const char *receipt_subtitle=g->end_reason==END_STOPPED?"TRAFFIC DIVISION / CITATION ISSUED":"REWARDS SECURED";
+ gfx_text(scene,18,11,receipt?receipt_title:"COASTLINE  /  MOTOR STUDIO",theme->ink);
+ gfx_text_small(scene,18,24,receipt?receipt_subtitle:g->garage_tab==1?"PARTS  /  BUILT FOR THE LONG RUN":
       g->garage_tab==2?"SETUP  /  FIND YOUR OWN BALANCE":"SHOWROOM  /  YOUR NEXT SET OF KEYS",theme->muted);
  gfx_text(scene,13,40,vehicles[id].name,theme->ink);
  char mastery[24];snprintf(mastery,sizeof(mastery),"MASTERY %d",game_mastery_level(g,id));
@@ -929,7 +1196,8 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  gfx_card(scene,165,61,80,116,theme->pane,theme->rim);
  gfx_rect(scene,172,67,65,2,theme->accent);
  if(receipt) {
-  gfx_text_small(scene,173,74,"RUN BANKED",theme->accent);
+  gfx_text_small(scene,173,74,g->end_reason==END_STOPPED?"CAUGHT":
+                 g->end_reason==END_CRASH?"RUN CLOSED":"RUN BANKED",theme->accent);
   gfx_text_small(scene,173,94,"POINTS",theme->muted);gfx_number(scene,173,106,(int)g->run.total_points,theme->ink);
   gfx_text_small(scene,173,128,"CASH EARNED",theme->muted);
   char cash[24];snprintf(cash,sizeof(cash),"$%lu",(unsigned long)g->run.total_cash);gfx_text(scene,173,141,cash,theme->ink);

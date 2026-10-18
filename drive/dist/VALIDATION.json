@@ -2,17 +2,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 1366528,
-    "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
+    "bytes": 1524224,
+    "sha256": "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1334132
+        "bytes": 1492156
       },
       "arm7": {
-        "offset": 1350656,
+        "offset": 1508864,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -20,12 +20,14 @@
     },
     "native": [
       "road: 15610090 checks, 2,441,989 consecutive samples; all 8 biomes, reverse travel, exact transition endpoints, boundary continuity and extreme coordinates pass",
-      "gameplay: 5934573 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
+      "gameplay: 5939644 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
       "legacy_save: 274 checks; exact 100-byte v1 migration preserves cash, six-car upgrades and unlocks, adds defaults, rejects corrupt/invalid saves and emits valid v2",
-      "traffic: 78329849 checks; deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass",
+      "traffic: 78401887 checks; pixel-accurate chassis contacts, swept cut-ins, deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass",
       "progression: 199 checks; mastery gates, effective setup tradeoffs, career perks, bank-once XP/cash and persistent settings pass",
-      "turbo: 12415 checks; exact 8s fuel, release/re-arm reserve, skill-only recharge, 5x-to-2x balance, exclusions, pause and unchanged saves pass",
-      "graphics: 34489 pixel-exact checks passed across 158 asset frames; cache/paint/LOD/clipping/capacity"
+      "turbo: 16975 checks; exact 8s fuel, release/re-arm reserve, skill-only recharge, 5x-to-2x balance, exclusions, pause and unchanged saves pass",
+      "handling: 57149 checks; exact quarter combos, 48s/24s ramps, controlled slides, pursuit grace/capture/recovery, pause and unchanged saves pass",
+      "graphics: 46623 pixel-exact checks passed across 195 asset frames; cache/paint/LOD/clipping/capacity",
+      "Scenery draw items: 0..43, 24 slots remain with both pools full.\nRenderer geometry: 950748 checks passed."
     ],
     "core": {
       "name": "DeSmuME",
@@ -33,15 +35,15 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 2618070,
-      "nonzero_batches": 3316
+      "samples": 2998800,
+      "nonzero_batches": 3829
     },
     "events": [
       {
         "check": "independent audio settings",
         "music": {
           "samples_observed": 5520,
-          "rms": 364.34729858406695
+          "rms": 385.4261931450934
         },
         "muted_music": {
           "samples_observed": 5520,
@@ -57,17 +59,17 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 348.68452037103225
+          "rms": 354.6079226474612
         }
       },
       {
         "check": "gas/turbo/precision",
         "normal_q8": 44800,
         "turbo_q8": 55808,
-        "slow_q8": 28160,
+        "slow_q8": 28928,
         "charge_before_q8": 61440,
         "charge_after_boost_q8": 40960,
-        "charge_after_precision_q8": 41922
+        "charge_after_precision_q8": 41881
       },
       {
         "check": "actual cartridge update rate",
@@ -77,50 +79,108 @@
         "start": {
           "mode": "run",
           "health": 100,
-          "position_q8": 462405,
-          "frame": 1006
+          "position_q8": 484172,
+          "frame": 940,
+          "run_seed": 746568421,
+          "run_ticks": 473,
+          "x_q8": -18026,
+          "speed_q8": 44800
         },
         "end": {
           "mode": "run",
           "health": 100,
-          "position_q8": 546405,
-          "frame": 1066
+          "position_q8": 568172,
+          "frame": 1000
         },
         "render_profile": [
-          11311,
-          1,
-          11344,
-          3023,
-          7917
+          13460,
+          0,
+          13494,
+          3032,
+          10062
+        ],
+        "scenery_profile": [
+          638,
+          5146,
+          1698,
+          0,
+          1800,
+          156,
+          3024,
+          2052
         ]
+      },
+      {
+        "check": "actual cadence across existing stock drive",
+        "updates": 868,
+        "hardware_frames": 1800,
+        "hz": 28.933333333333334,
+        "requested_updates": 1200,
+        "actual_run_ticks": 868,
+        "ended_early": true,
+        "start": {
+          "frame": 1000,
+          "run_ticks": 533,
+          "position_q8": 568172,
+          "health": 100
+        },
+        "end": {
+          "frame": 1868,
+          "run_ticks": 1401,
+          "position_q8": 1767682,
+          "health": 0,
+          "mode": "receipt"
+        }
       }
     ],
     "receipt": {
       "count": [
-        1760,
-        35,
-        1,
-        21,
+        2301,
+        44,
+        0,
+        31,
         0,
         0,
-        9
+        27
       ],
       "points": [
-        1760,
-        175,
-        100,
-        1240,
+        2301,
+        220,
+        0,
+        955,
         0,
         0,
-        90
+        270
       ],
-      "points_total": 3365,
-      "cash": 101,
-      "distance_m": 1760,
-      "max_combo_q8": 1280,
-      "mastery_xp": 486,
-      "career_xp": 486,
-      "cash_bonus": 0
+      "points_total": 3746,
+      "cash": 197,
+      "distance_m": 2301,
+      "max_combo_q8": 576,
+      "mastery_xp": 555,
+      "career_xp": 555,
+      "cash_bonus": 0,
+      "end_reason": 2
+    },
+    "long_drive_cadence": {
+      "updates": 868,
+      "hardware_frames": 1800,
+      "hz": 28.933333333333334,
+      "requested_updates": 1200,
+      "actual_run_ticks": 868,
+      "ended_early": true,
+      "start": {
+        "frame": 1000,
+        "run_ticks": 533,
+        "position_q8": 568172,
+        "health": 100
+      },
+      "end": {
+        "frame": 1868,
+        "run_ticks": 1401,
+        "position_q8": 1767682,
+        "health": 0,
+        "mode": "receipt"
+      }
     },
     "screenshots": [
       "home.png",
@@ -153,21 +213,217 @@
     "inputs": "joypad only; touch used solely to assert it is ignored",
     "ram_access": "read only; no emulator-state restore"
   },
-  "visual_fixture": {
+  "handling_and_pursuit": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1366528,
-      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
+      "bytes": 1524224,
+      "sha256": "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1334132
+          "bytes": 1492156
         },
         "arm7": {
-          "offset": 1350656,
+          "offset": 1508864,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "source": "native-generated battery fixture: Pacer armor6, touring chassis, Recovery3; no engine/grip/Focus modifications",
+    "inputs": "joypad only",
+    "ram_access": "read only; no emulator checkpoints or state restores",
+    "checks": [
+      {
+        "check": "launch grace, stopped patrol, pause freeze and bank-once ticket",
+        "before_pause": {
+          "frame": 210,
+          "run_ticks": 127,
+          "health": 100,
+          "x_q8": -6144,
+          "vx_q8": 0,
+          "yaw": 0,
+          "speed_q8": 0,
+          "police_ticks": 37,
+          "police_pressure": 41,
+          "end_reason": 0,
+          "combo_q8": 256,
+          "speed_hold": 0
+        },
+        "caught": {
+          "frame": 446,
+          "run_ticks": 180,
+          "health": 100,
+          "x_q8": -6144,
+          "vx_q8": 0,
+          "yaw": 0,
+          "speed_q8": 0,
+          "police_ticks": 90,
+          "police_pressure": 100,
+          "end_reason": 1,
+          "combo_q8": 256,
+          "speed_hold": 0
+        },
+        "points": 0,
+        "cash_awarded": 0
+      },
+      {
+        "check": "eight seconds of Slow driving remains active with no patrol pressure",
+        "frame": 722,
+        "run_ticks": 241,
+        "health": 100,
+        "x_q8": -6301,
+        "vx_q8": -2,
+        "yaw": 0,
+        "speed_q8": 27648,
+        "police_ticks": 0,
+        "police_pressure": 0,
+        "end_reason": 0,
+        "combo_q8": 256,
+        "speed_hold": 0
+      },
+      {
+        "check": "controlled turn-in, two-tick countersteer and six-tick recovery",
+        "before": {
+          "frame": 722,
+          "run_ticks": 241,
+          "health": 100,
+          "x_q8": -6301,
+          "vx_q8": -2,
+          "yaw": 0,
+          "speed_q8": 27648,
+          "police_ticks": 0,
+          "police_pressure": 0,
+          "end_reason": 0,
+          "combo_q8": 256,
+          "speed_hold": 0
+        },
+        "drifting": {
+          "frame": 734,
+          "run_ticks": 253,
+          "health": 100,
+          "x_q8": -471,
+          "vx_q8": 524,
+          "yaw": 100,
+          "speed_q8": 30408,
+          "police_ticks": 0,
+          "police_pressure": 0,
+          "end_reason": 0,
+          "combo_q8": 256,
+          "speed_hold": 0
+        },
+        "countersteer": {
+          "frame": 736,
+          "run_ticks": 255,
+          "health": 100,
+          "x_q8": -1369,
+          "vx_q8": -497,
+          "yaw": -10,
+          "speed_q8": 30868,
+          "police_ticks": 0,
+          "police_pressure": 0,
+          "end_reason": 0,
+          "combo_q8": 256,
+          "speed_hold": 0
+        },
+        "recovered": {
+          "frame": 742,
+          "run_ticks": 261,
+          "health": 100,
+          "x_q8": -1519,
+          "vx_q8": -2,
+          "yaw": -2,
+          "speed_q8": 32860,
+          "police_ticks": 0,
+          "police_pressure": 0,
+          "end_reason": 0,
+          "combo_q8": 256,
+          "speed_hold": 0
+        }
+      },
+      {
+        "check": "quarter-step full-speed combo with slower build",
+        "observed_timeline": [
+          {
+            "frame": 977,
+            "qualified_ticks": 90,
+            "combo_q8": 320
+          },
+          {
+            "frame": 1067,
+            "qualified_ticks": 180,
+            "combo_q8": 384
+          }
+        ],
+        "longest_qualified_ticks": 180,
+        "full_cap_qualified_ticks": 1440
+      }
+    ],
+    "screenshots": [
+      "handling-police-pressure.png",
+      "handling-stopped-ticket.png",
+      "handling-controlled-drift.png",
+      "handling-drift-recovery.png",
+      "handling-banked-ticket.png",
+      "handling-quarter-combo.png",
+      "handling-clear-pass.png",
+      "handling-real-contact.png"
+    ],
+    "launch_grace_passed": true,
+    "pause_frozen": true,
+    "stopped_catch_passed": true,
+    "ticket_banked_once": true,
+    "slow_mode_safe": true,
+    "controlled_drift_passed": true,
+    "quarter_combo_passed": true,
+    "collision_witnesses": {
+      "clear_pass": {
+        "passed": true,
+        "health_before": 100,
+        "health_after": 100,
+        "serial": 1,
+        "horizontal_clearance_pixels_or_overlap_minus_one": 1,
+        "opaque_body_contact": false,
+        "relative_depth_q8": -175,
+        "x_offset_q8": 6794,
+        "near_miss_awarded": true,
+        "frame": 1200,
+        "screenshot": "handling-clear-pass.png"
+      },
+      "real_contact": {
+        "passed": true,
+        "health_before": 74,
+        "health_after": 65,
+        "serial": 3,
+        "horizontal_clearance_pixels_or_overlap_minus_one": -1,
+        "opaque_body_contact": true,
+        "relative_depth_q8": 11530,
+        "x_offset_q8": 732,
+        "frame": 1383,
+        "screenshot": "handling-real-contact.png"
+      },
+      "clearance_convention": "nonnegative: exact horizontal pixel clearance; -1: overlapping opaque pixels, not penetration depth"
+    }
+  },
+  "visual_fixture": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1524224,
+      "sha256": "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1492156
+        },
+        "arm7": {
+          "offset": 1508864,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -294,15 +550,15 @@
       },
       {
         "name": "pines",
-        "updates": 59,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.5
+        "hz": 30.0
       },
       {
         "name": "canyon",
-        "updates": 59,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.5
+        "hz": 30.0
       },
       {
         "name": "marina",
@@ -318,9 +574,9 @@
       },
       {
         "name": "groves",
-        "updates": 60,
+        "updates": 61,
         "hardware_frames": 120,
-        "hz": 30.0
+        "hz": 30.5
       }
     ],
     "cluster_update_rates": [
@@ -380,9 +636,9 @@
       },
       {
         "name": "utility",
-        "updates": 61,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 30.5,
+        "hz": 30.0,
         "vehicle": 2,
         "skin": 0,
         "units": 0
@@ -398,18 +654,18 @@
       },
       {
         "name": "utility",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 2,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "bike",
         "updates": 59,
         "hardware_frames": 120,
         "hz": 29.5,
-        "vehicle": 2,
-        "skin": 2,
-        "units": 0
-      },
-      {
-        "name": "bike",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
         "vehicle": 3,
         "skin": 0,
         "units": 1
@@ -461,101 +717,83 @@
       },
       {
         "name": "race",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 4,
-        "skin": 0,
-        "units": 0
-      },
-      {
-        "name": "race",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 4,
-        "skin": 1,
-        "units": 0
-      },
-      {
-        "name": "race",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 4,
-        "skin": 2,
-        "units": 0
-      },
-      {
-        "name": "sundown",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 5,
-        "skin": 0,
-        "units": 0
-      },
-      {
-        "name": "sundown",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 5,
-        "skin": 1,
-        "units": 0
-      },
-      {
-        "name": "sundown",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 5,
-        "skin": 2,
-        "units": 0
-      },
-      {
-        "name": "mariner",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 6,
-        "skin": 0,
-        "units": 0
-      },
-      {
-        "name": "mariner",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 6,
-        "skin": 1,
-        "units": 0
-      },
-      {
-        "name": "mariner",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 6,
-        "skin": 2,
-        "units": 0
-      },
-      {
-        "name": "rallye",
-        "updates": 60,
-        "hardware_frames": 120,
-        "hz": 30.0,
-        "vehicle": 8,
-        "skin": 0,
-        "units": 0
-      },
-      {
-        "name": "rallye",
         "updates": 61,
         "hardware_frames": 120,
         "hz": 30.5,
-        "vehicle": 8,
+        "vehicle": 4,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "race",
+        "updates": 61,
+        "hardware_frames": 120,
+        "hz": 30.5,
+        "vehicle": 4,
         "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "race",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 4,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 5,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5,
+        "vehicle": 5,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "sundown",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5,
+        "vehicle": 5,
+        "skin": 2,
+        "units": 0
+      },
+      {
+        "name": "mariner",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 6,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "mariner",
+        "updates": 61,
+        "hardware_frames": 120,
+        "hz": 30.5,
+        "vehicle": 6,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "mariner",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 6,
+        "skin": 2,
         "units": 0
       },
       {
@@ -563,6 +801,24 @@
         "updates": 60,
         "hardware_frames": 120,
         "hz": 30.0,
+        "vehicle": 8,
+        "skin": 0,
+        "units": 0
+      },
+      {
+        "name": "rallye",
+        "updates": 60,
+        "hardware_frames": 120,
+        "hz": 30.0,
+        "vehicle": 8,
+        "skin": 1,
+        "units": 0
+      },
+      {
+        "name": "rallye",
+        "updates": 59,
+        "hardware_frames": 120,
+        "hz": 29.5,
         "vehicle": 8,
         "skin": 2,
         "units": 0
@@ -639,24 +895,24 @@
       {
         "check": "deliberate drift replenishes used turbo",
         "before_q8": 51200,
-        "after_q8": 51651,
+        "after_q8": 51609,
         "drift_hold_ticks": 27,
-        "combo_q8": 371,
+        "combo_q8": 256,
         "fresh_run": true,
         "trace": {
           "before": {
-            "frame": 2984,
+            "frame": 2983,
             "health": 100,
             "x_q8": -6144,
             "speed_q8": 21480,
             "charge_q8": 51200
           },
           "after": {
-            "frame": 3011,
+            "frame": 3010,
             "health": 100,
-            "x_q8": 4238,
+            "x_q8": 5634,
             "speed_q8": 29094,
-            "charge_q8": 51651,
+            "charge_q8": 51609,
             "drift_hold": 27,
             "source": 2
           }
@@ -665,27 +921,35 @@
       {
         "check": "sustained wheelie replenishes used turbo",
         "before_q8": 10240,
-        "after_q8": 17568,
-        "wheelie_hold_ticks": 120,
-        "combo_q8": 768
+        "after_q8": 13968,
+        "wheelie_hold_ticks": 20,
+        "combo_q8": 256
       }
     ],
     "water_contact_captures": [
       {
-        "object": "broadside boat",
+        "object": "upright profile boat",
         "screenshot": "grounded-boat.png",
         "biome": 1,
-        "frame": 596,
-        "anchor": 2486,
-        "world_z_ahead": 215
+        "frame": 592,
+        "anchor": 2637,
+        "world_z_ahead": 366,
+        "shore_side": "left",
+        "anchor_slot_spacing": 408,
+        "dock_sections": null,
+        "orientation": "upright transverse hull"
       },
       {
-        "object": "horizontal pier",
+        "object": "shore-connected dock",
         "screenshot": "grounded-pier.png",
         "biome": 5,
-        "frame": 1641,
-        "anchor": 2567,
-        "world_z_ahead": 296
+        "frame": 1643,
+        "anchor": 2652,
+        "world_z_ahead": 314,
+        "shore_side": "left",
+        "anchor_slot_spacing": 520,
+        "dock_sections": 2,
+        "orientation": "one or two end-joined sections perpendicular to road"
       }
     ],
     "dashboard_vehicle_skin_combinations": 30,
@@ -695,17 +959,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1366528,
-      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
+      "bytes": 1524224,
+      "sha256": "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1334132
+          "bytes": 1492156
         },
         "arm7": {
-          "offset": 1350656,
+          "offset": 1508864,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -772,23 +1036,54 @@
         "coastal-save-preserved.png",
         "coastal-save-reloaded.png"
       ]
+    },
+    "previous_turbo_v2_compatibility": {
+      "baseline_rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 1366528,
+        "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 1334132
+          },
+          "arm7": {
+            "offset": 1350656,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "profile_source": "same detailed 204-byte fixture accepted by immediately preceding turbo release",
+      "bytes": 204,
+      "byte_exact_on_load": true,
+      "fresh_process_reload": true,
+      "preserved": "all vehicle progress, money, records, unlocks and settings",
+      "screenshots": [
+        "turbo-save-preserved.png",
+        "turbo-save-reloaded.png"
+      ]
     }
   },
   "region_transition": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1366528,
-      "sha256": "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822",
+      "bytes": 1524224,
+      "sha256": "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1334132
+          "bytes": 1492156
         },
         "arm7": {
-          "offset": 1350656,
+          "offset": 1508864,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -797,16 +1092,16 @@
     },
     "profile_source": "labelled native-generated Nomad/mastery/parts/perks fixture; start distance zero",
     "ram_access": "read only; all travel uses R + Down precision and steering buttons; no checkpoint restore",
-    "distance_driven_m": 7060,
-    "world_distance": 21181,
-    "elapsed_game_ticks": 4662,
-    "hardware_frames": 9324,
+    "distance_driven_m": 7062,
+    "world_distance": 21186,
+    "elapsed_game_ticks": 4631,
+    "hardware_frames": 9262,
     "update_hz": 30.0,
     "biomes_seen": [
       1,
       2
     ],
-    "health": 26,
+    "health": 51,
     "screenshots": [
       "transition-before.png",
       "transition-mid.png",

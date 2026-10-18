@@ -50,8 +50,25 @@ class Game(C.LittleEndianStructure):
         ('notice_timer',U16),('notice',C.c_char*88),('paint_choice',U8),
         ('garage_tab',U8),('menu_return',U8),('repair_used',U8),('tune_choice',U8),
         ('turbo_charge_q8',U16),('turbo_latched',U8),('turbo_recharging',U8),
-        ('turbo_source',U8),('controls_page',U8),('turbo_remainder',U16)]
+        ('turbo_source',U8),('controls_page',U8),('turbo_remainder',U16),
+        ('police_ticks',U16),('police_pressure',U8),('end_reason',U8)]
+
+def verify_layout(root:Path):
+    """Compile every ctypes offset against C before observing cartridge RAM."""
+    declarations=['#include "game.h"','#include <stddef.h>']
+    for kind in (Save,RunStats,Traffic,Pickup,Game):
+        name=kind.__name__
+        declarations.append(f'_Static_assert(sizeof({name})=={C.sizeof(kind)},"{name} size");')
+        for field,_ in kind._fields_:
+            offset=getattr(kind,field).offset
+            declarations.append(f'_Static_assert(offsetof({name},{field})=={offset},"{name}.{field}");')
+    subprocess.run(['gcc','-std=c11','-Wall','-Wextra','-Werror','-pedantic',
+                    '-I',str(root/'src'),'-x','c','-fsyntax-only','-'],
+                   input='\n'.join(declarations)+'\n',text=True,check=True)
+    assert C.sizeof(Save)==204 and C.sizeof(Game)==1276
+
 MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings')
+END_REASONS=('none','stopped by patrol','crash impound','banked voluntarily','route limit')
 BONUSES=('distance','survival','near miss','speed hold','drift','wheelie','coins')
 def symbol(elf:Path,name:str):
     text=subprocess.run(['readelf','-sW',str(elf)],check=True,capture_output=True,text=True).stdout

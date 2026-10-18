@@ -15,14 +15,15 @@ import subprocess
 import sys
 from pathlib import Path
 from emulator import Emulator, ROOT
-from game_snapshot import Game, Save, MODES, BONUSES, find_symbol, symbol_size, read_game
+from game_snapshot import Game, Save, MODES, BONUSES, find_symbol, symbol_size, read_game,verify_layout
 from inspect_rom import inspect
 
 
 def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
+    verify_layout(ROOT)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -191,8 +192,11 @@ def emulator_tests(rom,elf,output):
         p.shot('race-slow',('r','down'))
         before=p.game().speed_q8
         p.ticks(1,('l','r','up'));assert p.game().speed_q8<before and not p.game().turbo
-        p.ticks(75,('l',));assert p.game().speed_q8<0
-        before=p.game().position_q8;p.ticks(8,('l',));assert p.game().position_q8<before
+        for _ in range(80):
+            p.ticks(1,('l',))
+            if p.game().speed_q8<0:break
+        assert p.game().mode==1 and p.game().speed_q8<0
+        before=p.game().position_q8;p.ticks(4,('l',));assert p.game().position_q8<before
         p.shot('race-reverse',('l',))
         p.autopilot(130,('r',))
         assert p.game().mode==1
@@ -211,20 +215,39 @@ def emulator_tests(rom,elf,output):
         # A fixed interval measures actual ARM9 updates against hardware frames.
         sample=p.game();before=sample.frame;ef=e.frames
         start_state={'mode':MODES[sample.mode],'health':sample.health,
-                     'position_q8':sample.position_q8,'frame':sample.frame}
+                     'position_q8':sample.position_q8,'frame':sample.frame,
+                     'run_seed':sample.run_seed,'run_ticks':sample.run_ticks,
+                     'x_q8':sample.x_q8,'speed_q8':sample.speed_q8}
+        e.screenshot(output/'busy-city-rate-start.png')
         e.run(120,('r',));updates=p.game().frame-before
         rate=updates/(120/e.fps)
         sample=p.game()
         timing={'updates':updates,'hardware_frames':e.frames-ef,'hz':rate,
                 'start':start_state,'end':{'mode':MODES[sample.mode],
                 'health':sample.health,'position_q8':sample.position_q8,'frame':sample.frame}}
-        for name,size in (('render_profile',5),('scenery_profile',6)):
+        for name,size in (('render_profile',5),('scenery_profile',8)):
             try:timing[name]=list((C.c_uint32*size).from_buffer_copy(e.read_ram(find_symbol(elf,name),size*4)))
             except RuntimeError:pass
+        e.screenshot(output/'busy-city-rate-end.png')
         print('Cartridge timing '+json.dumps(timing),flush=True)
         assert 28<=rate<=31.5,timing
         p.record('actual cartridge update rate',**timing)
+        drive_before=p.game();hardware_before=e.frames
         p.autopilot(1200,('r',),capture=True)
+        drive_after=p.game();hardware_elapsed=e.frames-hardware_before
+        update_elapsed=drive_after.frame-drive_before.frame
+        long_drive_cadence={'updates':update_elapsed,'hardware_frames':hardware_elapsed,
+            'hz':update_elapsed/(hardware_elapsed/e.fps),'requested_updates':1200,
+            'actual_run_ticks':drive_after.run_ticks-drive_before.run_ticks,
+            'ended_early':drive_after.mode!=1,
+            'start':{'frame':drive_before.frame,'run_ticks':drive_before.run_ticks,
+                     'position_q8':drive_before.position_q8,'health':drive_before.health},
+            'end':{'frame':drive_after.frame,'run_ticks':drive_after.run_ticks,
+                   'position_q8':drive_after.position_q8,'health':drive_after.health,
+                   'mode':MODES[drive_after.mode]}}
+        print('Long drive cadence '+json.dumps(long_drive_cadence),flush=True)
+        assert 28<=long_drive_cadence['hz']<=31.5,long_drive_cadence
+        p.record('actual cadence across existing stock drive',**long_drive_cadence)
         if p.game().mode==1:
             # Intentionally drive into the verge until the run ends. The
             # receipt must arise from the ordinary collision path.
@@ -243,7 +266,8 @@ def emulator_tests(rom,elf,output):
         receipt={'count':list(g.run.count),'points':list(g.run.points),
                  'points_total':g.run.total_points,'cash':g.run.total_cash,
                  'distance_m':g.run.distance_m,'max_combo_q8':g.run.max_combo_q8,
-                 'mastery_xp':g.run.mastery_xp,'career_xp':g.run.career_xp,'cash_bonus':g.run.cash_bonus}
+                 'mastery_xp':g.run.mastery_xp,'career_xp':g.run.career_xp,'cash_bonus':g.run.cash_bonus,
+                 'end_reason':g.end_reason}
         cash=g.save.cash;p.ticks(40);assert p.game().save.cash==cash
         p.press('a');assert p.game().mode==0
         p.shot('home-after-run')
@@ -283,6 +307,7 @@ def emulator_tests(rom,elf,output):
         '--output',str(output/'save-reloaded.png')],check=True)
     shots.append('save-reloaded.png')
     return {'core':core,'audio':audio,'events':events,'receipt':receipt,
+            'long_drive_cadence':long_drive_cadence,
             'screenshots':shots,'battery_save_reload':True,'upgrade_purchased':purchased,'earned_career_perk':earned_perk,
             'inputs':'joypad only; touch used solely to assert it is ignored',
             'ram_access':'read only; no emulator-state restore'}

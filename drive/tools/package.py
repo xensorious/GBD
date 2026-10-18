@@ -14,7 +14,14 @@ validation=BUILD/'validation'
 report=json.loads((validation/'results.json').read_text())
 assert report['sha256']==digest,'Validate this exact ROM before packaging.'
 assert report['battery_save_reload'],'Battery-save round trip has not passed.'
-assert len(report['native'])==7,'Run all seven native sanitizer suites before packaging.'
+assert len(report['native'])==9,'Run all nine native sanitizer suites before packaging.'
+assert report['long_drive_cadence']['updates']>0 and report['long_drive_cadence']['hz']>=28,'Verify update cadence across the longer stock drive.'
+handling=json.loads((validation/'handling-results.json').read_text())
+assert handling['rom']['sha256']==digest,'Validate handling and pursuit with this exact ROM.'
+for check in ('launch_grace_passed','stopped_catch_passed','pause_frozen','slow_mode_safe',
+              'quarter_combo_passed','controlled_drift_passed','ticket_banked_once'):
+    assert handling[check],f'Handling check has not passed: {check}'
+assert handling['collision_witnesses']['clear_pass']['passed'] and handling['collision_witnesses']['real_contact']['passed'],'Verify clear passes and genuine vehicle contact.'
 scenery=json.loads((validation/'scenery-results.json').read_text())
 assert scenery['rom']['sha256']==digest and scenery['fresh_process_reload'],'Capture scenery and reload the review profile from this exact ROM.'
 assert scenery['dashboard_vehicle_skin_combinations']==30,'Review every vehicle and dashboard skin.'
@@ -23,15 +30,16 @@ assert {item['screenshot'] for item in scenery['water_contact_captures']}=={'gro
 migration=json.loads((validation/'migration-results.json').read_text())
 assert migration['rom']['sha256']==digest and migration['fresh_process_reload'],'Verify legacy saves with this exact ROM.'
 assert migration['previous_v2_compatibility']['byte_exact_on_load'] and migration['previous_v2_compatibility']['fresh_process_reload'],'Preserve and reload saves from the previous coastal release.'
+assert migration['previous_turbo_v2_compatibility']['byte_exact_on_load'] and migration['previous_turbo_v2_compatibility']['fresh_process_reload'],'Preserve and reload saves from the previous turbo release.'
 transition=json.loads((validation/'transition-results.json').read_text())
 assert transition['rom']['sha256']==digest and transition['biomes_seen']==[1,2],'Drive a region boundary with this exact ROM.'
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
-(DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':report,'visual_fixture':scenery,'save_migration':migration,'region_transition':transition},indent=2)+'\n')
+(DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':report,'handling_and_pursuit':handling,'visual_fixture':scenery,'save_migration':migration,'region_transition':transition},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 sheet=Image.new('RGB',(1024,1584),'#142b36');d=ImageDraw.Draw(sheet)
-for i,(name,title) in enumerate((('race-city','CITY HIGHWAY / LIVE DASHBOARD'),('scenery-coast','PALM COAST'),('run-receipt','ITEMIZED RUN RECEIPT'),('garage','GARAGE AND TUNING'))):
+for i,(name,title) in enumerate((('race-city','CITY HIGHWAY / LIVE DASHBOARD'),('scenery-coast','PALM COAST'),('run-receipt','ITEMIZED TRAFFIC TICKET'),('garage','GARAGE AND TUNING'))):
     im=Image.open(validation/(name+'.png')).convert('RGB')
     assert im.size==(256,384),(name,im.size)
     x=(i%2)*512;y=(i//2)*792
@@ -62,10 +70,14 @@ for filename,bottom,items in (
                        ('turbo-empty','EMPTY RESERVE / RELEASE UP'),
                        ('turbo-recharging','SLOW RECOVERY'),
                        ('turbo-rearmed','BOOST REACTIVATED'))),
-    ('Grounding.png',False,(('scenery-city','GROUNDED CITY FACADES / NO SIGNS'),
+    ('Grounding.png',False,(('scenery-city','PROJECTED WALLS AND ROOFS'),
                            ('scenery-causeway','OPEN CAUSEWAY / ANCHORED LAMPS'),
-                           ('grounded-boat','BOAT ON THE WATER PLANE'),
-                           ('grounded-pier','PIER ON THE WATER PLANE'))),
+                           ('grounded-boat','UPRIGHT BOAT PROFILE'),
+                           ('grounded-pier','DOCK CONNECTED TO SHORE'))),
+    ('Pursuit.png',True,(('handling-police-pressure','POLICE CLOSING IN'),
+                         ('handling-stopped-ticket','CAUGHT / RUN EARNINGS'),
+                         ('handling-quarter-combo','QUARTER-STEP COMBO'),
+                         ('handling-banked-ticket','BANKED / CASH AWARDED'))),
 ):
     contact=Image.new('RGB',(1024,816),'#142b36');d=ImageDraw.Draw(contact)
     for i,(name,title) in enumerate(items):
@@ -80,7 +92,7 @@ shutil.copyfile(validation/'highway-motion.gif',DIST/'highway-motion.gif')
 shutil.copyfile(validation/'biome-transition.gif',DIST/'biome-transition.gif')
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Locations.png','Vehicles.png','Dashboards.png','Interface.png','Turbo.png','Grounding.png','highway-motion.gif','biome-transition.gif','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Locations.png','Vehicles.png','Dashboards.png','Interface.png','Turbo.png','Grounding.png','Pursuit.png','highway-motion.gif','biome-transition.gif','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 with zipfile.ZipFile(DIST/'Coastline-DS.zip','w',zipfile.ZIP_DEFLATED) as archive:
     for name in files+['SHA256SUMS.txt']:

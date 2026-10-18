@@ -17,13 +17,14 @@ from emulator import Emulator,ROOT
 from fixtures import legacy_profile,coastal_profile,write_battery
 from game_snapshot import LegacySave,Game,find_symbol,read_game,symbol_size
 from inspect_rom import inspect
-from setup_legacy import verify_pair,COASTAL_SHA256
+from setup_legacy import verify_pair,COASTAL_SHA256,TURBO_SHA256
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
 p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
 p.add_argument('--baseline',type=Path,default=ROOT/'build'/'legacy-baseline')
 p.add_argument('--v2-baseline',type=Path,default=ROOT/'build'/'coastal-baseline')
+p.add_argument('--turbo-baseline',type=Path,default=ROOT/'build'/'turbo-baseline')
 p.add_argument('--output',type=Path,default=ROOT/'build'/'validation')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 if not (a.baseline/'Coastline.nds').exists() or not (a.baseline/'arm9.elf').exists():
@@ -88,5 +89,28 @@ result['previous_v2_compatibility']={
     'bytes':len(expected_v2),'byte_exact_on_load':True,'fresh_process_reload':True,
     'preserved':'all ten cars, parts, mastery, tuning, career perks, money, records, departures, paint and settings',
     'screenshots':['coastal-save-preserved.png','coastal-save-reloaded.png']}
+if not (a.turbo_baseline/'Coastline.nds').exists() or not (a.turbo_baseline/'arm9.elf').exists():
+    subprocess.run([sys.executable,str(ROOT/'tests'/'setup_legacy.py'),
+                    '--release','turbo','--output',str(a.turbo_baseline)],check=True)
+verify_pair(a.turbo_baseline/'Coastline.nds',a.turbo_baseline/'arm9.elf',TURBO_SHA256)
+turbo_fixture=a.output/'turbo-fixture-save';shutil.rmtree(turbo_fixture,ignore_errors=True)
+write_battery(a.output/'save'/'Coastline.dsv',turbo_fixture/'Coastline.dsv',bytes(coastal))
+subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
+    '--rom',str(a.turbo_baseline/'Coastline.nds'),'--elf',str(a.turbo_baseline/'arm9.elf'),
+    '--save-dir',str(turbo_fixture)],check=True)
+subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
+    '--rom',str(a.rom),'--elf',str(a.elf),'--save-dir',str(turbo_fixture),
+    '--current','--output',str(a.output/'turbo-save-preserved.png'),
+    '--expected',str(a.output/'expected-turbo-profile.bin')],check=True)
+subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
+    '--elf',str(a.elf),'--save-dir',str(turbo_fixture),
+    '--expected',str(a.output/'expected-turbo-profile.bin'),
+    '--output',str(a.output/'turbo-save-reloaded.png')],check=True)
+result['previous_turbo_v2_compatibility']={
+    'baseline_rom':inspect(a.turbo_baseline/'Coastline.nds'),
+    'profile_source':'same detailed 204-byte fixture accepted by immediately preceding turbo release',
+    'bytes':204,'byte_exact_on_load':True,'fresh_process_reload':True,
+    'preserved':'all vehicle progress, money, records, unlocks and settings',
+    'screenshots':['turbo-save-preserved.png','turbo-save-reloaded.png']}
 (a.output/'migration-results.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))

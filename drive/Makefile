@@ -21,11 +21,11 @@ setup:
 build:
 	mkdir -p build
 
-assets: build/assets.c build/assets.h
-build/assets.c build/assets.h &: tools/build_assets.py $(wildcard art/*.png) | build
+assets: build/assets.c build/assets.h build/vehicle_geometry.h
+build/assets.c build/assets.h build/vehicle_geometry.h &: tools/build_assets.py $(wildcard art/*.png) | build
 	python3 tools/build_assets.py
 
-build/%.o: src/%.c build/assets.h $(wildcard src/*.h) platform/platform.h | build
+build/%.o: src/%.c build/assets.h build/vehicle_geometry.h $(wildcard src/*.h) platform/platform.h | build
 	$(NDS_CC) $(CFLAGS) -MMD -MP -c $< -o $@
 build/assets.o: build/assets.c build/assets.h | build
 	$(NDS_CC) $(CFLAGS) -c $< -o $@

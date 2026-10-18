@@ -1,10 +1,18 @@
 # Coastline cartridge validation
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
-GCC AddressSanitizer and UndefinedBehaviorSanitizer. The suites cover driving,
+GCC AddressSanitizer and UndefinedBehaviorSanitizer. Nine suites cover driving,
 score receipts, six-level parts, effective tuning, mastery/career/perks, traffic
 following and lane safety, eight-region road continuity, settings and v1/v2
-battery-save integrity. The finite-turbo suite verifies the exact eight-second
+battery-save integrity. The handling suite verifies exact quarter-step combos
+over 48 seconds at full speed and 24 seconds of drift/wheelie, all Focus ranks,
+controlled turn-in/countersteer/recovery for every chassis, launch grace,
+stopped/reversing patrol capture, pause safety and one-time banked rewards.
+Traffic contact is compared with an independent packed-pixel oracle over 70,200
+car/traffic/yaw/depth/lateral combinations, including transparent gaps, then
+tested for swept cut-ins between simulation updates. The renderer suite checks
+one-point wall/roof geometry and separate frontage/plant/dock/boat spawn rules.
+The finite-turbo suite verifies the exact eight-second
 capacity, depletion latch, 10% activation threshold, bounded combo recharge,
 near misses, sustained drifts/wheelies, precision recovery, collision rollback
 and paused-state integrity. The graphics suite compares cached rendering, palettes,
@@ -24,12 +32,20 @@ and reloads the battery save in a separate process.
 
 After that stock-profile run:
 
+- `python3 drive/tests/handling.py` uses a labelled battery profile with durable
+  Pacer parts and Recovery, leaving its engine/grip/Focus stock. Ordinary buttons
+  demonstrate launch grace, a rising patrol warning, pause freeze, a stopped-car
+  capture and itemized ticket, safe Slow driving, controlled drifting and rapid
+  recovery, quarter-step full-speed combos, an unharmed close traffic pass and
+  genuine visible chassis contact. Collision evidence records the real health,
+  projected body gap and screenshot; the independent native pixel oracle
+  validates the geometry used to interpret these observations.
 - `python3 drive/tests/scenery.py` uses a clearly labelled native-generated
   review profile to capture all eight regions and all 30 vehicle/skin dashboard
   combinations. Buttons exhaust the turbo, hold the depleted control, recharge
   through precision driving and a sustained drift, reactivate boost, and recover
   fuel through a motorcycle wheelie. Durable Nomad and Kestrel setups are
-  explicitly fixture funded. Nearby broadside boat and horizontal pier photos
+  explicitly fixture funded. Nearby upright profile boat and shore-connected dock photos
   are timed from deterministic world hashes during ordinary driving; their
   anchors and depths are recorded. The runner also applies parts/tunes/perks
   with buttons, verifies a fresh process reload, and measures actual update
@@ -47,6 +63,9 @@ After that stock-profile run:
   reuse an existing verified pair. Money, all ten cars' parts/mastery/tuning,
   career perks, records, departures, paint and audio/interface settings must be
   byte-identical immediately after the upgrade.
+  It also repeats the byte-exact check against the immediately preceding turbo
+  release. `setup_legacy.py --release turbo` prepares that verified ROM/ELF pair;
+  `--turbo-baseline PATH` may reuse an existing pair.
 - `python3 drive/tests/transition.py` drives the full coast-to-causeway boundary
   from distance zero with ordinary buttons. The touring vehicle's parts and
   perks are documented fixtures; its travel distance is never injected.

@@ -73,16 +73,27 @@ static void awards(void) {
  begin(&g);ticks(&g,180,K_R);uint32_t distance=g.run.distance_m;uint32_t score=g.run.points[B_DISTANCE];
  int32_t far=g.furthest_q8;g.position_q8-=200*Q;g.speed_q8=90*Q;
  ticks(&g,25,K_R);CHECK(g.position_q8<far && g.run.distance_m==distance && g.run.points[B_DISTANCE]==score);
- /* Full-speed streak ramps continuously, reaches its cap and resets on slow. */
+ /* Full-speed streaks advance in deliberate quarter steps over 48 seconds,
+  * rather than reaching the cap within the opening few seconds. */
  begin(&g);ticks(&g,150,K_R);g.speed_q8=game_top_speed(&g)*Q;
- ticks(&g,30,K_R);unsigned low=g.combo_q8;CHECK(low>Q && low<COMBO_MAX_Q8);
- ticks(&g,300,K_R);CHECK(g.combo_q8==COMBO_MAX_Q8);
+ g.speed_hold=0;
+ ticks(&g,89,K_R);CHECK(g.combo_q8==Q);
+ ticks(&g,1,K_R);CHECK(g.combo_q8==Q+Q/4);
+ ticks(&g,8*DRIVE_HZ-90,K_R);CHECK(g.combo_q8<2*Q);
+ unsigned previous=g.combo_q8;
+ for(int i=8*DRIVE_HZ;i<SPEED_COMBO_TICKS;i++) {
+  ticks(&g,1,K_R);CHECK((g.combo_q8-Q)%(Q/4)==0);
+  CHECK(g.combo_q8==previous || g.combo_q8==previous+Q/4);
+  if(i+1<SPEED_COMBO_TICKS)CHECK(g.combo_q8<COMBO_MAX_Q8);
+  previous=g.combo_q8;
+ }
+ CHECK(g.combo_q8==COMBO_MAX_Q8);
  CHECK(g.run.points[B_SPEED]>0 && g.run.count[B_SPEED]>0);
  CHECK(g.run.total_points==sum(g.run.points));
  ticks(&g,1,K_R|K_DOWN);CHECK(g.combo_q8==Q && !g.speed_hold);
  /* A sustained slide can build a streak while the player alternates bends. */
  begin(&g);g.speed_q8=120*Q;g.run_ticks=100;
- for(int i=0;i<360;i++) {
+ for(int i=0;i<SKILL_COMBO_TICKS;i++) {
   quiet(&g);g.x_q8=0;g.vx_q8=0;
   step(&g,K_R|K_B|((i/15)&1?K_LEFT:K_RIGHT),0);
   CHECK(g.mode==M_RUN && g.combo_q8<=COMBO_MAX_Q8);
@@ -176,8 +187,10 @@ static void grip_response(void) {
    step(&normal,K_R|K_RIGHT,0);step(&slide,K_R|K_RIGHT|K_B,0);
    damping.vx_q8=2*Q;step(&damping,K_R,0);
    CHECK(normal.vx_q8>0 && normal.vx_q8>last_response);
-   CHECK(damping.vx_q8>=0 && damping.vx_q8<last_damping);
-   CHECK(slide.drifting && slide.vx_q8>last_slide && slide.vx_q8<normal.vx_q8);
+   /* The new neutral-steering recovery floor deliberately makes low-grip
+    * cars settle promptly too; extra grip must never worsen recovery. */
+   CHECK(damping.vx_q8>=0 && damping.vx_q8<=last_damping);
+   CHECK(slide.drifting && slide.vx_q8>last_slide);
    CHECK(normal.x_q8==normal.vx_q8 && slide.x_q8==slide.vx_q8);
    last_response=normal.vx_q8;last_damping=damping.vx_q8;last_slide=slide.vx_q8;
   }

@@ -7,12 +7,13 @@
  */
 #include "gfx.h"
 #include "assets.h"
+#include "vehicle_geometry.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=192 };
+enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=224 };
 typedef struct {
  uint16_t before[GUARD],pixels[WIDTH*HEIGHT],after[GUARD];
 } GuardedFrame;
@@ -130,7 +131,18 @@ static void catalog(void)
  for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod16+i*16*24,16,24,1,-1,"side LOD16");
  add_asset(boat_ground,ASSET_BOAT_GROUND_W,ASSET_BOAT_GROUND_H,1,-1,"planar yacht");
  add_asset(pier_ground,ASSET_PIER_GROUND_W,ASSET_PIER_GROUND_H,1,-1,"planar pier");
- if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_COUNT*4+ASSET_PROP_SIDE_COUNT*4+2)
+ for(int i=0;i<ASSET_BUILDING_COUNT;i++) {
+  add_asset(building_wall_art+i*64*64,64,64,1,-1,"flat wall elevation");
+  add_asset(building_end_art+i*32*64,32,64,1,-1,"flat end elevation");
+  add_asset(building_roof_art+i*32*32,32,32,1,-1,"overhead roof");
+  add_asset(building_wall_lod32+i*32*32,32,32,1,-1,"wall LOD32");
+  add_asset(building_wall_lod16+i*16*16,16,16,1,-1,"wall LOD16");
+  add_asset(building_end_lod16+i*16*32,16,32,1,-1,"end LOD16");
+  add_asset(building_end_lod8+i*8*16,8,16,1,-1,"end LOD8");
+ }
+ add_asset(boat_profile,ASSET_BOAT_PROFILE_W,ASSET_BOAT_PROFILE_H,1,-1,"raised profile yacht");
+ add_asset(dock_segment,ASSET_DOCK_SEGMENT_W,ASSET_DOCK_SEGMENT_H,1,-1,"modular dock");
+ if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_COUNT*4+ASSET_PROP_SIDE_COUNT*4+39)
   fail("incomplete asset catalog",asset_count,0,0,0,0,0,0);
  for(unsigned i=0;i<asset_count;i++) {
   unsigned visible=0;
@@ -142,6 +154,79 @@ static void catalog(void)
   if(!visible)fail("empty asset",i,0,0,0,0,0,0);
   checks++;
  }
+}
+static void clean_vehicle_metadata(void)
+{
+ for(int group=0;group<2;group++) {
+  int count=group?6:ASSET_VEHICLE_COUNT*5,w=group?40:48,h=group?64:72;
+  const uint16_t *pixels=group?traffic_art:vehicle_art;
+  for(int id=0;id<count;id++) {
+   const uint16_t *source=pixels+id*w*h;
+   unsigned total=0,head=0,tail=0,dark=0;
+   uint16_t queue[48*72];uint8_t visited[48*72]={0};
+   for(int y=0;y<h;y++) {
+    int left=w,right=0;
+    for(int x=0;x<w;x++) {
+     uint16_t c=source[y*w+x];
+     uint32_t word=group?traffic_body_masks[id][y][x/32]:vehicle_body_masks[id][y][x/32];
+     if(((word>>(x%32))&1u)!=(c!=0))
+      fail("collision mask differs from final visible pixels",(unsigned)id,group,w,h,x,y,0);
+     if(c) {
+      if(x==0||x==w-1||y==0||y==h-1)
+       fail("vehicle yaw clipped or opaque matte reaches canvas edge",(unsigned)id,group,w,h,x,y,0);
+      if(x<left)left=x;
+      if(x+1>right)right=x+1;
+      if(!total){queue[tail++]=(uint16_t)(y*w+x);visited[y*w+x]=1;}
+      total++;
+      dark+=((c&31u)<5u&&((c>>5)&31u)<5u&&((c>>10)&31u)<5u);
+     }
+    }
+    const uint8_t *span=group?traffic_body_spans[id][y]:vehicle_body_spans[id][y];
+    if(span[0]!=(right?left:0)||span[1]!=right)
+     fail("collision row span differs from final visible pixels",(unsigned)id,group,w,h,y,0,0);
+    checks++;
+   }
+   /* The old white-sedan crop accidentally included a disconnected strip of
+    * the coach below it. Every cleaned vehicle is one connected silhouette;
+    * this catches that atlas contamination without deleting genuine black
+    * tires/glass or treating all dark pixels as a background color. */
+   while(head<tail) {
+    int pixel=queue[head++],x=pixel%w,y=pixel/w;
+    const int dx[]={-1,1,0,0},dy[]={0,0,-1,1};
+    for(int n=0;n<4;n++) {
+     int xx=x+dx[n],yy=y+dy[n],p=yy*w+xx;
+     if(xx<0||xx>=w||yy<0||yy>=h||visited[p]||!source[p])continue;
+     visited[p]=1;queue[tail++]=(uint16_t)p;
+    }
+   }
+   if(tail!=total)fail("detached vehicle background artifact",(unsigned)id,group,w,h,0,0,(int)(total-tail));
+   if(dark<5)fail("genuine dark tires/glass were removed",(unsigned)id,group,w,h,0,0,(int)dark);
+   checks+=2;
+  }
+ }
+}
+static void dimensional_texture_metadata(void)
+{
+ const uint16_t *faces[]={building_wall_art,building_end_art,building_roof_art,dock_segment,
+                         building_wall_lod32,building_wall_lod16,building_end_lod16,building_end_lod8};
+ const int lengths[]={5*64*64,5*32*64,5*32*32,64*32,5*32*32,5*16*16,5*16*32,5*8*16};
+ for(unsigned face=0;face<sizeof faces/sizeof faces[0];face++) {
+  for(int p=0;p<lengths[face];p++)if(!faces[face][p])
+   fail("wall/roof/dock face contains a transparent seam",face,0,0,0,0,0,p);
+  checks++;
+ }
+ int first=ASSET_BOAT_PROFILE_H,last=-1,left=ASSET_BOAT_PROFILE_W,right=-1;
+ for(int y=0;y<ASSET_BOAT_PROFILE_H;y++)for(int x=0;x<ASSET_BOAT_PROFILE_W;x++)
+  if(boat_profile[y*ASSET_BOAT_PROFILE_W+x]) {
+   if(y<first)first=y;
+   if(y>last)last=y;
+   if(x<left)left=x;
+   if(x>right)right=x;
+  }
+ if(last-first<12||right-left<=2*(last-first)||boat_profile_anchor[1]!=last
+   ||boat_profile_anchor[0]<left||boat_profile_anchor[0]>right)
+  fail("boat profile must rise above anchored broadside waterline",0,0,64,48,left,first,last);
+ checks++;
 }
 static void ground_metadata(void)
 {
@@ -307,6 +392,8 @@ int main(void)
 {
  gfx_init();
  catalog();
+ clean_vehicle_metadata();
+ dimensional_texture_metadata();
  ground_metadata();
  all_scales_and_edges();
  all_paints();

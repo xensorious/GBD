@@ -27,6 +27,11 @@ ORIGINAL_COMMIT = "9f6293ad23181e95787f23269ae71b77a1e5a9d9"
 ORIGINAL_SHA256 = "610acd38ab739711cb25233a48c2b14348f57078799d147b7ff4cf336223770f"
 COASTAL_COMMIT = "27eab74da2dd4b9f09c37ecf7d6ed79eb3e7f1dd"
 COASTAL_SHA256 = "7238c37ee85789e5b7d86c6170f28488ac6f80e635e57b1cc61529a56b0fd242"
+TURBO_COMMIT = "32b53218e546ca0bf37967215459f1a6ed393e4e"
+TURBO_SHA256 = "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822"
+RELEASES = {"original":(ORIGINAL_COMMIT,ORIGINAL_SHA256),
+            "coastal":(COASTAL_COMMIT,COASTAL_SHA256),
+            "turbo":(TURBO_COMMIT,TURBO_SHA256)}
 
 
 def sha256(path: Path) -> str:
@@ -93,7 +98,7 @@ def rebuild(source_root: Path, jobs: int, commit: str = ORIGINAL_COMMIT,
         ) from exc
     if source_root.exists():
         # Remove only our generated extraction directory, never a repository.
-        allowed = [(ROOT / "build" / name).resolve() for name in ("legacy-source", "coastal-source")]
+        allowed = [(ROOT / "build" / name).resolve() for name in ("legacy-source", "coastal-source", "turbo-source")]
         if source_root.resolve() not in allowed:
             raise ValueError("Refusing to replace an extraction directory outside the dedicated baseline source directories")
         shutil.rmtree(source_root)
@@ -122,10 +127,9 @@ def rebuild(source_root: Path, jobs: int, commit: str = ORIGINAL_COMMIT,
 
 def prepare(output: Path, source_baseline: Path | None, battery_template: Path | None, jobs: int,
             release: str = "original") -> Path:
-    if release not in ("original", "coastal"):
-        raise ValueError("Choose a pinned original or coastal release")
-    commit = ORIGINAL_COMMIT if release == "original" else COASTAL_COMMIT
-    expected_sha256 = ORIGINAL_SHA256 if release == "original" else COASTAL_SHA256
+    if release not in RELEASES:
+        raise ValueError("Choose a pinned original, coastal or turbo release")
+    commit,expected_sha256 = RELEASES[release]
     output = output.resolve()
     if output in (REPO.resolve(), ROOT.resolve(), (ROOT / "build").resolve()):
         raise ValueError("Choose a dedicated baseline subdirectory; the current project/build cannot be replaced")
@@ -139,7 +143,7 @@ def prepare(output: Path, source_baseline: Path | None, battery_template: Path |
         source = output
         origin = "existing verified baseline"
     else:
-        source_name = "legacy-source" if release == "original" else "coastal-source"
+        source_name = "legacy-source" if release == "original" else release+"-source"
         print(f"Rebuilding the pinned {release} release in drive/build/{source_name}...", flush=True)
         source = rebuild(ROOT / "build" / source_name, jobs, commit, expected_sha256)
         origin = "byte-identical rebuild of trusted release"
@@ -179,7 +183,7 @@ def prepare(output: Path, source_baseline: Path | None, battery_template: Path |
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, help="Dedicated generated baseline directory")
-    parser.add_argument("--release", choices=("original", "coastal"), default="original")
+    parser.add_argument("--release", choices=tuple(RELEASES), default="original")
     parser.add_argument("--source-baseline", type=Path, help="Reuse an existing original ROM/ELF pair without rebuilding")
     parser.add_argument("--battery-template", type=Path, help="Existing emulator battery save; only its footer is reused")
     parser.add_argument("--jobs", type=int, default=2)
@@ -187,7 +191,7 @@ def main() -> int:
     if not 1 <= args.jobs <= 16:
         parser.error("--jobs must be between 1 and 16")
     try:
-        destination = args.output or ROOT / "build" / ("legacy-baseline" if args.release == "original" else "coastal-baseline")
+        destination = args.output or ROOT / "build" / ("legacy-baseline" if args.release == "original" else args.release+"-baseline")
         output = prepare(destination, args.source_baseline, args.battery_template, args.jobs, args.release)
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as exc:
         print(f"Legacy setup failed: {exc}", file=sys.stderr)

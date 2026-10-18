@@ -106,7 +106,8 @@ static void perks_and_banking(void) {
  }
  Game normal,focus;game_init(&normal,5);game_init(&focus,5);focus.save.perks[1]=3;
  game_begin_run(&normal);game_begin_run(&focus);quiet(&normal);quiet(&focus);
- normal.speed_q8=focus.speed_q8=game_top_speed(&normal)*Q;normal.speed_hold=focus.speed_hold=150;
+ normal.speed_q8=focus.speed_q8=game_top_speed(&normal)*Q;
+ normal.speed_hold=focus.speed_hold=SPEED_COMBO_TICKS*55/100-1;
  step(&normal,K_R,0);step(&focus,K_R,0);
  CHECK(normal.combo_q8<COMBO_MAX_Q8 && focus.combo_q8==COMBO_MAX_Q8);
 }

@@ -29,7 +29,7 @@ a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 real_save=a.output/'save'/'Coastline.dsv'
 assert real_save.exists(),'Run the genuine opening/save playthrough first'
 libpath=ROOT/'build'/'libdrive-qa.so'
-subprocess.run(['gcc','-shared','-fPIC','-O2','-std=c11','-I',str(ROOT/'src'),
+subprocess.run(['gcc','-shared','-fPIC','-O2','-std=c11','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),
     str(ROOT/'src'/'game.c'),str(ROOT/'src'/'road.c'),str(ROOT/'src'/'traffic.c'),'-o',str(libpath)],check=True)
 lib=C.CDLL(str(libpath));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 lib.game_make_save.argtypes=[C.POINTER(Game),C.POINTER(Save)]
@@ -87,17 +87,26 @@ with Emulator(a.rom,fixture) as e:
             state=d.game();position=state.position_q8//256
             optical_scale=(205,307,384)[state.save.motion]
             optical=(position//128)*optical_scale+(position%128)*optical_scale//128
-            for n in range((optical+230)//88,(optical+340)//88+1):
-                h=lib.road_landmark(state.run_seed,n,-1)
-                anchor=n*88+((h>>10)%25);z=anchor-optical
-                desired=(h&3)==0 if biome==1 else (h&3)!=0
-                if desired and 230<=z<=340:
+            boat=biome==1
+            slot,salt=(408,0xb0a7) if boat else (520,0xd0c4)
+            low,high=(350,470) if boat else (230,340)
+            for n in range((optical+low-240)//slot,(optical+high)//slot+1):
+                h=lib.road_landmark(state.run_seed^salt,n,-1)
+                anchor=n*slot+(184+((h>>10)%53) if boat else 52);z=anchor-optical
+                if boat:
+                    dock_n=(anchor-52+260)//520
+                    dock_hash=lib.road_landmark(state.run_seed^0xd0c4,dock_n,-1)
+                    if (dock_hash&3)==0 and abs(anchor-(dock_n*520+52))<58:continue
+                if (h&3)!=0 and low<=z<=high:
                     shot(name,('r',));after=d.game()
                     after_position=after.position_q8//256
                     after_optical=(after_position//128)*optical_scale+(after_position%128)*optical_scale//128
-                    water_captures.append({'object':'broadside boat' if biome==1 else 'horizontal pier',
+                    water_captures.append({'object':'upright profile boat' if boat else 'shore-connected dock',
                         'screenshot':name+'.png','biome':biome,'frame':after.frame,
-                        'anchor':anchor,'world_z_ahead':anchor-after_optical})
+                        'anchor':anchor,'world_z_ahead':anchor-after_optical,
+                        'shore_side':'left','anchor_slot_spacing':slot,
+                        'dock_sections':None if boat else 1+((h>>8)&1),
+                        'orientation':'upright transverse hull' if boat else 'one or two end-joined sections perpendicular to road'})
                     return
             d.autopilot(2,('r',));assert d.game().mode==1
         raise AssertionError('No nearby water object observed in the generated drive')

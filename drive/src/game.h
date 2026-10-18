@@ -15,6 +15,11 @@
 #define ROAD_HALF 96
 #define ROAD_VIEW 1200
 #define COMBO_MAX_Q8 (5*Q)
+#define COMBO_STEP_Q8 (Q/4)
+#define SPEED_COMBO_TICKS (48*DRIVE_HZ)
+#define SKILL_COMBO_TICKS (24*DRIVE_HZ)
+#define POLICE_GRACE_TICKS (3*DRIVE_HZ)
+#define POLICE_CATCH_TICKS (3*DRIVE_HZ)
 /* One Q unit is one update of boost: a full tank lasts eight seconds. */
 #define TURBO_MAX_Q8 (8*DRIVE_HZ*Q)
 #define TURBO_START_Q8 (TURBO_MAX_Q8/10)
@@ -26,6 +31,7 @@ enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONT
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
 enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
 enum TurboSource { TS_NONE,TS_NEAR,TS_DRIFT,TS_WHEELIE,TS_SLOW };
+enum RunEnd { END_NONE,END_STOPPED,END_CRASH,END_BANKED,END_LIMIT };
 enum Biome { CITY,COAST,CAUSEWAY,PINES,CANYON,MARINA,WETLANDS,GROVES };
 typedef struct {
  const char *name,*description,*requirement;
@@ -83,6 +89,9 @@ typedef struct {
  uint16_t turbo_charge_q8;
  uint8_t turbo_latched,turbo_recharging,turbo_source,controls_page;
  uint16_t turbo_remainder;
+ /* Pursuit is run-only. The ticket always credits the earned run rewards. */
+ uint16_t police_ticks;
+ uint8_t police_pressure,end_reason;
 } Game;
 
 void game_init(Game *g,uint32_t seed);

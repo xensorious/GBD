@@ -3,7 +3,7 @@
 An original **Nintendo DS** procedural highway driving game for Delta.
 Drive from the city to tropical coastlines, an ocean causeway, pine forests,
 red-rock canyons, a neon marina, mangrove wetlands and citrus groves.
-Earn points and cash, bank an itemized run receipt, and return
+Earn points and cash, collect an itemized traffic ticket, and return
 to the garage to buy, tune and paint your vehicles.
 
 - [Download the DS cartridge](drive/dist/Coastline.nds)
@@ -11,12 +11,13 @@ to the garage to buy, tune and paint your vehicles.
 - [Watch actual cartridge gameplay](drive/dist/highway-motion.gif)
 - [See the turbo dashboard and guide](drive/dist/Turbo.png)
 - [See grounded roadside and water scenery](drive/dist/Grounding.png)
+- [See pursuit warnings and traffic tickets](drive/dist/Pursuit.png)
 - [Controls, progression and build instructions](drive/README.md)
 
 ![Actual Nintendo DS screens](drive/dist/Preview.png)
 
 R accelerates, L brakes/reverses, Left/Right steer, Up adds Turbo, Down adds
-Slow, B is the handbrake, and A is the horn or motorcycle wheelie. All driving
+Slow, B is a controlled drift, and A is the horn or motorcycle wheelie. All driving
 modifiers are held. Start pauses. All menus use buttons on the lower screen;
 while driving, that screen becomes a noninteractive instrument dashboard.
 Touch input is ignored throughout.
@@ -26,9 +27,15 @@ above the gauges. Turbo lasts eight seconds from full and refills through near
 misses, controlled drifts, motorcycle wheelies and Slow recovery. A 5x score
 combo gives 2x skill recharge. The Turbo Guide explains the rates in game.
 
-Roadside buildings now face inward from projected foundations, trees and lamps
-use measured ground contacts, and boats and piers sit on the water plane.
-Overhead signs and the awkward bridge sign frames are removed.
+Combos grow in exact quarter-steps. Full-speed streaks take 48 seconds to reach
+5x before perks; drifting and wheelies take 24 seconds. Stopping lets the
+chasing police close in and end the run. The ticket lists your bonuses and
+awards the earned cash to your wallet.
+
+Roadside buildings use projected walls and roofs that share the road's
+vanishing point. Houses, tree clusters and large waterfront props have their
+own placement rules. Boats use upright profiles, and short connected docks
+reach the water from the shoreline. Overhead signs remain removed.
 
 This version contains ten vehicles, eight regions, seeded traffic and road
 coins, close-overtake bonuses, capped speed/drift/wheelie streaks, six-stage
@@ -52,6 +59,7 @@ bash drive/tools/setup_nds.sh
 make -C drive -j2
 bash drive/tests/setup_emulator.sh
 make -C drive test
+python3 drive/tests/handling.py
 python3 drive/tests/scenery.py
 python3 drive/tests/migration.py
 python3 drive/tests/transition.py

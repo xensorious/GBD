@@ -20,7 +20,7 @@ needed. The game never uses touch input.
 | Left / Right | Steer continuously |
 | Up + R | Hold Turbo to spend reserve for more acceleration and a higher top speed |
 | Down + R | Hold Slow for gentler acceleration and a lower cruising speed |
-| B | Hold the handbrake; steer while moving to drift |
+| B | Hold and steer for a controlled drift; release to straighten |
 | A | Sound the horn in cars; hold a wheelie on the motorcycle |
 | Start | Pause; resume, bank the run, review controls, or change settings |
 
@@ -67,15 +67,28 @@ guide and the Turbo Guide. All guide pages use buttons.
 
 Distance and active driving time earn consistent points. Road coins add points
 and cash. Close overtakes earn a near-miss bonus once per traffic vehicle.
-Maintaining full speed, a drift or a wheelie builds that bonus's multiplier
-gradually to a maximum of **5x** over eight seconds before career perks. Breaking the action resets
-its streak. The normal speed ceiling rises slowly during active driving,
+Multipliers advance in exact **0.25x steps**, from 1.00x to a maximum of **5.00x**.
+Without career perks, a full-speed streak takes **48 seconds** to reach 5x,
+earning one quarter-step every three seconds. Drift and wheelie streaks take
+24 seconds, with one quarter-step every 1.5 seconds. Focus perks shorten those
+times by up to 45%. Breaking an action resets its streak.
+The normal speed ceiling rises slowly during active driving,
 eventually adding at most 50 km/h to the vehicle's normal ceiling.
 
-Impacts damage armor and briefly reduce speed. Losing all armor ends the run.
-The receipt lists the quantity and total points for every scoring category,
-followed by the total points and cash earned. Press A to return to the main
-menu. You can also bank a run from Pause. A run pays out once.
+Hold B while steering to assist a turn with a visible drift angle. Steering
+responds promptly, countersteering changes direction, and releasing the drift
+quickly settles the car. Grip and handling setups still affect its response.
+
+Police follow the run. After a three-second launch grace, remaining stopped or
+reversing for about three seconds lets them catch you. The dashboard shows the
+approaching capture and its countdown. Moving forward reduces the pressure;
+Slow mode remains safe, and pausing freezes the pursuit.
+
+Impacts damage armor and briefly reduce speed. Losing all armor also ends the
+run. The results screen resembles a traffic citation, itemizing the quantity
+and points for every bonus. Its cash award is **added to your wallet**. Being
+caught, crashing, and banking manually have distinct explanations. Press A to
+return to the main menu. You can bank a run from Pause. Each run pays out once.
 
 Only new forward distance earns mileage points; reversing does not create new
 coin rows. Idling does not farm survival points. Coins are collected once.
@@ -144,6 +157,7 @@ service. The output is `drive/build/Coastline.nds`.
 ```sh
 bash drive/tests/setup_emulator.sh
 make -C drive test
+python3 drive/tests/handling.py
 python3 drive/tests/scenery.py
 python3 drive/tests/migration.py
 python3 drive/tests/transition.py
@@ -168,9 +182,14 @@ Road motion has three visual strengths; it does not change NPC cruising speed,
 scoring distance or handling. Prefiltered scenery levels keep broad shapes
 readable as perspective and speed change. Each roadside object keeps its identity
 across a region transition instead of swapping into a different kind of prop.
-Buildings face the highway from set-back foundations; their walls rise from
-footprints that follow the road plane. Trees and lamps attach at their roots
-and pole bases. Boats and docks project onto the water surface. Overhead signs,
+Buildings use separate wall and roof textures projected through the road's
+camera. Their vertical edges stay upright, and depth edges converge toward the
+same horizon point as the highway. Houses occupy frontage plots, trees grow in
+irregular clusters, and larger waterfront structures have wider spacing.
+Trees and lamps attach at their roots and pole bases. Upright boat profiles
+rise above their waterline, broadside to the road. Docks extend perpendicular
+to the highway from the shoreline, with one or two connected sections.
+Overhead signs,
 roadside billboards and the small bridge sign frames have been removed.
 Traffic follows safe gaps instead of driving through other cars.
 Handling, rewards and progression remain subject to
