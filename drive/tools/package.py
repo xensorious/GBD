@@ -22,7 +22,7 @@ def report(name):
 stock=report('results.json')
 if not stock['native']:
     stock['native']=report('native-results.json')['native']
-assert len(stock['native'])==14,'Run all fourteen native sanitizer suites.'
+assert len(stock['native'])==15,'Run all fifteen native sanitizer suites.'
 assert stock['battery_save_reload'] and stock['upgrade_purchased'],'Verify earned cash, an actual part purchase and battery reload.'
 assert stock['long_drive_cadence']['updates']>0 and stock['long_drive_cadence']['hz']>=28
 studio=report('studio-results.json')
@@ -68,13 +68,18 @@ assert len(finishes['body_paints'])==16 and len(finishes['livery_colors'])==12
 assert finishes['replacement_liveries']==['Velocity','Contour']
 assert finishes['independent_color_purchases'] and finishes['high_id_color_preset']
 assert finishes['three_controls_pages'] and finishes['fresh_process_reload']
+city=report('city-results.json');current=report('previous-v6-results.json')
+assert city['actual_city_route_completed'] and city['actual_bridge_crossing'] and city['city_hz']>=25
+assert city['button_only_mode_selector'] and city['touch_ignored'] and city['shared_owned_vehicle_and_cosmetics']
+assert city['pause_freezes_city'] and city['shared_banked_cash'] and city['fresh_process_reload']
+assert current['profile_preserved_byte_for_byte'] and current['fresh_process_reload']
 
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Finish studio release: 16 body paints, 12 independent livery colors, two replacement patterns, high-bit presets, six interfaces, 48-model dealer tours, fourteen native sanitizer suites and v1/v2/v3/v5 save migrations. All 17 premium vehicles purchased and driven. Dual-screen opening, three independent profiles and fresh-process reloads passed. Physical Delta/iPhone/DS testing and broader world tours were not performed.'},indent=2)+'\n')
+    'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Free Roam first draft: button-driven city route through highway, neighborhood junctions and a bridge; shared customized vehicle, pause, banking, fresh-process reload and measured route cadence. Fifteen native sanitizer suites include fixed road connectivity, all 48 overhead vehicles and six city dashboards. Existing highway, all six interfaces, all 17 premium vehicle purchases/drives, finish studio and earlier save migrations rerun on this exact ROM. A fully customized v6 battery from the previous release remains byte-for-byte unchanged. Physical Delta/iPhone/DS testing and every possible city route were not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -93,8 +98,16 @@ contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SC
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
-    ('ui-6-home','ALLOY / GRAY AND ORANGE'),('ui-7-home','GLACIER / COBALT GLASS'),
-    ('ui-8-home','BLOOM / ROSE AND CREAM'),('finish-pattern-3','FINISH STUDIO / VELOCITY')],screen='dual')
+    ('city-mode-selected','DRIVE / TWO GAME MODES'),('city-route-1','FREE ROAM / NEIGHBORHOOD STREETS'),
+    ('city-crossing','FREE ROAM / RIVER CROSSING'),('race-city','ENDLESS DRIVE / ORIGINAL HIGHWAY')],screen='dual')
+contact('Free-Roam.png',[
+    ('city-mode-select','ENDLESS DRIVE / FREE ROAM'),('city-spawn','YOUR OWN GARAGE VEHICLE'),
+    ('city-route-1','NEIGHBORHOOD JUNCTIONS'),('city-crossing','CONNECTED HIGHWAY BRIDGE'),
+    ('city-route-4','GLASS QUAY / CONTINUE EXPLORING'),('city-receipt','SHARED EARNINGS / BANKED RUN')],columns=3,screen='dual')
+shutil.copyfile(validation/'Free-Roam.gif',DIST/'Free-Roam.gif')
+gallery=Image.open(ROOT/'build'/'city-native'/'overhead-vehicles.ppm').convert('RGB')
+assert gallery.size==(512,384)
+gallery.resize((1024,768),Image.Resampling.NEAREST).save(DIST/'Overhead-Vehicles.png')
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
@@ -126,7 +139,8 @@ licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
-    'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+    'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
+    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'
 with zipfile.ZipFile(archive_path,'w',zipfile.ZIP_DEFLATED) as archive:

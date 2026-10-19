@@ -23,7 +23,7 @@ def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     verify_layout(ROOT)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('finishes',['game.c','road.c','traffic.c','gfx.c','assets.c']),('premium',['game.c','road.c','traffic.c']),('opening',['opening.c','game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('finishes',['game.c','road.c','traffic.c','gfx.c','assets.c']),('city',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('premium',['game.c','road.c','traffic.c']),('opening',['opening.c','game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -181,7 +181,7 @@ def emulator_tests(rom,elf,output):
         p.press('b');assert p.game().mode==3;p.press('b');assert p.game().mode==0
         p.menu(2);p.press('a');assert p.game().mode==5;p.shot('challenges')
         p.press('b');assert p.game().mode==0
-        p.menu(0);p.press('a');assert p.game().mode==1
+        p.menu(0);p.press('a');assert p.game().mode==11;p.press('a');assert p.game().mode==1
         assert p.game().turbo_charge_q8==8*30*256
         # R accelerates, Up boosts while gas is held, Down is precision mode.
         p.ticks(120,('r',)); normal=p.game().speed_q8

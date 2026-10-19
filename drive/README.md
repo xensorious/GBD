@@ -2,6 +2,10 @@
 
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
+**Drive** now opens two illustrated cards: **Endless Drive** and **Free Roam**.
+Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
+an original overhead city with roads you can turn onto, a river and bridges,
+neighborhood shortcuts, waterfront boulevards and a shared garage.
 Drive a continuous four-lane highway from the city to the coast, across an ocean
 causeway, through pine country, red-rock canyons, a neon marina, mangrove
 wetlands and citrus groves, then into a neon metropolis, a deep jungle,
@@ -45,6 +49,42 @@ three-profile bank uses an **8 KiB EEPROM**, with three independently checked
 | B | Hold and steer for a controlled drift; release to straighten |
 | A | Sound the horn; hold a wheelie on motorcycle, bicycle or moped |
 | Start | Pause; resume, bank the run, review controls, or change settings |
+
+### Free Roam
+
+Choose Drive, move Right to Free Roam, then confirm. The city starts with the
+vehicle equipped in your existing garage. Left/Right turns the car relative
+to its heading, so you can turn at intersections, double back and choose your
+own route. The existing gas, brake/reverse, turbo, Slow, drift and horn/wheelie
+buttons remain in use. Braking before a tight corner or holding Slow makes
+neighborhood turns easier. There is no touch input or on-foot mode.
+
+The fixed city connects Ocean Boulevard, Downtown West, Glass Quay, Canal
+Gardens and Palmetto Heights. Its wider highway loop has four lanes, with
+narrower two-lane local streets and multiple bridges over the canal. Buildings
+and water block the car; grass verges slow it. The camera follows both axes
+with a small look ahead, and projecting roofs can hide a vehicle behind them.
+The lower screen has a live street map, speed, acceleration, health, turbo,
+distance, combo and pending earnings. Parking is safe in this mode and earns
+no idle rewards. Pause and choose Bank this run to return to the normal menus;
+crashing also ends the visit with the existing itemized receipt.
+
+All 48 existing vehicles have original overhead artwork, including motorcycles
+and novelty rides. The mode uses their owned status, performance upgrades and
+mastery. Car bodies carry over paint, livery, livery color, wheel finish and
+drift smoke; novelty riders currently retain simplified clothing and hardware
+details.
+Near misses, driving, speed streaks, drifts, wheelies and finite road coins
+feed the existing points, cash and progression systems. Highway Dispatch
+contracts are not applied to city visits. A visit restarts at the city entrance;
+this first version does not persist your parking position or collectible state.
+Your garage and banked earnings remain in the existing version 6 battery save.
+
+The city is a first playable driving map. Its traffic follows street loops, with opposing lanes and headway
+checks. There are no pedestrians or missions yet. Overhead vehicles are drawn
+from new code-based sprite designs; buildings reuse Coastline's original roof
+and wall textures. The city uses fixed-size traffic and sprite caches and does
+not stream a large world from storage.
 
 Slow takes priority if Up and Down are held together. Turbo and Slow are hold
 modifiers, not switches. Menus use Up/Down and A/B. In Garage, L/R switches
@@ -280,16 +320,19 @@ when changing models. The output is `drive/build/Coastline.nds`.
 
 ```sh
 bash drive/tests/setup_emulator.sh
-python3 drive/tests/playthrough.py --output drive/build/finish-release
-python3 drive/tests/premium.py --output drive/build/finish-release
-python3 drive/tests/studio.py --output drive/build/finish-release
-python3 drive/tests/finishes.py --output drive/build/finish-release
-python3 drive/tests/opening.py --output drive/build/finish-release
-python3 drive/tests/migration.py --output drive/build/finish-release
-python3 drive/tests/studio_migration.py --output drive/build/finish-release
+python3 drive/tests/playthrough.py --output drive/build/city-release
+python3 drive/tests/premium.py --output drive/build/city-release
+python3 drive/tests/studio.py --output drive/build/city-release
+python3 drive/tests/finishes.py --output drive/build/city-release
+python3 drive/tests/city.py --output drive/build/city-release
+python3 drive/tests/opening.py --output drive/build/city-release
+python3 drive/tests/migration.py --output drive/build/city-release
+python3 drive/tests/studio_migration.py --output drive/build/city-release
 # Requires captures from pinned release fa5d188, as documented in the script:
-python3 drive/tests/previous_profiles.py --source drive/build/premium-release --output drive/build/finish-release
-python3 drive/tools/package.py --validation drive/build/finish-release
+python3 drive/tests/previous_profiles.py --source drive/build/premium-release --output drive/build/city-release
+# Requires finishes.py captures from pinned release e6066de:
+python3 drive/tests/previous_v6.py --source drive/build/finish-final --output drive/build/city-release
+python3 drive/tools/package.py --validation drive/build/city-release
 ```
 
 Native sanitizer tests check driving, generation, scoring, shops, progression

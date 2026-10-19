@@ -1,6 +1,14 @@
 Coastline source artwork
 =======================
 
+Free Roam adds an independent overhead vehicle library authored in
+`src/city_render.inc`. Its small shaded sprites use the factory body colors
+from the existing palettes, accept garage cosmetics, and rotate around the
+ground plane. The native city test can export all 48 designs as a review sheet.
+The city reuses the original architectural roof/wall textures described below;
+its palms and boats are original overhead drawings. These new runtime drawings
+are code-based artwork, separate from the image-generated source atlases.
+
 All source sprites and architectural textures in this directory are original
 art generated for this project with OpenAI image generation. They contain no
 licensed vehicle badges or third-party game art. Source files retain their

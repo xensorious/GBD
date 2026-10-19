@@ -9,6 +9,10 @@ departure-themed garage interiors use original code and existing local textures.
 The dual-screen opening, sky animation and profile selector are original code. The requested vehicle names identify the new original vehicle illustrations;
 no commercial game art or ROM data are used. Checked-in source art permits rebuilding without an image service.
 
+Free Roam's fixed street network, overhead vehicle sprites, map, traffic and
+city renderer are original code. Its buildings reuse Coastline's original
+architectural textures. No GTA assets or commercial ROM data are used.
+
 Text uses DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.
 Native platform: libnds, devkitARM startup/linker files, newlib and GCC runtime.
 libnds license: licenses/libnds.txt. Pinned source revisions and installation

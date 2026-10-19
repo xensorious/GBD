@@ -44,7 +44,7 @@ with Emulator(rom,directory) as e:
  frames[0].save(a.output/'opening-transition.gif',save_all=True,append_images=frames[1:],duration=90,loop=0)
  d.shot('opening-home');assert d.game().save_ok and d.game().has_save
  # Profile one earns money normally; the other two stay separate, fresh profiles.
- d.menu(0);d.press('a');d.autopilot(180,('r',));assert d.game().mode==1
+ d.menu(0);d.press('a');assert d.game().mode==11;d.press('a');d.autopilot(180,('r',));assert d.game().mode==1
  d.press('start');d.menu(1);d.press('a');assert d.game().mode==2
  assert d.game().save.total_runs==1 and d.game().save.cash==d.game().run.total_cash
  d.press('a')

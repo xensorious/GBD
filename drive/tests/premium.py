@@ -51,7 +51,7 @@ with Emulator(rom,directory) as e:
    while d.game().garage_tab!=0:d.press('l')
    d.menu(4);d.press('a');assert ((d.game().save.presets[0]&31)|((d.game().save.presets[0]>>21)&32))==47
    d.shot('premium-preset')
-  d.press('b');d.menu(0);d.press('a');assert d.game().vehicle==v
+  d.press('b');d.menu(0);d.press('a');assert d.game().mode==11;d.press('a');assert d.game().vehicle==v
   d.autopilot(45,('r',));assert d.game().mode==1 and d.game().speed_q8>0
   if car['bike']:
    # Observe the actual wheelie while holding A. A collision later in a long

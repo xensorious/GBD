@@ -88,8 +88,17 @@ void gfx_wrap(Surface*s,int x,int y,const char*t,int width,int lineheight,int ma
  if(len&&row<maxlines){line[len]=0;gfx_text(s,x,y+row*lineheight,line,c);}
 }
 void FAST gfx_sprite(Surface*s,int x,int y,const uint16_t*p,int w,int h,int flip){
- for(int j=max(0,-y);j<min(h,s->h-y);j++)for(int i=max(0,-x);i<min(w,s->w-x);i++){
-  uint16_t c=p[j*w+(flip?w-1-i:i)];if(c)s->pixels[(y+j)*s->w+x+i]=c;
+ int left=max(0,-x),right=min(w,s->w-x),top=max(0,-y),bottom=min(h,s->h-y);
+ for(int j=top;j<bottom;j++){
+  const uint16_t*source=p+j*w;uint16_t*dest=s->pixels+(y+j)*s->w+x;
+  for(int i=left;i<right;i++){uint16_t c=source[flip?w-1-i:i];if(c)dest[i]=c;}
+ }
+}
+void FAST gfx_shadow_sprite(Surface*s,int x,int y,const uint16_t*p,int w,int h){
+ int left=max(0,-x),right=min(w,s->w-x),top=max(0,-y),bottom=min(h,s->h-y);
+ for(int j=top;j<bottom;j++){
+  const uint16_t*source=p+j*w;uint16_t*dest=s->pixels+(y+j)*s->w+x;
+  for(int i=left;i<right;i++)if(source[i])dest[i]=C(25,34,40);
  }
 }
 void gfx_line(Surface*s,int x,int y,int x2,int y2,uint16_t c){

@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "city_render.h"
 #include "assets.h"
 
 /* Small, original frosted-glass instruments and menus for the DS's native
@@ -300,8 +301,8 @@ static void controls(Surface*s,const Game*g){
   static const char*const keys[8]={"R","L","Left / Right","Up + R","Down + R","B","A","Start"};
   static const char*const actions[8]={"Accelerate","Brake / reverse","Steer","Turbo (uses charge)","Slow / recharge","Hold + steer: drift","Horn / bike wheelie","Pause"};
   for(int i=0;i<8;i++){int y=33+i*15;glass(s,12,y,75,14,0);center(s,12,y+2,75,keys[i],t->accent);gfx_text(s,96,y+2,actions[i],t->ink);}
-  gfx_text_small(s,16,157,"Slow driving is safe. Stay off zero!",t->ink);
-  gfx_text_small(s,16,167,"Stopped or reversing? Police catch up.",t->coral);
+  gfx_text_small(s,16,157,"Highway: stopped? Police catch up.",t->ink);
+  gfx_text_small(s,16,167,"Free roam: parking is safe.",t->coral);
  }else if(g->controls_page==1){
   glass(s,11,34,234,36,0);gfx_text(s,19,39,"Hold Up + R to boost. Full = 8 sec.",t->ink);gfx_text_small(s,19,52,"Start at 10%. Empty? Release Up to rearm.",t->muted);gfx_text_small(s,19,62,"Rates include this vehicle's Recovery parts.",t->muted);
   static const char*const labels[4]={"Near miss","Drift > 0.75 sec","Wheelie > 1 sec","Slow > 40 km/h (no combo)"};static const int base[4]={10,4,3,2};int vehicle=clamp(g->save.selected_vehicle,0,VEHICLE_COUNT-1),recovery=100+5*g->save.recovery[vehicle];
@@ -565,11 +566,57 @@ static void receipt(Surface*s,const Game*g){
  gfx_text(s,18,156,"CASH AWARDED",ink);char cash[24]="+";money(cash,g->run.total_cash,sizeof cash);right(s,234,156,cash,ink);
  char xp[88]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);if(g->run.cash_bonus){append(xp,"  PERK +",sizeof xp);money(xp,g->run.cash_bonus,sizeof xp);}center_small(s,8,167,236,xp,muted);
 }
+static void drive_select(Surface*s,const Game*g){
+ header(s,"CHOOSE YOUR DRIVE",g);
+ for(int i=0;i<2;i++){
+  int x=10+i*120,sel=g->cursor==i;glass(s,x,38,116,137,sel);
+  Surface image={s->pixels,s->w,s->h};
+  gfx_rect(&image,x+5,43,106,81,i?C(67,114,94):C(38,111,145));
+  if(i){
+   gfx_rect(&image,x+10,70,96,15,C(60,71,79));gfx_rect(&image,x+49,44,16,79,C(60,71,79));
+   for(int k=0;k<6;k++){int bx=x+11+(k%3)*33,by=47+(k/3)*45;gfx_rect(&image,bx+2,by+3,21,19,C(30,61,54));gfx_rect(&image,bx,by,21,19,k&1?C(194,159,117):C(109,143,164));gfx_rect(&image,bx+4,by+3,12,2,C(224,220,184));}
+   gfx_rect(&image,x+51,94,11,19,t->accent);
+  }else{
+   for(int y=44;y<124;y++){int spread=(y-43)*35/80;gfx_rect(&image,x+58-spread,y,spread*2+1,1,C(60,71,79));if((y/8)&1)gfx_rect(&image,x+58,y,1,1,C(237,220,166));}
+   gfx_rect(&image,x+49,104,17,16,t->accent);
+  }
+  center_small(s,x,134,116,i?"FREE ROAM":"ENDLESS DRIVE",sel?t->selected_ink:t->ink);
+  center_small(s,x,150,116,i?"A city. Your route.":"Chase the horizon.",sel?t->selected_detail:t->muted);
+ }
+}
+static void city_dashboard(Surface*s,const Game*g){
+ int key=-1000-g->vehicle-VEHICLE_COUNT*(interface+SKIN_STORAGE_LIMIT*g->save.units);
+ static uint32_t city_wallet;
+ if(dashboard_key!=key||city_wallet!=g->save.cash){
+  city_wallet=g->save.cash;dashboard_target=0;
+  Surface art={dashboard_art,256,192};backdrop(&art,interface);header(&art,"FREE ROAM",g);
+  glass(&art,9,35,145,111,0);city_draw_map(&art,15,41,133,99,0);
+  glass(&art,161,35,86,48,0);center_small(&art,161,64,86,g->save.units?"mph":"km/h",t->muted);
+  glass(&art,161,89,86,57,0);gfx_text_small(&art,169,96,"BODY",t->muted);gfx_text_small(&art,169,119,"TURBO",t->muted);
+  glass(&art,9,153,238,32,0);dashboard_key=key;
+ }
+ int refresh=dashboard_target!=s->pixels||dashboard_target_key!=key;
+ if(refresh)gfx_copy(s->pixels,dashboard_art,256*192);
+ else{
+  dashboard_restore(s,15,41,133,99);dashboard_restore(s,164,42,80,18);
+  dashboard_restore(s,164,73,80,8);dashboard_restore(s,16,158,225,23);
+ }
+ int px=15+(city.x/Q)*133/CITY_SIZE,py=41+(city.y/Q)*99/CITY_SIZE;
+ gfx_circle(s,px,py,3,t->selected_detail);gfx_line(s,px,py,px+city_sin(city.angle)*7/256,py-city_cos(city.angle)*7/256,t->ink);
+ int speed=display_speed((g->speed_q8<0?-g->speed_q8:g->speed_q8)/Q,g->save.units);
+ char text[32]="";number(text,(uint32_t)speed,sizeof text);center(s,161,44,86,text,t->ink);
+ char accel[24]="ACC ";accel_text(accel,g->accel_q8*100/(Q*36),sizeof accel);center_small(s,161,74,86,accel,t->accent);
+ meter(s,169,107,69,g->health,100,t->accent,t->shadow);meter(s,169,131,69,g->turbo_charge_q8,TURBO_MAX_Q8,t->accent,t->shadow);
+ char points_text[36]="";number(points_text,g->run.total_points,sizeof points_text);append(points_text," PTS",sizeof points_text);gfx_text(s,17,159,points_text,t->ink);
+ char distance[32]="";number(distance,g->run.distance_m,sizeof distance);append(distance," m",sizeof distance);right_small(s,238,160,distance,t->muted);
+ char cash[32]="RUN +";money(cash,g->run.total_cash,sizeof cash);gfx_text_small(s,17,174,cash,t->accent);char combo[24]="";number(combo,g->combo_q8/Q,sizeof combo);append(combo,".",sizeof combo);int fraction=g->combo_q8%Q*100/Q;if(fraction<10)append(combo,"0",sizeof combo);number(combo,(uint32_t)fraction,sizeof combo);append(combo,"x COMBO",sizeof combo);right_small(s,238,174,combo,t->accent);
+ dashboard_target=s->pixels;dashboard_target_key=key;
+}
 void ui_draw_bottom(Surface*s,const Game*g){
- interface=g->save.skin>=SKIN_FUSION && g->save.skin<SKIN_STORAGE_LIMIT?g->save.skin:SKIN_FUSION;t=&themes[interface-SKIN_FUSION];if(g->mode==M_RUN){dashboard(s,g);return;}
+ interface=g->save.skin>=SKIN_FUSION && g->save.skin<SKIN_STORAGE_LIMIT?g->save.skin:SKIN_FUSION;t=&themes[interface-SKIN_FUSION];if(g->mode==M_RUN){if(city.active)city_dashboard(s,g);else dashboard(s,g);return;}
  dashboard_target=0;
  if(g->mode==M_RECEIPT){receipt(s,g);return;}
  backdrop(s,interface);
- switch(g->mode){case M_HOME:home(s,g);break;case M_GARAGE:garage(s,g);break;case M_DEPARTURES:departures(s,g);break;case M_CHALLENGES:challenges(s,g);break;case M_CONTROLS:controls(s,g);break;case M_PAUSE:pause_menu(s,g);break;case M_CAREER:career(s,g);break;case M_SETTINGS:settings(s,g);break;case M_CONTRACTS:contracts(s,g);break;default:home(s,g);break;}
+ switch(g->mode){case M_DRIVE:drive_select(s,g);break;case M_HOME:home(s,g);break;case M_GARAGE:garage(s,g);break;case M_DEPARTURES:departures(s,g);break;case M_CHALLENGES:challenges(s,g);break;case M_CONTROLS:controls(s,g);break;case M_PAUSE:pause_menu(s,g);break;case M_CAREER:career(s,g);break;case M_SETTINGS:settings(s,g);break;case M_CONTRACTS:contracts(s,g);break;default:home(s,g);break;}
  if(g->mode!=M_GARAGE && g->notice_timer&&g->notice[0]){glass(s,10,155,236,21,1);limited(s,18,160,220,g->notice,t->selected_ink);}
 }

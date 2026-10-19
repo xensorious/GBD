@@ -1,4 +1,5 @@
 #include "game.h"
+#include "city.h"
 #include "road.h"
 #include "traffic.h"
 #include <stddef.h>
@@ -336,6 +337,7 @@ void game_save_result(Game *g,int okay) {
  else notice(g,"Save unavailable. Keep playing; retry after a run.");
 }
 void game_init(Game *g,uint32_t seed) {
+ memset(&city,0,sizeof city);
  memset(g,0,sizeof(*g)); g->save.magic=SAVE_MAGIC; g->save.version=SAVE_VERSION;
  g->save.seed=seed?seed:0x73bda521u; g->save.owned=1; g->save.unlocked_locations=1;
  default_settings(&g->save);new_save_defaults(&g->save);
@@ -669,6 +671,7 @@ static int combo_for(const Game *g,uint32_t hold,uint32_t base_window) {
  return Q+(int)(capped*16/window)*COMBO_STEP_Q8;
 }
 void game_begin_run(Game *g) {
+ city.active=0;
  memset(&g->run,0,sizeof(g->run)); memset(g->traffic,0,sizeof(g->traffic)); memset(g->pickups,0,sizeof(g->pickups));
  game_contract_offer(g,g->save.dispatch_choice,&g->active_contract);
  g->contract_progress=g->contract_cash=0;g->contract_complete=0;
@@ -1041,10 +1044,16 @@ static void settings_tick(Game *g,const Input *in) {
  else *value=(uint8_t)((*value+choices+(dx?dx:1))%choices);
  g->muted=(uint8_t)!g->save.music_on;g->save_requested=1;
 }
+#include "city.inc"
 void game_update(Game *g,const Input *in) {
  ++g->frame;if(g->notice_timer) --g->notice_timer;
  switch(g->mode) {
-  case M_RUN:run_tick(g,in);break;
+  case M_RUN:if(city.active)city_tick(g,in);else run_tick(g,in);break;
+  case M_DRIVE:
+   if(in->pressed&K_B){g->mode=M_HOME;g->cursor=0;break;}
+   g->cursor=(uint8_t)clampi(g->cursor+horizontal(in),0,1);
+   if(in->pressed&K_A){if(g->cursor)city_begin(g);else game_begin_run(g);}
+   break;
   case M_RECEIPT:
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;
@@ -1055,7 +1064,7 @@ void game_update(Game *g,const Input *in) {
    }
    if(in->pressed&K_A) {
     switch(g->cursor) {
-     case 0:game_begin_run(g);break;
+     case 0:g->mode=M_DRIVE;g->cursor=0;break;
      case 1:g->mode=M_GARAGE;g->cursor=0;g->garage_tab=0;g->selection=g->save.selected_vehicle;refresh_vehicle(g);break;
      case 2:g->mode=M_CHALLENGES;g->cursor=0;break;
      case 3:g->mode=M_CAREER;g->cursor=0;break;

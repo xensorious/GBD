@@ -11,7 +11,7 @@ static void profile(Game*g){game_init(g,123);g->save.cash=1000000;g->save.owned=
 static void fusion_navigation(int skin){
  static const unsigned keys[4]={K_UP,K_DOWN,K_LEFT,K_RIGHT};
  static const uint8_t neighbors[4][6]={{0,1,0,1,2,3},{2,3,4,5,4,5},{0,0,2,2,4,4},{1,1,3,3,5,5}};
- static const uint8_t modes[6]={M_RUN,M_GARAGE,M_CHALLENGES,M_CAREER,M_SETTINGS,M_CONTRACTS};
+ static const uint8_t modes[6]={M_DRIVE,M_GARAGE,M_CHALLENGES,M_CAREER,M_SETTINGS,M_CONTRACTS};
  Game g,loaded;
  for(int direction=0;direction<4;direction++)for(int tile=0;tile<6;tile++){
   profile(&g);g.save.skin=(uint8_t)skin;g.cursor=(uint8_t)tile;press(&g,keys[direction]);

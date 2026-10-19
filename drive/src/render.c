@@ -1,4 +1,5 @@
 #include "render.h"
+#include "city_render.h"
 #include "gfx.h"
 #include "assets.h"
 #include "road.h"
@@ -1622,6 +1623,7 @@ static void draw_menu_decoration(Surface *s,const Game *g)
  draw_menu_chrome(s,g,caption,256);
 }
 
+#include "city_render.inc"
 static Game bottom_key;
 static int bottom_valid;
 int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
@@ -1630,7 +1632,7 @@ int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
  init_projection();
  Surface t={top,VW,VH},b={bottom,VW,VH};
  if(g->mode==M_RUN || g->mode==M_PAUSE) {
-  draw_world(&t,g,0);draw_run_overlay(&t,g);
+  if(city.active)city_scene(&t,g);else {draw_world(&t,g,0);draw_run_overlay(&t,g);}
  } else draw_menu_decoration(&t,g);
  render_profile[0]=(profile_clock()-total_start)&65535u;
 

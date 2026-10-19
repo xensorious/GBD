@@ -30,9 +30,13 @@ if a.skin is None:
     verify_layout(ROOT)
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
         'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
-    for skin in range(3,9):
+    from concurrent.futures import ThreadPoolExecutor
+    def review(skin):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--rom',str(a.rom),
             '--elf',str(a.elf),'--skin',str(skin)],check=True)
+    # Each cartridge process owns a distinct battery directory and capture prefix.
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        list(pool.map(review,range(3,9)))
     cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(3,9)]
     assert all(c['fusion_navigation_passed'] for c in cases)
     report={'rom':inspect(a.rom),'interfaces':['Fusion','Pearl','Voltage','Alloy','Glacier','Bloom'],
@@ -168,7 +172,7 @@ with Emulator(a.rom,directory) as e:
     d.menu(0);d.press('a');d.press('b');assert d.game().mode==3
     d.press('b');assert d.game().mode==0
     # Short live drive verifies skin-specific dashboard, smoke and pause paths.
-    d.menu(0);d.press('a');d.autopilot(150,('r',));assert d.game().mode==1
+    d.menu(0);d.press('a');assert d.game().mode==11;d.press('a');d.autopilot(150,('r',));assert d.game().mode==1
     d.ticks(8,('r','b','right'));assert d.game().drifting
     d.shot(f'ui-{skin}-driving',('r','b','right'))
     d.press('start');assert d.game().mode==7;shot('pause')

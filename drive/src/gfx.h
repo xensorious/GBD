@@ -12,6 +12,7 @@ void gfx_text_small(Surface*,int x,int y,const char*,uint16_t);
 int gfx_text_width(const char*);
 void gfx_wrap(Surface*,int x,int y,const char*,int width,int lineheight,int maxlines,uint16_t);
 void gfx_sprite(Surface*,int x,int y,const uint16_t*,int w,int h,int flip);
+void gfx_shadow_sprite(Surface*,int x,int y,const uint16_t*,int w,int h);
 void gfx_scaled_sprite(Surface*,int x,int y,const uint16_t*,int srcw,int srch,int destw,int desth);
 void gfx_indexed_sprite(Surface*,int x,int y,const uint8_t*,const uint16_t *palette,int srcw,int srch,int destw,int desth);
 void gfx_vehicle(Surface*,int x,int y,const uint16_t*,int srcw,int srch,int destw,int desth,int paint);
