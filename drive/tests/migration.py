@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Migrate four published profiles on their genuine 512-byte battery chips.
+"""Import four published single-profile batteries into Save 1 of the 8 KiB bank.
 
-Each old fixture must first boot in its released cartridge. The unchanged 512B
-file then boots in the revised cartridge, which writes its compact 500B v4
-profile and reloads all 708 RAM bytes in a fresh process. No RAM writes or
+Each old fixture must first boot in its released cartridge. The genuine 512B
+file then boots in the revised cartridge, which imports its compact 500B v4
+profile into the expanded bank and reloads all 708 RAM bytes in a fresh process. No RAM writes or
 emulator checkpoints are used.
 """
 import argparse
@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from game_snapshot import enter_opening
 from emulator import Emulator,ROOT
 from fixtures import (legacy_profile,coastal_profile,write_battery,
                       assert_imported_fields,assert_compact_battery,battery_size)
@@ -56,7 +57,7 @@ subprocess.run([sys.executable,str(ROOT/'tests'/'legacy_boot.py'),
     '--save-dir',str(directory)],check=True)
 address=find_symbol(a.elf,'game');assert symbol_size(a.elf,'game')==C.sizeof(Game)
 with Emulator(a.rom,directory) as e:
-    e.run(180);g=read_game(e,address)
+    e.run(180);enter_opening(e,a.elf);g=read_game(e,address)
     assert g.mode==0 and g.has_save and g.save_ok
     assert_imported_fields(g.save,legacy)
     e.screenshot(a.output/'legacy-migrated.png')

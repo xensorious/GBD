@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 from emulator import Emulator, ROOT
-from game_snapshot import Game, Save, MODES, BONUSES, find_symbol, symbol_size, read_game,verify_layout
+from game_snapshot import Game, Save, MODES, BONUSES, find_symbol, symbol_size, read_game,verify_layout,enter_opening
 from inspect_rom import inspect
 
 
@@ -23,7 +23,7 @@ def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     verify_layout(ROOT)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('opening',['opening.c','game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -37,9 +37,10 @@ def native_tests():
 
 
 class DriveThrough:
-    def __init__(self,emulator,address,output):
+    def __init__(self,emulator,address,output,enter_menu=True):
         self.e,self.address,self.output=emulator,address,output
         self.shots=[]; self.events=[]; self.gif=[]
+        if enter_menu:enter_opening(emulator,emulator.rom.with_name("arm9.elf"))
     def game(self): return read_game(self.e,self.address)
     def ticks(self,n=1,keys=(),touch=None):
         before=self.game().frame
@@ -97,10 +98,17 @@ class DriveThrough:
         return best
     def autopilot(self,ticks,keys=('r',),capture=False):
         begin=self.game().frame
+        self.active_drive_updates=0;self.active_drive_frames=0
         while self.game().mode==1 and self.game().frame-begin<ticks:
             g=self.game(); target=self.safe_lane(g)
             steer=self.steer(target)
+            hardware_before=self.e.frames
             self.ticks(2,tuple(keys)+steer)
+            # A terminal iteration can render the itemized receipt and a
+            # second receipt update. Measure driving separately from that UI.
+            if self.game().mode==1:
+                self.active_drive_updates+=self.game().frame-g.frame
+                self.active_drive_frames+=self.e.frames-hardware_before
             if capture and (self.game().frame-begin)%4<2 and len(self.gif)<75:
                 self.gif.append(self.e.image().crop((0,0,256,192)).resize((512,384)))
     def record(self,name,**extra): self.events.append({'check':name,**extra})
@@ -239,7 +247,11 @@ def emulator_tests(rom,elf,output):
         drive_after=p.game();hardware_elapsed=e.frames-hardware_before
         update_elapsed=drive_after.frame-drive_before.frame
         long_drive_cadence={'updates':update_elapsed,'hardware_frames':hardware_elapsed,
-            'hz':update_elapsed/(hardware_elapsed/e.fps),'requested_updates':1200,
+            'hz':p.active_drive_updates/(p.active_drive_frames/e.fps),
+            'active_updates':p.active_drive_updates,'active_hardware_frames':p.active_drive_frames,
+            'including_receipt_hz':update_elapsed/(hardware_elapsed/e.fps),
+            'measurement':'driving intervals only; terminal receipt rendering is reported separately',
+            'requested_updates':1200,
             'actual_run_ticks':drive_after.run_ticks-drive_before.run_ticks,
             'ended_early':drive_after.mode!=1,
             'start':{'frame':drive_before.frame,'run_ticks':drive_before.run_ticks,
@@ -326,6 +338,8 @@ def main():
     if args.native_only and args.emulator_only:parser.error('Choose only one verification mode')
     native=[] if args.emulator_only else native_tests()
     if args.native_only:
+        args.output.mkdir(parents=True,exist_ok=True)
+        (args.output/'native-results.json').write_text(json.dumps({'rom':inspect(args.rom),'native':native},indent=2)+'\n')
         report=args.output/'results.json'
         if report.exists() and args.rom.exists():
             current=json.loads(report.read_text())

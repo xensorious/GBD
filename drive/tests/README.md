@@ -1,7 +1,7 @@
 # Coastline cartridge validation
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
-GCC AddressSanitizer and UndefinedBehaviorSanitizer. Eleven suites cover driving,
+GCC AddressSanitizer and UndefinedBehaviorSanitizer. Twelve suites cover driving,
 score receipts, six-level parts, effective tuning, mastery/career/perks, traffic
 following and lane safety, thirteen-region road continuity, settings and v1/v2/v3/v4
 battery-save integrity. The handling suite verifies exact quarter-step combos
@@ -40,6 +40,7 @@ For the interface/garage release, use this exact-ROM sequence:
 ```sh
 python3 drive/tests/playthrough.py --output drive/build/studio-validation
 python3 drive/tests/studio.py
+python3 drive/tests/opening.py
 python3 drive/tests/migration.py --output drive/build/studio-validation
 python3 drive/tests/studio_migration.py
 python3 drive/tools/package.py
@@ -65,20 +66,31 @@ Fixture progress is never described as earned gameplay.
 
 `migration.py` verifies v1 and three published v2 cartridges accept their own
 fixtures first, then checks the new cartridge preserves them on the original
-512-byte physical chip. `studio_migration.py` additionally creates a rich
+512-byte source chip before importing Save 1 into the new 8 KiB bank. `studio_migration.py` additionally creates a rich
 31-vehicle v3 profile using the pinned previous release, boots that released
 ROM before migration, preserves every existing field except the retired
 color-only skin selection, initializes new history/smoke/preset fields, and
 reloads the new battery file in another process. Source/ROM/ELF baselines are
 verified against published hashes, with reproducible setup via `setup_legacy.py`.
-The current profile is 708 bytes in RAM and 500 bytes on disk.
+The current profile is 708 bytes in RAM and 500 bytes on disk, inside independently checked 512-byte records in an 8 KiB three-profile bank.
 
-Packaging requires matching SHA-256 values for the final ROM, all eleven native
-suites, the stock playthrough, four interface tours and all five prior-release
-migration cases. Images in the package come from this ROM's emulator output.
+Packaging requires matching SHA-256 values for the final ROM, all twelve native
+suites, the stock playthrough, four interface tours, all five prior-release migration cases, and the opening
+and three-profile persistence checks. Images in the package come from this ROM's emulator output.
 The broader handling/scenery/expansion/transition tours remain supplemental;
 they are not claimed as rerun evidence for this menu-focused update.
 
 The interpreter is intentional: Debian's old DeSmuME core has an ARM7 FIFO/JIT
 regression. `setup_emulator.sh` installs the local core without system package
 changes. No copyrighted BIOS or firmware files are needed for homebrew boot.
+
+`opening.c` checks independent slot records, corruption containment, legacy Slot 1
+import, button gating, guarded tall-camera drawing and a pixel-exact transition
+endpoint against the existing menu. The tall framebuffer uses spare LCDC VRAM
+on the actual DS rather than reserving another 192 KiB of main RAM.
+
+`opening.py` boots the actual cartridge without bypassing its title, verifies
+touch is passive and X/Y both open the profile selector, captures the two-screen
+animation and eased slide, earns a run on Save 1, configures distinct preferences
+in all three slots, switches back to the first profile and reloads all three in
+fresh emulator processes. No RAM writes or save-state restores are used.

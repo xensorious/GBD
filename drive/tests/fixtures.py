@@ -81,8 +81,8 @@ def battery_size(path:Path):
 
 
 def assert_compact_battery(path:Path):
-    """Independently validate all 500 serialized bytes on the original 512B chip."""
-    assert battery_size(path)==512,'The cartridge changed the physical battery capacity'
+    """Independently validate the 500-byte first profile in the 8 KiB bank."""
+    assert battery_size(path)==8192,'Three profiles require the 8 KiB save bank'
     payload=bytearray(path.read_bytes()[:500])
     assert struct.unpack_from('<II',payload)==(0x434c4452,4)
     stored=struct.unpack_from('<I',payload,8)[0];payload[8:12]=b'\0'*4
@@ -90,7 +90,7 @@ def assert_compact_battery(path:Path):
     for byte in payload:value=((value^byte)*16777619)&0xffffffff
     assert value==stored,'The serialized v4 checksum does not cover the full 500-byte profile'
     assert payload[204:]!=b'\xff'*296,'No profile tail was written beyond the old payload'
-    return {'serialized_save_bytes':500,'physical_save_bytes':512,'disk_checksum_valid':True}
+    return {'serialized_save_bytes':500,'physical_save_bytes':8192,'disk_checksum_valid':True}
 
 
 def assert_imported_fields(current,old):

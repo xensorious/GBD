@@ -27,6 +27,8 @@ void ds_init(void) {
     vramSetBankA(VRAM_A_MAIN_BG);
     vramSetBankB(VRAM_B_MAIN_BG_0x06020000);
     vramSetBankC(VRAM_C_SUB_BG);
+    vramSetBankD(VRAM_D_LCD);
+    vramSetBankE(VRAM_E_LCD);
     REG_BG3CNT = BG_BMP16_256x256 | BG_BMP_BASE(0);
     REG_BG3CNT_SUB = BG_BMP16_256x256 | BG_BMP_BASE(0);
     REG_BG3PA = REG_BG3PD = 256;
@@ -83,6 +85,9 @@ int ds_touch(int *x, int *y) {
 uint16_t *ds_top_buffer(void) {
     return BG_BMP_RAM((top_front_bank^1u)*8);
 }
+/* D (128 KiB) and E (64 KiB) are contiguous LCDC memory: one tall movie
+ * frame without a second full-screen allocation in the DS's main RAM. */
+uint16_t *ds_cinematic_buffer(void) { return (uint16_t*)0x06860000; }
 void ds_present(const uint16_t *top, const uint16_t *bottom) {
     unsigned next=top_front_bank^1u;
     uint16_t *back=BG_BMP_RAM(next*8);
@@ -152,12 +157,15 @@ int ds_save_read(void *data, unsigned size) {
     return 1;
 }
 int ds_save_write(const void *data, unsigned size) {
-    if (size > SAVE_CAPACITY) return 0;
+    return ds_save_write_at(0,data,size);
+}
+int ds_save_write_at(unsigned start,const void *data,unsigned size) {
+    if (start>SAVE_CAPACITY || size>SAVE_CAPACITY-start) return 0;
     save_prepare();
     const uint8_t *bytes=data;
-    for (unsigned address=0; address<size;) {
+    for (unsigned address=start; address<start+size;) {
         unsigned count=32-(address&31);
-        if (count>size-address) count=size-address;
+        if (count>start+size-address) count=start+size-address;
         REG_AUXSPICNT=0xa000;
         save_transfer(0x06); /* write enable */
         REG_AUXSPICNT=0;
@@ -167,7 +175,7 @@ int ds_save_write(const void *data, unsigned size) {
         save_transfer(address);
         for (unsigned i=0; i<count; ++i) {
             if (i+1==count) REG_AUXSPICNT=0xa000;
-            save_transfer(bytes[address+i]);
+            save_transfer(bytes[address-start+i]);
         }
         REG_AUXSPICNT=0;
         int ready=0;
@@ -183,7 +191,7 @@ int ds_save_write(const void *data, unsigned size) {
         if (!ready) return 0;
         uint8_t check[32];
         save_read_at(address, check, count);
-        if (memcmp(check, bytes+address, count)) return 0;
+        if (memcmp(check, bytes+address-start, count)) return 0;
         address+=count;
     }
     return 1;

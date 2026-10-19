@@ -87,10 +87,10 @@ class Game(C.LittleEndianStructure):
 
 def verify_layout(root:Path):
     """Compile every ctypes offset against C before observing cartridge RAM."""
-    declarations=['#include "game.h"','#include <stddef.h>']
+    declarations=['#include "game.h"','#include "opening.h"','#include <stddef.h>']
     for name,kind in (('Save',Save),('RunStats',RunStats),('Traffic',Traffic),
                       ('Pickup',Pickup),('Game',Game),('DispatchContract',DispatchContract),
-                      ('VehicleDef',VehicleDef),('LocationDef',LocationDef)):
+                      ('VehicleDef',VehicleDef),('LocationDef',LocationDef),('SlotInfo',SlotInfo),('Opening',Opening)):
         declarations.append(f'_Static_assert(sizeof({name})=={C.sizeof(kind)},"{name} size");')
         for field,_ in kind._fields_:
             offset=getattr(kind,field).offset
@@ -128,3 +128,32 @@ def catalogue(library):
     return [vehicle_info(i,v) for i,v in enumerate(vehicles)],[
         {'id':i,'name':v.name.decode(),'description':v.description.decode(),
          'price':int(v.price),'unlock':int(v.unlock)} for i,v in enumerate(locations)]
+
+class SlotInfo(C.LittleEndianStructure):
+    _fields_=[('cash',U32),('distance',U32),('runs',U32),('valid',U8),('vehicle',U8),('location',U8),('skin',U8)]
+class Opening(C.LittleEndianStructure):
+    _fields_=[('records',U8*1536),('slots',SlotInfo*3),('slide',U16),('phase',U8),('cursor',U8),('active_slot',U8),('reserved',U8)]
+def enter_opening(emulator,elf,slot=0):
+    """Physically choose a profile, if this cartridge has the opening movie."""
+    if not elf.exists():return
+    try:address=find_symbol(elf,'opening')
+    except RuntimeError:return
+    def state():return Opening.from_buffer_copy(emulator.read_ram(address,C.sizeof(Opening)))
+    game_address=find_symbol(elf,'game')
+    def tick(keys=()):
+        frame=read_game(emulator,game_address).frame
+        for _ in range(80):
+            emulator.run(2,keys)
+            if read_game(emulator,game_address).frame>frame:return
+        raise AssertionError('Opening input update stalled')
+    def press(key):tick((key,));tick()
+    if state().phase==0:press('a')
+    if state().phase==1:
+        for _ in range(3):
+            if state().cursor==slot:break
+            press('down')
+        press('a')
+    for _ in range(30):
+        if state().phase==3:return
+        emulator.run(12)
+    raise AssertionError(f'Opening transition failed: phase={state().phase}, slide={state().slide}')

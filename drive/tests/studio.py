@@ -39,7 +39,7 @@ if a.skin is None:
         'garage_tabs':['Showroom','Tuning','Style','Dealer'],'cases':cases,
         'fresh_process_reload':all(c['fresh_process_reload'] for c in cases),
         'profile_source':'labelled funded review profile; all actions use buttons; RAM read only',
-        'departure_interiors':13,'serialized_save_bytes':500,'physical_save_bytes':512}
+        'departure_interiors':13,'serialized_save_bytes':500,'physical_save_bytes':8192}
     (a.output/'studio-results.json').write_text(json.dumps(report,indent=2)+'\n')
     print('All four actual-cartridge interface reviews passed.',flush=True)
     sys.exit(0)

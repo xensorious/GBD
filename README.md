@@ -8,6 +8,8 @@ Earn points and cash, collect an itemized traffic ticket, and return
 to the garage to buy, tune and customize your vehicles. Optional dispatch
 contracts give each run a specific driving goal.
 
+- [Watch the dual-screen opening](drive/dist/Opening.gif)
+- [See the opening and save slots](drive/dist/Opening.png)
 - [Download the DS cartridge](drive/dist/Coastline.nds)
 - [Download the complete ZIP](drive/dist/Coastline-DS.zip)
 - [Compare Midnight, Apex, Signal and Fusion interfaces](drive/dist/Interface.png)
@@ -18,6 +20,11 @@ contracts give each run a specific driving goal.
 - [Controls, progression and build instructions](drive/README.md)
 
 ![Actual Nintendo DS screens](drive/dist/Preview.png)
+
+The game opens with a continuous drive across both screens, a wide sky,
+clouds and animated birds. Press any button, choose one of three independent
+save slots with Up/Down and A, and the driving view slides up to reveal the
+main menu below. B from the main menu returns to the save selector.
 
 R accelerates, L brakes/reverses, Left/Right steer, Up adds Turbo, Down adds
 Slow, B is a controlled drift, and A is the horn or motorcycle wheelie. All driving
@@ -74,6 +81,7 @@ make -C drive -j2
 bash drive/tests/setup_emulator.sh
 python3 drive/tests/playthrough.py --output drive/build/studio-validation
 python3 drive/tests/studio.py
+python3 drive/tests/opening.py
 python3 drive/tests/migration.py --output drive/build/studio-validation
 python3 drive/tests/studio_migration.py
 python3 drive/tools/package.py

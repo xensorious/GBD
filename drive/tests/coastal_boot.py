@@ -4,6 +4,7 @@ import argparse
 import ctypes as C
 import json
 from pathlib import Path
+from game_snapshot import enter_opening
 from emulator import Emulator
 from fixtures import coastal_profile,assert_imported_fields,battery_size
 from game_snapshot import V2Save,find_symbol,read_game
@@ -18,6 +19,7 @@ p.add_argument('--expected',type=Path,help='Write the observed profile with only
 a=p.parse_args();address=find_symbol(a.elf,'game')
 with Emulator(a.rom,a.save_dir) as e:
     e.run(180)
+    enter_opening(e,a.elf)
     if a.current:
         g=read_game(e,address)
         assert g.mode==0 and g.has_save and g.save_ok and g.save.version==4
@@ -31,4 +33,4 @@ with Emulator(a.rom,a.save_dir) as e:
     print(json.dumps({'current_v2_profile_preserved' if a.current else 'previous_v2_rom_accepted_fixture':True,'cash':old.cash,
                       'save_bytes':C.sizeof(old),'selected_vehicle':old.selected_vehicle}),flush=True)
 if a.current:
-    assert battery_size(a.save_dir/'Coastline.dsv')==512,'Migration changed the physical save capacity'
+    assert battery_size(a.save_dir/'Coastline.dsv')==8192,'Migration changed the physical save capacity'

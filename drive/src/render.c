@@ -43,11 +43,13 @@ static FAST __attribute__((noinline,noclone,const)) int scene_divide(int numerat
 }
 #define VW 256
 #define VH 192
-#define HORIZON DRIVE_HORIZON
+#define HORIZON world_horizon
 #define CAMERA DRIVE_CAMERA
-#define PLAYER_Y DRIVE_PLAYER_Y
+#define PLAYER_Y world_player_y
 #define FAR_DISTANCE 2200
 #define DRAW_MAX 112
+#define WORLD_MAX_HEIGHT 384
+static int world_height=VH,world_horizon=DRIVE_HORIZON,world_player_y=DRIVE_PLAYER_Y,sky_origin;
 #define CAR_W 48
 #define CAR_H 72
 #define TRAFFIC_W 40
@@ -81,9 +83,9 @@ typedef struct {
 #define DEPTH_CACHE_COUNT (ROAD_VIEW+128-DEPTH_CACHE_MIN+1)
 static int16_t depth_y[DEPTH_CACHE_COUNT],depth_scale[DEPTH_CACHE_COUNT];
 static uint32_t vertical_step[256];
-static int row_z[VH],row_scale[VH],road_x[VH],road_half[VH];
-static uint8_t row_biome[VH];
-static uint16_t row_feature[VH];
+static int row_z[WORLD_MAX_HEIGHT],row_scale[WORLD_MAX_HEIGHT],road_x[WORLD_MAX_HEIGHT],road_half[WORLD_MAX_HEIGHT];
+static uint8_t row_biome[WORLD_MAX_HEIGHT];
+static uint16_t row_feature[WORLD_MAX_HEIGHT];
 static TireMark tiremarks[24];
 static unsigned tire_cursor,last_trail_tick;
 static uint32_t trail_seed;
@@ -123,23 +125,25 @@ static int project_scale(int z)
 static int item_x(const View *v,int world_x,int z)
 {return 128+((world_x-v->center-v->cam_x)*project_scale(z))/256;}
 
-static void init_projection(void)
+static void set_projection(int height,int horizon,int player_y)
 {
  static int initialized;
- if(initialized)return;
- initialized=1;
+ if(initialized && world_height==height && HORIZON==horizon && PLAYER_Y==player_y)return;
+ initialized=1;world_height=height;world_horizon=horizon;world_player_y=player_y;
  for(int i=0;i<DEPTH_CACHE_COUNT;i++) {
   int z=i+DEPTH_CACHE_MIN;
   depth_y[i]=(int16_t)(HORIZON+scene_divide((PLAYER_Y-HORIZON)*CAMERA,z+CAMERA));
   depth_scale[i]=(int16_t)(scene_divide(276*CAMERA,z+CAMERA));
  }
  for(int i=1;i<256;i++)vertical_step[i]=65536u/(unsigned)i;
- for(int y=0;y<VH;y++) {
+ for(int y=0;y<world_height;y++) {
   if(y<=HORIZON){row_z[y]=FAR_DISTANCE;row_scale[y]=0;continue;}
   row_z[y]=clampi(((PLAYER_Y-y)*CAMERA)/(y-HORIZON),-44,FAR_DISTANCE);
   row_scale[y]=(276*(y-HORIZON))/(PLAYER_Y-HORIZON);
  }
 }
+
+static void init_projection(void){sky_origin=0;set_projection(VH,DRIVE_HORIZON,DRIVE_PLAYER_Y);}
 
 static __attribute__((noinline)) void ellipse(Surface *s,int cx,int cy,int width,int height,uint16_t color)
 {
@@ -247,17 +251,18 @@ static const SkyTheme sky_themes[LOCATION_COUNT]={
 
 static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const RoadSample *region)
 {
- int mix=material_blend(region->blend);
+ int mix=material_blend(region->blend),sky_height=HORIZON-sky_origin;
  const SkyTheme *a=&sky_themes[region->biome],*b=&sky_themes[region->next_biome];
  int night=(a->night*(256-mix)+b->night*mix)/256;
  for(int y=0;y<=HORIZON;y++) {
-  uint16_t first=blend_color(a->high,a->low,y*256/HORIZON);
-  uint16_t second=blend_color(b->high,b->low,y*256/HORIZON);
-  gfx_rect(s,0,y,VW,1,blend_color(first,second,mix));
+  int gradient=scene_divide(clampi(y-sky_origin,0,sky_height)*256,sky_height);
+  uint16_t color=blend_color(a->high,a->low,gradient);
+  if(mix)color=blend_color(color,blend_color(b->high,b->low,gradient),mix);
+  gfx_rect(s,0,y,VW,1,color);
  }
  if(night>25)for(int n=0;n<22;n++) {
   uint32_t h=road_hash(v->seed^0x57a4u,(unsigned)n);
-  int x=(int)(h%VW),y=1+(int)((h>>9)%(HORIZON-3));
+  int x=(int)(h%VW),y=sky_origin+1+(int)((h>>9)%(sky_height-3));
   int pulse=170+(int)((v->frame/32+h)%86);
   gfx_rect(s,x,y,1,1,blend_color(blend_color(a->high,b->high,mix),C(235,247,238),night*pulse/256));
  }
@@ -268,6 +273,7 @@ static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const Ro
  static const uint8_t body_radius[LOCATION_COUNT]={6,5,5,4,6,4,5,5,4,4,4,4,7};
  int celestial_x=(body_x[region->biome]*(256-mix)+body_x[region->next_biome]*mix)/256;
  int celestial_y=(body_y[region->biome]*(256-mix)+body_y[region->next_biome]*mix)/256;
+ celestial_y=sky_origin+celestial_y*sky_height/DRIVE_HORIZON;
  int radius=(body_radius[region->biome]*(256-mix)+body_radius[region->next_biome]*mix)/256;
  gfx_circle(s,celestial_x,celestial_y,radius,sun);
  if(night>130)gfx_circle(s,celestial_x+2,celestial_y-2,radius,sky);
@@ -275,8 +281,8 @@ static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const Ro
  if(aura)for(int x=0;x<VW;x+=8) {
   unsigned phase=((unsigned)x/8+v->frame/28)&31u;
   int wave=(int)(phase<16?phase:31-phase);
-  gfx_rect(s,x,3+wave/4,8,1,blend_color(sky,C(99,231,202),aura*3/4));
-  gfx_rect(s,x,5+(15-wave)/5,8,1,blend_color(sky,C(164,139,221),aura/2));
+  gfx_rect(s,x,sky_origin+3+wave/4,8,1,blend_color(sky,C(99,231,202),aura*3/4));
+  gfx_rect(s,x,sky_origin+5+(15-wave)/5,8,1,blend_color(sky,C(164,139,221),aura/2));
  }
  int biome=region->blend>=128?region->next_biome:region->biome;
  uint16_t distant=blend_color(a->haze,b->haze,mix);
@@ -313,9 +319,24 @@ static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const Ro
   gfx_rect(s,148,HORIZON-2,108,3,distant);
  }
  if(night<150)for(int i=0;i<2;i++) {
-  int x=(int)((v->frame/18+(unsigned)i*157)%320)-28,y=3+i*5;
+  int x=(int)((v->frame/18+(unsigned)i*157)%320)-28,y=sky_origin+(3+i*5)*sky_height/DRIVE_HORIZON;
   uint16_t cloud=blend_color(sky,C(235,244,228),150);
   gfx_rect(s,x,y,22,2,cloud);gfx_rect(s,x+5,y-1,12,1,cloud);
+ }
+ if(world_height>VH && sky_height>35){
+  uint16_t mist=blend_color(sky,C(227,239,235),night>130?45:145);
+  for(int i=0;i<4;i++){
+   int x=(int)((v->frame/(15u+i*3u)+(unsigned)i*93u)%340u)-35;
+   int y=sky_origin+(20+i*19)*sky_height/128;
+   ellipse(s,x+10,y+2,54+i*5,6,blend_color(mist,sky,85));
+   ellipse(s,x,y,24,8,mist);ellipse(s,x+17,y-3,29,12,mist);ellipse(s,x+34,y,25,8,mist);
+  }
+  uint16_t bird=blend_color(sky,C(43,74,89),180);
+  for(int i=0;i<5;i++){
+   int x=(int)((v->frame/5u+(unsigned)i*13u)%330u)-30;
+   int y=sky_origin+(80+(i%3)*6)*sky_height/128,wing=((v->frame/8u+i)&1u)?-2:1;
+   gfx_line(s,x-3,y+wing,x,y,bird);gfx_line(s,x,y,x+3,y+wing,bird);
+  }
  }
 }
 
@@ -354,156 +375,32 @@ static inline void road_ground_spans(Surface *s,int y,int outside_left,int outsi
 
 /* Each scanline is a handful of halfword-safe spans, rather than a textured
  * software triangle.  The art around those spans supplies the height. */
-static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,const View *v)
-{
- RoadSample knots[25];
- RoadSample materials[25];
- int knot_x[25];
- uint16_t grounds[25],verges[25],seas[25],asphalts[25];
- int left_water[25],right_water[25],bridges[25],rails[25];
- for(int k=0;k<25;k++) {
-  int y=k*8;if(y>=VH)y=VH-1;
-  road_sample(v->seed,v->position+row_z[y],v->start,&knots[k]);
-  road_sample(v->seed,physical_anchor(v->visual_position+row_z[y],v->visual_scale),v->start,&materials[k]);
-  knot_x[k]=knots[k].center;
-  const RoadSample *r=&materials[k];
-  int transition=material_blend(r->blend);
-  grounds[k]=blend_color(terrain_color(r->biome),terrain_color(r->next_biome),transition);
-  verges[k]=blend_color(verge_color(r->biome),verge_color(r->next_biome),transition);
-  seas[k]=blend_color(sea_color(r->biome),sea_color(r->next_biome),transition);
-  left_water[k]=(biome_water(r->biome,-1)*(256-transition)+biome_water(r->next_biome,-1)*transition)/256;
-  right_water[k]=(biome_water(r->biome,1)*(256-transition)+biome_water(r->next_biome,1)*transition)/256;
-  bridges[k]=bridge_region(r->biome)*(256-transition)+bridge_region(r->next_biome)*transition;
-  rails[k]=(biome_water(r->biome,-1)!=0)*(256-transition)+(biome_water(r->next_biome,-1)!=0)*transition;
-  uint16_t road_a=r->biome==NEON?C(28,36,56):r->biome==AURORA?C(65,83,102):
-                   r->biome==SALT?C(91,98,116):r->biome==MARINA?C(49,61,78):C(64,77,85);
-  uint16_t road_b=r->next_biome==NEON?C(28,36,56):r->next_biome==AURORA?C(65,83,102):
-                   r->next_biome==SALT?C(91,98,116):r->next_biome==MARINA?C(49,61,78):C(64,77,85);
-  asphalts[k]=blend_color(road_a,road_b,transition);
- }
- for(int y=HORIZON+1;y<VH;y++) {
-  int k=y/8,t=y&7;
-  int center=knot_x[k]+((knot_x[k+1]-knot_x[k])*t)/8;
-  int scale=row_scale[y];
-  int cx=128+((center-v->center-v->cam_x)*scale)/256;
-  int half=(ROAD_HALF*scale)/256;
-  road_x[y]=cx;road_half[y]=half;
-  const RoadSample *r=&materials[k];
-  int biome=r->blend>=128?r->next_biome:r->biome;
-  row_biome[y]=(uint8_t)biome;row_feature[y]=r->feature;
-  uint16_t ground=blend_color(grounds[k],grounds[k+1],t*32);
-  uint16_t sea=blend_color(seas[k],seas[k+1],t*32);
-  uint16_t verge=blend_color(verges[k],verges[k+1],t*32);
-  uint16_t asphalt=blend_color(asphalts[k],asphalts[k+1],t*32);
-  int haze=clampi(72-y,0,50);
-  int transition=material_blend(r->blend);
-  uint16_t haze_color=blend_color(sky_themes[r->biome].low,sky_themes[r->next_biome].low,transition);
-  ground=blend_color(ground,haze_color,haze);
-  sea=blend_color(sea,haze_color,haze);
-  verge=blend_color(verge,haze_color,haze);
-  asphalt=blend_color(asphalt,haze_color,haze);
-  int world=v->visual_position+row_z[y];
-  /* Hot flats use a moving warm haze in existing terrain spans, rather than
-   * an expensive screen filter or distortion that would hide traffic. */
-  if((biome==CANYON || biome==SALT) && y<86) {
-   int wave=(int)((v->frame/11+(unsigned)y/3)&15u);
-   int warmth=(86-y)*(wave<8?wave:15-wave)/28;
-   ground=blend_color(ground,biome==SALT?C(245,206,226):C(241,186,130),clampi(warmth,0,28));
-   sea=blend_color(sea,C(222,201,229),clampi(warmth,0,24));
-  }
-  int shoulder=clampi(scale*3/256,1,5),bank=clampi(scale*3/256,1,4);
-  int outside_left=cx-half-shoulder-bank;
-  int outside_right=cx+half+shoulder+bank;
-  int water_spans[2];
-  for(int side=-1;side<=1;side+=2) {
-   int water=side<0?left_water[k]+(left_water[k+1]-left_water[k])*t/8:
-                     right_water[k]+(right_water[k+1]-right_water[k])*t/8;
-   int edge=cx+side*(half+7*scale/256);
-   int span=side<0?edge:VW-edge;
-   water_spans[(side+1)/2]=clampi((span*water)/256,0,VW);
-  }
-  road_ground_spans(s,y,outside_left,outside_right,water_spans[0],water_spans[1],ground);
-
-  /* Water only occupies the appropriate side of a coastal or bridge road.
-   * The shoreline itself approaches gradually during an environment blend. */
-  for(int side=-1;side<=1;side+=2) {
-   int span=water_spans[(side+1)/2];
-   if(span) {
-    int x=side<0?0:VW-span;
-    road_span(s,x,y,span,sea);
-    if(span>0)road_span(s,side<0?span-1:x,y,1,blend_color(sea,C(180,223,197),100));
-    if(span>12 && (world%43+43)%43<2) {
-     unsigned wave=road_hash(v->seed,(unsigned)floor_div(world,43));
-     int wx=x+3+(int)(wave%(unsigned)(span-9));
-     road_span(s,wx,y,clampi(scale*7/256,2,10),blend_color(sea,C(161,220,222),90));
-    }
-   }
-  }
-
-  int bridge=bridges[k]+(bridges[k+1]-bridges[k])*t/8;
-  if(bridge) {
-   uint16_t cast=blend_color(sea,C(22,65,83),bridge*3/4);
-   road_span(s,outside_left-bank,y,bank,cast);
-   road_span(s,outside_right,y,bank,cast);
-  }
-  road_span(s,outside_left,y,bank,verge);
-  road_span(s,cx+half+shoulder,y,bank,verge);
-  road_span(s,cx-half-shoulder,y,shoulder,C(76,88,91));
-  road_span(s,cx+half,y,shoulder,C(76,88,91));
-  road_span(s,cx-half,y,half*2,asphalt);
-  if(biome==NEON && (world%144+144)%144<28) {
-   int reach=clampi(scale*10/256,1,7);
-   road_span(s,cx-half+2,y,reach,C(48,119,147));
-   road_span(s,cx+half-reach-1,y,reach,C(126,64,136));
-  }
-  if(biome==SALT && y<75 && (world%97+97)%97<17) {
-   int width=clampi(scale*120/256,8,55);
-   road_span(s,outside_left-width-8,y,width,C(226,204,223));
-   road_span(s,outside_right+8,y,width,C(207,221,224));
-  }
-
-  /* A little broken aggregate avoids a featureless slab, without turning the
-   * road into television noise.  All positions are attached to the road. */
-  if(half>8 && (world&15)==0) {
-   unsigned h=road_hash(v->seed^0x40a1u,(unsigned)floor_div(world,8));
-   int gx=cx-half+6+(int)(h%(unsigned)(half*2-12));
-   road_span(s,gx,y,1,C(81,92,96));
-  }
-  int white=scale>246?2:1;
-  road_span(s,cx-half+3,y,white,C(225,225,201));
-  road_span(s,cx+half-4,y,white,C(225,225,201));
-  int dash=(world%96+96)%96;
-  int paint_length=34+clampi((v->speed-55)/6,0,v->motion==0?10:24);
-  if(dash<paint_length)for(int lane=1;lane<4;lane++) {
-   int x=cx-half+(half*lane)/2;
-   road_span(s,x,y,white,dash<34?C(225,229,213):C(183,198,193));
-  }
-  if((world%66+66)%66<24) {
-   road_span(s,cx-half-shoulder-2,y,2,C(237,208,148));
-   road_span(s,cx+half+shoulder,y,2,C(237,208,148));
-  }
-  int rail=rails[k]+(rails[k+1]-rails[k])*t/8;
-  if(rail) {
-   for(int side=-1;side<=1;side+=2) {
-    int rx=cx+side*(half+shoulder+bank);
-    road_span(s,rx,y,clampi(scale*2/256,1,3),blend_color(verge,C(215,228,211),rail));
-    road_span(s,rx+side*2,y,1,blend_color(verge,C(76,118,122),rail));
-    if((world%84+84)%84<7)road_span(s,rx-1,y,4,C(244,235,202));
-   }
-  }
- }
-
- /* Old tyre marks are world-anchored, and disappear after a short while. */
- if(!v->attract)for(unsigned i=0;i<24;i++) {
-  const TireMark *m=&tiremarks[i];
-  if(!m->tick || g->run_ticks-m->tick>42)continue;
-  int z=m->z-v->visual_position;
-  if(z < -44 || z>ROAD_VIEW)continue;
-  int y=project_y(z),x=item_x(v,m->x,z);
-  int separation=clampi(project_scale(z)*8/256,4,11);
-  gfx_rect(s,x-separation,y,2,4,C(43,55,62));
-  gfx_rect(s,x+separation,y,2,4,C(43,55,62));
- }
+/* Keep the ordinary driving loop specialized for 192 rows. The tall opening
+ * uses the same source in a separate ARM9-RAM function, leaving ITCM for play. */
+#define ROAD_FUNCTION draw_road_standard
+#define ROAD_SPEED FAST
+#define ROAD_HEIGHT VH
+#define ROAD_HORIZON DRIVE_HORIZON
+#define ROAD_KNOTS 25
+#include "road_render.inc"
+#undef ROAD_FUNCTION
+#undef ROAD_SPEED
+#undef ROAD_HEIGHT
+#undef ROAD_HORIZON
+#undef ROAD_KNOTS
+#define ROAD_FUNCTION draw_road_cinematic
+#define ROAD_SPEED
+#define ROAD_HEIGHT world_height
+#define ROAD_HORIZON world_horizon
+#define ROAD_KNOTS 49
+#include "road_render.inc"
+#undef ROAD_FUNCTION
+#undef ROAD_SPEED
+#undef ROAD_HEIGHT
+#undef ROAD_HORIZON
+#undef ROAD_KNOTS
+static void draw_road(Surface*s,const Game*g,const View*v){
+ if(world_height==VH)draw_road_standard(s,g,v);else draw_road_cinematic(s,g,v);
 }
 
 static void add_item(DrawItem *items,int *count,int z,int x,int kind,int id,int variant,int side)
@@ -766,8 +663,8 @@ static FAST __attribute__((noinline)) void ground_plane(Surface *s,const View *v
 {
  int near=world_z-depth/2,far=world_z+(depth+1)/2;
  if(far < -44 || near>ROAD_VIEW+depth)return;
- int top=clampi(project_y(far),HORIZON+1,VH-1);
- int bottom=clampi(project_y(near < -44?-44:near),HORIZON+1,VH-1);
+ int top=clampi(project_y(far),HORIZON+1,world_height-1);
+ int bottom=clampi(project_y(near < -44?-44:near),HORIZON+1,world_height-1);
  for(int y=top;y<=bottom;y++) {
   int z=row_z[y];if(z<near || z>far)continue;
   int scale=row_scale[y],w=width*scale/256;
@@ -808,20 +705,20 @@ static SceneryPoint scenery_point(const View *v,int x,int z,int height)
 
 static FAST __attribute__((noinline,noclone)) void scenery_polygon(Surface *s,const SceneryPoint *points,int count,uint16_t color)
 {
- int left[VH],right[VH];
- int first=VH,last=0;
+ int left[WORLD_MAX_HEIGHT],right[WORLD_MAX_HEIGHT];
+ int first=world_height,last=0;
  for(int i=0;i<count;i++) {
   if(points[i].y<first)first=points[i].y;
   if(points[i].y>last)last=points[i].y;
  }
- first=clampi(first,0,VH);last=clampi(last,0,VH);
+ first=clampi(first,0,world_height);last=clampi(last,0,world_height);
  if(last<=first)return;
  for(int y=first;y<last;y++){left[y]=VW;right[y]=-1;}
  for(int edge=0;edge<count;edge++) {
   SceneryPoint a=points[edge],b=points[(edge+1)%count];
   if(a.y>b.y){SceneryPoint swap=a;a=b;b=swap;}
   if(a.y==b.y)continue;
-  int y0=clampi(a.y,0,VH),y1=clampi(b.y,0,VH);
+  int y0=clampi(a.y,0,world_height),y1=clampi(b.y,0,world_height);
   if(y1<=y0)continue;
   int step=scene_divide((b.x-a.x)*65536,b.y-a.y);
   int x=a.x*65536+step*(y0-a.y);
@@ -838,7 +735,7 @@ static FAST __attribute__((noinline,noclone)) void scenery_polygon(Surface *s,co
 }
 
 static int scenery_outcode(SceneryPoint p)
-{return (p.x<0?1:p.x>=VW?2:0)|(p.y<0?4:p.y>=VH?8:0);}
+{return (p.x<0?1:p.x>=VW?2:0)|(p.y<0?4:p.y>=world_height?8:0);}
 
 static FAST __attribute__((noinline)) void scenery_edge(Surface *s,SceneryPoint a,SceneryPoint b,uint16_t color)
 {
@@ -862,7 +759,7 @@ static FAST __attribute__((noinline)) void scenery_edge(Surface *s,SceneryPoint 
   if(ca&cb)return;
   int code=ca?ca:cb;
   SceneryPoint p;
-  if(code&8){p.y=VH-1;p.x=a.x+scene_divide((b.x-a.x)*(p.y-a.y),b.y-a.y);}
+  if(code&8){p.y=world_height-1;p.x=a.x+scene_divide((b.x-a.x)*(p.y-a.y),b.y-a.y);}
   else if(code&4){p.y=0;p.x=a.x+scene_divide((b.x-a.x)*(p.y-a.y),b.y-a.y);}
   else if(code&2){p.x=VW-1;p.y=a.y+scene_divide((b.y-a.y)*(p.x-a.x),b.x-a.x);}
   else {p.x=0;p.y=a.y+scene_divide((b.y-a.y)*(p.x-a.x),b.x-a.x);}
@@ -944,12 +841,12 @@ static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *
  int offset=x0-a.x;
  int top=at.y*65536+top_step*offset,bottom=a.y*65536+bottom_step*offset;
  int scale=sa*65536+scale_step*offset,u=ua*sa*65536+u_step*offset;
- int first=VH,last=0;
+ int first=world_height,last=0;
  for(int x=x0;x<x1;x++,top+=top_step,bottom+=bottom_step,scale+=scale_step,u+=u_step) {
   int t=top/65536,base=bottom/65536;
   if(base<=t || scale<=0){columns[x]=(WallColumn){0,0,0,0,0};continue;}
   int tex=clampi(scene_divide(u,scale),0,tw-1);
-  int y0=clampi(t,0,VH),y1=clampi(base,0,VH);
+  int y0=clampi(t,0,world_height),y1=clampi(base,0,world_height);
   unsigned step=(unsigned)scene_divide(th*65536,base-t);
   columns[x]=(WallColumn){(int16_t)t,(int16_t)base,(uint16_t)tex,step,(unsigned)(y0-t)*step};
   if(y0<first)first=y0;
@@ -1009,12 +906,12 @@ static void building_end_wall(Surface *s,const View *v,int inner,int outer,int z
  int left=a.x<b.x?a.x:b.x,width=b.x-a.x;
  if(width<0)width=-width;
  int h=a.y-b.y;
- if(width<1 || h<1 || left>=VW || left+width<0 || b.y>=VH || a.y<0)return;
+ if(width<1 || h<1 || left>=VW || left+width<0 || b.y>=world_height || a.y<0)return;
  /* Constant-z faces are opaque rectangles. They deliberately bypass the
   * shared car/foliage cache: a newly resized wall must not evict traffic. */
  width++;
  int x0=clampi(left,0,VW),x1=clampi(left+width,0,VW);
- int y0=clampi(b.y,0,VH),y1=clampi(a.y,0,VH);
+ int y0=clampi(b.y,0,world_height),y1=clampi(a.y,0,world_height);
  if(x1<=x0 || y1<=y0)return;
  int source_width=width<=8 && h<=16?8:width<=16 && h<=32?16:32;
  int source_height=source_width*2;
@@ -1121,13 +1018,13 @@ static void draw_water_prop(Surface *s,const View *v,const DrawItem *item)
  int scale=project_scale(item->z),x=item_x(v,item->x,item->z),y=project_y(item->z);
  if(item->id==SC_SAIL) {
   int boat=(int)((unsigned)item->variant>>14)%4;
-  int biome=row_biome[clampi(y,HORIZON+1,VH-1)];
+  int biome=row_biome[clampi(y,HORIZON+1,world_height-1)];
   if(biome==SWAMP)boat=2+boat%2;
   if(biome==AURORA)boat=3;
   static const uint8_t widths[4]={78,74,48,65};
   int w=widths[boat]*scale/256,h=w*48/64;
   if(w<3 || h<3)return;
-  uint16_t sea=sea_color(row_biome[clampi(y,HORIZON+1,VH-1)]);
+  uint16_t sea=sea_color(row_biome[clampi(y,HORIZON+1,world_height-1)]);
   ellipse(s,x,y+1,w+3,clampi(w/9,1,4),blend_color(sea,C(193,233,225),85));
   gfx_indexed_sprite(s,x-boat_profile_anchor[boat*2]*w/64,y-boat_profile_anchor[boat*2+1]*h/48,
                     boat_profile_idx+boat*64*48,boat_palette+boat*256,64,48,w,h);
@@ -1272,6 +1169,7 @@ static void draw_traffic(Surface *s,const View *v,const DrawItem *item)
 {
  int x=item_x(v,item->x,item->z);
  VehicleScreenRect r=vehicle_traffic_rect(x,item->z);
+ r.top=project_y(item->z)-r.height/2;
  if(r.width<2 || r.height<3)return;
  contact_shadow(s,r.left,r.top,r.width,r.height,traffic_body_spans[item->id],TRAFFIC_W,TRAFFIC_H);
  gfx_vehicle(s,r.left,r.top,traffic_art+item->id*TRAFFIC_W*TRAFFIC_H,
@@ -1286,6 +1184,7 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
  int pose=vehicle_yaw_pose(yaw);
  int lift=!v->attract && g->wheelie?3+(g->frame/6&1):0;
  VehicleScreenRect r=vehicle_player_rect(x,vehicles[vehicle].bike,lift);
+ r.top+=PLAYER_Y-DRIVE_PLAYER_Y;
  int w=r.width,h=r.height;
  contact_shadow(s,x-w/2,y-h/2,w,h,vehicle_body_spans[vehicle*5+pose],CAR_W,CAR_H);
  if(!v->attract && g->turbo && g->speed_q8>40*Q) {
@@ -1341,8 +1240,8 @@ static void draw_police(Surface *s,const Game *g,const View *v)
  if(pressure>25) {
   int pulse=clampi(pressure/15,2,6);
   uint16_t left=(g->frame/4)&1?C(226,88,84):C(72,129,192);
-  gfx_rect(s,0,VH-2,pulse,2,left);
-  gfx_rect(s,VW-pulse,VH-2,pulse,2,left);
+  gfx_rect(s,0,world_height-2,pulse,2,left);
+  gfx_rect(s,VW-pulse,world_height-2,pulse,2,left);
  }
 }
 
@@ -1352,7 +1251,7 @@ static __attribute__((noinline)) void draw_ambient(Surface *s,const View *v)
  int biome=region.blend>=128?region.next_biome:region.biome;
  if(biome==COAST || biome==CAUSEWAY || biome==SALT)for(int i=0;i<3;i++) {
   unsigned t=v->frame+(unsigned)i*61;
-  int x=(int)((t/2+(unsigned)i*23)%310)-25,y=20+i*15+(int)((t/22)%3);
+  int x=(int)((t/2+(unsigned)i*23)%310)-25,y=HORIZON+i*15+(int)((t/22)%3);
   if(x>road_x[y]-road_half[y]-9 && x<road_x[y]+road_half[y]+9)continue;
   int wing=(t/9)&1?2:-1;uint16_t color=biome==SALT?C(222,166,194):C(240,241,215);
   gfx_line(s,x-3,y+wing,x,y,color);gfx_line(s,x,y,x+3,y+wing,color);
@@ -1360,7 +1259,7 @@ static __attribute__((noinline)) void draw_ambient(Surface *s,const View *v)
  if(biome==NEON || biome==JUNGLE)for(int i=0;i<10;i++) {
   uint32_t h=road_hash(v->seed^0x4a17u,(unsigned)i);
   int x=(int)((h+v->frame*3u)%278u)-11;
-  int y=HORIZON+7+(int)(((h>>9)+v->frame*5u)%(VH-HORIZON-10));
+  int y=HORIZON+7+(int)(((h>>9)+v->frame*5u)%(world_height-HORIZON-10));
   gfx_line(s,x,y,x-1,y+3,biome==NEON?C(108,143,177):C(133,183,163));
  }
  if(biome==SWAMP || biome==WETLANDS)for(int i=0;i<13;i++) {
@@ -1370,7 +1269,7 @@ static __attribute__((noinline)) void draw_ambient(Surface *s,const View *v)
   if(((v->frame/15+h)&7u)<5u)gfx_rect(s,x,y,1+(int)(h&1),1,C(206,226,132));
  }
  if(biome==SWAMP || biome==JUNGLE)for(int i=0;i<3;i++) {
-  int side=i&1?1:-1,y=48+i*18;
+  int side=i&1?1:-1,y=HORIZON+28+i*18;
   int x=side<0?14+(int)((v->frame/12+(unsigned)i*17)%26u):223-(int)((v->frame/15)%26u);
   ellipse(s,x,y,37+i*6,3,biome==SWAMP?C(110,148,135):C(115,165,140));
  }
@@ -1382,7 +1281,7 @@ static __attribute__((noinline)) void draw_ambient(Surface *s,const View *v)
  if(biome==PINES || biome==GROVES || biome==COAST)for(int i=0;i<4;i++) {
   unsigned t=v->frame+(unsigned)i*59u;
   if((t/90u)&1u)continue;
-  int x=(int)((t*2u+(unsigned)i*71u)%290u)-17,y=39+(int)((t/8u+(unsigned)i*29u)%118u);
+  int x=(int)((t*2u+(unsigned)i*71u)%290u)-17,y=HORIZON+19+(int)((t/8u+(unsigned)i*29u)%118u);
   gfx_rect(s,x,y,2,1,biome==COAST?C(178,198,104):C(147,180,101));
  }
 }
@@ -1474,7 +1373,7 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
  draw_police(s,g,&v);
  draw_ambient(s,&v);
  if(!attract && v.motion && v.speed>145)for(int i=0;i<(g->turbo?3:2);i++) {
-  int y=HORIZON+10+(int)(((unsigned)v.visual_position*2+(unsigned)i*67)%(VH-HORIZON-20));
+  int y=HORIZON+10+(int)(((unsigned)v.visual_position*2+(unsigned)i*67)%(world_height-HORIZON-20));
   int side=(i&1)?1:-1;
   int x=road_x[y]+side*(road_half[y]-6);
   gfx_line(s,x,y,x+side*2,y+clampi(v.speed/35,4,10),C(137,176,180));
@@ -1710,6 +1609,8 @@ static void draw_menu_decoration(Surface *s,const Game *g)
  gfx_copy(s->pixels+VW*175,menu_footer_art[caption],VW*17);
 }
 
+static Game bottom_key;
+static int bottom_valid;
 int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
 {
  unsigned total_start=profile_clock();
@@ -1720,8 +1621,6 @@ int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
  } else draw_menu_decoration(&t,g);
  render_profile[0]=(profile_clock()-total_start)&65535u;
 
- static Game bottom_key;
- static int bottom_valid;
  Game key=*g;
  key.frame=0;
  key.notice_timer=(uint16_t)(g->notice_timer!=0);
@@ -1740,4 +1639,62 @@ int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
  if(draw_bottom){bottom_key=key;bottom_valid=1;}
  render_profile[2]=(profile_clock()-total_start)&65535u;
  return 1|(draw_bottom?2:0);
+}
+
+/* A tall camera frame lives in spare LCDC VRAM, not the 4 MiB main RAM.
+ * During the slide, its lower half becomes the ordinary menu camera exactly. */
+static void opening_wordmark(Surface*s,const char*text,uint16_t color){
+ int x=(VW-gfx_text_width(text)*2)/2;
+ while(*text){unsigned c=(unsigned char)*text++;if(c<32||c>127)c='?';const uint8_t*a=font_alpha+(c-32)*12*14;
+  for(int y=0;y<14;y++)for(int i=0;i<12;i++)if(a[y*12+i]){
+   int xx=x+i*2,yy=25+y*2;if(xx>=0&&xx<VW)gfx_rect(s,xx,yy,2,2,blend_color(s->pixels[yy*VW+xx],color,a[y*12+i]));
+  }x+=font_advance[c-32]*2;
+ }
+}
+int render_opening(const Game*g,const Opening*o,uint16_t*scratch,uint16_t*top,uint16_t*bottom)
+{
+ bottom_valid=0;
+ int p=0;
+ if(o->phase==OPEN_SLIDE){
+  int t=clampi(o->slide,0,OPENING_SLIDE_TICKS),q=t*256/OPENING_SLIDE_TICKS;
+  q=q*q*(768-2*q)/65536;p=VH*q/256;
+ }
+ sky_origin=p;
+ set_projection(WORLD_MAX_HEIGHT,128+(VH+DRIVE_HORIZON-128)*p/VH,VH+DRIVE_PLAYER_Y);
+ Surface movie={scratch,VW,WORLD_MAX_HEIGHT};draw_world(&movie,g,1);
+ gfx_copy(top,scratch+p*VW,VW*VH);
+ gfx_copy(bottom,scratch+(VH+p)*VW,VW*(VH-p));
+ Surface upper={top,VW,VH};
+ if(o->phase==OPEN_SLIDE){
+  Surface menu={scratch,VW,VH};ui_draw_bottom(&menu,g);
+  gfx_copy(bottom+(VH-p)*VW,scratch,VW*p);
+  if(p>128){
+   init_menu_chrome(g);int alpha=(p-128)*256/64;
+   for(int y=0;y<33;y++)for(int x=0;x<VW;x++)top[y*VW+x]=blend_color(top[y*VW+x],menu_header_art[y*VW+x],alpha);
+   for(int y=0;y<17;y++)for(int x=0;x<VW;x++)top[(175+y)*VW+x]=blend_color(top[(175+y)*VW+x],menu_footer_art[0][y*VW+x],alpha);
+  }
+ }else{
+  const StudioTheme*theme=theme_for(g);
+  overlay_panel(&upper,19,22,218,43,theme->pane);
+  opening_wordmark(&upper,"Coastline",theme->ink);
+  gfx_text_small(&upper,100,55,"ENDLESS DRIVE",theme->accent);
+  if(o->phase==OPEN_TITLE){
+   overlay_panel(&upper,37,83,182,19,theme->pane);
+   gfx_text_small(&upper,56,90,"PRESS ANY BUTTON TO START",(g->frame/24u)&1u?theme->ink:theme->accent);
+  }else{
+   for(int i=0;i<SAVE_SLOT_COUNT;i++){
+    int y=69+i*35,selected=o->cursor==i;
+    overlay_panel(&upper,19,y,218,32,theme->pane);
+    overlay_panel(&upper,19,y,218,32,theme->pane);
+    if(selected){gfx_rect(&upper,19,y,2,32,theme->accent);gfx_rect(&upper,21,y,216,1,theme->accent);}
+    char label[48];snprintf(label,sizeof label,"%s SAVE %d",selected?">":" ",i+1);gfx_text(&upper,27,y+4,label,theme->ink);
+    const SlotInfo*slot=&o->slots[i];
+    if(slot->valid){snprintf(label,sizeof label,"$%lu  /  %lu RUNS",(unsigned long)slot->cash,(unsigned long)slot->runs);gfx_text_small(&upper,27,y+20,label,theme->muted);gfx_text_small(&upper,129,y+6,vehicles[slot->vehicle].name,theme->accent);}
+    else gfx_text_small(&upper,27,y+20,"NEW DRIVE / EMPTY SLOT",theme->muted);
+   }
+   overlay_panel(&upper,19,177,218,14,theme->pane);overlay_panel(&upper,19,177,218,14,theme->pane);
+   gfx_text_small(&upper,31,181,"UP/DOWN: CHOOSE   A: OPEN   B: BACK",theme->ink);
+  }
+ }
+ return 3;
 }

@@ -18,9 +18,11 @@ int ds_touch(int *x, int *y);
  * ds_present() flips it at the next LCD vblank. A NULL screen is unchanged;
  * presentation still waits for vblank, and does not rescan button edges. */
 uint16_t *ds_top_buffer(void);
+uint16_t *ds_cinematic_buffer(void);
 void ds_present(const uint16_t *top, const uint16_t *bottom);
 int ds_save_read(void *data, unsigned size);
 int ds_save_write(const void *data, unsigned size);
+int ds_save_write_at(unsigned address,const void *data,unsigned size);
 int ds_play_sample(const int8_t *data, unsigned samples, unsigned rate,
                    int volume, int loop);
 void ds_stop_sample(int channel);

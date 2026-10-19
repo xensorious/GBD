@@ -20,7 +20,9 @@ def report(name):
     return result
 
 stock=report('results.json')
-assert len(stock['native'])==11,'Run all eleven native sanitizer suites.'
+if not stock['native']:
+    stock['native']=report('native-results.json')['native']
+assert len(stock['native'])==12,'Run all twelve native sanitizer suites.'
 assert stock['battery_save_reload'] and stock['upgrade_purchased'],'Verify earned cash, an actual part purchase and battery reload.'
 assert stock['long_drive_cadence']['updates']>0 and stock['long_drive_cadence']['hz']>=28
 studio=report('studio-results.json')
@@ -31,15 +33,23 @@ assert studio['departure_interiors']==13 and studio['fresh_process_reload']
 for case in studio['cases']:
     assert case['all_classes_reviewed'] and case['vehicles_reviewed']==31
     assert case['cosmetics_and_presets_passed'] and case['fresh_process_reload']
-    assert case['serialized_save_bytes']==500 and case['physical_save_bytes']==512
+    assert case['serialized_save_bytes']==500 and case['physical_save_bytes']==8192
 legacy=report('migration-results.json');previous=report('studio-migration-results.json')
 assert legacy['legacy_fields_preserved'] and legacy['fresh_process_reload']
 for key in ('previous_v2_compatibility','previous_turbo_v2_compatibility','previous_handling_v2_compatibility'):
     case=legacy[key]
     assert case['legacy_fields_preserved'] and case['fresh_process_reload']
-    assert case['serialized_save_bytes']==500 and case['physical_save_bytes']==512
+    assert case['serialized_save_bytes']==500 and case['physical_save_bytes']==8192
 assert previous['previous_v3_compatibility'] and previous['legacy_fields_preserved'] and previous['fresh_process_reload']
-assert previous['serialized_save_bytes']==500 and previous['physical_save_bytes']==512
+assert previous['serialized_save_bytes']==500 and previous['physical_save_bytes']==8192
+
+opening=report('opening-results.json')
+assert opening['dual_screen_cinematic'] and opening['three_independent_profiles']
+assert opening['fresh_process_reloads']==3 and opening['any_button_x_y_passed'] and opening['touch_ignored']
+v4=None
+if (validation/'previous-v4-results.json').exists():
+    v4=report('previous-v4-results.json')
+    assert v4['profile_preserved_byte_for_byte'] and v4['fresh_process_reload']
 
 extra=[]
 for name in ('expansion-gate-4-results.json','expansion-style-results.json'):
@@ -49,9 +59,9 @@ for name in ('expansion-gate-4-results.json','expansion-style-results.json'):
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
-(DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,
-    'v1_v2_save_migration':legacy,'v3_save_migration':previous,'dealer_and_style_regressions':extra,
-    'scope':'Menu-focused release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun.'},indent=2)+'\n')
+(DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
+    'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Cinematic and save-slot release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, twelve native suites and five previous-release migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -65,6 +75,9 @@ def contact(filename,items,columns=2,screen='bottom'):
         draw.text((x+10,y+5),title,font=font,fill='#eaf6f4')
         sheet.paste(image.resize((512,768 if dual else 384),Image.Resampling.NEAREST),(x,y+24))
     sheet.save(DIST/filename)
+
+contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SCREEN OPENING'),('opening-slots-filled','THREE INDEPENDENT SAVE SLOTS'),('opening-slide-middle','SLIDE INTO THE MAIN MENU'),('opening-home','EXISTING MAIN MENU'))],screen='dual')
+shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
     ('ui-3-home','FUSION / DIRECTIONAL TILE MENU'),('ui-3-settings','FUSION / SETTINGS PAGES'),
@@ -89,7 +102,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Interface.png','Fusion.png','Garage.png',
+files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

@@ -5,7 +5,8 @@ Original vehicle and roadside illustrations were generated for Coastline and
 prepared as palette-indexed sprites and textures with RGB555 palettes. Road geometry, driving, traffic, scoring,
 progression, dashboard, menus, synthesized music and engine/road/horn sounds
 were created for the game. The Midnight, Apex, Signal and Fusion interfaces and
-departure-themed garage interiors use original code and existing local textures. No commercial vehicle logos, game art or ROM data
+departure-themed garage interiors use original code and existing local textures.
+The dual-screen opening, sky animation and profile selector are original code. No commercial vehicle logos, game art or ROM data
 are required. Checked-in source art permits rebuilding without an image service.
 
 Text uses DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.

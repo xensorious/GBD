@@ -13,6 +13,25 @@ Import `Coastline.nds` into Delta's Nintendo DS library. Use a controller skin
 that exposes both shoulder buttons and Start. No commercial ROM or patch is
 needed. The game never uses touch input.
 
+## Opening and profiles
+
+The opening drive spans both LCDs without stretching the car sprites. The top
+screen has a broad sky with clouds and birds above the distant road, and the
+car drives on the lower screen. Press any physical button to open the three
+save slots on the upper screen. Up/Down chooses a slot, A or Start opens it,
+and B returns to the movie. Touch never starts the game or selects a slot.
+
+Selecting a profile slides the lower driving view onto the upper screen while
+the existing main menu rises into the lower screen. The camera eases into the
+normal menu preview. Each slot keeps its own cash, fleet, parts, mastery,
+cosmetics, presets, records, departures and settings. Selecting an empty slot
+starts a new profile. Existing slots continue their saved progress.
+
+Press B on the main menu to return to the save selector. Earlier single-profile
+battery files are accepted as **Save 1**. Saves 2 and 3 start empty. The complete
+three-profile bank uses an **8 KiB EEPROM**, with three independently checked
+512-byte records; each profile retains the existing packed 500-byte format.
+
 ## Controls
 
 | Button | During a run |
@@ -184,12 +203,12 @@ can also appear naturally during a continuous run. Each region lasts about
 ## Saving
 
 Cash, vehicles, parts, setups, mastery, career perks, paints, departures,
-settings, records and challenge progress save automatically after banking a
+settings, records and challenge progress in the active profile save automatically after banking a
 run or making a menu change. Battery saves from the previous coastal release
 retain their full progression and settings. First-draft cartridge battery saves
 migrate to the expanded format, retaining their purchases and records. Version 4
 adds installation history, smoke colors and presets to the same packed 500-byte
-battery image, preserving the original save-chip size. Previous color-only
+profile image. The opening stores three such profiles in the larger 8 KiB bank. Previous color-only
 Miami/Sunset selections migrate to Midnight; choose Apex, Signal or Fusion in Settings. Delta
 stores this as cartridge battery data. An unfinished run is not saved. Keep an
 exported battery save when moving devices; save states include program state
@@ -219,6 +238,7 @@ service. The output is `drive/build/Coastline.nds`.
 bash drive/tests/setup_emulator.sh
 python3 drive/tests/playthrough.py --output drive/build/studio-validation
 python3 drive/tests/studio.py
+python3 drive/tests/opening.py
 python3 drive/tests/migration.py --output drive/build/studio-validation
 python3 drive/tests/studio_migration.py
 python3 drive/tools/package.py

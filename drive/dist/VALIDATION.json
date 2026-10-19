@@ -2,17 +2,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 1850880,
-    "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
+    "bytes": 1866240,
+    "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1818672
+        "bytes": 1833788
       },
       "arm7": {
-        "offset": 1835520,
+        "offset": 1850368,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -29,7 +29,8 @@
       "graphics: 313286 pixel-exact checks passed across 481 asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity",
       "style: 149175239 checks; 31 vehicles x5 poses x15 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass",
       "Scenery draw items: 0..46, 21 slots remain with both pools full.\nRenderer geometry: 1745029 checks passed.",
-      "studio: 290 checks; four interfaces, Fusion grid/page navigation, exact Midnight styling, repeat-install discounts, atomic payments, paid presets and 500B saves pass"
+      "studio: 290 checks; four interfaces, Fusion grid/page navigation, exact Midnight styling, repeat-install discounts, atomic payments, paid presets and 500B saves pass",
+      "opening: 60 checks; three isolated profiles, corruption containment, old Slot 1 import, any-button gate, tall camera and exact slide endpoint pass"
     ],
     "core": {
       "name": "DeSmuME",
@@ -37,15 +38,15 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 2817990,
-      "nonzero_batches": 3609
+      "samples": 2234400,
+      "nonzero_batches": 2796
     },
     "events": [
       {
         "check": "independent audio settings",
         "music": {
           "samples_observed": 5520,
-          "rms": 344.87338965380377
+          "rms": 373.0500483674497
         },
         "muted_music": {
           "samples_observed": 5520,
@@ -53,7 +54,7 @@
         },
         "effects_on": {
           "samples_observed": 736,
-          "rms": 1429.5684269136127
+          "rms": 1430.5304703607103
         },
         "effects_off": {
           "samples_observed": 736,
@@ -61,7 +62,7 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 363.11408431047903
+          "rms": 346.5616522414848
         }
       },
       {
@@ -80,56 +81,60 @@
         "hz": 30.0,
         "start": {
           "mode": "run",
-          "health": 100,
-          "position_q8": 485036,
-          "frame": 960,
-          "run_seed": 145276207,
+          "health": 55,
+          "position_q8": 473377,
+          "frame": 974,
+          "run_seed": 335655013,
           "run_ticks": 474,
-          "x_q8": -18074,
+          "x_q8": 6395,
           "speed_q8": 44800
         },
         "end": {
           "mode": "run",
-          "health": 100,
-          "position_q8": 569036,
-          "frame": 1020
+          "health": 55,
+          "position_q8": 557377,
+          "frame": 1034
         },
         "render_profile": [
-          12823,
+          14049,
           0,
-          12867,
-          4198,
-          8085
+          14094,
+          4257,
+          9385
         ],
         "scenery_profile": [
-          896,
-          4131,
-          660,
+          983,
+          5395,
+          1530,
           0,
-          1708,
-          165,
-          2954,
-          1120
+          751,
+          164,
+          3724,
+          1579
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
-        "updates": 740,
-        "hardware_frames": 1528,
-        "hz": 29.05759162303665,
+        "updates": 249,
+        "hardware_frames": 508,
+        "hz": 29.40239043824701,
+        "active_updates": 246,
+        "active_hardware_frames": 502,
+        "including_receipt_hz": 29.409448818897637,
+        "measurement": "driving intervals only; terminal receipt rendering is reported separately",
         "requested_updates": 1200,
-        "actual_run_ticks": 740,
+        "actual_run_ticks": 246,
         "ended_early": true,
         "start": {
-          "frame": 1020,
+          "frame": 1034,
           "run_ticks": 534,
-          "position_q8": 569036,
-          "health": 100
+          "position_q8": 557377,
+          "health": 55
         },
         "end": {
-          "frame": 1760,
-          "run_ticks": 1274,
-          "position_q8": 1585006,
+          "frame": 1283,
+          "run_ticks": 780,
+          "position_q8": 890624,
           "health": 0,
           "mode": "receipt"
         }
@@ -137,49 +142,53 @@
     ],
     "receipt": {
       "count": [
-        2063,
-        40,
+        1159,
+        23,
         0,
-        27,
+        11,
         0,
         0,
-        19
+        6
       ],
       "points": [
-        2063,
-        200,
+        1159,
+        115,
         0,
-        870,
+        280,
         0,
         0,
-        190
+        60
       ],
-      "points_total": 3323,
-      "cash": 150,
-      "distance_m": 2063,
-      "max_combo_q8": 640,
-      "mastery_xp": 499,
-      "career_xp": 499,
+      "points_total": 1614,
+      "cash": 56,
+      "distance_m": 1159,
+      "max_combo_q8": 448,
+      "mastery_xp": 259,
+      "career_xp": 259,
       "cash_bonus": 0,
       "end_reason": 2
     },
     "long_drive_cadence": {
-      "updates": 740,
-      "hardware_frames": 1528,
-      "hz": 29.05759162303665,
+      "updates": 249,
+      "hardware_frames": 508,
+      "hz": 29.40239043824701,
+      "active_updates": 246,
+      "active_hardware_frames": 502,
+      "including_receipt_hz": 29.409448818897637,
+      "measurement": "driving intervals only; terminal receipt rendering is reported separately",
       "requested_updates": 1200,
-      "actual_run_ticks": 740,
+      "actual_run_ticks": 246,
       "ended_early": true,
       "start": {
-        "frame": 1020,
+        "frame": 1034,
         "run_ticks": 534,
-        "position_q8": 569036,
-        "health": 100
+        "position_q8": 557377,
+        "health": 55
       },
       "end": {
-        "frame": 1760,
-        "run_ticks": 1274,
-        "position_q8": 1585006,
+        "frame": 1283,
+        "run_ticks": 780,
+        "position_q8": 890624,
         "health": 0,
         "mode": "receipt"
       }
@@ -220,17 +229,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1850880,
-      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
+      "bytes": 1866240,
+      "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818672
+          "bytes": 1833788
         },
         "arm7": {
-          "offset": 1835520,
+          "offset": 1850368,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -292,7 +301,7 @@
           "ui-0-receipt.png"
         ],
         "serialized_save_bytes": 500,
-        "physical_save_bytes": 512,
+        "physical_save_bytes": 8192,
         "disk_checksum_valid": true
       },
       {
@@ -337,7 +346,7 @@
           "ui-1-receipt.png"
         ],
         "serialized_save_bytes": 500,
-        "physical_save_bytes": 512,
+        "physical_save_bytes": 8192,
         "disk_checksum_valid": true
       },
       {
@@ -408,7 +417,7 @@
           "ui-2-receipt.png"
         ],
         "serialized_save_bytes": 500,
-        "physical_save_bytes": 512,
+        "physical_save_bytes": 8192,
         "disk_checksum_valid": true
       },
       {
@@ -461,7 +470,7 @@
           "ui-3-receipt.png"
         ],
         "serialized_save_bytes": 500,
-        "physical_save_bytes": 512,
+        "physical_save_bytes": 8192,
         "disk_checksum_valid": true
       }
     ],
@@ -469,23 +478,82 @@
     "profile_source": "labelled funded review profile; all actions use buttons; RAM read only",
     "departure_interiors": 13,
     "serialized_save_bytes": 500,
-    "physical_save_bytes": 512
+    "physical_save_bytes": 8192
   },
-  "v1_v2_save_migration": {
+  "opening": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1850880,
-      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
+      "bytes": 1866240,
+      "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818672
+          "bytes": 1833788
         },
         "arm7": {
-          "offset": 1835520,
+          "offset": 1850368,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "dual_screen_cinematic": true,
+    "horizon_at_pixel": 128,
+    "touch_ignored": true,
+    "any_button_x_y_passed": true,
+    "three_independent_profiles": true,
+    "slot_one_earned_run": true,
+    "fresh_process_reloads": 3,
+    "physical_save_bytes": 8192,
+    "transition_updates": [
+      1,
+      3,
+      5,
+      7,
+      9,
+      11,
+      13,
+      17,
+      19,
+      21,
+      23,
+      25,
+      27,
+      29,
+      31,
+      33,
+      35
+    ],
+    "transition_end_exact_native_check": true,
+    "inputs": "joypad only; RAM read only; no emulator state restore",
+    "screenshots": [
+      "opening-title.png",
+      "opening-slots-empty.png",
+      "opening-slide-middle.png",
+      "opening-home.png",
+      "opening-slots-filled.png"
+    ],
+    "animation": "opening-transition.gif"
+  },
+  "v1_v2_save_migration": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1866240,
+      "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1833788
+        },
+        "arm7": {
+          "offset": 1850368,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -520,7 +588,7 @@
     "new_expansion_defaults": true,
     "fresh_process_reload": true,
     "serialized_save_bytes": 500,
-    "physical_save_bytes": 512,
+    "physical_save_bytes": 8192,
     "disk_checksum_valid": true,
     "inputs": "ordinary cartridge boot; no RAM writes, checkpoint restore or chip enlargement",
     "screenshots": [
@@ -555,7 +623,7 @@
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
       "serialized_save_bytes": 500,
-      "physical_save_bytes": 512,
+      "physical_save_bytes": 8192,
       "disk_checksum_valid": true,
       "preserved": "all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings",
       "defaults": "21 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch",
@@ -592,7 +660,7 @@
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
       "serialized_save_bytes": 500,
-      "physical_save_bytes": 512,
+      "physical_save_bytes": 8192,
       "disk_checksum_valid": true,
       "preserved": "all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings",
       "defaults": "21 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch",
@@ -629,7 +697,7 @@
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
       "serialized_save_bytes": 500,
-      "physical_save_bytes": 512,
+      "physical_save_bytes": 8192,
       "disk_checksum_valid": true,
       "preserved": "all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings",
       "defaults": "21 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch",
@@ -643,17 +711,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1850880,
-      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
+      "bytes": 1866240,
+      "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818672
+          "bytes": 1833788
         },
         "arm7": {
-          "offset": 1835520,
+          "offset": 1850368,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -688,9 +756,18 @@
     "old_ram_bytes": 596,
     "new_ram_bytes": 708,
     "serialized_save_bytes": 500,
-    "physical_save_bytes": 512,
+    "physical_save_bytes": 8192,
     "disk_checksum_valid": true
   },
+  "previous_v4_profile": {
+    "rom": {
+      "sha256": "27e8ebf25d32bf84f2f74f6135d35797ec364ba02d8dc05455405462a5d85738"
+    },
+    "source": "previous published Fusion profile on 512-byte battery",
+    "profile_preserved_byte_for_byte": true,
+    "fresh_process_reload": true,
+    "physical_save_bytes": 8192
+  },
   "dealer_and_style_regressions": [],
-  "scope": "Menu-focused release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun."
+  "scope": "Cinematic and save-slot release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, twelve native suites and five previous-release migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun."
 }

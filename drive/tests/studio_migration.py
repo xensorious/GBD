@@ -11,7 +11,7 @@ import subprocess
 import sys
 from emulator import Emulator, ROOT
 from fixtures import write_battery, assert_compact_battery
-from game_snapshot import Game, V3Save, find_symbol, read_game
+from game_snapshot import enter_opening,Game, V3Save, find_symbol, read_game
 from inspect_rom import inspect
 from setup_legacy import verify_pair,RELEASES
 
@@ -57,7 +57,7 @@ if a.phase is None:
             getattr(g.save,name)[v]=value
     data=(C.c_uint8*500)();assert lib.game_encode_save(C.byref(g),data,500)
     shutil.rmtree(directory,ignore_errors=True)
-    write_battery(a.output/'save'/'Coastline.dsv',directory/'Coastline.dsv',bytes(data))
+    write_battery(ROOT/'build'/'coastal-baseline'/'validation'/'save'/'Coastline.dsv',directory/'Coastline.dsv',bytes(data))
     for phase in ('old','new'):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--phase',phase],check=True)
     subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(rom),'--elf',str(elf),
@@ -80,7 +80,7 @@ if a.phase=='old':
 else:
     old=V3Save.from_buffer_copy((a.output/'source-v3-save.bin').read_bytes())
     with Emulator(rom,directory) as e:
-        e.run(180);g=read_game(e,find_symbol(elf,'game'))
+        e.run(180);enter_opening(e,elf);g=read_game(e,find_symbol(elf,'game'))
         assert g.mode==0 and g.has_save and g.save_ok and g.save.version==4
         for name,kind in V3Save._fields_:
             if name in ('version','checksum','skin','reserved'):continue
