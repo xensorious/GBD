@@ -69,9 +69,11 @@ distance, combo and pending earnings. Parking is safe in this mode and earns
 no idle rewards. Pause and choose Bank this run to return to the normal menus;
 crashing also ends the visit with the existing itemized receipt.
 
-Vehicle art now uses individually fitted, fixed livery stencils in both modes.
-Patterns clip at paint-panel boundaries without squeezing around glass, trim,
-lamps or tires. Red rear lamps retain their factory color. The overhead roster
+Vehicle art uses an authored pixel material atlas for all 48 chase-camera
+models. Paint and liveries follow the actual panels; taillight lenses, reverse
+lamps, glazing, tires and trim retain their original details. The same precise
+masks and fixed livery stencils follow all five steering poses. Patterns clip
+at panel boundaries without squeezing around protected parts. The overhead roster
 has distinct body proportions, shaded panels, window seals, tires and rims,
 plus open cabins, pickup beds, roof rails, vents and model-specific details.
 

@@ -91,7 +91,7 @@ The 64x96 base and filtered 48x72, 32x48 and 16x24 levels share each object's
 palette. All transparent palette entries remain index zero.
 
 The complete packed art, typography and original synthesized music total
-1,281,973 bytes. Source-only references such as `scenery-original.png` and the
+1,267,972 bytes. Source-only references such as `scenery-original.png` and the
 old `boat-profile.png` remain available without being linked into the game.
 
 Vehicle panels and overhead designs
@@ -104,9 +104,22 @@ stencil bits accompany each enamel pixel; none accompany protected materials.
 Runtime recoloring cannot spill onto tires, seats, windows or lamps. Eight
 rotated sprite cache entries reuse the bank without a resident RGB atlas.
 
-Rear-view masks are fitted once to each neutral vehicle's painted envelope,
-then sampled using the exact inverse of the existing steering-pose transform.
-Each palette entry carries material and stencil coverage. Quantization keeps
-those partitions separate, including protected rear lamps and cabin regions.
-There is no per-row UV normalization or narrow-panel fallback. New designs
-must retain all four patterns in every pose; the packer asserts this.
+Rear-view materials come from `materials/vehicle-materials.png`, a 384x432
+indexed atlas of 48 independent 48x72 masks. Indices 0/1/2/3 mean protected,
+paint/equipment, metal finish and original lamp. The PNG's indices are the
+build authority; display colors are only for editing. The companion JSON binds
+each mask to its canonical RGBA source hash and retains measured contour points.
+
+`tools/author_vehicle_materials.py` is the offline authoring tool, with contours
+in `tools/vehicle_material_shapes.py`. It is deliberately separate from an
+ordinary build. Edited artwork requires reviewing and explicitly regenerating
+its mask. Lamp regions follow lens silhouettes rather than normalized bands;
+painted quarter panels, roof skins, wings, tailgates and lower bumper lips stay
+in the paint region. The ordinary packer performs no RGB material classification.
+
+The packer creates a neutral per-pixel material/stencil map, then applies the
+same inverse affine transform as the artwork using nearest-neighbor labels.
+Separate palette partitions preserve those labels through quantization. A
+native-only semantic oracle verifies every pixel of all five steering poses;
+it is excluded from the ROM. Native style tests include Black/Graphite with all
+four liveries, unchanged protected details and explicit panel/lens landmarks.

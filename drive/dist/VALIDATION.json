@@ -2,17 +2,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 1806848,
-    "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+    "bytes": 1792512,
+    "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1774116
+        "bytes": 1760116
       },
       "arm7": {
-        "offset": 1790976,
+        "offset": 1776640,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -27,10 +27,10 @@
       "turbo: 25687 checks; exact 8s fuel, seven recovery ranks, skill-only recharge, 5x-to-2x balance, exclusions, pause and saves pass",
       "handling: 63533 checks; exact quarter combos, 48s/24s ramps, controlled slides, pursuit grace/capture/recovery, pause and unchanged saves pass",
       "graphics: 338021 pixel-exact checks passed across 566 asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity",
-      "style: 231359317 checks; 48 vehicles x5 poses x15 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass",
+      "style: 507045596 checks; 48 vehicles x5 poses x33 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass",
       "Scenery draw items: 0..46, 21 slots remain with both pools full.\nRenderer geometry: 2051029 checks passed.",
       "studio: 921 checks; six interfaces with identical grid/page controls, distinct materials, retired skin migration, unified Departure, repeat-install discounts, atomic payments, paid presets and 1000B saves pass",
-      "finishes: 2580681 checks; 16 body paints, 12 independent decal colors, protected materials, all patterns, atomic pricing, returning discounts, high-bit presets and v6 saves pass",
+      "finishes: 2566637 checks; 16 body paints, 12 independent decal colors, protected materials, all patterns, atomic pricing, returning discounts, high-bit presets and v6 saves pass",
       "city: 66554407 checks; fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 overhead vehicles, six dashboards, shared rewards, v6 saves and highway isolation pass",
       "premium: 520 checks; all 17 purchases, four dealer tiers, 48 ownership bits, paid cosmetics, high-ID presets, upgrades and v5 reloads pass",
       "opening: 60 checks; three isolated profiles, corruption containment, old Slot 1 import, any-button gate, tall camera and exact slide endpoint pass"
@@ -41,8 +41,8 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 3211950,
-      "nonzero_batches": 4120
+      "samples": 3197250,
+      "nonzero_batches": 4099
     },
     "events": [
       {
@@ -99,31 +99,31 @@
           "frame": 993
         },
         "render_profile": [
-          14595,
-          1297,
-          16024,
+          14512,
+          1299,
+          15944,
           4211,
-          9952
+          9869
         ],
         "scenery_profile": [
           998,
-          4341,
+          4328,
           1388,
           0,
-          2407,
+          2340,
           140,
-          3055,
+          3036,
           1220
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
         "updates": 915,
-        "hardware_frames": 1902,
-        "hz": 28.89240506329114,
+        "hardware_frames": 1882,
+        "hz": 29.20042643923241,
         "active_updates": 913,
-        "active_hardware_frames": 1896,
-        "including_receipt_hz": 28.86435331230284,
+        "active_hardware_frames": 1876,
+        "including_receipt_hz": 29.17109458023379,
         "measurement": "driving intervals only; terminal receipt rendering is reported separately",
         "requested_updates": 1200,
         "actual_run_ticks": 915,
@@ -173,11 +173,11 @@
     },
     "long_drive_cadence": {
       "updates": 915,
-      "hardware_frames": 1902,
-      "hz": 28.89240506329114,
+      "hardware_frames": 1882,
+      "hz": 29.20042643923241,
       "active_updates": 913,
-      "active_hardware_frames": 1896,
-      "including_receipt_hz": 28.86435331230284,
+      "active_hardware_frames": 1876,
+      "including_receipt_hz": 29.17109458023379,
       "measurement": "driving intervals only; terminal receipt rendering is reported separately",
       "requested_updates": 1200,
       "actual_run_ticks": 915,
@@ -232,17 +232,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -619,17 +619,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -674,21 +674,49 @@
     ],
     "animation": "opening-transition.gif"
   },
+  "pixel_material_masks": {
+    "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
+    "models_reviewed": 48,
+    "poses_reviewed": 240,
+    "fitted_liveries": 960,
+    "semantic_pixels_checked": 829440,
+    "semantic_landmarks": 32,
+    "pacer_lenses_follow_nonrectangular_outlines": true,
+    "source_art_hashes_match": true,
+    "packed_roles_follow_artwork_transform": true,
+    "decals_only_on_painted_pixels": true
+  },
+  "paint_comparison": {
+    "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
+    "before_ppm_sha256": "c261aa7cb0f26ec04ce70e3a420b8c46ecef9b6b9d8ff0f90d5fa910885319af",
+    "after_ppm_sha256": "a3336ba55579e65ed815e1f1ae7aca43fa5c5ebf4131106e74062c04f75c4778",
+    "previous_rom_sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+    "previous_source_commit": "57e33652089d01e88e20dd3a51fb70a237f119bc",
+    "models": [
+      0,
+      6,
+      14,
+      16,
+      24,
+      38
+    ],
+    "method": "Native gfx_vehicle_style renders, Factory and Black; same rendering function used by the cartridge."
+  },
   "free_roam": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -715,17 +743,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -741,17 +769,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -808,17 +836,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -943,17 +971,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -972,17 +1000,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1140,17 +1168,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1806848,
-      "sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
+      "bytes": 1792512,
+      "sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1774116
+          "bytes": 1760116
         },
         "arm7": {
-          "offset": 1790976,
+          "offset": 1776640,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1190,5 +1218,5 @@
   },
   "previous_v4_profile": null,
   "dealer_and_style_regressions": [],
-  "scope": "Vehicle detail revision: all 48 overhead designs rebuilt with fitted paint-panel stencils and independent glass, lamps, tires and wheel metal. Both renderers clip pre-fitted liveries to materials, without scanline distortion; authored rear lamp regressions and all overhead paint/livery colors are tested. Free Roam first draft: button-driven city route through highway, neighborhood junctions and a bridge; shared customized vehicle, pause, banking, fresh-process reload and measured route cadence. Fifteen native sanitizer suites include fixed road connectivity, all 48 overhead vehicles and six city dashboards. Existing highway, all six interfaces, all 17 premium vehicle purchases/drives, finish studio and earlier save migrations rerun on this exact ROM. A fully customized v6 battery from the previous release remains byte-for-byte unchanged. Physical Delta/iPhone/DS testing and every possible city route were not performed."
+  "scope": "Corrected chase-camera finishes: 48 authored pixel material masks preserve actual lamp lenses, reverse lights, glass, rubber, trim and interiors while surrounding enamel takes paint. All 240 steering poses and 960 stencils are checked against the masks. The native style suite covers 33 combinations per model/pose, including all body paints and all liveries on Black/Graphite. Existing cartridge, six interfaces, progression, Free Roam and save tests rerun on this exact ROM. Before/after and full-roster previews use the native renderer; menu/driving captures use the DS emulator. Physical Delta/iPhone/DS testing was not performed."
 }

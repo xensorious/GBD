@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import zipfile
 from PIL import Image, ImageDraw, ImageFont
@@ -74,12 +75,20 @@ assert city['button_only_mode_selector'] and city['touch_ignored'] and city['sha
 assert city['pause_freezes_city'] and city['shared_banked_cash'] and city['fresh_process_reload']
 assert current['profile_preserved_byte_for_byte'] and current['fresh_process_reload']
 
+masks=report('material-mask-results.json')
+assert masks['models_reviewed']==48 and masks['poses_reviewed']==240 and masks['fitted_liveries']==960
+assert masks['pacer_lenses_follow_nonrectangular_outlines'] and masks['packed_roles_follow_artwork_transform']
+assert masks['source_art_hashes_match'] and masks['decals_only_on_painted_pixels']
+comparison=report('paint-comparison-results.json')
+assert hashlib.sha256((validation/'paint-before.ppm').read_bytes()).hexdigest()==comparison['before_ppm_sha256']
+assert hashlib.sha256((validation/'paint-review.ppm').read_bytes()).hexdigest()==comparison['after_ppm_sha256']
+
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Vehicle detail revision: all 48 overhead designs rebuilt with fitted paint-panel stencils and independent glass, lamps, tires and wheel metal. Both renderers clip pre-fitted liveries to materials, without scanline distortion; authored rear lamp regressions and all overhead paint/livery colors are tested. Free Roam first draft: button-driven city route through highway, neighborhood junctions and a bridge; shared customized vehicle, pause, banking, fresh-process reload and measured route cadence. Fifteen native sanitizer suites include fixed road connectivity, all 48 overhead vehicles and six city dashboards. Existing highway, all six interfaces, all 17 premium vehicle purchases/drives, finish studio and earlier save migrations rerun on this exact ROM. A fully customized v6 battery from the previous release remains byte-for-byte unchanged. Physical Delta/iPhone/DS testing and every possible city route were not performed.'},indent=2)+'\n')
+    'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Corrected chase-camera finishes: 48 authored pixel material masks preserve actual lamp lenses, reverse lights, glass, rubber, trim and interiors while surrounding enamel takes paint. All 240 steering poses and 960 stencils are checked against the masks. The native style suite covers 33 combinations per model/pose, including all body paints and all liveries on Black/Graphite. Existing cartridge, six interfaces, progression, Free Roam and save tests rerun on this exact ROM. Before/after and full-roster previews use the native renderer; menu/driving captures use the DS emulator. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -114,6 +123,38 @@ vehicle_details=Image.new('RGB',(480,576))
 for row,model in enumerate((31,32,36,42,43,47)):
     vehicle_details.paste(finishes_gallery.crop((0,model*96,480,(model+1)*96)),(0,row*96))
 vehicle_details.resize((960,1152),Image.Resampling.NEAREST).save(DIST/'Vehicle-Details.png')
+# Pixel-accurate review strips captured by the cartridge's native renderer.
+paint_review=Image.open(validation/'paint-review.ppm').convert('RGB')
+assert paint_review.size==(384,4608)
+paint_review.save(DIST/'Paint-Review.png')
+vehicle_block=(ROOT/'src'/'game.c').read_text().split('const VehicleDef vehicles[VEHICLE_COUNT] = {',1)[1].split('};',1)[0]
+vehicle_names=re.findall(r'\{\s*"([^"]+)"',vehicle_block)
+assert len(vehicle_names)==48
+for page in range(4):
+    sheet=Image.new('RGB',(768,2208),'#18303c');draw=ImageDraw.Draw(sheet)
+    for col,label in enumerate(('FACTORY','BLACK','GRAPHITE','TWIN','TWO TONE','VELOCITY','CONTOUR','MASK')):
+        draw.text((col*96+4,8),label,font=font,fill='#eaf6f4')
+    for row,model in enumerate(range(page*12,page*12+12)):
+        yy=36+row*180
+        draw.text((6,yy),f'{model:02d} / {vehicle_names[model]}',font=font,fill='#eaf6f4')
+        strip=paint_review.crop((0,model*96+18,384,model*96+90))
+        sheet.paste(strip.resize((768,144),Image.Resampling.NEAREST),(0,yy+22))
+    sheet.save(DIST/f'Paint-Review-{page+1}.png')
+previous=Image.open(validation/'paint-before.ppm').convert('RGB');assert previous.size==(288,144)
+models=(0,6,14,16,24,38)
+sheet=Image.new('RGB',(672,1424),'#18303c');draw=ImageDraw.Draw(sheet)
+for col,label in enumerate(('FACTORY','PREVIOUS BLACK','FIXED BLACK','GRAPHITE')):
+    draw.text((100+col*144,8),label,font=font,fill='#eaf6f4')
+for row,model in enumerate(models):
+    yy=32+row*232
+    draw.text((5,yy+88),f'{model:02d}\n{vehicle_names[model]}',font=font,fill='#eaf6f4')
+    images=(paint_review.crop((0,model*96+18,48,model*96+90)),
+            previous.crop((row*48,72,row*48+48,144)),
+            paint_review.crop((48,model*96+18,96,model*96+90)),
+            paint_review.crop((96,model*96+18,144,model*96+90)))
+    for col,frame in enumerate(images):sheet.paste(frame.resize((144,216),Image.Resampling.NEAREST),(96+col*144,yy))
+sheet.save(DIST/'Paint-Fix-Comparison.png')
+
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
@@ -146,7 +187,8 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
+    'Paint-Review-1.png','Paint-Review-2.png','Paint-Review-3.png','Paint-Review-4.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'
 with zipfile.ZipFile(archive_path,'w',zipfile.ZIP_DEFLATED) as archive:

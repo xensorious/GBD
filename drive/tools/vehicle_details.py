@@ -29,56 +29,6 @@ PROFILES = (
  (5,37,2,14,10,'bike'), (12,42,0,11,17,'armor'), (12,42,5,19,10,'bat'),
 )
 
-# Rear lamp placements in the rear-view atlas (normalized neutral coordinates).
-# Rectangles include the dark bezel so neither paint nor decals eat into it.
-LAMP_BANDS = (
- (.80,.91,.29),(.65,.87,.27),(.68,.91,.25),(.53,.74,.36),(.65,.88,.28),(.66,.91,.25),
- (.78,.88,.25),(.65,.90,.24),(.63,.87,.30),(.67,.89,.30),(.64,.87,.27),(.66,.89,.30),
- (.63,.92,.23),(.62,.90,.25),(.65,.88,.28),(.67,.91,.25),(.64,.88,.30),(.65,.88,.30),
- (.63,.91,.25),(.66,.88,.28),(.62,.91,.25),(.66,.89,.30),(.65,.91,.23),(.66,.88,.30),
- (.62,.91,.22),(.68,.90,.25),(.68,.90,.25),(.64,.84,.30),(.68,.90,.25),(.68,.90,.25),
- (.68,.90,.25),(.65,.86,.34),(.63,.84,.28),(.65,.87,.28),(.54,.83,.18),(.68,.85,.49),
- (.66,.84,.37),(.62,.84,.39),(.63,.84,.35),(.70,.84,.48),(.60,.88,.21),(.60,.87,.21),
- (.65,.91,.18),(.53,.73,.34),(.53,.73,.34),(.53,.73,.34),(.41,.82,.24),(.68,.95,.33),
-)
-
-# Conservative interior window/cabin rectangles; surrounding pillars remain
-# enamel. Rear-view roof proportions differ substantially between models.
-GLASS = (
- (.29,.71,.62,.74),(.30,.70,.51,.65),(.27,.73,.46,.70),None,
- (.36,.64,.43,.67),(.28,.72,.57,.68),(.24,.76,.36,.63),(.31,.69,.27,.69),
- (.28,.72,.59,.71),(.37,.63,.23,.68),(.28,.72,.59,.70),(.28,.72,.56,.68),
- None,None,(.28,.72,.56,.73),(.28,.72,.57,.69),(.28,.72,.57,.71),
- (.28,.72,.54,.69),(.38,.62,.29,.62),(.26,.74,.31,.53),None,
- (.38,.62,.30,.66),(.29,.71,.51,.70),(.35,.65,.29,.57),(.25,.75,.54,.70),
- None,None,None,None,None,None,
- (.28,.72,.43,.57),(.28,.72,.38,.56),(.23,.77,.28,.58),(.26,.74,.45,.60),
- (.27,.73,.41,.59),(.39,.61,.28,.55),(.39,.61,.26,.61),(.33,.67,.29,.57),
- (.32,.68,.30,.57),(.28,.72,.42,.66),(.28,.72,.42,.66),(.23,.77,.37,.58),
- None,None,None,(.31,.69,.48,.63),(.39,.61,.31,.56),
-)
-def protected_glass(model,x,y):
-    box=GLASS[model]
-    return bool(box and box[0]<x<box[1] and box[2]<y<box[3])
-
-
-def protected_lamp(model,r,g,b,x,y):
-    if 25<=model<=30: return False
-    top,bottom,side=LAMP_BANDS[model]
-    red_factory={0:(.80,.91,.29),6:(.78,.88,.25),14:(.79,.89,.28),
-                 16:(.79,.91,.30),24:(.75,.88,.22),38:(.66,.77,.35),43:(.57,.68,.34)}
-    if model in red_factory:top,bottom,side=red_factory[model]
-    # Red/amber emitters are protected even when the body itself is red. A
-    # narrow spatial region prevents turning an entire red car into trim.
-    rear=top<=y<=bottom and (x<side or x>1-side)
-    warm_factory=model in (2,15,17,32,44)
-    red=r>65 and r>g*(2.8 if warm_factory else 1.45) and r>b*1.30
-    amber=not warm_factory and r>120 and g>55 and r>g*1.1 and g>b*1.8
-    # High-mounted center brake light, separate from the main lamp pair.
-    center=model in (31,34,35,39,41,42,46) and .40<x<.60 and .30<y<.67 and red
-    return (rear and (red or amber)) or center
-
-
 def decal_mask(model,u,v):
     """Four fixed stencils, each fitted once to this model's painted envelope."""
     w,length,nose,wind,roof,family=PROFILES[model]
@@ -95,6 +45,8 @@ def decal_mask(model,u,v):
     if family in ('bike','cycle','moped','skates','segway','board','horse'):
         contour=(u<.16 or u>.84 or (.10<v<.18 and .25<u<.75))
     if family=='segway':twin=(.04<u<.20 or .80<u<.96)
+    # The Kawasaki's five-pixel tail cowl has one pixel per fitted stripe.
+    if model==44:twin=(.15<=u<=.25 or .75<=u<=.85)
     return int(twin)|(int(two)<<1)|(int(velocity)<<2)|(int(contour)<<3)
 
 

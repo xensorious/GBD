@@ -12,7 +12,7 @@ _Static_assert(ASSET_VEHICLE_COUNT==VEHICLE_COUNT,"Style tests must cover the co
 #define W 96
 #define H 144
 #define PIXELS (48*72)
-#define STYLES 15
+#define STYLES 33
 static unsigned long long checks;
 #define CHECK(c) do {++checks;if(!(c)){fprintf(stderr,"style:%d: %s\n",__LINE__,#c);exit(1);}}while(0)
 static const uint16_t background=C(29,48,61);
@@ -24,7 +24,9 @@ typedef struct {int paint,livery,wheels;} Style;
 static const Style styles[STYLES]={
  {0,0,0},{1,0,0},{2,0,0},{3,0,0},{4,0,0},{5,0,0},
  {0,1,0},{0,2,0},{0,3,0},{0,4,0},
- {0,0,1},{0,0,2},{0,0,3},{2,3,1},{4,4,3}
+ {0,0,1},{0,0,2},{0,0,3},{2,3,1},{4,4,3},
+ {6,0,0},{7,0,0},{8,0,0},{9,0,0},{10,0,0},{11,0,0},{12,0,0},{13,0,0},{14,0,0},{15,0,0},
+ {6,1,0},{6,2,0},{6,3,0},{6,4,0},{5,1,0},{5,2,0},{5,3,0},{5,4,0}
 };
 
 static void clear(void){for(int i=0;i<W*H;i++)screen[i]=background;}
@@ -49,9 +51,16 @@ static void source_case(int vehicle,int pose){
   CHECK((color&31)>15 && (color&31)>((color>>5)&31)*2);
   CHECK(flags[indices[at]]==0);
  }
+ /* Paired semantic probes: the lamp stays factory-colored while adjacent
+  * quarter panels, fascia, wings and tailgates must take the chosen paint. */
+ static const int panels[][3]={{0,9,46},{0,12,46},{6,9,50},{6,15,52},{14,24,50},{16,24,42},{24,24,43},{31,10,43},{32,15,48},{38,24,43},{38,24,46},{38,24,48},{13,24,25},{20,24,24},{21,24,27},{23,23,28},{40,24,22}};
+ if(pose==2)for(unsigned n=0;n<sizeof panels/sizeof panels[0];n++)if(vehicle==panels[n][0])CHECK(flags[indices[panels[n][2]*48+panels[n][1]]]&1u);
+ if(vehicle==32&&pose==2)CHECK(flags[indices[47*48+18]]==0); /* white reverse lens */
  unsigned paintable=0,hardware=0,protected_pixels=0;
  for(int at=0;at<PIXELS;at++){
   uint16_t color=palette[indices[at]];
+  unsigned role=vehicle_roles[(vehicle*5+pose)*PIXELS+at];
+  CHECK((flags[indices[at]]&3u)==(role==3?0u:role));
   CHECK(source[at]==color);
   CHECK(!color || (color&0x8000u));
   if(color){paintable+=(flags[indices[at]]&1u)!=0;hardware+=(flags[indices[at]]&2u)!=0;protected_pixels+=flags[indices[at]]==0;}
@@ -77,6 +86,10 @@ static uint32_t full_size_case(int vehicle,int pose,int style){
   else{
    CHECK(actual&0x8000u);
    if(!permitted)CHECK(actual==original);
+   if(chosen.paint==6&&(material&1u)&&!(chosen.livery&&(material&(1u<<(chosen.livery+1))))){
+    /* A dark body panel cannot retain a bright red/orange factory patch. */
+    CHECK((actual&31)<=3 && ((actual>>5)&31)<=4 && ((actual>>10)&31)<=5);
+   }
    changed+=actual!=original;
   }
   reference[at]=original?actual:0;
@@ -126,7 +139,7 @@ static void indexed_palette_identity(void){
  }
 }
 
-int main(void){
+int main(int argc,char**argv){
  for(int vehicle=0;vehicle<VEHICLE_COUNT;vehicle++)for(int pose=0;pose<5;pose++){
   source_case(vehicle,pose);
   for(int style=0;style<STYLES;style++)style_case(vehicle,pose,style,0);
@@ -136,6 +149,22 @@ int main(void){
  for(int vehicle=VEHICLE_COUNT-1;vehicle>=0;vehicle--)for(int pose=4;pose>=0;pose--)
   for(int style=STYLES-1;style>=0;style--)style_case(vehicle,pose,style,1);
  indexed_palette_identity();
- printf("style: %llu checks; %d vehicles x5 poses x15 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass\n",checks,VEHICLE_COUNT);
+ if(argc>1){
+  static uint16_t gallery[384*4608];Surface sheet={gallery,384,4608};gfx_rect(&sheet,0,0,384,4608,C(108,128,139));
+  static const char*labels[8]={"FACTORY","BLACK","GRAPHITE","TWIN","TWO TONE","VELOCITY","CONTOUR","MATERIAL"};
+  const int paints[8]={0,6,5,6,6,4,5,0},patterns[8]={0,0,0,1,2,3,4,0};
+  for(int v=0;v<VEHICLE_COUNT;v++)for(int col=0;col<8;col++){
+   int xx=col*48,yy=v*96;char title[24];snprintf(title,sizeof title,"%02d %s",v,labels[col]);gfx_text_small(&sheet,xx,yy+2,title,C(239,246,245));
+   gfx_vehicle_style(&sheet,xx,yy+18,gfx_vehicle_pixels(v,2),48,72,48,72,paints[col],patterns[col],0,0);
+   if(col==7){static const uint16_t colors[4]={C(18,30,39),C(64,203,225),C(255,184,82),C(255,57,57)};
+    const uint8_t*roles=vehicle_roles+(v*5+2)*PIXELS;const uint16_t*source=gfx_vehicle_pixels(v,2);
+    for(int at=0;at<PIXELS;at++)if(source[at])gallery[(yy+18+at/48)*384+xx+at%48]=colors[roles[at]];
+   }
+  }
+  char path[512];snprintf(path,sizeof path,"%s/paint-review.ppm",argv[1]);FILE*f=fopen(path,"wb");CHECK(f!=0);fprintf(f,"P6\n384 4608\n255\n");
+  for(int i=0;i<384*4608;i++){unsigned c=gallery[i];fputc((c&31)*255/31,f);fputc((c>>5&31)*255/31,f);fputc((c>>10&31)*255/31,f);}fclose(f);
+ }
+
+ printf("style: %llu checks; %d vehicles x5 poses x%d cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass\n",checks,VEHICLE_COUNT,STYLES);
  return 0;
 }

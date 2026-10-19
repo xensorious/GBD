@@ -9,6 +9,7 @@ the complete expanded library within Nintendo DS resident memory.
 from __future__ import annotations
 
 import array
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -16,7 +17,7 @@ import random
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
-from vehicle_details import decal_mask, overhead_sprite, protected_lamp, protected_glass
+from vehicle_details import decal_mask, overhead_sprite
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -279,47 +280,45 @@ def grid_crops(path: Path, cols: int, rows: int) -> list[Image.Image]:
             for y in range(rows) for x in range(cols)]
 
 
-def material_class(vehicle: int, r: int, g: int, b: int, x: float, y: float) -> int:
-    """Material metadata only; never alter the authored silhouette or alpha.
+_material_authority = None
 
-    Separate palette partitions allow a gray shirt and gray chrome to remain
-    different materials even when their final RGB555 color is identical.
-    Human skin/hair and horse fur are protected. Novelty finish means hardware,
-    such as skateboard trucks, scooter trim or saddle fittings.
+def material_frames(images: list[Image.Image], vehicle: int):
+    """Sample an authored pixel mask using the artwork's exact yaw transform.
+
+    Builds never infer a material from hue or a bounding rectangle. A red
+    quarter panel and a red lamp can have identical RGB and different labels.
     """
-    if protected_glass(vehicle,x,y): return 0
-    hi, lo = max(r, g, b), min(r, g, b)
-    sat = (hi - lo) / max(1, hi)
-    if vehicle == 47 and .10 < y < .78 and .12 < x < .88 and hi > 24 and sat < .25 and not (.28 < x < .72 and .27 < y < .50):
-        return 1
-    if 25 <= vehicle <= 30 or vehicle in (3, 43, 44, 45):
-        if vehicle in (3, 43, 44, 45) and r > 95 and g > 65 and b < min(r, g) * .55 and .10 < y < .85:
-            return 1
-        skin_or_fur = r > b * 1.15 and r >= g * 1.03 and g > b * 1.03
-        if skin_or_fur:
-            return 0
-        # Saturated clothing and vehicle frames are safe; helmets, skin and
-        # hair stay original. Horse blue riding jacket is separately bounded.
-        if sat > .34 and hi > 65 and .16 < y < (.53 if vehicle == 30 else .91):
-            return 1
-        if vehicle == 28 and .24 < y < .59 and .20 < x < .80 and sat < .30 and hi > 18:
-            return 1
-        if vehicle == 30:
-            return 2 if .30 < y < .49 and (x < .25 or x > .75) and sat < .50 and hi > 12 else 0
-        if y > .70 and sat < .24 and hi > 65:
-            return 2
-        return 0
-    # Spatially limited neutral trim is finishable; dark glass and black tire
-    # rubber remain protected. Saturated painted body panels use partition1.
-    if ((x < .25 or x > .75) and y > .30 or y > .86 and (x < .40 or x > .60)) and sat < .50 and 25 < hi < 235:
-        return 2
-    if sat > .30 and hi > 65:
-        return 1
-    if sat > .28 and hi > 35 and g > r * 1.15 and g > b * 1.15:
-        return 1
-    if .24 < x < .76 and y < .86 and hi > 165 and sat < .22:
-        return 1
-    return 0
+    global _material_authority
+    if _material_authority is None:
+        folder=ART/"materials"
+        _material_authority=(Image.open(folder/"vehicle-materials.png").copy(),
+                             json.loads((folder/"vehicle-materials.json").read_text()))
+    atlas,manifest=_material_authority
+    neutral=images[2]
+    assert hashlib.sha256(neutral.tobytes()).hexdigest()==manifest["models"][vehicle]["rgba_sha256"],("Material mask needs artwork review",vehicle)
+    # Read palette indices directly: they are semantic labels, not gray levels.
+    mask=Image.frombytes("L",(48,72),atlas.crop((vehicle%8*48,vehicle//8*72,vehicle%8*48+48,vehicle//8*72+72)).tobytes())
+    labels=list(pixels(mask));panels=[(at%48,at//48) for at,role in enumerate(labels) if role==1]
+    assert panels,("No painted panels",vehicle)
+    pl=min(x for x,y in panels);pt=min(y for x,y in panels)
+    pw=max(x for x,y in panels)-pl;ph=max(y for x,y in panels)-pt
+    tags=bytearray(len(labels))
+    for at,role in enumerate(labels):
+        assert 0<=role<=3
+        if role==1:tags[at]=1|(decal_mask(vehicle,(at%48-pl)/max(1,pw),(at//48-pt)/max(1,ph))<<2)
+        elif role==2:tags[at]=2
+    stencil=Image.frombytes("L",(48,72),bytes(tags))
+    result,roles=[],[]
+    for image,offset in zip(images,YAW_FRONT_OFFSETS):
+        transform=(1,offset/max(1,neutral.info["yaw_height"]-1),
+                   -offset/2-offset*neutral.info["yaw_top"]/max(1,neutral.info["yaw_height"]-1),0,1,0)
+        mapped=stencil.transform(stencil.size,Image.Transform.AFFINE,transform,resample=Image.Resampling.NEAREST)
+        role_image=mask.transform(mask.size,Image.Transform.AFFINE,transform,resample=Image.Resampling.NEAREST)
+        flags=bytearray(mapped.tobytes());semantic=bytearray(role_image.tobytes())
+        for at,(_,_,_,alpha) in enumerate(pixels(image)):
+            if alpha<ALPHA:flags[at]=semantic[at]=0
+        result.append(bytes(flags));roles.append(bytes(semantic))
+    return result,roles
 
 
 def indexed_group(images: list[Image.Image], vehicle: int | None = None):
@@ -332,34 +331,11 @@ def indexed_group(images: list[Image.Image], vehicle: int | None = None):
     flags = bytearray(256)
     buffers = [bytearray(im.width * im.height) for im in images]
     groups = {}
-    neutral = images[2] if vehicle is not None else images[0]
-    bounds = neutral.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
-    left, top, right, bottom = bounds
-    width, height = right-left-1, bottom-top-1
-    if vehicle is not None:
-        panels=[]
-        for at,(r,g,b,a) in enumerate(pixels(neutral)):
-            x,y=at%neutral.width,at//neutral.width
-            u,v=(x-left)/max(1,width),(y-top)/max(1,height)
-            if a>=ALPHA and material_class(vehicle,r,g,b,u,v)==1 and not protected_lamp(vehicle,r,g,b,u,v):panels.append((x,y))
-        assert panels,("No painted panels",vehicle)
-        panel_left=min(x for x,y in panels);panel_top=min(y for x,y in panels)
-        panel_width=max(x for x,y in panels)-panel_left
-        panel_height=max(y for x,y in panels)-panel_top
+    tags_by_frame=material_frames(images,vehicle)[0] if vehicle is not None else None
     for frame, im in enumerate(images):
         for at, (r,g,b,a) in enumerate(pixels(im.convert("RGBA"))):
             if a < ALPHA: continue
-            x,y = at%im.width,at//im.width
-            # Same inverse mapping as vehicle_pose. All five poses share one
-            # physical panel template, including the lamp protection regions.
-            if vehicle is not None:
-                offset = YAW_FRONT_OFFSETS[frame]
-                canonical_x = x + offset*(y-neutral.info["yaw_top"])/max(1,neutral.info["yaw_height"]-1)-offset/2
-                u,v = (canonical_x-left)/max(1,width),(y-top)/max(1,height)
-                material = material_class(vehicle,r,g,b,u,v)
-                if protected_lamp(vehicle,r,g,b,u,v): material=0
-                tag = material | (decal_mask(vehicle,(canonical_x-panel_left)/max(1,panel_width),(y-panel_top)/max(1,panel_height))<<2 if material==1 else 0)
-            else: tag=0
+            tag=tags_by_frame[frame][at] if tags_by_frame is not None else 0
             groups.setdefault(tag,[]).append((frame,at,(r,g,b)))
     # Share the original 96 body-color slots between coverage partitions;
     # protected lights/glass retain 128 slots and hardware retains 31.
@@ -395,7 +371,8 @@ def decode_indexed(data: bytes, palette: bytes, width: int, height: int) -> Imag
     return im
 
 
-def artwork() -> None:
+def vehicle_sources():
+    """Canonical source order shared by packing and material-mask review."""
     cars = atlas_crops(ART / "vehicles.png", VEHICLE_BOXES, (1383, 1137))
     expansion = atlas_crops(ART / "vehicles-expansion.png", EXPANSION_BOXES, (1269, 1240))
     roster = Image.open(ART / "vehicles-roster.png").convert("RGBA")
@@ -414,11 +391,17 @@ def artwork() -> None:
         round((i % 5 + 1) * premium_sheet.width / 5), ((0, 282), (283, 547), (548, 827), (828, 1122))[i // 5][1]))) for i in range(17)]
     player_cars += additions_premium
     assert len(player_cars) == VEHICLE_COUNT
-    poses, indexed, palettes, materials = [], [], [], []
+    return player_cars, cars[6:]
+
+
+def artwork() -> None:
+    player_cars, npc_cars = vehicle_sources()
+    poses, indexed, palettes, materials, semantic_roles = [], [], [], [], []
     material_counts = []
     for vehicle, car in enumerate(player_cars):
         authored = [vehicle_pose(car, offset) for offset in YAW_FRONT_OFFSETS]
         frames, palette, flags = indexed_group(authored, vehicle)
+        semantic_roles.extend(material_frames(authored,vehicle)[1])
         for pose,frame in enumerate(frames):
             for pattern in range(1,5):
                 assert any(flags[i] & (1<<(pattern+1)) for i in frame),("Empty fitted livery",vehicle,pose,pattern)
@@ -427,6 +410,7 @@ def artwork() -> None:
         poses.extend(decoded); indexed.extend(frames); palettes.append(palette); materials.append(flags)
         material_counts.append({"vehicle": vehicle, "paint": sum(flags[i] & 1 for frame in frames for i in frame),
                                 "hardware": sum(bool(flags[i] & 2) for frame in frames for i in frame)})
+    raw("vehicle_roles", b"".join(semantic_roles), "uint8_t", VEHICLE_COUNT * 5 * 48 * 72)
     raw("vehicle_indexed", b"".join(indexed), "uint8_t", VEHICLE_COUNT * 5 * 48 * 72)
     compressed, offsets = bytearray(), array.array("I", [0])
     for vehicle in range(VEHICLE_COUNT):
@@ -451,7 +435,7 @@ def artwork() -> None:
     # Oracle only: never linked into the cartridge; indexed decode is exact.
     (OUT / "vehicle_art.bin").write_bytes(b"".join(rgb555(im) for im in poses))
     raw("vehicle_bounds", silhouette_bounds(poses), "uint8_t", VEHICLE_COUNT * 5 * 4)
-    traffic = [contain(car, TRAFFIC_W, TRAFFIC_H) for car in cars[6:]]
+    traffic = [contain(car, TRAFFIC_W, TRAFFIC_H) for car in npc_cars]
     raw("traffic_art", b"".join(rgb555(im) for im in traffic), "uint16_t", 6 * TRAFFIC_W * TRAFFIC_H)
     raw("traffic_bounds", silhouette_bounds(traffic), "uint8_t", 6 * 4)
     vehicle_geometry(poses, traffic)
@@ -655,9 +639,9 @@ def declarations(music_bytes: int, music_rate: int) -> None:
     with (OUT / "assets.c").open("w") as output:
         output.write("/* Original Coastline assets; generated by tools/build_assets.py. */\n")
         for name, _, _ in ASSETS:
-            if name == "vehicle_indexed": output.write("#ifndef ARM9\n")
+            if name in ("vehicle_indexed","vehicle_roles"): output.write("#ifndef ARM9\n")
             output.write('__asm__(".section .rodata\\n.balign 4\\n.global ' + name + '\\n' + name + ':\\n.incbin \\\"build/' + name + '.bin\\\"\\n.previous\\n");\n')
-            if name == "vehicle_indexed": output.write("#endif\n")
+            if name in ("vehicle_indexed","vehicle_roles"): output.write("#endif\n")
 
 
 def main() -> None:
