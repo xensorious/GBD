@@ -116,16 +116,16 @@ static void awards(void) {
  step(&g,K_A,K_A);CHECK(g.mode==M_HOME);
 }
 static void economy(void) {
- Game g;game_init(&g,77);g.mode=M_GARAGE;g.selection=1;g.cursor=1;
+ Game g;game_init(&g,77);g.mode=M_GARAGE;g.garage_tab=3;g.garage_filter=CLASS_C;g.selection=1;g.cursor=1;
  step(&g,K_A,K_A);CHECK(!(g.save.owned&2u) && !g.save.cash);
  g.save.owned|=1u<<10;g.save.cash=vehicles[1].price;step(&g,K_A,K_A);
  CHECK(g.save.owned&2u);CHECK(!g.save.cash && g.save.selected_vehicle==1 && g.save_requested);
- step(&g,K_A,K_A);CHECK(!g.save.cash); /* re-equipping is free */
- g.selection=2;g.garage_tab=1;g.cursor=1;g.save.cash=50000;
+ g.garage_tab=0;g.cursor=1;step(&g,K_A,K_A);CHECK(!g.save.cash); /* re-equipping is free */
+ g.selection=2;g.garage_tab=1;g.cursor=3;g.save.cash=50000;
  uint32_t cash=g.save.cash;step(&g,K_A,K_A);CHECK(g.save.cash==cash && !g.save.engine[2]);
  g.selection=1;g.save.mastery_xp[1]=1000000;
  for(int kind=0;kind<4;kind++) {
-  g.cursor=(uint8_t)(1+kind);
+  g.cursor=(uint8_t)(3+kind);
   for(int level=0;level<UPGRADE_MAX;level++) {
    int cost=game_upgrade_cost(&g,kind);CHECK(cost>0);cash=g.save.cash;
    step(&g,K_A,K_A);CHECK(g.save.cash==cash-(unsigned)cost);
@@ -134,7 +134,7 @@ static void economy(void) {
  }
  CHECK(g.save.engine[1]==UPGRADE_MAX && g.save.grip[1]==UPGRADE_MAX && g.save.armor[1]==UPGRADE_MAX);
  CHECK(!game_upgrade_cost(&g,-1) && !game_upgrade_cost(&g,4));
- g.garage_tab=0;g.cursor=2;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
+ g.garage_tab=2;g.cursor=5;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
  g.paint_choice=2;step(&g,K_A,K_A);CHECK(g.save.paint[1]==2);
  g.mode=M_DEPARTURES;g.cursor=1;g.save.cash=locations[1].price-1;
  step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&2u));
@@ -143,7 +143,7 @@ static void economy(void) {
  g.cursor=2;g.save.cash=10000;step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&4u));
  /* Standard motorcycle is a cash purchase and is never challenge gated. */
  CHECK(vehicles[3].bike && vehicles[3].price>0 && !vehicles[3].unlock);
- CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.garage_tab=0;g.cursor=1;g.save.cash=vehicles[3].price;
+ CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.garage_tab=3;g.garage_filter=CLASS_D;g.cursor=3;g.save.cash=vehicles[3].price;
  step(&g,K_A,K_A);CHECK((g.save.owned&(1u<<3)) && !g.save.cash);
  /* Challenge rewards are applied to the completed run's best statistics. */
  begin(&g);g.run.count[B_NEAR]=10;g.run.distance_m=6000;g.run.drift_points=1500;
@@ -155,7 +155,7 @@ static void economy(void) {
  CHECK(!game_can_location(&g,-1) && !game_can_location(&g,LOCATION_COUNT));
 }
 static void saves(void) {
- CHECK(sizeof(Save)==596);Game g,loaded;Save s;
+ CHECK(sizeof(Save)==708);Game g,loaded;Save s;
  game_init(&g,0);game_make_save(&g,&s);CHECK(game_save_valid(&s));
  game_init(&loaded,7);CHECK(game_load(&loaded,&s));CHECK(loaded.has_save && loaded.mode==M_HOME);
  for(size_t i=0;i<sizeof s;i++) {Save bad=s;((unsigned char*)&bad)[i]^=0x40;CHECK(!game_save_valid(&bad));}

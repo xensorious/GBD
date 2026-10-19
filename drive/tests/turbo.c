@@ -183,7 +183,7 @@ static void exclusions_and_pause(void) {
 }
 static void controls_and_save(void) {
  Game g,loaded;Save before,after;begin(&g,0);
- CHECK(sizeof(Save)==596);
+ CHECK(sizeof(Save)==708);
  game_make_save(&g,&before);
  g.turbo_charge_q8=7;g.turbo_latched=1;g.turbo_remainder=2999;
  g.turbo_source=TS_DRIFT;g.turbo_recharging=1;

@@ -31,10 +31,13 @@ TURBO_COMMIT = "32b53218e546ca0bf37967215459f1a6ed393e4e"
 TURBO_SHA256 = "676dc118cb0c621be9388d3b98acc5c19a65f33713999fc611f0e5c0b16e4822"
 HANDLING_COMMIT = "ffeacfb08bb39fb220293829ece0705204ceb4ee"
 HANDLING_SHA256 = "a8fc2e74be2bd4ab2fa39ce6549d3bea6461f222f9ad79e47b447bee0d8d75b0"
+EXPANSION_COMMIT = "b4c46f60fc706964c6ab3e3c6b40de0f1b1eddb5"
+EXPANSION_SHA256 = "cb93c5ec187aabe74543bd346a89435bf6975263eaa925f5f59613ce52a10f4e"
 RELEASES = {"original":(ORIGINAL_COMMIT,ORIGINAL_SHA256),
             "coastal":(COASTAL_COMMIT,COASTAL_SHA256),
             "turbo":(TURBO_COMMIT,TURBO_SHA256),
-            "handling":(HANDLING_COMMIT,HANDLING_SHA256)}
+            "handling":(HANDLING_COMMIT,HANDLING_SHA256),
+            "expansion":(EXPANSION_COMMIT,EXPANSION_SHA256)}
 
 
 def sha256(path: Path) -> str:
@@ -102,7 +105,7 @@ def rebuild(source_root: Path, jobs: int, commit: str = ORIGINAL_COMMIT,
     if source_root.exists():
         # Remove only our generated extraction directory, never a repository.
         allowed = [(ROOT / "build" / name).resolve() for name in
-                   ("legacy-source", "coastal-source", "turbo-source", "handling-source")]
+                   ("legacy-source", "coastal-source", "turbo-source", "handling-source", "expansion-source")]
         if source_root.resolve() not in allowed:
             raise ValueError("Refusing to replace an extraction directory outside the dedicated baseline source directories")
         shutil.rmtree(source_root)
@@ -132,7 +135,7 @@ def rebuild(source_root: Path, jobs: int, commit: str = ORIGINAL_COMMIT,
 def prepare(output: Path, source_baseline: Path | None, battery_template: Path | None, jobs: int,
             release: str = "original") -> Path:
     if release not in RELEASES:
-        raise ValueError("Choose a pinned original, coastal, turbo or handling release")
+        raise ValueError("Choose a pinned original, coastal, turbo, handling or expansion release")
     commit,expected_sha256 = RELEASES[release]
     output = output.resolve()
     if output in (REPO.resolve(), ROOT.resolve(), (ROOT / "build").resolve()):

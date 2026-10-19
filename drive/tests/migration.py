@@ -2,8 +2,8 @@
 """Migrate four published profiles on their genuine 512-byte battery chips.
 
 Each old fixture must first boot in its released cartridge. The unchanged 512B
-file then boots in the revised cartridge, which writes its compact 500B v3
-profile and reloads all 596 RAM bytes in a fresh process. No RAM writes or
+file then boots in the revised cartridge, which writes its compact 500B v4
+profile and reloads all 708 RAM bytes in a fresh process. No RAM writes or
 emulator checkpoints are used.
 """
 import argparse
@@ -90,10 +90,10 @@ for release,baseline,key in (
         '--expected',str(expected_path)],check=True)
     geometry=assert_compact_battery(directory/'Coastline.dsv')
     reload(directory,expected_path,reload_image)
-    assert len(expected_path.read_bytes())==596
+    assert len(expected_path.read_bytes())==708
     result[key]={'baseline_rom':inspect(baseline/'Coastline.nds'),
         'profile_source':'detailed 204-byte fixture accepted by released '+release+' ROM',
-        'source_ram_bytes':204,'migrated_ram_bytes':596,
+        'source_ram_bytes':204,'migrated_ram_bytes':708,
         'legacy_fields_preserved':True,'new_expansion_defaults':True,
         'fresh_process_reload':True,**geometry,
         'preserved':'all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings',

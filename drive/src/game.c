@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define SAVE_MAGIC 0x434c4452u
-#define SAVE_VERSION 3u
+#define SAVE_VERSION 4u
 #define MONEY_LIMIT 9999999u
 #define STAT_LIMIT 999999999u
 #define WORLD_LIMIT (7000000*Q)
@@ -97,7 +97,7 @@ typedef struct {
 } DiskSave3;
 _Static_assert(sizeof(LegacySave)==100,"Version 1 saves must remain exactly 100 bytes");
 _Static_assert(sizeof(SaveV2)==204,"Version 2 saves must remain exactly 204 bytes");
-_Static_assert(sizeof(Save)==596,"Unpacked version 3 runtime layout");
+_Static_assert(offsetof(Save,paint_seen)==596,"Keep the version 3 RAM prefix intact");
 _Static_assert(sizeof(DiskSave3)==SAVE_DISK_SIZE,"Version 3 must fit a 512-byte battery");
 
 static uint32_t checksum_bytes(const void *save,size_t size) {
@@ -110,13 +110,17 @@ static uint32_t checksum_bytes(const void *save,size_t size) {
 }
 static void default_settings(Save *s) {
  s->music_on=1;s->sfx_on=1;s->music_volume=70;s->sfx_volume=75;
- s->skin=0;s->shake=1;s->units=0;s->motion=1;
+ s->skin=2;s->shake=1;s->units=0;s->motion=1;
 }
 void game_make_save(const Game *g,Save *out) {
  *out=g->save; out->magic=SAVE_MAGIC; out->version=SAVE_VERSION;
  memset((uint8_t *)out+offsetof(Save,armor)+sizeof(out->armor),0,
         offsetof(Save,mastery_xp)-offsetof(Save,armor)-sizeof(out->armor));
  memset(out->reserved,0,sizeof(out->reserved));
+ memset((uint8_t *)out+offsetof(Save,smoke_seen)+sizeof(out->smoke_seen),0,
+        offsetof(Save,presets)-offsetof(Save,smoke_seen)-sizeof(out->smoke_seen));
+ memset((uint8_t *)out+offsetof(Save,preset_mask)+sizeof(out->preset_mask),0,
+        sizeof(*out)-offsetof(Save,preset_mask)-sizeof(out->preset_mask));
  out->checksum=0; out->checksum=checksum_bytes(out,sizeof(*out));
 }
 static int valid_common(const Save *s,int count,int upgrade_max,int location_count) {
@@ -137,6 +141,7 @@ static int valid_common(const Save *s,int count,int upgrade_max,int location_cou
 static void new_save_defaults(Save *s) {
  for(int i=0;i<VEHICLE_COUNT;++i) {s->livery_owned[i]=1;s->wheels_owned[i]=1;}
  s->dispatch_choice=CONTRACT_OFFERS;
+ for(int i=0;i<VEHICLE_COUNT;i++){s->paint_seen[i]=(uint8_t)(1u | (s->paint[i]<PAINT_COUNT?1u<<s->paint[i]:0u));s->smoke_seen[i]=1;}
 }
 static void v2_convert(const SaveV2 *old,Save *out) {
  memset(out,0,sizeof(*out));memcpy(out,old,offsetof(SaveV2,paint));
@@ -146,7 +151,7 @@ static void v2_convert(const SaveV2 *old,Save *out) {
   out->handling_tune[i]=old->handling_tune[i];out->chassis_tune[i]=old->chassis_tune[i];
  }
  out->career_xp=old->career_xp;memcpy(out->perks,old->perks,sizeof(out->perks));
- memcpy(&out->music_on,&old->music_on,8);new_save_defaults(out);out->version=SAVE_VERSION;out->checksum=0;
+ memcpy(&out->music_on,&old->music_on,8);out->skin=2;new_save_defaults(out);out->version=SAVE_VERSION;out->checksum=0;
 }
 static void legacy_convert(const LegacySave *old,Save *out) {
  memset(out,0,sizeof(*out));
@@ -176,11 +181,19 @@ static int valid_expanded(const Save *s) {
  if(spent>level)return 0;
  for(int i=0;i<VEHICLE_COUNT;++i) {
   if(s->mastery_xp[i]>STAT_LIMIT || s->power_tune[i]>2 || s->handling_tune[i]>2 || s->chassis_tune[i]>2 ||
-     s->recovery[i]>UPGRADE_MAX || s->livery[i]>=LIVERY_COUNT || s->wheels[i]>=WHEEL_COUNT)return 0;
+     s->recovery[i]>UPGRADE_MAX || s->livery[i]>=LIVERY_COUNT || s->wheels[i]>=WHEEL_COUNT || s->smoke[i]>=SMOKE_COUNT ||
+     !(s->paint_seen[i]&1u) || (s->paint_seen[i]&~63u) || !(s->paint_seen[i]&(1u<<s->paint[i])) ||
+     !(s->smoke_seen[i]&1u) || (s->smoke_seen[i]&~31u) || !(s->smoke_seen[i]&(1u<<s->smoke[i])))return 0;
   if((s->power_tune[i]&&s->mastery_xp[i]<100) || (s->handling_tune[i]&&s->mastery_xp[i]<300) ||
      (s->chassis_tune[i]&&s->mastery_xp[i]<650))return 0;
   if(!(s->livery_owned[i]&1u) || (s->livery_owned[i]&~31u) || !(s->livery_owned[i]&(1u<<s->livery[i])) ||
      !(s->wheels_owned[i]&1u) || (s->wheels_owned[i]&~15u) || !(s->wheels_owned[i]&(1u<<s->wheels[i])))return 0;
+ }
+ if(s->preset_mask&~7u)return 0;
+ for(int i=0;i<PRESET_COUNT;i++)if(s->preset_mask&(1u<<i)){
+  uint32_t p=s->presets[i];if((p&31u)>=VEHICLE_COUNT || ((p>>5)&15u)>=LOCATION_COUNT ||
+   ((p>>9)&7u)>=PAINT_COUNT || ((p>>12)&7u)>=LIVERY_COUNT || ((p>>17)&7u)>=SMOKE_COUNT ||
+   ((p>>20)&3u)>2 || ((p>>22)&3u)>2 || ((p>>24)&3u)>2 || (p>>26))return 0;
  }
  return 1;
 }
@@ -216,22 +229,33 @@ int game_load(Game *g,const Save *save) {
  g->selection=g->save.selected_vehicle;g->vehicle=g->save.selected_vehicle;
  g->start_biome=g->save.selected_location;g->biome=g->start_biome;
  g->paint_choice=g->save.paint[g->selection];g->livery_choice=g->save.livery[g->selection];g->wheel_choice=g->save.wheels[g->selection];
+ g->smoke_choice=g->save.smoke[g->selection];
  g->garage_tab=g->garage_filter=g->tune_choice=0;g->muted=(uint8_t)!g->save.music_on;
  return 1;
 }
+/* Version 4 uses a bounded bit stream; the EEPROM remains 500/512 bytes. */
+static void bit_write(uint8_t *p,unsigned *at,unsigned value,unsigned bits){
+ for(unsigned i=0;i<bits;i++,(*at)++)if(value&(1u<<i))p[*at/8]|=(uint8_t)(1u<<(*at%8));
+}
+static unsigned bit_read(const uint8_t *p,unsigned *at,unsigned bits){
+ unsigned value=0;for(unsigned i=0;i<bits;i++,(*at)++)if(p[*at/8]&(1u<<(*at%8)))value|=1u<<i;return value;
+}
 int game_encode_save(const Game *g,void *out,unsigned size) {
  if(!out || size<SAVE_DISK_SIZE)return 0;
- Save expanded;game_make_save(g,&expanded);if(!valid_expanded(&expanded))return 0;
- DiskSave3 disk;memset(&disk,0,sizeof(disk));memcpy(disk.prefix,&expanded,sizeof(disk.prefix));
- for(int i=0;i<VEHICLE_COUNT;++i) {
-  disk.tunes[i]=(uint8_t)(expanded.power_tune[i] | expanded.handling_tune[i]<<2 | expanded.chassis_tune[i]<<4);
-  disk.recovery[i]=expanded.recovery[i];disk.style[i]=(uint8_t)(expanded.livery[i] | expanded.wheels[i]<<3);
-  disk.livery_owned[i]=expanded.livery_owned[i];disk.wheels_owned[i]=expanded.wheels_owned[i];
+ Save e;game_make_save(g,&e);if(!valid_expanded(&e))return 0;
+ uint8_t d[SAVE_DISK_SIZE]={0};memcpy(d,&e,74);memcpy(d+74,e.mastery_xp,124);
+ memcpy(d+198,&e.career_xp,4);memcpy(d+202,&e.contracts_completed,4);
+ memcpy(d+206,&e.music_on,8);memcpy(d+214,e.perks,3);d[217]=e.dispatch_choice;d[218]=e.preset_mask;
+ memcpy(d+219,e.presets,12);unsigned at=231*8;
+ for(int i=0;i<VEHICLE_COUNT;i++){
+  bit_write(d,&at,e.paint[i],3);bit_write(d,&at,e.engine[i],3);bit_write(d,&at,e.grip[i],3);
+  bit_write(d,&at,e.armor[i],3);bit_write(d,&at,e.recovery[i],3);
+  bit_write(d,&at,e.power_tune[i],2);bit_write(d,&at,e.handling_tune[i],2);bit_write(d,&at,e.chassis_tune[i],2);
+  bit_write(d,&at,e.livery[i],3);bit_write(d,&at,e.wheels[i],2);bit_write(d,&at,e.smoke[i],3);
+  bit_write(d,&at,e.paint_seen[i],6);bit_write(d,&at,e.livery_owned[i],5);
+  bit_write(d,&at,e.wheels_owned[i],4);bit_write(d,&at,e.smoke_seen[i],5);
  }
- memcpy(disk.perks,expanded.perks,3);memcpy(disk.settings,&expanded.music_on,8);
- disk.dispatch_choice=expanded.dispatch_choice;disk.contracts_completed=expanded.contracts_completed;
- uint32_t check=checksum_bytes(&disk,sizeof(disk));memcpy(disk.prefix+8,&check,4);
- memcpy(out,&disk,sizeof(disk));return 1;
+ uint32_t check=checksum_bytes(d,sizeof d);memcpy(d+8,&check,4);memcpy(out,d,sizeof d);return 1;
 }
 int game_load_bytes(Game *g,const void *raw,unsigned size) {
  if(!raw || size<8)return 0;
@@ -245,7 +269,26 @@ int game_load_bytes(Game *g,const void *raw,unsigned size) {
   if(size<sizeof(SaveV2))return 0;
   SaveV2 old;memcpy(&old,raw,sizeof(old));return game_load(g,(const Save *)(const void *)&old);
  }
- if(header[1]!=SAVE_VERSION || size<SAVE_DISK_SIZE)return 0;
+ if(header[1]==SAVE_VERSION){
+  if(size<SAVE_DISK_SIZE)return 0;
+  uint8_t d[SAVE_DISK_SIZE];memcpy(d,raw,sizeof d);memcpy(header,d,12);
+  if(header[2]!=checksum_bytes(d,sizeof d))return 0;
+  Save e;memset(&e,0,sizeof e);memcpy(&e,d,74);memcpy(e.mastery_xp,d+74,124);
+  memcpy(&e.career_xp,d+198,4);memcpy(&e.contracts_completed,d+202,4);
+  memcpy(&e.music_on,d+206,8);memcpy(e.perks,d+214,3);e.dispatch_choice=d[217];e.preset_mask=d[218];
+  memcpy(e.presets,d+219,12);unsigned at=231*8;
+  for(int i=0;i<VEHICLE_COUNT;i++){
+   e.paint[i]=bit_read(d,&at,3);e.engine[i]=bit_read(d,&at,3);e.grip[i]=bit_read(d,&at,3);
+   e.armor[i]=bit_read(d,&at,3);e.recovery[i]=bit_read(d,&at,3);
+   e.power_tune[i]=bit_read(d,&at,2);e.handling_tune[i]=bit_read(d,&at,2);e.chassis_tune[i]=bit_read(d,&at,2);
+   e.livery[i]=bit_read(d,&at,3);e.wheels[i]=bit_read(d,&at,2);e.smoke[i]=bit_read(d,&at,3);
+   e.paint_seen[i]=bit_read(d,&at,6);e.livery_owned[i]=bit_read(d,&at,5);
+   e.wheels_owned[i]=bit_read(d,&at,4);e.smoke_seen[i]=bit_read(d,&at,5);
+  }
+  for(unsigned k=at;k<SAVE_DISK_SIZE*8;k++)if(d[k/8]&(1u<<(k%8)))return 0;
+  e.checksum=checksum_bytes(&e,sizeof e);return game_load(g,&e);
+ }
+ if(header[1]!=3u || size<SAVE_DISK_SIZE)return 0;
  DiskSave3 disk;memcpy(&disk,raw,sizeof(disk));memcpy(header,raw,12);
  if(header[2]!=checksum_bytes(&disk,sizeof(disk)) || disk.reserved)return 0;
  Save expanded;memset(&expanded,0,sizeof(expanded));memcpy(&expanded,disk.prefix,sizeof(disk.prefix));
@@ -258,8 +301,11 @@ int game_load_bytes(Game *g,const void *raw,unsigned size) {
  }
  memcpy(expanded.perks,disk.perks,3);memcpy(&expanded.music_on,disk.settings,8);
  expanded.dispatch_choice=disk.dispatch_choice;expanded.contracts_completed=disk.contracts_completed;
- expanded.checksum=checksum_bytes(&expanded,sizeof(expanded));
- return game_load(g,&expanded);
+ expanded.version=SAVE_VERSION;
+ for(int i=0;i<VEHICLE_COUNT;i++){expanded.paint_seen[i]=(uint8_t)(1u|(expanded.paint[i]<PAINT_COUNT?1u<<expanded.paint[i]:0u));expanded.smoke_seen[i]=1;}
+ /* Previous color-only skins become the retained Midnight interface. */
+ expanded.skin=2;expanded.checksum=checksum_bytes(&expanded,sizeof(expanded));
+ int loaded=game_load(g,&expanded);if(loaded)g->save_requested=1;return loaded;
 }
 void game_save_result(Game *g,int okay) {
  g->save_requested=0; g->save_ok=(uint8_t)(okay!=0);
@@ -355,10 +401,9 @@ const char *game_tune_description(int kind,int value) {
 static int vehicle_stat(const Game *g,int v,int kind,int preview) {
  if(v<0 || v>=VEHICLE_COUNT || kind<STAT_TOP || kind>STAT_ARMOR) return 0;
  int power=g->save.power_tune[v],handling=g->save.handling_tune[v],chassis=g->save.chassis_tune[v];
- if(preview && g->mode==M_GARAGE && g->garage_tab==2 && g->cursor>=1 && g->cursor<=3 && g->selection==v) {
-  if(g->cursor==1)power=g->tune_choice;
-  else if(g->cursor==2)handling=g->tune_choice;
-  else chassis=g->tune_choice;
+ if(preview && g->mode==M_GARAGE && g->garage_tab==1 && g->selection==v && g->build_choice<5 && (g->cursor==1 || g->cursor==2)) {
+  static const uint8_t builds[5][3]={{0,0,0},{1,0,0},{2,0,0},{0,1,2},{1,2,0}};
+  int build=clampi(g->build_choice,0,4);power=builds[build][0];handling=builds[build][1];chassis=builds[build][2];
  }
  int top=vehicles[v].top_speed+g->save.engine[v]*12;
  int acceleration=vehicles[v].acceleration+g->save.engine[v]*5;
@@ -432,22 +477,68 @@ const char *game_wheel_name(int value) {
  static const char *const names[WHEEL_COUNT]={"Factory","Graphite","Polished","Gold"};
  return value>=0&&value<WHEEL_COUNT?names[value]:"";
 }
+const char *game_smoke_name(int value){
+ static const char *const names[SMOKE_COUNT]={"Pearl","Coral","Lagoon","Violet","Gold"};
+ return value>=0&&value<SMOKE_COUNT?names[value]:"";
+}
+const char *game_build_name(int value){
+ static const char *const names[6]={"Balanced","Acceleration","Top speed","Heavy","Drift","Custom"};
+ return names[clampi(value,0,5)];
+}
+static const uint8_t build_tunes[5][3]={{0,0,0},{1,0,0},{2,0,0},{0,1,2},{1,2,0}};
+int game_build_choice(const Game *g,int v){
+ for(int i=0;i<5;i++)if(g->save.power_tune[v]==build_tunes[i][0]&&g->save.handling_tune[v]==build_tunes[i][1]&&g->save.chassis_tune[v]==build_tunes[i][2])return i;
+ return 5;
+}
 int game_cosmetic_cost(const Game *g,int kind,int value) {
- if(g->selection>=VEHICLE_COUNT || kind<0 || kind>1 || value<0 || value>=(kind?WHEEL_COUNT:LIVERY_COUNT))return -1;
- int v=g->selection;unsigned owned=kind?g->save.wheels_owned[v]:g->save.livery_owned[v];
- if(owned&(1u<<value))return 0;
- return (kind?35:60)*(value+1)*(2+vehicles[v].class_id)/2;
+ if(g->selection>=VEHICLE_COUNT || kind<0 || kind>3 || value<0 || value>=(kind==0?LIVERY_COUNT:kind==1?WHEEL_COUNT:kind==2?PAINT_COUNT:SMOKE_COUNT))return -1;
+ int v=g->selection;
+ int current=kind==0?g->save.livery[v]:kind==1?g->save.wheels[v]:kind==2?g->save.paint[v]:g->save.smoke[v];
+ if(value==current)return 0;
+ if(kind==2 && !(g->save.paints&(1u<<value)))return -1;
+ unsigned seen=kind==0?g->save.livery_owned[v]:kind==1?g->save.wheels_owned[v]:kind==2?g->save.paint_seen[v]:g->save.smoke_seen[v];
+ int base=kind==0?60:kind==1?35:kind==2?25:40;
+ int price=base*(value+1)*(2+vehicles[v].class_id)/2;
+ return seen&(1u<<value)?(price+1)/2:price;
 }
 int game_apply_cosmetics(Game *g) {
  int v=g->selection;
  if(v>=VEHICLE_COUNT || !(g->save.owned&(1u<<v))) {notice(g,"Own this vehicle before styling it.");return 0;}
- int livery=game_cosmetic_cost(g,0,g->livery_choice),wheels=game_cosmetic_cost(g,1,g->wheel_choice);
- if(livery<0 || wheels<0)return 0;
- if(g->save.cash<(uint32_t)(livery+wheels)) {notice(g,"Not enough cash for these cosmetics.");return 0;}
- g->save.cash-=(uint32_t)(livery+wheels);
- g->save.livery_owned[v]|=(uint8_t)(1u<<g->livery_choice);g->save.wheels_owned[v]|=(uint8_t)(1u<<g->wheel_choice);
- g->save.livery[v]=g->livery_choice;g->save.wheels[v]=g->wheel_choice;
- g->save_requested=1;notice(g,"Style applied. Purchased finishes stay yours.");return 1;
+ int cost=0,values[4]={g->livery_choice,g->wheel_choice,g->paint_choice,g->smoke_choice};
+ for(int i=0;i<4;i++){int price=game_cosmetic_cost(g,i,values[i]);if(price<0){notice(g,"Complete the paint's road challenge first.");return 0;}cost+=price;}
+ if(g->save.cash<(uint32_t)cost){notice(g,"Not enough cash. Your style is unchanged.");return 0;}
+ g->save.cash-=(uint32_t)cost;
+ g->save.livery_owned[v]|=(uint8_t)(1u<<values[0]);g->save.wheels_owned[v]|=(uint8_t)(1u<<values[1]);
+ g->save.paint_seen[v]|=(uint8_t)(1u<<values[2]);g->save.smoke_seen[v]|=(uint8_t)(1u<<values[3]);
+ g->save.livery[v]=values[0];g->save.wheels[v]=values[1];g->save.paint[v]=values[2];g->save.smoke[v]=values[3];
+ g->save_requested=1;notice(g,cost?"Finish installed. Returning styles are 50% off.":"This finish is already installed.");return 1;
+}
+static uint32_t preset_pack(const Game *g,int v){
+ return (uint32_t)v | (uint32_t)g->save.selected_location<<5 | (uint32_t)g->save.paint[v]<<9 |
+  (uint32_t)g->save.livery[v]<<12 | (uint32_t)g->save.wheels[v]<<15 | (uint32_t)g->save.smoke[v]<<17 |
+  (uint32_t)g->save.power_tune[v]<<20 | (uint32_t)g->save.handling_tune[v]<<22 | (uint32_t)g->save.chassis_tune[v]<<24;
+}
+int game_preset_cost(const Game *g,int slot){
+ if(slot<0 || slot>=PRESET_COUNT || !(g->save.preset_mask&(1u<<slot)))return -1;
+ uint32_t p=g->save.presets[slot];int v=p&31u;
+ if(v>=VEHICLE_COUNT || !(g->save.owned&(1u<<v)) || !(g->save.unlocked_locations&(1u<<((p>>5)&15u))))return -1;
+ int rank=game_mastery_level(g,v);
+ if((((p>>20)&3u)&&rank<1)||(((p>>22)&3u)&&rank<2)||(((p>>24)&3u)&&rank<3))return -1;
+ Game preview=*g;preview.selection=(uint8_t)v;
+ int values[4]={(p>>12)&7u,(p>>15)&3u,(p>>9)&7u,(p>>17)&7u},cost=0;
+ for(int i=0;i<4;i++){int price=game_cosmetic_cost(&preview,i,values[i]);if(price<0)return -1;cost+=price;}
+ return cost;
+}
+static void preset_load(Game *g){
+ int cost=game_preset_cost(g,g->preset_choice);if(cost<0){notice(g,"Save a preset in this slot first.");return;}
+ if(g->save.cash<(uint32_t)cost){notice(g,"Not enough cash to refit this preset.");return;}
+ uint32_t p=g->save.presets[g->preset_choice];g->selection=p&31u;
+ g->paint_choice=(p>>9)&7u;g->livery_choice=(p>>12)&7u;g->wheel_choice=(p>>15)&3u;g->smoke_choice=(p>>17)&7u;
+ if(!game_apply_cosmetics(g))return;
+ int v=g->selection;g->save.power_tune[v]=(p>>20)&3u;g->save.handling_tune[v]=(p>>22)&3u;g->save.chassis_tune[v]=(p>>24)&3u;
+ g->save.selected_vehicle=g->vehicle=(uint8_t)v;g->save.selected_location=(p>>5)&15u;
+ g->start_biome=g->biome=g->save.selected_location;g->save_requested=1;
+ notice(g,"Preset loaded. Your keys and route are ready.");
 }
 const char *game_contract_name(int kind) {
  static const char *const names[6]={"Near-miss route","Drift exhibition","Distance delivery","Coin collection","Full-speed relay","Free drive"};
@@ -801,62 +892,58 @@ static void upgrade(Game *g,int kind) {
  uint8_t *level=kind==0?g->save.engine:kind==1?g->save.grip:kind==2?g->save.armor:g->save.recovery;
  ++level[v]; g->save_requested=1; notice(g,"Upgrade installed.");
 }
-static uint8_t *tune_array(Game *g,int kind) {
- return kind==0?g->save.power_tune:kind==1?g->save.handling_tune:g->save.chassis_tune;
+static void refresh_vehicle(Game *g){
+ int v=g->selection;g->paint_choice=g->save.paint[v];g->livery_choice=g->save.livery[v];
+ g->wheel_choice=g->save.wheels[v];g->smoke_choice=g->save.smoke[v];g->build_choice=(uint8_t)game_build_choice(g,v);
 }
-static void refresh_tune(Game *g) {
- g->tune_choice=g->cursor>=1&&g->cursor<=3?tune_array(g,g->cursor-1)[g->selection]:0;
+int game_dealer_count(int class_id){int count=0;for(int i=0;i<VEHICLE_COUNT;i++)if(vehicles[i].class_id==class_id)count++;return count;}
+int game_dealer_vehicle(int class_id,int row){for(int i=0;i<VEHICLE_COUNT;i++)if(vehicles[i].class_id==class_id && row--==0)return i;return 0;}
+static void browse_owned(Game *g,int dx){
+ int id=g->selection;for(int i=0;i<VEHICLE_COUNT;i++){id=(id+VEHICLE_COUNT+dx)%VEHICLE_COUNT;if(g->save.owned&(1u<<id)){g->selection=(uint8_t)id;break;}}refresh_vehicle(g);
 }
-static void apply_paint(Game *g) {
- if(!(g->save.owned&(1u<<g->selection))) notice(g,"Own this vehicle before painting it.");
- else if(!(g->save.paints&(1u<<g->paint_choice))) notice(g,g->paint_choice==3?"Hold full speed for 8 seconds to unlock.":g->paint_choice==4?"Earn 1000 wheelie points in one run to unlock.":"Earn 1500 drift points in one run to unlock.");
- else {g->save.paint[g->selection]=g->paint_choice;g->save_requested=1;notice(g,"Fresh paint applied.");}
-}
-static int vehicle_matches(const Game *g,int id) {
- return !g->garage_filter || (g->garage_filter==6?id>=25:vehicles[id].class_id==g->garage_filter-1);
-}
-static void refresh_vehicle(Game *g) {
- int v=g->selection;g->paint_choice=g->save.paint[v];
- g->livery_choice=g->save.livery[v];g->wheel_choice=g->save.wheels[v];refresh_tune(g);
-}
-static void browse_vehicle(Game *g,int dx) {
- int id=g->selection;
- for(int i=0;i<VEHICLE_COUNT;++i) {
-  id=(id+VEHICLE_COUNT+dx)%VEHICLE_COUNT;
-  if(vehicle_matches(g,id)) {g->selection=(uint8_t)id;break;}
- }
- refresh_vehicle(g);
-}
-static void garage_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=1;return;}
- if(in->pressed&K_SELECT) {
-  g->garage_filter=(uint8_t)((g->garage_filter+1)%7);
-  if(!vehicle_matches(g,g->selection))browse_vehicle(g,1);
- }
+static void garage_tick(Game *g,const Input *in){
+ if(in->pressed&K_B){g->mode=M_HOME;g->cursor=1;return;}
  int tab=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
- if(tab) {g->garage_tab=(uint8_t)((g->garage_tab+4+tab)%4);g->cursor=0;refresh_vehicle(g);}
- int dy=vertical(in),dx=horizontal(in),rows=g->garage_tab==0?3:g->garage_tab==1?5:4;
- int previous=g->cursor;g->cursor=(uint8_t)((g->cursor+rows+dy)%rows);
- if(g->garage_tab==2&&previous!=g->cursor)refresh_tune(g);
- if(g->cursor==0&&dx)browse_vehicle(g,dx);
- if(g->garage_tab==0&&g->cursor==2&&dx)g->paint_choice=(uint8_t)((g->paint_choice+PAINT_COUNT+dx)%PAINT_COUNT);
- if(g->garage_tab==2&&g->cursor>=1&&dx)g->tune_choice=(uint8_t)((g->tune_choice+3+dx)%3);
- if(g->garage_tab==3&&g->cursor==1&&dx)g->livery_choice=(uint8_t)((g->livery_choice+LIVERY_COUNT+dx)%LIVERY_COUNT);
- if(g->garage_tab==3&&g->cursor==2&&dx)g->wheel_choice=(uint8_t)((g->wheel_choice+WHEEL_COUNT+dx)%WHEEL_COUNT);
- if(!(in->pressed&K_A))return;
- if(g->cursor==0) {g->cursor=1;refresh_tune(g);return;}
- if(g->garage_tab==0) {if(g->cursor==1)purchase_vehicle(g);else apply_paint(g);}
- else if(g->garage_tab==1)upgrade(g,g->cursor-1);
- else if(g->garage_tab==3) {if(g->cursor==3)game_apply_cosmetics(g);}
- else {
-  int kind=g->cursor-1;
-  if(!(g->save.owned&(1u<<g->selection)))notice(g,"Own this vehicle before changing its setup.");
-  else if(g->tune_choice&&game_mastery_level(g,g->selection)<kind+1)notice(g,kind==0?"Power setups unlock at mastery rank 1.":kind==1?"Handling setups unlock at mastery rank 2.":"Chassis setups unlock at mastery rank 3.");
-  else {tune_array(g,kind)[g->selection]=g->tune_choice;g->save_requested=1;notice(g,"Setup applied. Changes are always free.");}
+ if(tab){g->garage_tab=(uint8_t)((g->garage_tab+4+tab)%4);g->cursor=0;g->notice_timer=0;
+  if(g->garage_tab==3){g->garage_filter=vehicles[g->selection].class_id;g->selection=game_dealer_vehicle(g->garage_filter,0);}
+  else if(!(g->save.owned&(1u<<g->selection)))g->selection=g->save.selected_vehicle;
+  refresh_vehicle(g);return;}
+ int dy=vertical(in),dx=horizontal(in);
+ if(g->garage_tab==3){
+  if(dx || (in->pressed&K_SELECT)){g->garage_filter=(uint8_t)((g->garage_filter+5+(dx?dx:1))%5);g->cursor=0;}
+  int count=game_dealer_count(g->garage_filter);g->cursor=(uint8_t)((g->cursor+count+1+dy)%(count+1));
+  g->selection=(uint8_t)game_dealer_vehicle(g->garage_filter,g->cursor?g->cursor-1:0);refresh_vehicle(g);
+  if(in->pressed&K_A){if(!g->cursor)g->cursor=1;else if(g->save.owned&(1u<<g->selection)){g->garage_tab=0;g->cursor=1;notice(g,"Already in your collection. Grab your keys.");}else purchase_vehicle(g);}
+  return;
  }
+ int rows=g->garage_tab==2?6:7;g->cursor=(uint8_t)((g->cursor+rows+dy)%rows);
+ if(g->cursor==0 && dx)browse_owned(g,dx);
+ if(g->garage_tab==0){
+  if(g->cursor==2&&dx){int id=g->save.selected_location;for(int i=0;i<LOCATION_COUNT;i++){id=(id+LOCATION_COUNT+dx)%LOCATION_COUNT;if(g->save.unlocked_locations&(1u<<id)){g->save.selected_location=(uint8_t)id;g->biome=g->start_biome=(uint8_t)id;g->save_requested=1;break;}}}
+  if(g->cursor==4&&dx)g->preset_choice=(uint8_t)((g->preset_choice+PRESET_COUNT+dx)%PRESET_COUNT);
+ }else if(g->garage_tab==1){if(g->cursor==1&&dx)g->build_choice=(uint8_t)((g->build_choice+5+dx)%5);}
+ else if(dx){
+  if(g->cursor==1)g->paint_choice=(uint8_t)((g->paint_choice+PAINT_COUNT+dx)%PAINT_COUNT);
+  if(g->cursor==2)g->livery_choice=(uint8_t)((g->livery_choice+LIVERY_COUNT+dx)%LIVERY_COUNT);
+  if(g->cursor==3)g->wheel_choice=(uint8_t)((g->wheel_choice+WHEEL_COUNT+dx)%WHEEL_COUNT);
+  if(g->cursor==4)g->smoke_choice=(uint8_t)((g->smoke_choice+SMOKE_COUNT+dx)%SMOKE_COUNT);
+ }
+ if(!(in->pressed&K_A))return;
+ if(g->cursor==0){g->cursor=1;return;}
+ if(g->garage_tab==0){
+  if(g->cursor==1)purchase_vehicle(g);
+  else if(g->cursor==2||g->cursor==3){g->mode=M_DEPARTURES;g->cursor=g->save.selected_location;g->menu_return=M_GARAGE;}
+  else if(g->cursor==5){preset_load(g);refresh_vehicle(g);}
+  else if(g->cursor==6){g->save.presets[g->preset_choice]=preset_pack(g,g->selection);g->save.preset_mask|=(uint8_t)(1u<<g->preset_choice);g->save_requested=1;notice(g,"Preset saved: vehicle, build, finish and route.");}
+ }else if(g->garage_tab==1){
+  if(g->cursor==2 && g->build_choice>=5){notice(g,"Your custom build is already installed.");}
+  else if(g->cursor==2){int b=clampi(g->build_choice,0,4),rank=game_mastery_level(g,g->selection),need=build_tunes[b][2]?3:build_tunes[b][1]?2:build_tunes[b][0]?1:0;
+   if(rank<need)notice(g,"Raise this vehicle's mastery to use this build.");else{g->save.power_tune[g->selection]=build_tunes[b][0];g->save.handling_tune[g->selection]=build_tunes[b][1];g->save.chassis_tune[g->selection]=build_tunes[b][2];g->save_requested=1;notice(g,"Build installed. Setups are free to change.");}}
+  else if(g->cursor>=3)upgrade(g,g->cursor-3);
+ }else if(g->cursor==5)game_apply_cosmetics(g);
 }
 static void contract_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=6;return;}
+ if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=5;return;}
  g->cursor=(uint8_t)((g->cursor+CONTRACT_OFFERS+1+vertical(in))%(CONTRACT_OFFERS+1));
  if(in->pressed&K_A) {
   g->save.dispatch_choice=g->cursor;g->save_requested=1;
@@ -865,7 +952,7 @@ static void contract_tick(Game *g,const Input *in) {
  }
 }
 static void departure_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=2;return;}
+ if(in->pressed&K_B) {g->mode=M_GARAGE;g->garage_tab=0;g->cursor=2;return;}
  g->cursor=(uint8_t)((g->cursor+LOCATION_COUNT+vertical(in))%LOCATION_COUNT);
  if(!(in->pressed&K_A)) return;
  int id=g->cursor;
@@ -878,7 +965,7 @@ static void departure_tick(Game *g,const Input *in) {
  g->save_requested=1;notice(g,"Departure set. Your next run starts here.");
 }
 static void career_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=4;return;}
+ if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=3;return;}
  g->cursor=(uint8_t)((g->cursor+4+vertical(in))%4);
  if(!(in->pressed&K_A))return;
  if(g->cursor==3) {memset(g->save.perks,0,sizeof(g->save.perks));g->save_requested=1;notice(g,"Perks reset. All points returned.");}
@@ -887,7 +974,7 @@ static void career_tick(Game *g,const Input *in) {
  else {++g->save.perks[g->cursor];g->save_requested=1;notice(g,"Career perk assigned.");}
 }
 static void settings_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=g->menu_return==M_PAUSE?M_PAUSE:M_HOME;g->cursor=g->mode==M_PAUSE?3:5;return;}
+ if(in->pressed&K_B) {g->mode=g->menu_return==M_PAUSE?M_PAUSE:M_HOME;g->cursor=g->mode==M_PAUSE?3:4;return;}
  g->cursor=(uint8_t)((g->cursor+9+vertical(in))%9);
  int dx=horizontal(in),confirm=(in->pressed&K_A)!=0;
  if(g->cursor==8) {if(confirm){g->mode=M_CONTROLS;g->paused_from=M_SETTINGS;g->controls_page=0;}return;}
@@ -918,16 +1005,15 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;
   case M_HOME:
-   g->cursor=(uint8_t)((g->cursor+7+vertical(in))%7);
+   g->cursor=(uint8_t)((g->cursor+6+vertical(in))%6);
    if(in->pressed&K_A) {
     switch(g->cursor) {
      case 0:game_begin_run(g);break;
      case 1:g->mode=M_GARAGE;g->cursor=0;g->garage_tab=0;g->selection=g->save.selected_vehicle;refresh_vehicle(g);break;
-     case 2:g->mode=M_DEPARTURES;g->cursor=g->save.selected_location;break;
-     case 3:g->mode=M_CHALLENGES;g->cursor=0;break;
-     case 4:g->mode=M_CAREER;g->cursor=0;break;
-     case 5:g->mode=M_SETTINGS;g->cursor=0;g->menu_return=M_HOME;break;
-     case 6:g->mode=M_CONTRACTS;g->cursor=g->save.dispatch_choice;break;
+     case 2:g->mode=M_CHALLENGES;g->cursor=0;break;
+     case 3:g->mode=M_CAREER;g->cursor=0;break;
+     case 4:g->mode=M_SETTINGS;g->cursor=0;g->menu_return=M_HOME;break;
+     case 5:g->mode=M_CONTRACTS;g->cursor=g->save.dispatch_choice;break;
     }
    }
    break;
@@ -938,13 +1024,13 @@ void game_update(Game *g,const Input *in) {
   case M_SETTINGS:settings_tick(g,in);break;
   case M_CHALLENGES:
    g->cursor=(uint8_t)((g->cursor+CHALLENGE_COUNT+vertical(in))%CHALLENGE_COUNT);
-   if(in->pressed&(K_A|K_B)) {g->mode=M_HOME;g->cursor=3;}
+   if(in->pressed&(K_A|K_B)) {g->mode=M_HOME;g->cursor=2;}
    break;
   case M_CONTROLS:
    if(in->pressed&(K_L|K_R))g->controls_page^=1;
    if(in->pressed&(K_A|K_B)) {
     g->mode=g->paused_from==M_PAUSE?M_PAUSE:g->paused_from==M_SETTINGS?M_SETTINGS:M_HOME;
-    g->cursor=g->mode==M_PAUSE?2:g->mode==M_SETTINGS?8:5;
+    g->cursor=g->mode==M_PAUSE?2:g->mode==M_SETTINGS?8:4;
    }
    break;
   case M_PAUSE:

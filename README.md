@@ -10,11 +10,10 @@ contracts give each run a specific driving goal.
 
 - [Download the DS cartridge](drive/dist/Coastline.nds)
 - [Download the complete ZIP](drive/dist/Coastline-DS.zip)
-- [Watch actual cartridge gameplay](drive/dist/highway-motion.gif)
-- [See the turbo dashboard and guide](drive/dist/Turbo.png)
-- [See grounded roadside and water scenery](drive/dist/Grounding.png)
-- [See pursuit warnings and traffic tickets](drive/dist/Pursuit.png)
-- [See classes, customization and Dispatch](drive/dist/Progression.png)
+- [Compare Midnight, Apex and Signal interfaces](drive/dist/Interface.png)
+- [See all four garage tabs](drive/dist/Garage.png)
+- [See departure-themed garage interiors](drive/dist/Garage-Interiors.png)
+- [See customization and saved setups](drive/dist/Progression.png)
 - [Controls, progression and build instructions](drive/README.md)
 
 ![Actual Nintendo DS screens](drive/dist/Preview.png)
@@ -47,15 +46,18 @@ coins, close-overtake bonuses, capped speed/drift/wheelie streaks, four tracks o
 six-stage parts, vehicle mastery, handling setups and shared career perks.
 Classes D/C/B/A/S require 0/2/5/8/10 owned vehicles to purchase from. Each class
 includes five core roles; six extra novelty rides include skates, a bicycle,
-a moped, a Segway, a skateboard and a horse. Paint, liveries and wheel finishes
-provide permanent visual customization. Glass menus,
-vehicle-specific dashboard designs and three interface skins accompany
+a moped, a Segway, a skateboard and a horse. The garage separates owned-car
+Showroom, Tuning, Style and class-based Dealer tabs. Three presets save a car,
+installed build, finish and departure. Paint, liveries, wheel finishes and smoke
+colors are paid installations; returning to a previous finish costs half price.
+Midnight retains the glass interface, Apex adds a bright tile workspace and
+Signal adds a driver terminal. Vehicle-specific dashboards accompany
 independent music/SFX settings. Purchases and progression persist in cartridge
 battery saves, including migration from the first draft. The standard motorcycle
 is a cash purchase without a challenge requirement. Special gear, paint and
 locations use challenge rewards.
 
-![Thirteen environments and the motorcycle](drive/dist/Locations.png)
+![Thirteen route previews](drive/dist/Locations.png)
 
 Scenery captures use a documented pre-unlocked battery-save fixture for visual
 review. The main validation plays a fresh profile and checks normal earnings,
@@ -67,12 +69,10 @@ purchases and save reloads. No emulator RAM writes or save-state restores are us
 bash drive/tools/setup_nds.sh
 make -C drive -j2
 bash drive/tests/setup_emulator.sh
-make -C drive test
-python3 drive/tests/handling.py
-python3 drive/tests/scenery.py
-python3 drive/tests/expansion.py
-python3 drive/tests/migration.py
-python3 drive/tests/transition.py
+python3 drive/tests/playthrough.py --output drive/build/studio-validation
+python3 drive/tests/studio.py
+python3 drive/tests/migration.py --output drive/build/studio-validation
+python3 drive/tests/studio_migration.py
 python3 drive/tools/package.py
 ```
 

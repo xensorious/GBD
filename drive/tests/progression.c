@@ -27,7 +27,7 @@ static void thresholds(void) {
  CHECK(!game_mastery_level(&g,-1));CHECK(!game_mastery_level(&g,VEHICLE_COUNT));
 }
 static void parts_and_tunes(void) {
- Game g;init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.selection=0;g.cursor=1;
+ Game g;init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.selection=0;g.cursor=3;
  CHECK(game_upgrade_cost(&g,0)==60);
  step(&g,K_A,K_A);CHECK(g.save.engine[0]==1 && g.save.cash==49940);
  step(&g,K_A,K_A);CHECK(g.save.engine[0]==2);
@@ -45,21 +45,13 @@ static void parts_and_tunes(void) {
   CHECK(vehicles[v].name&&*vehicles[v].name);CHECK(game_vehicle_stat(&g,v,STAT_TOP)>=100);
   CHECK(game_vehicle_stat(&g,v,STAT_ACCEL)>=15);CHECK(game_vehicle_stat(&g,v,STAT_GRIP)>=40);
  }
- init(&g);g.mode=M_GARAGE;g.garage_tab=2;g.cursor=1;g.selection=0;g.tune_choice=1;
+ init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=2;g.selection=0;g.build_choice=1;
  int top=game_vehicle_stat(&g,0,STAT_TOP),acc=game_vehicle_stat(&g,0,STAT_ACCEL);
- CHECK(game_preview_stat(&g,0,STAT_TOP)==top-12);
- CHECK(game_preview_stat(&g,0,STAT_ACCEL)==acc+12);
- step(&g,K_A,K_A);CHECK(g.save.power_tune[0]==0); /* Preview is safe while locked. */
- g.save.mastery_xp[0]=100;cash=g.save.cash;step(&g,K_A,K_A);
- CHECK(g.save.power_tune[0]==1 && g.save.cash==cash);
- CHECK(game_vehicle_stat(&g,0,STAT_TOP)==top-12 && game_vehicle_stat(&g,0,STAT_ACCEL)==acc+12);
- step(&g,K_RIGHT,K_RIGHT);CHECK(g.tune_choice==2 && g.save.power_tune[0]==1);
- CHECK(game_preview_stat(&g,0,STAT_TOP)==top+24);
- step(&g,K_A,K_A);CHECK(g.save.power_tune[0]==2);
- CHECK(game_vehicle_stat(&g,0,STAT_ACCEL)==acc-10);
- g.cursor=2;g.tune_choice=1;step(&g,K_A,K_A);CHECK(!g.save.handling_tune[0]);
- g.save.mastery_xp[0]=300;step(&g,K_A,K_A);CHECK(g.save.handling_tune[0]==1);
- g.cursor=3;g.tune_choice=2;step(&g,K_A,K_A);CHECK(!g.save.chassis_tune[0]);
+ CHECK(game_preview_stat(&g,0,STAT_TOP)==top-12);CHECK(game_preview_stat(&g,0,STAT_ACCEL)==acc+12);
+ step(&g,K_A,K_A);CHECK(!g.save.power_tune[0]);
+ g.save.mastery_xp[0]=100;cash=g.save.cash;step(&g,K_A,K_A);CHECK(g.save.power_tune[0]==1 && g.save.cash==cash);
+ g.build_choice=2;step(&g,K_A,K_A);CHECK(g.save.power_tune[0]==2 && game_vehicle_stat(&g,0,STAT_TOP)==top+24);
+ g.build_choice=3;step(&g,K_A,K_A);CHECK(!g.save.chassis_tune[0]);
  g.save.mastery_xp[0]=650;step(&g,K_A,K_A);CHECK(g.save.chassis_tune[0]==2);
  CHECK(game_vehicle_stat(&g,0,STAT_ARMOR)==vehicles[0].armor+24);
  for(int kind=0;kind<3;++kind)for(int value=0;value<3;++value) {
@@ -114,12 +106,12 @@ static void perks_and_banking(void) {
 static void settings_and_locations(void) {
  Game g;game_init(&g,5);
  CHECK(g.save.music_on && g.save.sfx_on && g.save.music_volume==70 && g.save.sfx_volume==75);
- CHECK(g.save.shake && g.save.motion==1 && !g.save.units && !g.save.skin);
+ CHECK(g.save.shake && g.save.motion==1 && !g.save.units && g.save.skin==2);
  g.mode=M_SETTINGS;g.menu_return=M_PAUSE;g.cursor=0;step(&g,K_A,K_A);CHECK(!g.save.music_on);
  g.cursor=1;g.save.music_volume=100;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.music_volume==100);
  g.save.music_volume=0;step(&g,K_LEFT,K_LEFT);CHECK(!g.save.music_volume);
  g.cursor=3;step(&g,K_LEFT,K_LEFT);CHECK(g.save.sfx_volume==70);
- g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==2);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==0);
+ g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==1);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==2);
  g.cursor=5;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.motion==2);
  g.cursor=6;step(&g,K_A,K_A);CHECK(!g.save.shake);
  g.cursor=7;step(&g,K_A,K_A);CHECK(g.save.units);
@@ -128,7 +120,7 @@ static void settings_and_locations(void) {
  step(&g,K_B,K_B);CHECK(g.mode==M_PAUSE && g.cursor==3);
  Save save;game_make_save(&g,&save);CHECK(game_save_valid(&save));
  Game loaded;game_init(&loaded,7);CHECK(game_load(&loaded,&save));
- CHECK(loaded.save.skin==0 && loaded.save.motion==2 && !loaded.save.shake && loaded.save.units);
+ CHECK(loaded.save.skin==2 && loaded.save.motion==2 && !loaded.save.shake && loaded.save.units);
  CHECK(!loaded.save.music_on && loaded.save.sfx_volume==70);
  CHECK(LOCATION_COUNT==13 && vehicles[3].bike && !vehicles[6].bike && !vehicles[7].bike && !vehicles[8].bike);
  CHECK(game_can_location(&g,5) && game_can_location(&g,7) && !game_can_location(&g,6));
@@ -190,17 +182,13 @@ static void classes_and_roster(void) {
   CHECK(*game_challenge_name(i) && *game_challenge_reward(i));
  }
  g.mode=M_CHALLENGES;g.cursor=0;step(&g,K_UP,K_UP);CHECK(g.cursor==CHALLENGE_COUNT-1);
- /* Select filters browse real classes, and Oddities includes all six rides. */
- init(&g);g.mode=M_GARAGE;g.cursor=0;
- for(int filter=1;filter<=6;++filter) {
-  step(&g,K_SELECT,K_SELECT);CHECK(g.garage_filter==filter);
-  for(int i=0;i<VEHICLE_COUNT;++i) {
-   CHECK(filter==6?g.selection>=25:game_vehicle_class(g.selection)==filter-1);
-   step(&g,K_RIGHT,K_RIGHT);
-  }
- }
- step(&g,K_SELECT,K_SELECT);CHECK(!g.garage_filter);
- g.garage_tab=1;g.cursor=0;step(&g,K_UP,K_UP);CHECK(g.cursor==4);
+ /* Dealer lists each class; the Showroom only browses owned models. */
+ init(&g);g.mode=M_GARAGE;step(&g,K_RIGHT,K_RIGHT);CHECK(g.selection==0);
+ g.garage_tab=3;
+ for(int c=0;c<CLASS_COUNT;c++){g.garage_filter=(uint8_t)c;g.cursor=0;
+  for(int i=0;i<game_dealer_count(c);i++){step(&g,K_DOWN,K_DOWN);CHECK(game_vehicle_class(g.selection)==c);}}
+ g.garage_tab=1;g.cursor=0;step(&g,K_UP,K_UP);CHECK(g.cursor==6);
+
 }
 static void cosmetics_and_recovery(void) {
  Game g,loaded;init(&g);g.selection=0;g.livery_choice=1;g.wheel_choice=1;
@@ -212,7 +200,8 @@ static void cosmetics_and_recovery(void) {
  CHECK(g.save.livery_owned[0]==3 && g.save.wheels_owned[0]==3);
  CHECK(!game_cosmetic_cost(&g,0,1) && !game_cosmetic_cost(&g,1,1));
  CHECK(game_apply_cosmetics(&g) && !g.save.cash);
- g.livery_choice=g.wheel_choice=0;CHECK(game_apply_cosmetics(&g));
+ g.livery_choice=g.wheel_choice=0;g.save.cash=50000;CHECK(game_cosmetic_cost(&g,0,0)==30);CHECK(game_apply_cosmetics(&g));
+ CHECK(game_cosmetic_cost(&g,0,1)==60 && game_cosmetic_cost(&g,1,1)==35);
  CHECK(g.save.livery_owned[0]==3 && g.save.wheels_owned[0]==3);
  g.selection=10;g.save.cash=50000;g.livery_choice=2;g.wheel_choice=3;
  CHECK(!game_apply_cosmetics(&g));g.save.owned|=1u<<10;CHECK(game_apply_cosmetics(&g));
@@ -226,7 +215,7 @@ static void cosmetics_and_recovery(void) {
  CHECK(loaded.save.livery_owned[0]==3 && loaded.save.livery[10]==2 && loaded.save.wheels[10]==3);
  CHECK(loaded.save.livery_owned[10]==5 && loaded.save.wheels_owned[10]==9);
  /* Recovery follows the same mastery gate as the other lasting parts. */
- init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=4;g.selection=0;
+ init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=6;g.selection=0;
  int previous_cost=0;
  for(int rank=1;rank<=UPGRADE_MAX;++rank) {
   int cost_now=game_upgrade_cost(&g,3);CHECK(cost_now>previous_cost);previous_cost=cost_now;

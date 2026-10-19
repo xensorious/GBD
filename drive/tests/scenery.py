@@ -60,7 +60,7 @@ with Emulator(a.rom,fixture) as e:
         d.shot(name,keys);shots.append(name+'.png')
     def depart(biome):
         assert d.game().mode==0
-        d.menu(2);d.press('a');d.menu(biome);d.press('a')
+        d.menu(1);d.press('a');d.menu(3);d.press('a');d.menu(biome);d.press('a')
         state=d.game();assert state.mode==4 and state.cursor==biome
         materials=e.read_ram(preview_address,192)
         sampled=[materials[y] for y in (35,70,100,150,185)]
@@ -71,8 +71,8 @@ with Emulator(a.rom,fixture) as e:
             e.screenshot(a.output/image_name);shots.append(image_name)
         preview_checks.append({'biome':biome,'frame':state.frame,'sampled_road_materials':sampled,
                                'period':period,'screenshot':image_name})
-        d.press('b')
-        assert d.game().save.selected_location==biome
+        d.press('b');d.press('b')
+        assert d.game().mode==0 and d.game().save.selected_location==biome
     def finish():
         d.press('start');assert d.game().mode==7
         d.menu(1);d.press('a');assert d.game().mode==2
@@ -105,7 +105,6 @@ with Emulator(a.rom,fixture) as e:
     def garage_vehicle(vehicle):
         assert d.game().mode==3
         while d.game().garage_tab:d.press('l')
-        while d.game().garage_filter:d.press('select')
         d.menu(0)
         for _ in range(VEHICLE_COUNT):
             if d.game().selection==vehicle:return
@@ -161,22 +160,18 @@ with Emulator(a.rom,fixture) as e:
             shutil.copyfile(a.output/('vehicle-'+str(v).zfill(2)+'.png'),
                             a.output/('vehicle-'+OLD_VEHICLES[v]+'.png'))
     garage_vehicle(0);d.press('r');assert d.game().garage_tab==1
-    for cursor,field,cost in ((1,'engine',60),(2,'grip',54),(3,'armor',57),(4,'recovery',63)):
+    for cursor,field,cost in ((3,'engine',60),(4,'grip',54),(5,'armor',57),(6,'recovery',63)):
         d.menu(cursor);before=d.game().save.cash;d.press('a');g=d.game()
         assert getattr(g.save,field)[0]==1 and g.save.cash==before-cost
         actions.append({'fixture_funded_part':field,'cost':cost,'level':1})
     shot('garage-parts-upgraded')
-    d.press('r');assert d.game().garage_tab==2
-    for cursor,field in ((1,'power_tune'),(2,'handling_tune'),(3,'chassis_tune')):
-        d.menu(cursor);before=d.game().save.cash
-        assert getattr(d.game().save,field)[0]==0
-        d.press('right');assert d.game().tune_choice==1
-        assert getattr(d.game().save,field)[0]==0 # Preview is not an applied setup.
-        shot('garage-tune-preview-'+field)
-        d.press('a');assert getattr(d.game().save,field)[0]==1
-        assert d.game().save.cash==before
-        actions.append({'free_tune_applied':field,'value':1})
-    d.press('b');d.menu(4);d.press('a');assert d.game().mode==8
+    for choice,field in ((1,'power_tune'),(3,'chassis_tune'),(4,'handling_tune')):
+        d.menu(1);before=d.game().save.cash
+        while d.game().build_choice!=choice:d.press('right')
+        shot('garage-build-preview-'+field)
+        d.menu(2);d.press('a');assert d.game().save.cash==before
+        actions.append({'free_build_applied':choice})
+    d.press('b');d.menu(3);d.press('a');assert d.game().mode==8
     cash=d.game().save.cash
     for cursor in range(3):d.menu(cursor);d.press('a')
     assert list(d.game().save.perks)==[1,1,1];shot('career-perks')
@@ -262,7 +257,7 @@ with Emulator(a.rom,fixture) as e:
                  for skin in range(3) if skin!=primary)
     assert len(cases)==43
     for vehicle,skin,biome,family,primary in cases:
-        d.menu(5);d.press('a');assert d.game().mode==9;d.menu(4)
+        d.menu(4);d.press('a');assert d.game().mode==9;d.menu(4)
         while d.game().save.skin!=skin:d.press('right')
         d.menu(7)
         target_units=1 if family=='bike' else 0

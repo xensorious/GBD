@@ -137,9 +137,9 @@ static void police_recovery_and_pause(void) {
 }
 static void reasons_and_save(void) {
  Game g,loaded;Save before,after;begin(&g,0);
- CHECK(sizeof(Save)==596 && sizeof(RunStats)==108);
- CHECK(sizeof(Game)==1692 && offsetof(Game,police_ticks)==1664);
- CHECK(offsetof(Game,police_pressure)==1666 && offsetof(Game,end_reason)==1667);
+ CHECK(sizeof(Save)==708 && sizeof(RunStats)==108);
+ CHECK(sizeof(Game)==1808 && offsetof(Game,police_ticks)==1776);
+ CHECK(offsetof(Game,police_pressure)==1778 && offsetof(Game,end_reason)==1779);
  game_make_save(&g,&before);g.police_ticks=89;g.police_pressure=98;g.end_reason=END_CRASH;
  game_make_save(&g,&after);CHECK(!memcmp(&before,&after,sizeof(before)));
  game_init(&loaded,41);CHECK(game_load(&loaded,&before));game_begin_run(&loaded);

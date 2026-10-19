@@ -23,7 +23,7 @@ def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     verify_layout(ROOT)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -120,7 +120,7 @@ def emulator_tests(rom,elf,output):
         before=(g.mode,g.cursor,g.save.cash)
         p.ticks(4,touch=(120,60));g=p.game()
         assert (g.mode,g.cursor,g.save.cash)==before
-        p.menu(5);p.press('a');assert p.game().mode==9
+        p.menu(4);p.press('a');assert p.game().mode==9
         p.shot('settings')
         # Settings respond only to physical buttons and persist in the same
         # battery profile as garage and career progress.
@@ -160,16 +160,16 @@ def emulator_tests(rom,elf,output):
         p.press('l');assert p.game().controls_page==0
         p.press('b');assert p.game().mode==9
         p.press('b');assert p.game().mode==0
-        p.menu(4);p.press('a');assert p.game().mode==8;p.shot('career')
+        p.menu(3);p.press('a');assert p.game().mode==8;p.shot('career')
         p.press('b');assert p.game().mode==0
         p.menu(1);p.press('a');assert p.game().mode==3;p.shot('garage')
         p.press('r');assert p.game().garage_tab==1;p.shot('garage-parts')
         p.press('r');assert p.game().garage_tab==2;p.shot('garage-tuning')
         p.press('l');p.press('l');assert p.game().garage_tab==0
         p.press('b');assert p.game().mode==0
-        p.menu(2);p.press('a');assert p.game().mode==4;p.shot('departures')
-        p.press('b');assert p.game().mode==0
-        p.menu(3);p.press('a');assert p.game().mode==5;p.shot('challenges')
+        p.menu(1);p.press('a');p.menu(3);p.press('a');assert p.game().mode==4;p.shot('departures')
+        p.press('b');assert p.game().mode==3;p.press('b');assert p.game().mode==0
+        p.menu(2);p.press('a');assert p.game().mode==5;p.shot('challenges')
         p.press('b');assert p.game().mode==0
         p.menu(0);p.press('a');assert p.game().mode==1
         assert p.game().turbo_charge_q8==8*30*256
@@ -271,7 +271,7 @@ def emulator_tests(rom,elf,output):
         cash=g.save.cash;p.ticks(40);assert p.game().save.cash==cash
         p.press('a');assert p.game().mode==0
         p.shot('home-after-run')
-        p.menu(4);p.press('a');assert p.game().mode==8
+        p.menu(3);p.press('a');assert p.game().mode==8
         p.shot('career-earned');earned_perk=False
         if p.game().save.career_xp>=200:
             p.menu(0);p.press('a');assert p.game().save.perks[0]==1
@@ -283,7 +283,7 @@ def emulator_tests(rom,elf,output):
         purchased=False
         if cash>=cost:
             p.press('r');assert p.game().garage_tab==1
-            p.menu(2);before=p.game().save.cash;p.press('a');g=p.game()
+            p.menu(4);before=p.game().save.cash;p.press('a');g=p.game()
             assert g.save.grip[0]==1
             assert g.save.cash==before-game_grip_cost
             purchased=True;p.shot('garage-upgraded')

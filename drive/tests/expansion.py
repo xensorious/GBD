@@ -83,7 +83,7 @@ def child_case(a):
             p.shot(name,keys);result['screenshots'].append(name+'.png')
         def browse(vehicle):
             assert p.game().mode==3
-            while p.game().garage_filter:p.press('select')
+            tab(0)
             p.menu(0)
             for _ in range(VEHICLE_COUNT):
                 if p.game().selection==vehicle:return
@@ -91,21 +91,27 @@ def child_case(a):
             raise AssertionError('Garage could not select target vehicle')
         def tab(number):
             while p.game().garage_tab!=number:p.press('r')
+        def dealer_vehicle(vehicle):
+            tab(3)
+            cls=vehicle_info[vehicle]['class_id']
+            while p.game().garage_filter!=cls:p.press('right')
+            ids=[v['id'] for v in vehicle_info if v['class_id']==cls]
+            p.menu(ids.index(vehicle)+1)
         def buy(vehicle):
-            tab(0);browse(vehicle);p.menu(1);p.press('a')
+            dealer_vehicle(vehicle);p.press('a')
         def open_garage():
             p.menu(1);p.press('a');assert p.game().mode==3
         def apply_style(vehicle,livery,wheels):
-            browse(vehicle);tab(3);p.menu(1)
+            browse(vehicle);tab(2);p.menu(2)
             while p.game().livery_choice!=livery:p.press('right')
-            p.menu(2)
+            p.menu(3)
             while p.game().wheel_choice!=wheels:p.press('right')
         def bank():
             p.press('start');assert p.game().mode==7
             p.menu(1);p.press('a');assert p.game().mode==2 and p.game().end_reason==3
         if a.case.startswith('gate-'):
             class_id=int(a.case[-1]);owned,target,prerequisite=GATE_CASES[class_id]
-            open_garage();tab(0);browse(target);p.menu(1)
+            open_garage();dealer_vehicle(target)
             before=p.game();cash=before.save.cash;p.press('a');after=p.game()
             if prerequisite is not None:
                 assert not after.save.owned&(1<<target) and after.save.cash==cash
@@ -127,11 +133,11 @@ def child_case(a):
                           owned_after=after.save.owned.bit_count())
             p.press('b')
         elif a.case=='style':
-            open_garage();browse(0);tab(3);cash=p.game().save.cash
+            open_garage();browse(0);tab(2);cash=p.game().save.cash
             apply_style(0,2,3);g=p.game()
             assert (g.save.livery[0],g.save.wheels[0],g.save.cash)==(0,0,cash)
             shot('expansion-style-preview')
-            p.menu(3);p.press('a');g=p.game()
+            p.menu(5);p.press('a');g=p.game()
             assert (g.save.livery[0],g.save.wheels[0])==(2,3)
             assert g.save.cash==cash-320 and g.save.livery_owned[0]&(1<<2) and g.save.wheels_owned[0]&(1<<3)
             cash=g.save.cash;p.press('a');assert p.game().save.cash==cash
@@ -139,10 +145,10 @@ def child_case(a):
             apply_style(30,4,1);g=p.game()
             assert (g.save.livery[30],g.save.wheels[30])==(0,0)
             assert (g.save.livery[0],g.save.wheels[0])==(2,3)
-            p.menu(3);p.press('a');g=p.game()
+            p.menu(5);p.press('a');g=p.game()
             assert g.save.cash==cash-555 and (g.save.livery[30],g.save.wheels[30])==(4,1)
             shot('expansion-style-horse')
-            tab(1);browse(30);p.menu(4);cash=p.game().save.cash;p.press('a');g=p.game()
+            browse(30);tab(1);p.menu(6);cash=p.game().save.cash;p.press('a');g=p.game()
             assert g.save.recovery[30]==1 and g.save.recovery[0]==0 and g.save.cash==cash-88
             shot('expansion-recovery-part')
             result.update(passed=True,preview_did_not_purchase=True,reapply_free=True,
@@ -152,7 +158,7 @@ def child_case(a):
         else:
             g=p.game();assert g.save.contracts_completed==2
             assert not lib.game_can_vehicle(C.byref(g),28) and not lib.game_can_location(C.byref(g),10)
-            p.menu(6);p.press('a');assert p.game().mode==10
+            p.menu(5);p.press('a');assert p.game().mode==10
             offers=[]
             for slot in range(3):
                 offer=DispatchContract();lib.game_contract_offer(C.byref(p.game()),slot,C.byref(offer))
@@ -188,12 +194,12 @@ def child_case(a):
             p.ticks(40);assert p.game().save.cash==paid and p.game().save.contracts_completed==3
             p.press('a');open_garage();buy(28);assert p.game().save.owned&(1<<28)
             shot('expansion-contract-unlocked-segway');p.press('b')
-            p.menu(3);p.press('a');assert p.game().mode==5;p.menu(7);shot('expansion-challenges')
+            p.menu(2);p.press('a');assert p.game().mode==5;p.menu(7);shot('expansion-challenges')
             observed=[]
             for index in (5,6,7):
                 goal=C.c_int();value=lib.game_challenge_progress(C.byref(p.game()),index,C.byref(goal))
                 assert value==goal.value;observed.append({'index':index,'value':value,'goal':goal.value})
-            p.press('b');p.menu(6);p.press('a');p.menu(3);p.press('a')
+            p.press('b');p.menu(5);p.press('a');p.menu(3);p.press('a')
             assert p.game().save.dispatch_choice==3
             p.menu(0);p.press('a');p.autopilot(20,('r','down'));assert p.game().active_contract.kind==5
             bank();assert not p.game().contract_cash and p.game().save.contracts_completed==3
@@ -233,7 +239,7 @@ def main():
     result={'rom':rom,'class_gates_passed':all(x['passed'] for x in checks[:5]),
             'cosmetics_passed':checks[5]['passed'],'contracts_passed':checks[6]['passed'],
             'preview_stable':scenery['preview_stable'],'preview_checks':scenery['preview_checks'],
-            'serialized_save_bytes':500,'runtime_save_bytes':596,'physical_save_bytes':512,
+            'serialized_save_bytes':500,'runtime_save_bytes':708,'physical_save_bytes':512,
             'vehicles_reviewed':31,'locations_reviewed':13,'cases':checks,
             'inputs':'joypad only; labelled fixture budget, fleet boundaries and two prior Dispatch completions',
             'ram_access':'read only; no checkpoint restores or emulator RAM writes'}

@@ -14,6 +14,8 @@
 #define LIVERY_COUNT 5
 #define WHEEL_COUNT 4
 #define CONTRACT_OFFERS 3
+#define SMOKE_COUNT 5
+#define PRESET_COUNT 3
 #define TRAFFIC_COUNT 20
 #define PICKUP_COUNT 24
 #define BONUS_COUNT 7
@@ -69,6 +71,9 @@ typedef struct {
  uint8_t livery_owned[VEHICLE_COUNT],wheels_owned[VEHICLE_COUNT],dispatch_choice;
  uint32_t contracts_completed;
  uint8_t reserved[4];
+ uint8_t paint_seen[VEHICLE_COUNT],smoke[VEHICLE_COUNT],smoke_seen[VEHICLE_COUNT];
+ uint32_t presets[PRESET_COUNT];
+ uint8_t preset_mask;
 } Save;
 typedef struct {
  uint32_t count[BONUS_COUNT],points[BONUS_COUNT];
@@ -109,6 +114,7 @@ typedef struct {
  uint8_t garage_filter,livery_choice,wheel_choice,contract_complete;
  DispatchContract active_contract;
  uint32_t contract_progress,contract_cash;
+ uint8_t smoke_choice,build_choice,preset_choice;
 } Game;
 
 void game_init(Game *g,uint32_t seed);
@@ -146,6 +152,12 @@ const char *game_livery_name(int value);
 const char *game_wheel_name(int value);
 int game_cosmetic_cost(const Game *g,int kind,int value);
 int game_apply_cosmetics(Game *g);
+const char *game_smoke_name(int value);
+const char *game_build_name(int value);
+int game_build_choice(const Game *g,int vehicle);
+int game_preset_cost(const Game *g,int slot);
+int game_dealer_count(int class_id);
+int game_dealer_vehicle(int class_id,int row);
 void game_contract_offer(const Game *g,int slot,DispatchContract *out);
 const char *game_contract_name(int kind);
 uint32_t game_contract_progress(const Game *g);

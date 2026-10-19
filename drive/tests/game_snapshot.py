@@ -45,7 +45,8 @@ class DiskSave3(C.LittleEndianStructure):
         (n,U8) for n in ('music_on','sfx_on','music_volume','sfx_volume',
                         'skin','shake','units','motion')]+[
         ('dispatch_choice',U8),('reserved',U8),('contracts_completed',U32)]
-Save=V3Save
+class Save(C.LittleEndianStructure):
+    _fields_=V3Save._fields_+[('paint_seen',U8*31),('smoke',U8*31),('smoke_seen',U8*31),('presets',U32*3),('preset_mask',U8)]
 class DispatchContract(C.LittleEndianStructure):
     _fields_=[('goal',U32),('reward',U32),('kind',U8),('reserved',U8*3)]
 class VehicleDef(C.Structure):
@@ -82,7 +83,7 @@ class Game(C.LittleEndianStructure):
         ('turbo_source',U8),('controls_page',U8),('turbo_remainder',U16),
         ('police_ticks',U16),('police_pressure',U8),('end_reason',U8),
         ('garage_filter',U8),('livery_choice',U8),('wheel_choice',U8),('contract_complete',U8),
-        ('active_contract',DispatchContract),('contract_progress',U32),('contract_cash',U32)]
+        ('active_contract',DispatchContract),('contract_progress',U32),('contract_cash',U32),('smoke_choice',U8),('build_choice',U8),('preset_choice',U8)]
 
 def verify_layout(root:Path):
     """Compile every ctypes offset against C before observing cartridge RAM."""
@@ -99,7 +100,7 @@ def verify_layout(root:Path):
                    input='\n'.join(declarations)+'\n',text=True,check=True)
     assert C.sizeof(LegacySave)==100 and C.sizeof(V2Save)==204 and C.sizeof(V3Save)==596
     assert C.sizeof(DiskSave3)==SAVE_DISK_SIZE
-    assert C.sizeof(Save)==596 and C.sizeof(Game)==1692
+    assert C.sizeof(Save)==708 and C.sizeof(Game)==1808
 
 MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings','contracts')
 END_REASONS=('none','stopped by patrol','crash impound','banked voluntarily','route limit')

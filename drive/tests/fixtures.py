@@ -52,7 +52,7 @@ def write_battery(template:Path,destination:Path,payload:bytes):
 
 
 def encode_profile(library,game):
-    """Use the cartridge codec; the 596-byte RAM view is never a disk fixture."""
+    """Use the cartridge codec; the 708-byte RAM view is never a disk fixture."""
     from game_snapshot import Game,Save,DiskSave3
     library.game_make_save.argtypes=[C.POINTER(Game),C.POINTER(Save)]
     library.game_save_valid.argtypes=[C.POINTER(Save)]
@@ -63,17 +63,13 @@ def encode_profile(library,game):
     data=(C.c_uint8*500)()
     assert library.game_encode_save(C.byref(game),data,len(data))
     payload=bytes(data)
-    assert len(payload)==500 and struct.unpack_from('<I',payload,4)[0]==3
-    disk=DiskSave3.from_buffer_copy(payload)
-    assert payload[:8]==bytes(canonical)[:8] and payload[12:328]==bytes(canonical)[12:328]
-    assert list(disk.tunes)==[canonical.power_tune[i]|canonical.handling_tune[i]<<2|
-                              canonical.chassis_tune[i]<<4 for i in range(31)]
-    assert list(disk.style)==[canonical.livery[i]|canonical.wheels[i]<<3 for i in range(31)]
-    for name in ('recovery','livery_owned','wheels_owned','perks'):
-        assert list(getattr(disk,name))==list(getattr(canonical,name)),name
-    for name in ('music_on','sfx_on','music_volume','sfx_volume','skin','shake','units',
-                 'motion','dispatch_choice','contracts_completed'):
-        assert getattr(disk,name)==getattr(canonical,name),name
+    assert len(payload)==500 and struct.unpack_from('<I',payload,4)[0]==4
+    loaded=Game();library.game_init(C.byref(loaded),123)
+    library.game_load_bytes.argtypes=[C.POINTER(Game),C.c_void_p,C.c_uint]
+    assert library.game_load_bytes(C.byref(loaded),data,500)
+    roundtrip=Save();library.game_make_save(C.byref(loaded),C.byref(roundtrip))
+    assert bytes(roundtrip)==bytes(canonical)
+
     return payload
 
 
@@ -88,11 +84,11 @@ def assert_compact_battery(path:Path):
     """Independently validate all 500 serialized bytes on the original 512B chip."""
     assert battery_size(path)==512,'The cartridge changed the physical battery capacity'
     payload=bytearray(path.read_bytes()[:500])
-    assert struct.unpack_from('<II',payload)==(0x434c4452,3)
+    assert struct.unpack_from('<II',payload)==(0x434c4452,4)
     stored=struct.unpack_from('<I',payload,8)[0];payload[8:12]=b'\0'*4
     value=2166136261
     for byte in payload:value=((value^byte)*16777619)&0xffffffff
-    assert value==stored,'The serialized v3 checksum does not cover the full 500-byte profile'
+    assert value==stored,'The serialized v4 checksum does not cover the full 500-byte profile'
     assert payload[204:]!=b'\xff'*296,'No profile tail was written beyond the old payload'
     return {'serialized_save_bytes':500,'physical_save_bytes':512,'disk_checksum_valid':True}
 
@@ -120,7 +116,7 @@ def assert_imported_fields(current,old):
         assert list(current.perks)==list(old.perks)
     else:
         assert current.music_on and current.sfx_on
-    assert current.version==3
+    assert current.version==4
     for name in ('recovery','livery','wheels'):
         assert not any(getattr(current,name)),name
     for name in ('livery_owned','wheels_owned'):

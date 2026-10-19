@@ -220,8 +220,8 @@ static int bridge_region(int biome)
 
 typedef struct {uint16_t sky,sky_low,floor,floor_low,pane,ink,muted,accent,rim;} StudioTheme;
 static const StudioTheme studio_themes[SKIN_COUNT]={
- {C(180,230,233),C(248,236,224),C(247,255,250),C(206,235,234),C(230,249,244),C(28,66,83),C(82,124,132),C(4,137,151),C(150,198,197)},
- {C(248,195,181),C(218,185,223),C(255,235,225),C(239,208,212),C(251,225,226),C(76,50,78),C(139,98,126),C(186,80,111),C(213,158,179)},
+ {C(236,239,242),C(220,227,232),C(255,255,255),C(234,240,244),C(247,250,252),C(22,33,46),C(91,110,125),C(0,107,174),C(190,206,219)},
+ {C(8,14,25),C(14,25,42),C(16,30,48),C(9,18,31),C(16,30,48),C(231,247,255),C(127,163,185),C(180,244,75),C(48,83,111)},
  {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(35,66,89),C(236,250,247),C(145,190,201),C(105,233,220),C(77,124,144)}
 };
 
@@ -1300,7 +1300,9 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
    int age=(g->frame+i*5)%15;
    int sx=x+(yaw>0?-8:8)+(yaw>0?-age:age)/2;
    int sy=y+14+age/2;
-   gfx_circle(s,sx,sy,2+age/6,age>9?C(114,131,132):C(179,190,183));
+   static const uint16_t smoke_colors[SMOKE_COUNT]={C(190,204,208),C(248,133,124),C(94,222,205),C(186,145,246),C(245,203,111)};
+   uint16_t smoke=smoke_colors[g->save.smoke[vehicle]%SMOKE_COUNT];
+   gfx_circle(s,sx,sy,2+age/6,age>9?blend_color(smoke,C(92,109,116),120):smoke);
   }
  }
  int paint=g->save.paint[vehicle];
@@ -1540,6 +1542,66 @@ static void draw_run_overlay(Surface *s,const Game *g)
  }
 }
 
+/* A room is staged around the authored rear-three-quarter vehicle, with
+ * floor depth converging above its bonnet and three upright enclosing walls. */
+static void overlay_panel(Surface *s,int x,int y,int w,int h,uint16_t color){
+ for(int row=y;row<y+h;row++)for(int col=x;col<x+w;col++)if((unsigned)col<VW&&(unsigned)row<VH)
+  s->pixels[row*VW+col]=blend_color(s->pixels[row*VW+col],color,160);
+}
+static void draw_garage_room(Surface *s,const Game *g,const StudioTheme *ui){
+ static const uint16_t wall[LOCATION_COUNT]={C(93,107,124),C(106,176,176),C(77,135,163),C(108,119,103),C(177,119,94),C(35,65,92),C(88,116,103),C(174,164,115),C(31,29,67),C(62,107,83),C(65,92,81),C(127,156,180),C(169,143,167)};
+ static const uint16_t floor[LOCATION_COUNT]={C(80,90,104),C(130,165,160),C(86,122,143),C(133,113,85),C(153,119,92),C(50,74,97),C(88,104,87),C(155,147,115),C(28,37,59),C(93,111,85),C(75,94,83),C(119,141,157),C(172,163,178)};
+ static const uint8_t faces[LOCATION_COUNT]={6,4,2,16,13,3,9,10,23,14,17,15,24};
+ int region=g->save.selected_location,id=clampi(g->selection,0,VEHICLE_COUNT-1);
+ uint16_t base=wall[region],ground=floor[region],rim=blend_color(base,C(21,32,46),130);
+ gfx_rect(s,0,0,VW,VH,base);
+ gfx_indexed_sprite(s,32,0,building_wall_idx+faces[region]*4096,building_palette+faces[region]*256,64,64,192,57);
+ overlay_panel(s,32,0,192,57,base);
+ SceneryPoint left[4]={{0,0},{34,16},{34,57},{0,98}},right[4]={{222,16},{256,0},{256,98},{222,57}};
+ for(int y=57;y<VH;y++){int amount=(y-57)*110/(VH-57);gfx_rect(s,0,y,VW,1,blend_color(ground,C(21,31,43),amount));}
+ uint16_t seam=blend_color(ground,C(14,28,39),90);
+ for(int n=-3;n<=4;n++)gfx_line(s,128+n*22,57,128+n*86,191,seam);
+ for(int y=67;y<192;y+=(y-40)/2)gfx_rect(s,0,y,256,1,seam);
+ scenery_polygon(s,left,4,blend_color(base,C(16,29,43),70));scenery_polygon(s,right,4,blend_color(base,C(16,29,43),130));
+ gfx_line(s,0,97,34,57,rim);gfx_line(s,34,57,222,57,rim);gfx_line(s,222,57,255,97,rim);
+ /* Window and local wall fittings distinguish the departure's workshop. */
+ uint16_t sky=sky_themes[region].high;
+ gfx_rect(s,181,18,32,24,rim);gfx_rect(s,184,21,26,18,sky);
+ if(region==NEON||region==MARINA){gfx_rect(s,182,29,4,10,C(224,90,191));gfx_rect(s,190,24,5,15,C(73,211,218));gfx_rect(s,199,26,7,13,C(129,111,223));}
+ else if(region==AURORA){gfx_rect(s,184,32,26,7,C(207,231,239));gfx_line(s,185,26,194,20,C(129,236,210));}
+ else if(region==JUNGLE||region==SWAMP||region==WETLANDS||region==PINES||region==GROVES){for(int n=0;n<4;n++){gfx_rect(s,186+n*6,27-n%2*4,2,12,C(48,91,66));gfx_circle(s,187+n*6,27-n%2*4,4,C(61,118,78));}}
+ else {gfx_rect(s,184,33,26,6,sea_color(region));gfx_rect(s,198,24,4,4,C(248,226,161));}
+ gfx_rect(s,196,20,1,20,rim);gfx_rect(s,183,29,28,1,rim);
+ gfx_rect(s,7,77,23,15,blend_color(base,C(12,26,40),155));gfx_rect(s,6,74,25,3,C(174,185,184));
+ for(int i=0;i<3;i++){gfx_rect(s,10+i*7,80,4,2,C(190,197,190));gfx_rect(s,10+i*7,85,4,2,C(190,197,190));}
+ uint16_t light=region==NEON?C(229,100,213):region==SWAMP?C(181,209,141):region==AURORA?C(153,228,239):C(224,235,221);
+ gfx_line(s,6,14,30,25,light);gfx_line(s,226,25,250,14,light);
+ if(region==NEON||region==MARINA){gfx_line(s,34,58,0,100,C(84,197,214));gfx_line(s,222,58,255,100,C(209,86,194));}
+ /* Service pad shares the car's depth axis; it is not a flat portrait card. */
+ SceneryPoint pad[4]={{91,67},{145,67},{164,183},{67,183}};
+ scenery_polygon(s,pad,4,blend_color(ground,C(25,37,48),65));
+ gfx_line(s,91,67,67,183,blend_color(light,ground,110));gfx_line(s,145,67,164,183,blend_color(light,ground,110));
+ int w=vehicles[id].bike?43:73,h=108,x=116-w/2,y=65;
+ int preview=g->garage_tab==2;
+ int paint=preview?g->paint_choice:g->save.paint[id],livery=preview?g->livery_choice:g->save.livery[id],wheels=preview?g->wheel_choice:g->save.wheels[id];
+ int smoke=preview?g->smoke_choice:g->save.smoke[id];
+ if(preview && smoke){static const uint16_t colors[5]={C(190,204,208),C(248,133,124),C(94,222,205),C(186,145,246),C(245,203,111)};ellipse(s,x+8,175,15,4,blend_color(colors[smoke],ground,90));ellipse(s,x+w-8,177,17,4,blend_color(colors[smoke],ground,90));}
+ contact_shadow(s,x,y,w,h,vehicle_body_spans[id*5+2],CAR_W,CAR_H);
+ gfx_vehicle_style(s,x,y,gfx_vehicle_pixels(id,2),CAR_W,CAR_H,w,h,paint,livery,wheels);
+ overlay_panel(s,4,3,248,27,ui->pane);gfx_text(s,10,7,vehicles[id].name,ui->ink);
+ char subtitle[56];snprintf(subtitle,sizeof subtitle,"%s / %s",locations[region].name,g->garage_tab==3?"DEALER":g->garage_tab==1?"TUNING":g->garage_tab==2?"STYLE":"YOUR COLLECTION");gfx_text_small(s,10,20,subtitle,ui->muted);
+ overlay_panel(s,179,66,73,105,ui->pane);
+ static const char*const labels[4]={"TOP SPEED","0-100 km/h","ROAD GRIP","ARMOR"};
+ for(int stat=0;stat<4;stat++){int value=game_preview_stat(g,id,stat),row=70+stat*24;gfx_text_small(s,184,row,labels[stat],ui->muted);char text[24];
+  if(stat==0){if(g->save.units)value=(value*621+500)/1000;snprintf(text,sizeof text,"%d %s",value,g->save.units?"mph":"km/h");}
+  else if(stat==1){int tenth=(1000+value/2)/(value?value:1);snprintf(text,sizeof text,"%d.%d s",tenth/10,tenth%10);}
+  else snprintf(text,sizeof text,"%d",value);
+  gfx_text(s,184,row+10,text,ui->ink);
+ }
+ overlay_panel(s,4,179,248,13,ui->pane);
+ if(g->notice_timer && g->notice[0])gfx_text_small(s,9,182,g->notice,ui->ink);
+ else{char line[64];snprintf(line,sizeof line,"CLASS %s  /  MASTERY %d  /  %s",game_class_name(vehicles[id].class_id),game_mastery_level(g,id),game_specialty_name(vehicles[id].specialty));gfx_text_small(s,9,182,line,ui->ink);}
+}
 static void draw_showroom(Surface *s,const Game *g,int receipt)
 {
  static uint16_t studio_art[VW*VH] __attribute__((aligned(4)));
@@ -1550,6 +1612,7 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  const StudioTheme *theme=theme_for(g);
  Surface cache={studio_art,VW,VH};
  Surface *scene=&cache;
+ if(!receipt){draw_garage_room(scene,g,theme);old_key=key;ready=1;gfx_copy(s->pixels,studio_art,VW*VH);return;}
  for(int y=0;y<58;y++)gfx_rect(scene,0,y,VW,1,blend_color(theme->sky,theme->sky_low,y*256/58));
  gfx_rect(scene,0,40,VW,16,blend_color(theme->sky,C(75,166,180),100));
  for(int i=0;i<5;i++)gfx_rect(scene,15+i*53,45+i%3,20,1,blend_color(theme->sky,C(239,253,239),130));
