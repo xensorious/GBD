@@ -21,7 +21,7 @@ const uint16_t *gfx_vehicle_pixels(int vehicle,int pose);
 /* Player cosmetics use authored material flags, preserving skin, hair, glass,
  * horse fur, tires and every transparent pixel. */
 void gfx_vehicle_style(Surface*,int x,int y,const uint16_t*,int srcw,int srch,
-                       int destw,int desth,int paint,int livery,int wheels);
+                       int destw,int desth,int paint,int livery,int wheels,int livery_color);
 void gfx_line(Surface*,int x1,int y1,int x2,int y2,uint16_t);
 void gfx_circle(Surface*,int x,int y,int radius,uint16_t);
 void gfx_number(Surface*,int x,int y,int,uint16_t);

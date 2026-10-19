@@ -58,7 +58,7 @@ static uint32_t full_size_case(int vehicle,int pose,int style){
  const uint8_t *flags=vehicle_palette_flags+vehicle*256;
  Style chosen=styles[style];
  Surface surface={screen,W,H};clear();
- gfx_vehicle_style(&surface,8,12,source,48,72,48,72,chosen.paint,chosen.livery,chosen.wheels);
+ gfx_vehicle_style(&surface,8,12,source,48,72,48,72,chosen.paint,chosen.livery,chosen.wheels,0);
  unsigned changed=0;
  for(int y=0;y<72;y++)for(int x=0;x<48;x++){
   int at=y*48+x;uint16_t original=palette[indices[at]],actual=screen[(y+12)*W+x+8];
@@ -80,7 +80,7 @@ static uint32_t full_size_case(int vehicle,int pose,int style){
 static uint32_t scaled_case(int vehicle,int pose,int style,int dw,int dh,int left,int top){
  Surface surface={screen,W,H};clear();Style chosen=styles[style];
  const uint16_t *source=gfx_vehicle_pixels(vehicle,pose);
- gfx_vehicle_style(&surface,left,top,source,48,72,dw,dh,chosen.paint,chosen.livery,chosen.wheels);
+ gfx_vehicle_style(&surface,left,top,source,48,72,dw,dh,chosen.paint,chosen.livery,chosen.wheels,0);
  for(int y=0;y<H;y++)for(int x=0;x<W;x++){
   uint16_t expected=background;
   if(x>=left && x<left+dw && y>=top && y<top+dh){

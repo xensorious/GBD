@@ -1,4 +1,5 @@
 #include "gfx.h"
+#include "finish.h"
 #include "assets.h"
 #include <string.h>
 #include <stdio.h>
@@ -250,7 +251,7 @@ static uint16_t material_u_step[72];
 static int material_top,material_height;
 static unsigned material_v_step;
 static int decoded_id=-1,decoded_pose=-1,styled_id=-1,styled_pose=-1;
-static int styled_paint=-1,styled_livery=-1,styled_wheels=-1;
+static int styled_paint=-1,styled_livery=-1,styled_wheels=-1,styled_color=-1;
 
 /* Decompress only when changing models; steering poses reuse the same bank.
  * The compressed library stays resident without paying 17 KiB per owned car. */
@@ -310,19 +311,20 @@ static uint16_t material_tint(uint16_t c,int r,int g,int b){
 }
 
 static uint16_t material_paint(uint16_t c,int paint){
- static const uint8_t colors[6][3]={{31,31,31},{31,12,10},{7,29,27},{31,25,7},{25,13,31},{17,20,23}};
- return paint?material_tint(c,colors[paint][0],colors[paint][1],colors[paint][2]):c;
+ const FinishColor*color=body_finish(paint);
+ return paint?material_tint(c,color->r,color->g,color->b):c;
 }
 
 void gfx_vehicle_style(Surface*s,int x,int y,const uint16_t*source,int sw,int sh,
- int dw,int dh,int paint,int livery,int wheels){
- paint=(paint>=0&&paint<6)?paint:0;
+ int dw,int dh,int paint,int livery,int wheels,int livery_color){
+ paint=(paint>=0&&paint<PAINT_COUNT)?paint:0;
  livery=(livery>=0&&livery<5)?livery:0;
  wheels=(wheels>=0&&wheels<4)?wheels:0;
+ livery_color=(livery_color>=0&&livery_color<LIVERY_COLOR_COUNT)?livery_color:0;
  if(source!=decoded_vehicle || sw!=48 || sh!=72){gfx_vehicle(s,x,y,source,sw,sh,dw,dh,paint);return;}
  if(!paint&&!livery&&!wheels){gfx_vehicle(s,x,y,source,sw,sh,dw,dh,0);return;}
  if(styled_id!=decoded_id || styled_pose!=decoded_pose || styled_paint!=paint ||
-    styled_livery!=livery || styled_wheels!=wheels){
+    styled_livery!=livery || styled_wheels!=wheels || styled_color!=livery_color){
   static const uint8_t rims[4][3]={{0,0,0},{9,12,14},{28,30,31},{31,24,8}};
   forget_sprite(styled_vehicle);
   for(int at=0;at<VEHICLE_POSE_PIXELS;at++){
@@ -332,16 +334,16 @@ void gfx_vehicle_style(Surface*s,int x,int y,const uint16_t*source,int sw,int sh
     int row=at/48,column=at%48;
     int u=material_width[row]>1?(int)(((unsigned)(column-material_left[row])*material_u_step[row])>>11):16;
     int v=material_height>1?(int)(((unsigned)(row-material_top)*material_v_step)>>10):32;
-    if(livery==1 && ((u>=7&&u<=11)||(u>=20&&u<=24)||material_width[row]<4))c=material_tint(c,31,31,28);
-    else if(livery==2 && (u<8||u>23||(material_width[row]<4&&v>=32)))c=material_tint(c,8,12,15);
-    else if(livery==3)
-     c=((u/4+v/4)&1)?material_tint(c,31,31,29):material_tint(c,7,11,13);
-    else if(livery==4)c=((v/10+u/6)&1)?material_tint(c,7,31,28):material_tint(c,31,12,17);
+    if(livery_pixel(livery,u,v,material_width[row]<4)){
+     const FinishColor*color=livery_finish(livery_color);
+     /* Shade the decal from factory material, independently of body paint. */
+     c=material_tint(decoded_vehicle[at],color->r,color->g,color->b);
+    }
    }
    if(c && (material&2u) && wheels)c=material_tint(c,rims[wheels][0],rims[wheels][1],rims[wheels][2]);
    styled_vehicle[at]=c;
   }
-  styled_id=decoded_id;styled_pose=decoded_pose;styled_paint=paint;styled_livery=livery;styled_wheels=wheels;
+  styled_id=decoded_id;styled_pose=decoded_pose;styled_paint=paint;styled_livery=livery;styled_wheels=wheels;styled_color=livery_color;
  }
  gfx_vehicle(s,x,y,styled_vehicle,48,72,dw,dh,0);
 }

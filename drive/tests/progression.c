@@ -111,7 +111,7 @@ static void settings_and_locations(void) {
  g.cursor=1;g.save.music_volume=100;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.music_volume==100);
  g.save.music_volume=0;step(&g,K_LEFT,K_LEFT);CHECK(!g.save.music_volume);
  g.cursor=3;step(&g,K_LEFT,K_LEFT);CHECK(g.save.sfx_volume==70);
- g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==SKIN_VOLTAGE);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==SKIN_FUSION);
+ g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==SKIN_BLOOM);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==SKIN_FUSION);
  g.cursor=5;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.motion==2);
  g.cursor=6;step(&g,K_A,K_A);CHECK(!g.save.shake);
  g.cursor=7;step(&g,K_A,K_A);CHECK(g.save.units);

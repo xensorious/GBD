@@ -34,7 +34,7 @@ static void fusion_navigation(int skin){
  game_init(&loaded,3);CHECK(game_load_bytes(&loaded,disk,sizeof disk));CHECK(loaded.save.skin==skin);
 }
 static void transactions(void){
- Game g,loaded;profile(&g);g.mode=M_GARAGE;g.garage_tab=2;g.cursor=4;
+ Game g,loaded;profile(&g);g.mode=M_GARAGE;g.garage_tab=2;g.cursor=5;
  int values[4]={2,3,4,2},full[4];
  for(int kind=0;kind<4;kind++){full[kind]=game_cosmetic_cost(&g,kind,values[kind]);CHECK(full[kind]>0);}
  g.livery_choice=2;g.wheel_choice=3;g.paint_choice=4;g.smoke_choice=2;
@@ -105,6 +105,6 @@ int main(int argc,char**argv){transactions();for(int skin=SKIN_FUSION;skin<SKIN_
  press(&g,K_A);CHECK(g.save.cash==cash-locations[1].price);press(&g,K_B);CHECK(g.mode==M_GARAGE && g.cursor==1);
  g.save.skin=SKIN_FUSION;g.mode=M_GARAGE;g.garage_tab=0;g.cursor=0;
  for(int region=0;region<13;region++){g.save.selected_location=(uint8_t)region;render_game(&g,screen.top,screen.bottom);if(argc>1){char name[48];snprintf(name,sizeof name,"room-%02d",region);image(argv[1],name);}}
- printf("studio: %u checks; three interfaces with identical grid/page controls, distinct materials, retired skin migration, unified Departure, repeat-install discounts, atomic payments, paid presets and 1000B saves pass\n",checks);
+ printf("studio: %u checks; six interfaces with identical grid/page controls, distinct materials, retired skin migration, unified Departure, repeat-install discounts, atomic payments, paid presets and 1000B saves pass\n",checks);
  return 0;
 }

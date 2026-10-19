@@ -22,11 +22,11 @@ def report(name):
 stock=report('results.json')
 if not stock['native']:
     stock['native']=report('native-results.json')['native']
-assert len(stock['native'])==13,'Run all thirteen native sanitizer suites.'
+assert len(stock['native'])==14,'Run all fourteen native sanitizer suites.'
 assert stock['battery_save_reload'] and stock['upgrade_purchased'],'Verify earned cash, an actual part purchase and battery reload.'
 assert stock['long_drive_cadence']['updates']>0 and stock['long_drive_cadence']['hz']>=28
 studio=report('studio-results.json')
-assert studio['interfaces']==['Fusion','Pearl','Voltage'] and len(studio['cases'])==3
+assert studio['interfaces']==['Fusion','Pearl','Voltage','Alloy','Glacier','Bloom'] and len(studio['cases'])==6
 assert all(case['fusion_navigation_passed'] for case in studio['cases']),'Verify Fusion grid, settings pages and fresh save reload.'
 assert studio['garage_tabs']==['Showroom','Tuning','Style','Dealer']
 assert studio['departure_interiors']==13 and studio['fresh_process_reload']
@@ -63,13 +63,18 @@ for name in ('expansion-gate-4-results.json','expansion-style-results.json'):
 premium=report('premium-results.json')
 assert premium['purchases']==17 and premium['all_new_vehicles_driven'] and premium['motorcycle_wheelies']
 assert premium['high_id_preset'] and premium['fresh_process_reload']
+finishes=report('finishes-results.json')
+assert len(finishes['body_paints'])==16 and len(finishes['livery_colors'])==12
+assert finishes['replacement_liveries']==['Velocity','Contour']
+assert finishes['independent_color_purchases'] and finishes['high_id_color_preset']
+assert finishes['three_controls_pages'] and finishes['fresh_process_reload']
 
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Premium roster release: all 17 additions purchased and driven, 48-model dealer tours in all three interfaces, thirteen native suites, three-profile v4-to-v5 migration and earlier save migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun.'},indent=2)+'\n')
+    'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Finish studio release: 16 body paints, 12 independent livery colors, two replacement patterns, high-bit presets, six interfaces, 48-model dealer tours, fourteen native sanitizer suites and v1/v2/v3/v5 save migrations. All 17 premium vehicles purchased and driven. Dual-screen opening, three independent profiles and fresh-process reloads passed. Physical Delta/iPhone/DS testing and broader world tours were not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -88,13 +93,15 @@ contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SC
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
-    ('ui-3-home','FUSION / DIRECTIONAL TILE MENU'),('ui-3-settings','FUSION / SETTINGS PAGES'),
-    ('ui-3-showroom','FUSION / YOUR GARAGE'),('race-city','ACTUAL STOCK-PROFILE DRIVE')],screen='dual')
+    ('ui-6-home','ALLOY / GRAY AND ORANGE'),('ui-7-home','GLACIER / COBALT GLASS'),
+    ('ui-8-home','BLOOM / ROSE AND CREAM'),('finish-pattern-3','FINISH STUDIO / VELOCITY')],screen='dual')
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
-    ('home','FUSION / FOUR-DIRECTION TILE MENU'),('settings','AUDIO / L-R TO CHANGE PAGE'),
-    ('settings-display','DISPLAY / UP-DOWN TO SCROLL'),('settings-guide','GUIDE / BUTTON CONTROLS'))])
+    ('home','FUSION / TILE MENU'),('settings','AUDIO / PERSONAL SETTINGS'),
+    ('settings-display','DISPLAY / PERSONAL SETTINGS'),('settings-guide','GUIDE / CONTROLS LIBRARY'))])
+contact('New-Interfaces.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
+    for mode in ('home','settings','style') for s,name in ((6,'Alloy'),(7,'Glacier'),(8,'Bloom'))],columns=3)
 contact('Garage.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('showroom','tuning','style','dealer-4') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 locations=('METRO DAWN','PALM COAST','SKYWATER CAUSEWAY','PINE RIDGE','REDROCK PASS',
@@ -107,13 +114,19 @@ contact('Progression.png',[
     ('ui-5-dealer-3','CLASS-BASED DEALER'),('ui-5-receipt','RUN STATEMENT / CASH AWARDED')])
 contact('Premium-Vehicles.png',[(f"premium-{v['id']}-garage",f"{v['name'].upper()} / CLASS {v['class']} / ${v['price']}") for v in premium['vehicles']],columns=4,screen='dual')
 contact('Premium-Driving.png',[(f"premium-{v['id']}-driving",f"{v['name'].upper()} / IN GAME") for v in premium['vehicles']],columns=4,screen='dual')
+contact('Finishes.png',[
+    ('finish-pattern-3','VELOCITY / SWEEPING STRIPE'),('finish-pattern-4','CONTOUR / BODY OUTLINES'),
+    ('finish-signature','MAGENTA / ROSE GOLD / BATMOBILE'),('finish-preset','COLOR-AWARE SAVED PRESET')],screen='dual')
+contact('Body-Paints.png',[(f'finish-paint-{i:02d}',name.upper()) for i,name in enumerate(finishes['body_paints'])],columns=4,screen='top')
+contact('Livery-Colors.png',[(f'finish-color-{i:02d}',name.upper()) for i,name in enumerate(finishes['livery_colors'])],columns=4,screen='top')
 # Remove only known superseded presentation files, never user files.
 for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursuit.png','highway-motion.gif','biome-transition.gif'):
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
-    'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+    'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
+    'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'
 with zipfile.ZipFile(archive_path,'w',zipfile.ZIP_DEFLATED) as archive:

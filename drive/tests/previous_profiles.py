@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Import the three independently saved profiles from the opening release.
 
-First run opening.py on pinned release 6cc60aa (SHA checked below), then pass
+First run opening.py on pinned release fa5d188 (SHA checked below), then pass
 that validation directory as --source. No game RAM is written. Each slot is
 imported and booted again in a separate emulator process.
 """
@@ -12,13 +12,13 @@ import shutil
 import subprocess
 import sys
 from emulator import Emulator,ROOT
-from game_snapshot import Save,V4Save,find_symbol,read_game,enter_opening
+from game_snapshot import Save,V5Save,find_symbol,read_game,enter_opening
 from inspect_rom import inspect
 
-PINNED_SHA='9597d17ff99d2e4177b9a3a3921ce98e8b2a3d9674b6c0242df77b01f169e2df'
+PINNED_SHA='5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2'
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output',type=Path,default=ROOT/'build'/'premium-validation')
-p.add_argument('--source',type=Path,default=ROOT/'build'/'fusion-styles-final')
+p.add_argument('--source',type=Path,default=ROOT/'build'/'premium-release')
 p.add_argument('--slot',type=int,choices=range(3))
 p.add_argument('--reload',action='store_true')
 p.add_argument('--rich',action='store_true')
@@ -40,20 +40,25 @@ if a.slot is None:
  result={'rom':inspect(rom),'source_release_sha256':PINNED_SHA,'all_progress_preserved':True,
   'retired_interfaces_migrated_to_fusion':True,'profiles_imported':3,'fresh_process_reloads':3,
   'rich_cosmetics_and_presets_preserved':True,
-  'comparison':'Every previous field is preserved; 17 new vehicle records start with factory defaults.'}
+  'comparison':'Every previous field is preserved; new colors and livery-color history receive migration defaults.'}
  (a.output/'previous-profiles-results.json').write_text(json.dumps(result,indent=2)+'\n')
  print(json.dumps(result,indent=2));sys.exit(0)
-old=V4Save.from_buffer_copy((a.source/('studio-3-expected.bin' if a.rich else f'slot-{a.slot}-expected.bin')).read_bytes())
-if a.rich:assert old.owned==0x7fffffff and old.preset_mask and any(old.smoke)
+old=V5Save.from_buffer_copy((a.source/('studio-3-expected.bin' if a.rich else f'slot-{a.slot}-expected.bin')).read_bytes())
+if a.rich:assert old.owned==0xffffffff and old.preset_mask and any(old.smoke)
 expected=Save()
-for name,kind in V4Save._fields_:
+for name,kind in V5Save._fields_:
  value=getattr(old,name)
  if hasattr(value,'__len__'):
   target=getattr(expected,name)
   for i,v in enumerate(value):target[i]=v
  else:setattr(expected,name,value)
-for v in range(31,48):expected.livery_owned[v]=expected.wheels_owned[v]=expected.paint_seen[v]=expected.smoke_seen[v]=1
-expected.version=5;expected.checksum=0;expected.skin=max(3,expected.skin)
+for v in range(48):
+ expected.livery_color[v]=1 if expected.livery[v]==2 else 0
+ expected.livery_color_seen[v]=1|(1<<expected.livery_color[v])
+for i in range(3):
+ if expected.preset_mask&(1<<i) and (expected.presets[i]>>12)&7==2:expected.presets[i]|=1<<28
+expected.paints|=0xffc0
+expected.version=6;expected.checksum=0;expected.skin=max(3,expected.skin)
 
 with Emulator(rom,a.output/('previous-rich-save' if a.rich else 'previous-three-save')) as e:
  e.run(150);enter_opening(e,elf,a.slot);g=read_game(e,find_symbol(elf,'game'));g.save.checksum=0

@@ -47,8 +47,10 @@ class DiskSave3(C.LittleEndianStructure):
         ('dispatch_choice',U8),('reserved',U8),('contracts_completed',U32)]
 class V4Save(C.LittleEndianStructure):
     _fields_=V3Save._fields_+[('paint_seen',U8*31),('smoke',U8*31),('smoke_seen',U8*31),('presets',U32*3),('preset_mask',U8)]
-class Save(C.LittleEndianStructure):
+class V5Save(C.LittleEndianStructure):
     _fields_=[(name, U8*48 if kind==U8*31 else U32*48 if kind==U32*31 else kind) for name,kind in V4Save._fields_]+[('owned_hi',U32)]
+class Save(C.LittleEndianStructure):
+    _fields_=[(name,U16*48 if name=='paint_seen' else kind) for name,kind in V5Save._fields_]+[('livery_color',U8*48),('livery_color_seen',U16*48)]
 class DispatchContract(C.LittleEndianStructure):
     _fields_=[('goal',U32),('reward',U32),('kind',U8),('reserved',U8*3)]
 class VehicleDef(C.Structure):
@@ -85,7 +87,7 @@ class Game(C.LittleEndianStructure):
         ('turbo_source',U8),('controls_page',U8),('turbo_remainder',U16),
         ('police_ticks',U16),('police_pressure',U8),('end_reason',U8),
         ('garage_filter',U8),('livery_choice',U8),('wheel_choice',U8),('contract_complete',U8),
-        ('active_contract',DispatchContract),('contract_progress',U32),('contract_cash',U32),('smoke_choice',U8),('build_choice',U8),('preset_choice',U8)]
+        ('active_contract',DispatchContract),('contract_progress',U32),('contract_cash',U32),('smoke_choice',U8),('build_choice',U8),('preset_choice',U8),('livery_color_choice',U8)]
 
 def verify_layout(root:Path):
     """Compile every ctypes offset against C before observing cartridge RAM."""

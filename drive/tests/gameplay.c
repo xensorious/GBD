@@ -135,7 +135,7 @@ static void economy(void) {
  }
  CHECK(g.save.engine[1]==UPGRADE_MAX && g.save.grip[1]==UPGRADE_MAX && g.save.armor[1]==UPGRADE_MAX);
  CHECK(!game_upgrade_cost(&g,-1) && !game_upgrade_cost(&g,4));
- g.garage_tab=2;g.cursor=4;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
+ g.garage_tab=2;g.cursor=5;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
  g.paint_choice=2;step(&g,K_A,K_A);CHECK(g.save.paint[1]==2);
  g.mode=M_DEPARTURES;g.cursor=1;g.save.cash=locations[1].price-1;
  step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&2u));
@@ -150,14 +150,14 @@ static void economy(void) {
  /* Challenge rewards are applied to the completed run's best statistics. */
  begin(&g);g.run.count[B_NEAR]=10;g.run.distance_m=6000;g.run.drift_points=1500;
  g.run.best_speed_hold=8*DRIVE_HZ;g.run.wheelie_points=1000;
- game_finish_run(&g);CHECK((g.save.unlocked_locations&31u)==29 && (g.save.owned&(1u<<5)) && g.save.paints==63);
+ game_finish_run(&g);CHECK((g.save.unlocked_locations&31u)==29 && (g.save.owned&(1u<<5)) && g.save.paints==PAINT_MASK);
  CHECK(!(g.save.owned&(1u<<3))); /* near misses must not gift a standard bike */
  for(int i=0;i<5;i++) {int goal=0;CHECK(game_challenge_progress(&g,i,&goal)==goal && goal>0);CHECK(*game_challenge_name(i));CHECK(*game_challenge_reward(i));}
  CHECK(!game_can_vehicle(&g,-1) && !game_can_vehicle(&g,VEHICLE_COUNT));
  CHECK(!game_can_location(&g,-1) && !game_can_location(&g,LOCATION_COUNT));
 }
 static void saves(void) {
- CHECK(sizeof(Save)==1032);Game g,loaded;Save s;
+ CHECK(sizeof(Save)==1224);Game g,loaded;Save s;
  game_init(&g,0);game_make_save(&g,&s);CHECK(game_save_valid(&s));
  game_init(&loaded,7);CHECK(game_load(&loaded,&s));CHECK(loaded.has_save && loaded.mode==M_HOME);
  for(size_t i=0;i<sizeof s;i++) {Save bad=s;((unsigned char*)&bad)[i]^=0x40;CHECK(!game_save_valid(&bad));}
@@ -166,13 +166,15 @@ static void saves(void) {
  #define INVALID(field,value) do {game_init(&g,9);g.save.field=(value);game_make_save(&g,&bad);CHECK(!game_save_valid(&bad));} while(0)
  INVALID(selected_vehicle,VEHICLE_COUNT);INVALID(selected_vehicle,1);INVALID(selected_location,LOCATION_COUNT);
  INVALID(owned,0);INVALID(owned_hi,0x10000u);INVALID(unlocked_locations,0);INVALID(unlocked_locations,(1u<<LOCATION_COUNT)|1u);
- INVALID(paints,0);INVALID(paints,127);INVALID(engine[0],UPGRADE_MAX+1);INVALID(grip[0],UPGRADE_MAX+1);INVALID(armor[0],UPGRADE_MAX+1);
- INVALID(paint[0],6);INVALID(paint[0],3);INVALID(cash,UINT32_MAX);INVALID(seed,0);INVALID(best_score,UINT32_MAX);
+ INVALID(paints,0);INVALID(paints,65536);INVALID(engine[0],UPGRADE_MAX+1);INVALID(grip[0],UPGRADE_MAX+1);INVALID(armor[0],UPGRADE_MAX+1);
+ INVALID(paint[0],16);INVALID(paint[0],3);INVALID(cash,UINT32_MAX);INVALID(seed,0);INVALID(best_score,UINT32_MAX);
  INVALID(music_on,2);INVALID(sfx_on,2);INVALID(music_volume,101);INVALID(sfx_volume,101);
  INVALID(skin,SKIN_STORAGE_LIMIT);INVALID(shake,2);INVALID(units,2);INVALID(motion,3);
  INVALID(mastery_xp[0],UINT32_MAX);INVALID(career_xp,UINT32_MAX);INVALID(perks[0],4);INVALID(perks[0],1);
  INVALID(power_tune[0],3);INVALID(handling_tune[0],3);INVALID(chassis_tune[0],3);
  INVALID(power_tune[0],1);INVALID(handling_tune[0],1);INVALID(chassis_tune[0],1);
+ INVALID(livery_color[0],LIVERY_COLOR_COUNT);INVALID(livery_color[0],1);
+ INVALID(livery_color_seen[0],0);INVALID(livery_color_seen[0],LIVERY_COLOR_MASK+1);
  #undef INVALID
  game_init(&g,5);game_save_result(&g,0);CHECK(!g.save_ok && !g.has_save);
  game_save_result(&g,1);CHECK(g.save_ok && g.has_save && !g.save_requested);

@@ -4,7 +4,7 @@ An original Nintendo DS procedural highway game created for this project.
 Original vehicle and roadside illustrations were generated for Coastline and
 prepared as palette-indexed sprites and textures with RGB555 palettes. Road geometry, driving, traffic, scoring,
 progression, dashboard, menus, synthesized music and engine/road/horn sounds
-were created for the game. The Fusion, Pearl and Voltage interfaces and
+were created for the game. The Fusion, Pearl, Voltage, Alloy, Glacier and Bloom interfaces and
 departure-themed garage interiors use original code and existing local textures.
 The dual-screen opening, sky animation and profile selector are original code. The requested vehicle names identify the new original vehicle illustrations;
 no commercial game art or ROM data are used. Checked-in source art permits rebuilding without an image service.

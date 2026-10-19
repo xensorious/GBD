@@ -2,17 +2,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 1771008,
-    "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+    "bytes": 1779200,
+    "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1738784
+        "bytes": 1746796
       },
       "arm7": {
-        "offset": 1755648,
+        "offset": 1763328,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -20,8 +20,8 @@
     },
     "native": [
       "road: 16788295 checks, 2,441,989 consecutive samples; all 13 biomes, reverse travel, exact transition endpoints, boundary continuity and extreme coordinates pass",
-      "gameplay: 5941550 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
-      "legacy_save: 2988 checks; exact v1/v2 imports, 48-car v5 roundtrip in1000B, defaults, truncation and corrupt/invalid-save rejection pass",
+      "gameplay: 5941746 checks; eight-button physics, streak caps, one-time awards/banking, exact receipts, purchases, challenges and save corruption pass",
+      "legacy_save: 2994 checks; exact v1/v2 imports, 48-car v6 roundtrip in1000B, defaults, truncation and corrupt/invalid-save rejection pass",
       "traffic: 78668647 checks; pixel-accurate chassis contacts, swept cut-ins, deterministic spawning, 384,000 mixed-speed frames, minimum headway, smooth following, safe horn changes and one-time near misses pass",
       "progression: 1800 checks; 48-ride classes/specialties/gates, lasting parts, cosmetics, contracts, mastery, perks and bank-once rewards pass",
       "turbo: 25687 checks; exact 8s fuel, seven recovery ranks, skill-only recharge, 5x-to-2x balance, exclusions, pause and saves pass",
@@ -29,7 +29,8 @@
       "graphics: 338021 pixel-exact checks passed across 566 asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity",
       "style: 231051502 checks; 48 vehicles x5 poses x15 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass",
       "Scenery draw items: 0..46, 21 slots remain with both pools full.\nRenderer geometry: 2051029 checks passed.",
-      "studio: 555 checks; three interfaces with identical grid/page controls, distinct materials, retired skin migration, unified Departure, repeat-install discounts, atomic payments, paid presets and 1000B saves pass",
+      "studio: 921 checks; six interfaces with identical grid/page controls, distinct materials, retired skin migration, unified Departure, repeat-install discounts, atomic payments, paid presets and 1000B saves pass",
+      "finishes: 107825 checks; 16 body paints, 12 independent decal colors, protected materials, all patterns, atomic pricing, returning discounts, high-bit presets and v6 saves pass",
       "premium: 520 checks; all 17 purchases, four dealer tiers, 48 ownership bits, paid cosmetics, high-ID presets, upgrades and v5 reloads pass",
       "opening: 60 checks; three isolated profiles, corruption containment, old Slot 1 import, any-button gate, tall camera and exact slide endpoint pass"
     ],
@@ -39,15 +40,15 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 3372180,
-      "nonzero_batches": 4336
+      "samples": 2363760,
+      "nonzero_batches": 2966
     },
     "events": [
       {
         "check": "independent audio settings",
         "music": {
           "samples_observed": 5520,
-          "rms": 354.39570198713824
+          "rms": 353.9791588886784
         },
         "muted_music": {
           "samples_observed": 5520,
@@ -55,7 +56,7 @@
         },
         "effects_on": {
           "samples_observed": 736,
-          "rms": 1429.5684269136127
+          "rms": 1429.198709447695
         },
         "effects_off": {
           "samples_observed": 736,
@@ -63,7 +64,7 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 364.33447713863706
+          "rms": 349.07933880796884
         }
       },
       {
@@ -77,65 +78,65 @@
       },
       {
         "check": "actual cartridge update rate",
-        "updates": 59,
+        "updates": 60,
         "hardware_frames": 120,
-        "hz": 29.5,
+        "hz": 30.0,
         "start": {
           "mode": "run",
-          "health": 100,
-          "position_q8": 487832,
-          "frame": 932,
-          "run_seed": 1153350354,
-          "run_ticks": 476,
-          "x_q8": -5778,
+          "health": 53,
+          "position_q8": 473646,
+          "frame": 928,
+          "run_seed": 3277907855,
+          "run_ticks": 474,
+          "x_q8": 6510,
           "speed_q8": 44800
         },
         "end": {
           "mode": "run",
-          "health": 100,
-          "position_q8": 570432,
-          "frame": 991
+          "health": 53,
+          "position_q8": 557646,
+          "frame": 988
         },
         "render_profile": [
-          13765,
-          1339,
-          15225,
-          4093,
-          9193
+          12528,
+          0,
+          12583,
+          4080,
+          8032
         ],
         "scenery_profile": [
-          973,
-          5011,
-          624,
+          929,
+          3932,
+          1477,
           0,
-          1835,
-          147,
-          3672,
-          1266
+          894,
+          151,
+          2867,
+          994
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
-        "updates": 1021,
-        "hardware_frames": 2124,
-        "hz": 28.866855524079323,
-        "active_updates": 1019,
-        "active_hardware_frames": 2118,
-        "including_receipt_hz": 28.841807909604523,
+        "updates": 364,
+        "hardware_frames": 756,
+        "hz": 28.96,
+        "active_updates": 362,
+        "active_hardware_frames": 750,
+        "including_receipt_hz": 28.88888888888889,
         "measurement": "driving intervals only; terminal receipt rendering is reported separately",
         "requested_updates": 1200,
-        "actual_run_ticks": 1019,
+        "actual_run_ticks": 364,
         "ended_early": true,
         "start": {
-          "frame": 991,
-          "run_ticks": 535,
-          "position_q8": 570432,
-          "health": 100
+          "frame": 988,
+          "run_ticks": 534,
+          "position_q8": 557646,
+          "health": 53
         },
         "end": {
-          "frame": 2012,
-          "run_ticks": 1554,
-          "position_q8": 1981994,
+          "frame": 1352,
+          "run_ticks": 898,
+          "position_q8": 1056093,
           "health": 0,
           "mode": "receipt"
         }
@@ -143,53 +144,53 @@
     ],
     "receipt": {
       "count": [
-        2580,
-        49,
+        1375,
+        27,
         0,
-        37,
+        15,
         0,
         0,
-        45
+        12
       ],
       "points": [
-        2580,
-        245,
+        1375,
+        135,
         0,
-        1730,
+        430,
         0,
         0,
-        450
+        120
       ],
-      "points_total": 5005,
-      "cash": 308,
-      "distance_m": 2580,
-      "max_combo_q8": 960,
-      "mastery_xp": 689,
-      "career_xp": 689,
+      "points_total": 2060,
+      "cash": 94,
+      "distance_m": 1375,
+      "max_combo_q8": 512,
+      "mastery_xp": 318,
+      "career_xp": 318,
       "cash_bonus": 0,
       "end_reason": 2
     },
     "long_drive_cadence": {
-      "updates": 1021,
-      "hardware_frames": 2124,
-      "hz": 28.866855524079323,
-      "active_updates": 1019,
-      "active_hardware_frames": 2118,
-      "including_receipt_hz": 28.841807909604523,
+      "updates": 364,
+      "hardware_frames": 756,
+      "hz": 28.96,
+      "active_updates": 362,
+      "active_hardware_frames": 750,
+      "including_receipt_hz": 28.88888888888889,
       "measurement": "driving intervals only; terminal receipt rendering is reported separately",
       "requested_updates": 1200,
-      "actual_run_ticks": 1019,
+      "actual_run_ticks": 364,
       "ended_early": true,
       "start": {
-        "frame": 991,
-        "run_ticks": 535,
-        "position_q8": 570432,
-        "health": 100
+        "frame": 988,
+        "run_ticks": 534,
+        "position_q8": 557646,
+        "health": 53
       },
       "end": {
-        "frame": 2012,
-        "run_ticks": 1554,
-        "position_q8": 1981994,
+        "frame": 1352,
+        "run_ticks": 898,
+        "position_q8": 1056093,
         "health": 0,
         "mode": "receipt"
       }
@@ -230,17 +231,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -250,7 +251,10 @@
     "interfaces": [
       "Fusion",
       "Pearl",
-      "Voltage"
+      "Voltage",
+      "Alloy",
+      "Glacier",
+      "Bloom"
     ],
     "garage_tabs": [
       "Showroom",
@@ -443,6 +447,165 @@
         "serialized_save_bytes": 1000,
         "physical_save_bytes": 8192,
         "disk_checksum_valid": true
+      },
+      {
+        "skin": 6,
+        "name": "Alloy",
+        "checks": [
+          "four-direction tile navigation and bounded edges",
+          "L/R settings pages and wraparound",
+          "continuous Up/Down settings scrolling",
+          "page switching preserves preferences",
+          "Interface selected through ordinary settings",
+          "owned-only showroom",
+          "all 48 vehicles in five class lists",
+          "dealer purchase",
+          "engine upgrade and top-speed build",
+          "full-price installation $490",
+          "factory restoration $81",
+          "returning finish $245",
+          "paid preset restores car/build/route/style"
+        ],
+        "all_classes_reviewed": true,
+        "vehicles_reviewed": 48,
+        "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": true,
+        "fresh_process_reload": true,
+        "screenshots": [
+          "ui-6-home.png",
+          "ui-6-settings.png",
+          "ui-6-settings-display.png",
+          "ui-6-settings-guide.png",
+          "ui-6-settings.png",
+          "ui-6-interface-setting.png",
+          "ui-6-controls.png",
+          "ui-6-turbo-guide.png",
+          "ui-6-challenges.png",
+          "ui-6-career.png",
+          "ui-6-dispatch.png",
+          "ui-6-showroom.png",
+          "ui-6-dealer-0.png",
+          "ui-6-dealer-1.png",
+          "ui-6-dealer-2.png",
+          "ui-6-dealer-3.png",
+          "ui-6-dealer-4.png",
+          "ui-6-tuning.png",
+          "ui-6-style.png",
+          "ui-6-presets.png",
+          "ui-6-routes.png",
+          "ui-6-driving.png",
+          "ui-6-pause.png",
+          "ui-6-receipt.png"
+        ],
+        "serialized_save_bytes": 1000,
+        "physical_save_bytes": 8192,
+        "disk_checksum_valid": true
+      },
+      {
+        "skin": 7,
+        "name": "Glacier",
+        "checks": [
+          "four-direction tile navigation and bounded edges",
+          "L/R settings pages and wraparound",
+          "continuous Up/Down settings scrolling",
+          "page switching preserves preferences",
+          "Interface selected through ordinary settings",
+          "owned-only showroom",
+          "all 48 vehicles in five class lists",
+          "dealer purchase",
+          "engine upgrade and top-speed build",
+          "full-price installation $490",
+          "factory restoration $81",
+          "returning finish $245",
+          "paid preset restores car/build/route/style"
+        ],
+        "all_classes_reviewed": true,
+        "vehicles_reviewed": 48,
+        "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": true,
+        "fresh_process_reload": true,
+        "screenshots": [
+          "ui-7-home.png",
+          "ui-7-settings.png",
+          "ui-7-settings-display.png",
+          "ui-7-settings-guide.png",
+          "ui-7-settings.png",
+          "ui-7-interface-setting.png",
+          "ui-7-controls.png",
+          "ui-7-turbo-guide.png",
+          "ui-7-challenges.png",
+          "ui-7-career.png",
+          "ui-7-dispatch.png",
+          "ui-7-showroom.png",
+          "ui-7-dealer-0.png",
+          "ui-7-dealer-1.png",
+          "ui-7-dealer-2.png",
+          "ui-7-dealer-3.png",
+          "ui-7-dealer-4.png",
+          "ui-7-tuning.png",
+          "ui-7-style.png",
+          "ui-7-presets.png",
+          "ui-7-routes.png",
+          "ui-7-driving.png",
+          "ui-7-pause.png",
+          "ui-7-receipt.png"
+        ],
+        "serialized_save_bytes": 1000,
+        "physical_save_bytes": 8192,
+        "disk_checksum_valid": true
+      },
+      {
+        "skin": 8,
+        "name": "Bloom",
+        "checks": [
+          "four-direction tile navigation and bounded edges",
+          "L/R settings pages and wraparound",
+          "continuous Up/Down settings scrolling",
+          "page switching preserves preferences",
+          "Interface selected through ordinary settings",
+          "owned-only showroom",
+          "all 48 vehicles in five class lists",
+          "dealer purchase",
+          "engine upgrade and top-speed build",
+          "full-price installation $490",
+          "factory restoration $81",
+          "returning finish $245",
+          "paid preset restores car/build/route/style"
+        ],
+        "all_classes_reviewed": true,
+        "vehicles_reviewed": 48,
+        "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": true,
+        "fresh_process_reload": true,
+        "screenshots": [
+          "ui-8-home.png",
+          "ui-8-settings.png",
+          "ui-8-settings-display.png",
+          "ui-8-settings-guide.png",
+          "ui-8-settings.png",
+          "ui-8-interface-setting.png",
+          "ui-8-controls.png",
+          "ui-8-turbo-guide.png",
+          "ui-8-challenges.png",
+          "ui-8-career.png",
+          "ui-8-dispatch.png",
+          "ui-8-showroom.png",
+          "ui-8-dealer-0.png",
+          "ui-8-dealer-1.png",
+          "ui-8-dealer-2.png",
+          "ui-8-dealer-3.png",
+          "ui-8-dealer-4.png",
+          "ui-8-tuning.png",
+          "ui-8-style.png",
+          "ui-8-presets.png",
+          "ui-8-routes.png",
+          "ui-8-driving.png",
+          "ui-8-pause.png",
+          "ui-8-receipt.png"
+        ],
+        "serialized_save_bytes": 1000,
+        "physical_save_bytes": 8192,
+        "disk_checksum_valid": true
       }
     ],
     "fresh_process_reload": true,
@@ -455,17 +618,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -510,21 +673,88 @@
     ],
     "animation": "opening-transition.gif"
   },
-  "premium_roster": {
+  "finishes": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "body_paints": [
+      "Factory",
+      "Coral",
+      "Lagoon",
+      "Sunburst",
+      "Orchid",
+      "Graphite",
+      "Black",
+      "White",
+      "Cobalt blue",
+      "Racing red",
+      "Forest green",
+      "Orange",
+      "Silver",
+      "Ice blue",
+      "Sand",
+      "Magenta"
+    ],
+    "livery_colors": [
+      "White",
+      "Black",
+      "Graphite",
+      "Red",
+      "Blue",
+      "Yellow",
+      "Purple",
+      "Forest green",
+      "Orange",
+      "Teal",
+      "Silver",
+      "Rose gold"
+    ],
+    "replacement_liveries": [
+      "Velocity",
+      "Contour"
+    ],
+    "installs": 33,
+    "independent_color_purchases": true,
+    "high_id_color_preset": true,
+    "three_controls_pages": true,
+    "fresh_process_reload": true,
+    "profile_source": "labelled funded customization fixture; buttons only; RAM read only",
+    "serialized_save_bytes": 1000,
+    "physical_save_bytes": 8192,
+    "disk_checksum_valid": true
+  },
+  "premium_roster": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 1746796
+        },
+        "arm7": {
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -649,46 +879,46 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
         }
       }
     },
-    "source_release_sha256": "9597d17ff99d2e4177b9a3a3921ce98e8b2a3d9674b6c0242df77b01f169e2df",
+    "source_release_sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
     "all_progress_preserved": true,
     "retired_interfaces_migrated_to_fusion": true,
     "profiles_imported": 3,
     "fresh_process_reloads": 3,
     "rich_cosmetics_and_presets_preserved": true,
-    "comparison": "Every previous field is preserved; 17 new vehicle records start with factory defaults."
+    "comparison": "Every previous field is preserved; new colors and livery-color history receive migration defaults."
   },
   "v1_v2_save_migration": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -717,8 +947,8 @@
     },
     "profile_source": "100-byte legacy fixture accepted by original released ROM on unchanged 512B chip",
     "legacy_bytes": 100,
-    "migrated_bytes": 1032,
-    "migrated_ram_bytes": 1032,
+    "migrated_bytes": 1224,
+    "migrated_ram_bytes": 1224,
     "legacy_fields_preserved": true,
     "new_expansion_defaults": true,
     "fresh_process_reload": true,
@@ -753,7 +983,7 @@
       },
       "profile_source": "detailed 204-byte fixture accepted by released coastal ROM",
       "source_ram_bytes": 204,
-      "migrated_ram_bytes": 1032,
+      "migrated_ram_bytes": 1224,
       "legacy_fields_preserved": true,
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
@@ -790,7 +1020,7 @@
       },
       "profile_source": "detailed 204-byte fixture accepted by released turbo ROM",
       "source_ram_bytes": 204,
-      "migrated_ram_bytes": 1032,
+      "migrated_ram_bytes": 1224,
       "legacy_fields_preserved": true,
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
@@ -827,7 +1057,7 @@
       },
       "profile_source": "detailed 204-byte fixture accepted by released handling ROM",
       "source_ram_bytes": 204,
-      "migrated_ram_bytes": 1032,
+      "migrated_ram_bytes": 1224,
       "legacy_fields_preserved": true,
       "new_expansion_defaults": true,
       "fresh_process_reload": true,
@@ -846,17 +1076,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 1771008,
-      "sha256": "5a267b50cb26a62bee8db0e9675b29425792a8aa84f903a117531492db11e4c2",
+      "bytes": 1779200,
+      "sha256": "e0e33161e65f8d3dbbb79ece034698aefc2b0b60c7b2a78c67eb576f46551ef3",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1738784
+          "bytes": 1746796
         },
         "arm7": {
-          "offset": 1755648,
+          "offset": 1763328,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -889,12 +1119,12 @@
     "fresh_process_reload": true,
     "source": "rich 31-car fixture first accepted by previous published ROM",
     "old_ram_bytes": 596,
-    "new_ram_bytes": 1032,
+    "new_ram_bytes": 1224,
     "serialized_save_bytes": 1000,
     "physical_save_bytes": 8192,
     "disk_checksum_valid": true
   },
   "previous_v4_profile": null,
   "dealer_and_style_regressions": [],
-  "scope": "Premium roster release: all 17 additions purchased and driven, 48-model dealer tours in all three interfaces, thirteen native suites, three-profile v4-to-v5 migration and earlier save migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun."
+  "scope": "Finish studio release: 16 body paints, 12 independent livery colors, two replacement patterns, high-bit presets, six interfaces, 48-model dealer tours, fourteen native sanitizer suites and v1/v2/v3/v5 save migrations. All 17 premium vehicles purchased and driven. Dual-screen opening, three independent profiles and fresh-process reloads passed. Physical Delta/iPhone/DS testing and broader world tours were not performed."
 }

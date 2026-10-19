@@ -1,14 +1,15 @@
 #ifndef COASTLINE_GAME_H
 #define COASTLINE_GAME_H
 #include <stdint.h>
+#include "finish.h"
 
 #define DRIVE_HZ 30
 #define Q 256
 #define VEHICLE_COUNT 48
 #define UPGRADE_MAX 6
 #define PERK_COUNT 3
-#define SKIN_COUNT 3
-#define SKIN_STORAGE_LIMIT 6
+#define SKIN_COUNT 6
+#define SKIN_STORAGE_LIMIT 9
 #define LOCATION_COUNT 13
 #define SAVE_DISK_SIZE 1000
 #define VEHICLE_MASK_LOW UINT32_MAX
@@ -40,7 +41,7 @@ enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
 typedef struct { uint32_t held,pressed; } Input;
 enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS,M_CONTRACTS };
 /* IDs 0..2 belong to retired interfaces; preserve battery compatibility. */
-enum InterfaceSkin { SKIN_FUSION=3,SKIN_PEARL,SKIN_VOLTAGE };
+enum InterfaceSkin { SKIN_FUSION=3,SKIN_PEARL,SKIN_VOLTAGE,SKIN_ALLOY,SKIN_GLACIER,SKIN_BLOOM };
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
 enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
 enum TurboSource { TS_NONE,TS_NEAR,TS_DRIFT,TS_WHEELIE,TS_SLOW };
@@ -76,10 +77,13 @@ typedef struct {
  uint8_t livery_owned[VEHICLE_COUNT],wheels_owned[VEHICLE_COUNT],dispatch_choice;
  uint32_t contracts_completed;
  uint8_t reserved[4];
- uint8_t paint_seen[VEHICLE_COUNT],smoke[VEHICLE_COUNT],smoke_seen[VEHICLE_COUNT];
+ uint16_t paint_seen[VEHICLE_COUNT];
+ uint8_t smoke[VEHICLE_COUNT],smoke_seen[VEHICLE_COUNT];
  uint32_t presets[PRESET_COUNT];
  uint8_t preset_mask;
  uint32_t owned_hi;
+ uint8_t livery_color[VEHICLE_COUNT];
+ uint16_t livery_color_seen[VEHICLE_COUNT];
 } Save;
 typedef struct {
  uint32_t count[BONUS_COUNT],points[BONUS_COUNT];
@@ -120,7 +124,7 @@ typedef struct {
  uint8_t garage_filter,livery_choice,wheel_choice,contract_complete;
  DispatchContract active_contract;
  uint32_t contract_progress,contract_cash;
- uint8_t smoke_choice,build_choice,preset_choice;
+ uint8_t smoke_choice,build_choice,preset_choice,livery_color_choice;
 } Game;
 
 void game_init(Game *g,uint32_t seed);
@@ -160,6 +164,8 @@ int game_class_requirement(int class_id);
 int game_class_unlocked(const Game *g,int class_id);
 const char *game_vehicle_lock_reason(const Game *g,int id);
 const char *game_livery_name(int value);
+const char *game_paint_name(int value);
+const char *game_livery_color_name(int value);
 const char *game_wheel_name(int value);
 int game_cosmetic_cost(const Game *g,int kind,int value);
 int game_apply_cosmetics(Game *g);

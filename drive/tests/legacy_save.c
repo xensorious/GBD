@@ -52,7 +52,7 @@ static void check_new_defaults(const Save *s,int first_new) {
  CHECK(s->dispatch_choice==CONTRACT_OFFERS && !s->contracts_completed);
 }
 static void v2_and_compact(void) {
- CHECK(sizeof(V2Save)==204 && sizeof(Save)==1032 && SAVE_DISK_SIZE==1000);
+ CHECK(sizeof(V2Save)==204 && sizeof(Save)==1224 && SAVE_DISK_SIZE==1000);
  V2Save old={0};old.magic=0x434c4452u;old.version=2;old.cash=34567;old.owned=1023;old.unlocked_locations=255;
  old.paints=63;old.best_score=123456;old.best_distance=12000;old.best_near=25;
  old.best_drift=3400;old.best_speed_hold=1500;old.best_wheelie=1800;old.best_coins=100;
@@ -70,7 +70,8 @@ static void v2_and_compact(void) {
  CHECK(game_load_bytes(&imported,&old,sizeof(old)) && imported.save_requested);
  uint8_t unaligned_v2[sizeof(old)+1];memcpy(unaligned_v2+1,&old,sizeof(old));
  CHECK(game_load_bytes(&imported,unaligned_v2+1,sizeof(old)));
- CHECK(!memcmp((const uint8_t *)&imported.save+12,(const uint8_t *)&old+12,60));
+ CHECK(!memcmp((const uint8_t *)&imported.save+12,(const uint8_t *)&old+12,12));
+ CHECK(!memcmp((const uint8_t *)&imported.save+28,(const uint8_t *)&old+28,44));CHECK((imported.save.paints&63u)==old.paints);
  CHECK(imported.save.selected_vehicle==9 && imported.save.selected_location==7);
  CHECK(imported.save.career_xp==old.career_xp && !memcmp(imported.save.perks,old.perks,3));
  CHECK(!memcmp(&imported.save.music_on,&old.music_on,4));
@@ -84,7 +85,11 @@ static void v2_and_compact(void) {
  check_new_defaults(&imported.save,10);
  V2Save invalid_paint=old;invalid_paint.paint[0]=255;sign_bytes(&invalid_paint,sizeof invalid_paint);
  CHECK(!game_load_bytes(&loaded,&invalid_paint,sizeof invalid_paint));
+ invalid_paint=old;invalid_paint.paint[0]=6;sign_bytes(&invalid_paint,sizeof invalid_paint);
+ CHECK(!game_load_bytes(&loaded,&invalid_paint,sizeof invalid_paint));
  LegacySave invalid_legacy=profile();invalid_legacy.paint[0]=255;sign_legacy(&invalid_legacy);
+ CHECK(!game_load_bytes(&loaded,&invalid_legacy,sizeof invalid_legacy));
+ invalid_legacy=profile();invalid_legacy.paint[0]=6;sign_legacy(&invalid_legacy);
  CHECK(!game_load_bytes(&loaded,&invalid_legacy,sizeof invalid_legacy));
  CHECK(game_can_vehicle(&imported,9)); /* Grandfathered S keys stay usable. */
  uint8_t disk[SAVE_DISK_SIZE+12];memset(disk,0x6e,sizeof(disk));CHECK(game_encode_save(&imported,disk,sizeof(disk)));
@@ -137,8 +142,9 @@ int main(void) {
  CHECK(game_load(&g,(const Save*)(const void*)&old));
  uint8_t unaligned_v1[sizeof(old)+1];memcpy(unaligned_v1+1,&old,sizeof(old));
  CHECK(game_load_bytes(&g,unaligned_v1+1,sizeof(old)));
- CHECK(g.mode==M_HOME && g.has_save && g.save_requested && g.save.version==5);
- CHECK(!memcmp((const uint8_t*)&g.save+12,(const uint8_t*)&old+12,60));
+ CHECK(g.mode==M_HOME && g.has_save && g.save_requested && g.save.version==6);
+ CHECK(!memcmp((const uint8_t*)&g.save+12,(const uint8_t*)&old+12,12));
+ CHECK(!memcmp((const uint8_t*)&g.save+28,(const uint8_t*)&old+28,44));CHECK((g.save.paints&63u)==old.paints);
  CHECK(g.save.selected_vehicle==old.selected_vehicle && g.save.selected_location==old.selected_location);
  for(int i=0;i<6;i++) {
   CHECK(g.save.paint[i]==old.paint[i]);CHECK(g.save.engine[i]==old.engine[i]);
@@ -154,7 +160,7 @@ int main(void) {
   CHECK(g.save.handling_tune[i]==defaults.save.handling_tune[i]);
   CHECK(g.save.chassis_tune[i]==defaults.save.chassis_tune[i]);
  }
- game_make_save(&g,&migrated);CHECK(migrated.version==5 && game_save_valid(&migrated));
+ game_make_save(&g,&migrated);CHECK(migrated.version==6 && game_save_valid(&migrated));
  check_new_defaults(&g.save,6);
  game_init(&reloaded,77);CHECK(game_load(&reloaded,&migrated));
  CHECK(!reloaded.save_requested && reloaded.save.cash==old.cash && reloaded.save.selected_vehicle==3);
@@ -168,6 +174,6 @@ int main(void) {
  invalid=old;invalid.engine[2]=4;sign_legacy(&invalid);CHECK(!game_load(&reloaded,(const Save*)(const void*)&invalid));
  invalid=old;invalid.owned=0;sign_legacy(&invalid);CHECK(!game_load(&reloaded,(const Save*)(const void*)&invalid));
  v2_and_compact();
- printf("legacy_save: %u checks; exact v1/v2 imports, 48-car v5 roundtrip in1000B, defaults, truncation and corrupt/invalid-save rejection pass\n",checks);
+ printf("legacy_save: %u checks; exact v1/v2 imports, 48-car v6 roundtrip in1000B, defaults, truncation and corrupt/invalid-save rejection pass\n",checks);
  return 0;
 }

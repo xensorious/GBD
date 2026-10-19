@@ -8,13 +8,16 @@ typedef struct {
  uint16_t selected_top,selected_bottom,selected_ink,selected_detail;
  uint16_t cockpit_top,cockpit_bottom,light;
 } Theme;
-/* Stable layout, three distinct materials: glass, ceramic and electric foil. */
+/* Six materials share the same screen layout and input geometry. */
 static const Theme themes[SKIN_COUNT]={
  {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(102,148,165),C(6,20,36),C(236,250,247),C(155,198,208),C(105,233,220),C(250,146,155),C(50,128,147),C(34,89,121),C(248,255,249),C(255,218,163),C(28,44,76),C(9,20,40),C(145,206,255)},
  {C(233,229,218),C(208,217,216),C(255,252,241),C(234,236,225),C(151,165,161),C(184,192,183),C(28,57,61),C(74,99,100),C(17,110,108),C(169,83,54),C(35,99,102),C(21,75,80),C(255,251,230),C(255,221,143),C(241,238,220),C(190,207,201),C(17,110,108)},
- {C(17,8,39),C(41,17,62),C(36,17,67),C(18,12,43),C(124,64,175),C(7,3,21),C(245,235,255),C(182,158,218),C(86,238,245),C(255,113,201),C(98,28,128),C(38,21,82),C(255,245,255),C(121,255,240),C(33,14,61),C(9,6,29),C(255,117,213)}
+ {C(17,8,39),C(41,17,62),C(36,17,67),C(18,12,43),C(124,64,175),C(7,3,21),C(245,235,255),C(182,158,218),C(86,238,245),C(255,113,201),C(98,28,128),C(38,21,82),C(255,245,255),C(121,255,240),C(33,14,61),C(9,6,29),C(255,117,213)},
+ {C(54,58,63),C(28,31,36),C(80,85,92),C(47,51,57),C(134,139,144),C(16,18,22),C(244,246,247),C(184,190,194),C(255,145,54),C(255,186,111),C(88,82,77),C(53,53,55),C(255,250,242),C(255,163,75),C(57,61,67),C(24,27,32),C(255,158,65)},
+ {C(10,37,91),C(23,77,128),C(39,91,155),C(13,47,100),C(117,181,233),C(4,19,55),C(241,251,255),C(169,210,240),C(127,235,255),C(247,219,154),C(104,166,212),C(39,94,158),C(255,255,255),C(255,231,168),C(19,56,109),C(5,25,66),C(159,239,255)},
+ {C(247,222,221),C(217,187,207),C(255,245,230),C(243,220,217),C(179,128,151),C(197,160,182),C(77,39,65),C(126,75,105),C(163,51,101),C(205,110,105),C(165,61,112),C(113,41,93),C(255,249,231),C(255,216,163),C(120,64,102),C(59,34,74),C(255,202,215)}
 };
-static const char *const skin_names[SKIN_COUNT]={"Fusion","Pearl","Voltage"};
+static const char *const skin_names[SKIN_COUNT]={"Fusion","Pearl","Voltage","Alloy","Glacier","Bloom"};
 static const Theme *t=&themes[0];
 static int interface;
 #define DARK C(6,16,25)
@@ -22,7 +25,6 @@ static int interface;
 #define SOFT C(155,188,195)
 #define WARN C(255,120,112)
 #define GOLD C(255,207,123)
-static const char *const paint_names[6]={"Factory","Coral","Lagoon","Sunburst","Orchid","Graphite"};
 static const int16_t needle_xy[31][2]={
  {-724,724},{-828,602},{-912,465},{-974,316},{-1011,160},{-1024,0},
  {-1011,-160},{-974,-316},{-912,-465},{-828,-602},{-724,-724},{-602,-828},
@@ -55,6 +57,33 @@ static void limited(Surface*s,int x,int y,int width,const char*text,uint16_t col
 static void disc(Surface*s,int x,int y,int r,uint16_t color){int r2=r*r;for(int dy=-r;dy<=r;dy++){int dx=r;while(dx&&dx*dx+dy*dy>r2)dx--;gfx_rect(s,x-dx,y+dy,dx*2+1,1,color);}}
 static void gradient(Surface*s,int x,int y,int w,int h,uint16_t top,uint16_t bottom){for(int j=0;j<h;j++)gfx_rect(s,x,y+j,w,1,mix(top,bottom,h>1?j*256/(h-1):0));}
 static void glass(Surface*s,int x,int y,int w,int h,int selected){
+ if(interface==SKIN_ALLOY){
+  uint16_t a=selected?t->selected_top:t->card_top,b=selected?t->selected_bottom:t->card_bottom;
+  gfx_rect(s,x+1,y+2,w-1,h-1,t->shadow);gradient(s,x,y,w,h,a,b);
+  gfx_rect(s,x,y,w,1,t->edge);gfx_rect(s,x,y,1,h,mix(t->edge,a,70));
+  gfx_rect(s,x+1,y+h-2,w-2,1,t->shadow);gfx_rect(s,x+w-1,y,1,h,t->shadow);
+  gfx_rect(s,x+4,y+3,w-8,1,mix(a,t->ink,30));
+  if(selected){gfx_rect(s,x,y,3,h,t->accent);gfx_rect(s,x+w-9,y+3,5,2,t->accent);}
+  return;
+ }
+ if(interface==SKIN_GLACIER){
+  for(int j=0;j<h;j++){int cut=j<5?5-j:0;uint16_t c=mix(selected?t->selected_top:t->card_top,selected?t->selected_bottom:t->card_bottom,j*256/(h>1?h-1:1));gfx_rect(s,x+cut,y+j,w-cut,1,c);}
+  gfx_line(s,x+5,y,x+w-1,y,t->edge);gfx_line(s,x,y+5,x+5,y,t->edge);
+  gfx_rect(s,x,y+h-1,w,1,selected?t->selected_detail:t->edge);
+  gfx_line(s,x+w-17,y+2,x+w-4,y+h-3,mix(selected?t->selected_top:t->card_top,t->edge,75));
+  if(selected)gfx_rect(s,x+w-4,y+4,2,h-8,t->selected_detail);
+  return;
+ }
+ if(interface==SKIN_BLOOM){
+  uint16_t a=selected?t->selected_top:t->card_top,b=selected?t->selected_bottom:t->card_bottom;
+  gfx_card(s,x+1,y+2,w-1,h-1,t->shadow,t->shadow);
+  for(int j=0;j<h;j++){int e=j<h-1-j?j:h-1-j,cut=e==0?7:e==1?4:e==2?2:e<5?1:0;
+   gfx_rect(s,x+cut,y+j,w-2*cut,1,mix(a,b,j*256/(h>1?h-1:1)));
+   if(!j||j==h-1)gfx_rect(s,x+cut,y+j,w-2*cut,1,selected?t->selected_detail:t->edge);
+  }
+  if(selected){disc(s,x+w-7,y+6,2,t->selected_detail);gfx_rect(s,x+7,y+3,w/3,1,mix(a,t->selected_detail,90));}
+  return;
+ }
  if(interface==SKIN_PEARL){
   /* Inset ceramic tiles, hairline seams, brass selection pins. */
   gfx_rect(s,x+1,y+2,w-1,h-1,t->shadow);
@@ -111,12 +140,27 @@ static void backdrop(Surface*s,int skin){
    for(int r=54;r<140;r+=12){disc(&bg,272,-8,r,mix(t->sky,t->edge,48));disc(&bg,272,-8,r-1,t->sky);}
    gfx_line(&bg,-20,172,273,100,mix(t->shore,t->edge,50));
    gfx_line(&bg,-20,175,273,103,mix(t->shore,t->card_top,110));
-  }else{
+  }else if(skin==SKIN_VOLTAGE){
    gradient(&bg,0,0,256,192,t->sky,t->shore);
    for(int x=-256;x<512;x+=24)gfx_line(&bg,x,192,128+(x-128)/4,70,mix(t->shore,t->edge,65));
    for(int y=82;y<192;y+=(y-60)/3)gfx_rect(&bg,0,y,256,1,mix(t->shore,t->coral,42));
    for(int n=0;n<5;n++)gfx_line(&bg,155+n*18,-10,270+n*18,105,mix(t->sky,t->accent,25+n*7));
    gfx_rect(&bg,0,0,256,2,t->coral);
+  }else if(skin==SKIN_ALLOY){
+   gradient(&bg,0,0,256,192,t->sky,t->shore);
+   for(int y=0;y<192;y+=4)gfx_line(&bg,0,y,255,y-24,mix(t->sky,t->edge,16));
+   for(int x=180;x<270;x+=12)gfx_line(&bg,x,-8,x-55,44,mix(t->shore,t->accent,75));
+   gfx_rect(&bg,0,171,256,2,t->shadow);gfx_rect(&bg,0,173,256,1,t->edge);
+  }else if(skin==SKIN_GLACIER){
+   gradient(&bg,0,0,256,192,t->sky,t->shore);
+   for(int n=0;n<6;n++)gfx_line(&bg,-30+n*50,192,260,12+n*4,mix(t->shore,t->edge,30+n*8));
+   for(int x=7;x<256;x+=36)gfx_line(&bg,x,0,x+34,191,mix(t->sky,t->accent,24));
+   gfx_rect(&bg,0,1,256,2,t->accent);
+  }else{
+   gradient(&bg,0,0,256,192,t->sky,t->shore);
+   disc(&bg,260,7,65,mix(t->sky,t->card_top,130));disc(&bg,239,-2,47,mix(t->sky,t->coral,38));
+   for(int n=0;n<4;n++){disc(&bg,-14+n*6,196-n*4,66-n*10,mix(t->shore,t->card_top,45+n*22));}
+   for(int x=19;x<256;x+=28){gfx_rect(&bg,x,180+(x%7),2,2,t->edge);}
   }
   gfx_rect(&bg,0,0,256,1,t->edge);menu_skin=skin;
  }
@@ -154,7 +198,7 @@ static void home(Surface*s,const Game*g){
  gfx_text(s,12,8,"C O A S T L I N E",t->ink);char cash[24]="";money(cash,g->save.cash,sizeof cash);right(s,244,8,cash,t->accent);
  glass(s,10,37,236,40,0);gfx_text_small(s,20,42,"READY IN YOUR BAY",t->muted);limited(s,20,55,120,vehicles[g->save.selected_vehicle].name,t->ink);right_small(s,238,56,locations[g->save.selected_location].name,t->accent);
  for(int i=0;i<6;i++){int x=10+(i%2)*120,y=84+(i/2)*30,sel=g->cursor==i;glass(s,x,y,116,26,sel);home_icon(s,x+12,y+13,i,sel);gfx_text(s,x+25,y+7,labels[i],sel?t->selected_ink:t->ink);}
- char caption[48]="";append(caption,skin_names[interface-SKIN_FUSION],sizeof caption);append(caption," / D-PAD: CHOOSE",sizeof caption);footer(s,caption,"A: Open");
+
 }
 static void garage_line(Surface*s,const Game*g,int row_id,const char*label,const char*value,int locked){
  int y=39+row_id*22,selected=g->cursor==row_id;
@@ -181,7 +225,7 @@ static void garage(Surface*s,const Game*g){
   const char *detail=game_can_vehicle(g,id)?vehicles[id].description:game_vehicle_lock_reason(g,id);limited_small(s,8,184,240,detail,t->muted);return;
  }
  if(g->garage_tab==0){
-  garage_line(s,g,0,"Grab your keys",g->save.selected_vehicle==id?"< EQUIPPED >":"< A: EQUIP >",0);
+  garage_line(s,g,0,"Grab your keys",g->save.selected_vehicle==id?"EQUIPPED":"EQUIP",0);
   garage_line(s,g,1,"Departure",locations[g->save.selected_location].name,0);
   char preset[24]="PRESET ";number(preset,g->preset_choice+1,sizeof preset);append(preset,g->save.preset_mask&(1u<<g->preset_choice)?" / SAVED":" / EMPTY",sizeof preset);garage_line(s,g,2,"Saved setup",preset,0);
   int cost=game_preset_cost(g,g->preset_choice);char value[24]="";if(cost<0)append(value,"EMPTY",sizeof value);else if(cost)money(value,(uint32_t)cost,sizeof value);else append(value,"READY",sizeof value);
@@ -192,11 +236,14 @@ static void garage(Surface*s,const Game*g){
   for(int i=0;i<4;i++){char label[36]="",value[24]="";append(label,names[i],sizeof label);append(label," ",sizeof label);number(label,levels[i][id],sizeof label);append(label,"/6",sizeof label);
    int locked=game_mastery_level(g,id)<game_upgrade_rank(g,i);if(levels[i][id]>=6)append(value,"MAX",sizeof value);else if(locked){append(value,"MASTERY ",sizeof value);number(value,game_upgrade_rank(g,i),sizeof value);}else money(value,game_upgrade_cost(g,i),sizeof value);garage_line(s,g,2+i,label,value,locked);}
  }else{
-  const char *labels[4]={"Paint","Livery",(id>=25 && id<=30)?"Hardware":"Tire finish","Tire smoke"};
-  const char *values[4]={paint_names[g->paint_choice%6],game_livery_name(g->livery_choice),game_wheel_name(g->wheel_choice),game_smoke_name(g->smoke_choice)};
-  int kinds[4]={2,0,1,3},choices[4]={g->paint_choice,g->livery_choice,g->wheel_choice,g->smoke_choice},total=0,locked=0;
-  for(int i=0;i<4;i++){int cost=game_cosmetic_cost(g,kinds[i],choices[i]);char value[64]="";append(value,values[i],sizeof value);append(value," / ",sizeof value);if(cost<0){append(value,"LOCKED",sizeof value);locked=1;}else if(!cost)append(value,"FITTED",sizeof value);else{money(value,(uint32_t)cost,sizeof value);total+=cost;}garage_line(s,g,i,labels[i],value,cost<0);}
-  char price[24]="";if(locked)append(price,"LOCKED",sizeof price);else if(total)money(price,(uint32_t)total,sizeof price);else append(price,"FITTED",sizeof price);garage_line(s,g,4,"Install finish",price,locked);
+  const char *labels[5]={"Paint","Livery","Livery color",(id>=25 && id<=30)?"Hardware":"Tire finish","Tire smoke"};
+  const char *values[5]={game_paint_name(g->paint_choice),game_livery_name(g->livery_choice),g->livery_choice?game_livery_color_name(g->livery_color_choice):"--",game_wheel_name(g->wheel_choice),game_smoke_name(g->smoke_choice)};
+  int kinds[5]={2,0,4,1,3},choices[5]={g->paint_choice,g->livery_choice,g->livery_color_choice,g->wheel_choice,g->smoke_choice},total=0,locked=0;
+  for(int i=0;i<5;i++){int cost=game_cosmetic_cost(g,kinds[i],choices[i]);char value[64]="";append(value,values[i],sizeof value);
+   if(i!=2 || g->livery_choice){append(value," / ",sizeof value);if(cost<0){append(value,"LOCKED",sizeof value);locked=1;}else if(!cost)append(value,"FITTED",sizeof value);else{money(value,(uint32_t)cost,sizeof value);total+=cost;}}
+   garage_line(s,g,i,labels[i],value,cost<0 || (i==2&&!g->livery_choice));
+  }
+  char price[24]="";if(locked)append(price,"LOCKED",sizeof price);else if(total)money(price,(uint32_t)total,sizeof price);else append(price,"FITTED",sizeof price);garage_line(s,g,5,"Install finish",price,locked);
   limited_small(s,9,175,238,"Returning finishes: 50% off installation.",t->muted);
  }
 }
@@ -217,56 +264,59 @@ static void contracts(Surface*s,const Game*g){
   limited(s,20,y+3,175,game_contract_name(offer.kind),ink);if(g->save.dispatch_choice==slot)right_small(s,235,y+5,"ARMED",detail);
   char goal[80]="";contract_goal(goal,&offer,sizeof goal);limited_small(s,20,y+20,163,goal,selected?t->selected_ink:t->muted);char reward[24]="+";money(reward,offer.reward,sizeof reward);right(s,235,y+18,reward,detail);
  }
- row(s,153,20,"Drive without a contract",g->save.dispatch_choice==3?"ARMED":"SKIP",g->cursor==3,0);footer(s,"A: Arm next-run job","B: Back");
+ row(s,153,20,"Drive without a contract",g->save.dispatch_choice==3?"ARMED":"SKIP",g->cursor==3,0);
 }
 static void departures(Surface*s,const Game*g){
  header(s,"DEPARTURES",g);int id=clamp(g->cursor,0,LOCATION_COUNT-1),first=clamp(id-2,0,LOCATION_COUNT>6?LOCATION_COUNT-6:0);
  char page[18]="";number(page,id+1,sizeof page);append(page," / ",sizeof page);number(page,LOCATION_COUNT,sizeof page);gfx_text_small(s,104,10,page,t->muted);
  int visible=LOCATION_COUNT<6?LOCATION_COUNT:6;
  for(int r=0;r<visible;r++){int i=first+r;char value[24]="";int owned=(g->save.unlocked_locations&(1u<<i))!=0,available=game_can_location(g,i);if(owned)append(value,g->save.selected_location==i?"SELECTED":"OPEN",sizeof value);else if(available)money(value,locations[i].price,sizeof value);else append(value,"LOCKED",sizeof value);row(s,34+r*21,18,locations[i].name,value,id==i,!owned&&!available);}
- limited(s,15,164,227,!game_can_location(g,id)?locations[id].requirement:locations[id].description,t->muted);footer(s,"A: Set departure","B: Back");
+ limited(s,15,164,227,!game_can_location(g,id)?locations[id].requirement:locations[id].description,t->muted);
 }
 static void challenges(Surface*s,const Game*g){
  header(s,"ROAD CHALLENGES",g);static const char*const units[8]={" near","m"," drift","s"," wheelie"," jobs"," near"," drift"};
  int cursor=clamp(g->cursor,0,CHALLENGE_COUNT-1),first=clamp(cursor-2,0,CHALLENGE_COUNT>5?CHALLENGE_COUNT-5:0),visible=CHALLENGE_COUNT<5?CHALLENGE_COUNT:5;
  char page[16]="";number(page,cursor+1,sizeof page);append(page,"/",sizeof page);number(page,CHALLENGE_COUNT,sizeof page);gfx_text_small(s,140,11,page,t->muted);
  for(int row_id=0;row_id<visible;row_id++){int i=first+row_id,goal=1,progress=game_challenge_progress(g,i,&goal),done=progress>=goal;if(i==3){progress/=DRIVE_HZ;goal/=DRIVE_HZ;}int y=34+row_id*28,selected=cursor==i;glass(s,11,y,234,25,selected);uint16_t ink=selected?t->selected_ink:t->ink,muted=selected?t->selected_ink:t->muted;limited(s,18,y+2,126,game_challenge_name(i),ink);char val[32]="";number(val,progress,sizeof val);append(val,"/",sizeof val);number(val,goal,sizeof val);append(val,units[i],sizeof val);right(s,236,y+2,val,selected?t->selected_detail:done?t->accent:t->coral);limited_small(s,18,y+15,180,game_challenge_reward(i),muted);meter(s,202,y+17,34,progress,goal,selected?t->selected_detail:t->accent,t->shadow);}
- footer(s,cursor==5?"Dispatch completions persist":"Complete in one run","B: Back");
+
 }
 static void career(Surface*s,const Game*g){
  header(s,"CAREER",g);glass(s,11,34,234,33,0);char level[30]="LEVEL ";number(level,game_career_level(g),sizeof level);gfx_text(s,20,40,level,t->ink);char points[28]="";number(points,game_perk_available(g),sizeof points);append(points," POINTS",sizeof points);right(s,235,40,points,t->accent);uint32_t next=game_career_next(g);meter(s,20,56,117,(int)g->save.career_xp,next?(int)next:1,t->accent,t->shadow);char xp[28]="";number(xp,g->save.career_xp,sizeof xp);if(next){append(xp,"/",sizeof xp);number(xp,next,sizeof xp);}else append(xp," MAX",sizeof xp);right(s,235,51,xp,t->muted);
  static const char*const names[4]={"Recovery","Focus","Payout","Reset perks"};for(int i=0;i<4;i++){char value[24]="";if(i<3){number(value,g->save.perks[i],sizeof value);append(value," / 3",sizeof value);}else append(value,"FREE",sizeof value);row(s,74+i*22,19,names[i],value,g->cursor==i,0);}
- static const char*const desc[4]={"Once/run at low health: +10/18/26.","Reach 5x combos 15% sooner per rank.","Earn 8% more run cash per rank.","Return every spent career point, free."};limited(s,15,165,226,desc[clamp(g->cursor,0,3)],t->muted);footer(s,"A: Invest  |  L2: Mangroves","B: Back");
+ static const char*const desc[4]={"Once/run at low health: +10/18/26.","Reach 5x combos 15% sooner per rank.","Earn 8% more run cash per rank.","Return every spent career point, free."};limited(s,15,165,226,desc[clamp(g->cursor,0,3)],t->muted);
 }
 static void settings(Surface*s,const Game*g){
  header(s,"PERSONAL SETTINGS",g);static const char*const names[9]={"Music","Music volume","Sound effects","Effects volume","Interface","Road motion","Impact shake","Speed units","Controls"};static const char*const motion[3]={"Calm","Cruise","Express"};
  int section=g->cursor<4?0:g->cursor<8?1:2;static const char*const groups[3]={"AUDIO","DISPLAY","GUIDE"};
  for(int j=0;j<3;j++){glass(s,13,40+j*38,64,32,section==j);center_small(s,13,52+j*38,64,groups[j],section==j?t->selected_ink:t->muted);}
- gfx_text_small(s,15,31,"L/R: Pages  |  Up/Down: Scroll",t->muted);
  for(int i=0;i<9;i++){char val[28]="";switch(i){case 0:append(val,g->save.music_on?"On":"Off",sizeof val);break;case 1:number(val,g->save.music_volume,sizeof val);append(val,"%",sizeof val);break;case 2:append(val,g->save.sfx_on?"On":"Off",sizeof val);break;case 3:number(val,g->save.sfx_volume,sizeof val);append(val,"%",sizeof val);break;case 4:append(val,skin_names[interface-SKIN_FUSION],sizeof val);break;case 5:append(val,motion[g->save.motion%3],sizeof val);break;case 6:append(val,g->save.shake?"On":"Off",sizeof val);break;case 7:append(val,g->save.units?"mph":"km/h",sizeof val);break;default:append(val,"Open",sizeof val);break;}
-  int first=section*4;if(i>=first&&i<first+4){int y=39+(i-first)*33,sel=g->cursor==i;glass(s,84,y,161,29,sel);gfx_text_small(s,94,y+4,names[i],sel?t->selected_ink:t->muted);gfx_text(s,94,y+15,val,sel?t->selected_detail:t->ink);if(sel)right_small(s,236,y+16,"< >",t->selected_detail);}
+  int first=section*4;if(i>=first&&i<first+4){int y=39+(i-first)*33,sel=g->cursor==i;glass(s,84,y,161,29,sel);gfx_text_small(s,94,y+4,names[i],sel?t->selected_ink:t->muted);gfx_text(s,94,y+15,val,sel?t->selected_detail:t->ink);}
  }
- footer(s,"Left/Right: Adjust","A: Cycle   B: Back");
+
 }
 static void controls(Surface*s,const Game*g){
- header(s,g->controls_page?"TURBO GUIDE  2 / 2":"DRIVING CONTROLS  1 / 2",g);
+ header(s,g->controls_page==2?"MENU CONTROLS  3 / 3":g->controls_page==1?"TURBO GUIDE  2 / 3":"DRIVING CONTROLS  1 / 3",g);
  if(!g->controls_page){
   static const char*const keys[8]={"R","L","Left / Right","Up + R","Down + R","B","A","Start"};
   static const char*const actions[8]={"Accelerate","Brake / reverse","Steer","Turbo (uses charge)","Slow / recharge","Hold + steer: drift","Horn / bike wheelie","Pause"};
   for(int i=0;i<8;i++){int y=33+i*15;glass(s,12,y,75,14,0);center(s,12,y+2,75,keys[i],t->accent);gfx_text(s,96,y+2,actions[i],t->ink);}
   gfx_text_small(s,16,157,"Slow driving is safe. Stay off zero!",t->ink);
   gfx_text_small(s,16,167,"Stopped or reversing? Police catch up.",t->coral);
- }else{
+ }else if(g->controls_page==1){
   glass(s,11,34,234,36,0);gfx_text(s,19,39,"Hold Up + R to boost. Full = 8 sec.",t->ink);gfx_text_small(s,19,52,"Start at 10%. Empty? Release Up to rearm.",t->muted);gfx_text_small(s,19,62,"Rates include this vehicle's Recovery parts.",t->muted);
   static const char*const labels[4]={"Near miss","Drift > 0.75 sec","Wheelie > 1 sec","Slow > 40 km/h (no combo)"};static const int base[4]={10,4,3,2};int vehicle=clamp(g->save.selected_vehicle,0,VEHICLE_COUNT-1),recovery=100+5*g->save.recovery[vehicle];
   for(int i=0;i<4;i++){int y=75+i*20;glass(s,11,y,234,18,0);gfx_text_small(s,19,y+5,labels[i],t->ink);int tenth=base[i]*recovery/10;char rate[24]="+";number(rate,tenth/10,sizeof rate);if(tenth%10){append(rate,".",sizeof rate);number(rate,tenth%10,sizeof rate);}append(rate,i?"% / sec":"%",sizeof rate);right(s,236,y+4,rate,t->accent);}
   gfx_text_small(s,16,158,"Combo: +0.25 steps. Speed builds slowly.",t->ink);
   gfx_text_small(s,16,168,"5x combo = 2x skill recharge. No idle fill.",t->muted);
+ }else{
+  static const char*const keys[8]={"D-pad","A","B","L / R","Left / Right","Select","Any button","Up / Down"};
+  static const char*const actions[8]={"Choose tiles / list rows","Open / confirm / install","Return / profile selector","Garage tabs / settings pages","Change car / finish / value","Dealer vehicle class","Open profiles from title","Choose a save slot"};
+  for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,16,0);center_small(s,12,y+5,75,keys[i],t->accent);gfx_text_small(s,94,y+5,actions[i],t->ink);}
  }
  footer(s,"L / R: Change page","B: Back");
 }
 static void pause_menu(Surface*s,const Game*g){
- header(s,"TAKE A BREATHER",g);char info[64]="";number(info,g->run.distance_m,sizeof info);append(info," m  /  ",sizeof info);time_text(info,g->run_ticks,sizeof info);center(s,11,37,234,info,t->muted);static const char*const names[4]={"Resume driving","Bank this run","Controls","Settings"};static const char*const values[4]={"GO","CASH OUT","VIEW","ADJUST"};for(int i=0;i<4;i++)row(s,57+i*28,24,names[i],values[i],g->cursor==i,0);footer(s,"A: Choose","B / Start: Resume");
+ header(s,"TAKE A BREATHER",g);char info[64]="";number(info,g->run.distance_m,sizeof info);append(info," m  /  ",sizeof info);time_text(info,g->run_ticks,sizeof info);center(s,11,37,234,info,t->muted);static const char*const names[4]={"Resume driving","Bank this run","Controls","Settings"};static const char*const values[4]={"GO","CASH OUT","VIEW","ADJUST"};for(int i=0;i<4;i++)row(s,57+i*28,24,names[i],values[i],g->cursor==i,0);
 }
 
 /* Critical information stays next to the top game screen. Each vehicle keeps
@@ -480,7 +530,7 @@ static void dashboard(Surface*s,const Game*g){
  int charge=clamp(g->turbo_charge_q8,0,TURBO_MAX_Q8),percent=charge*100/TURBO_MAX_Q8;
  uint16_t turbo_color=g->turbo?t->light:charge<TURBO_START_Q8?WARN:g->turbo_recharging?C(104,226,221):t->light;
  meter(s,61,66,139,charge,TURBO_MAX_Q8,turbo_color,DARK);char turbo[12]="";number(turbo,percent,sizeof turbo);append(turbo,"%",sizeof turbo);right(s,237,64,turbo,turbo_color);
- const char*status=g->turbo?"BOOST ACTIVE":g->turbo_latched?"RELEASE UP TO REARM":charge<TURBO_START_Q8?"BUILD CHARGE TO 10%":g->turbo_recharging?g->turbo_source==TS_NEAR?"RECHARGE / NEAR MISS":g->turbo_source==TS_DRIFT?"RECHARGE / DRIFT":g->turbo_source==TS_WHEELIE?"RECHARGE / WHEELIE":"RECHARGE / SLOW":"READY / HOLD UP + R";
+ const char*status=g->turbo?"BOOST ACTIVE":g->turbo_latched?"BOOST DEPLETED":charge<TURBO_START_Q8?"LOW RESERVE":g->turbo_recharging?g->turbo_source==TS_NEAR?"RECHARGE / NEAR MISS":g->turbo_source==TS_DRIFT?"RECHARGE / DRIFT":g->turbo_source==TS_WHEELIE?"RECHARGE / WHEELIE":"RECHARGE / SLOW":"READY";
  gfx_text_small(s,18,75,status,g->turbo_latched||charge<TURBO_START_Q8?WARN:SOFT);
  char seconds[12]="";number(seconds,charge/(DRIVE_HZ*Q),sizeof seconds);append(seconds,".",sizeof seconds);number(seconds,(charge%(DRIVE_HZ*Q))*10/(DRIVE_HZ*Q),sizeof seconds);append(seconds,"s",sizeof seconds);right(s,237,74,seconds,turbo_color);
  }
@@ -496,6 +546,9 @@ static void dashboard(Surface*s,const Game*g){
 static void receipt(Surface*s,const Game*g){
  uint16_t paper=C(250,246,223),ink=C(30,53,66),muted=C(104,118,116),stamp=C(178,67,61);
  if(interface==SKIN_PEARL){paper=C(255,252,241);ink=t->ink;muted=t->muted;stamp=t->coral;}
+ else if(interface==SKIN_ALLOY){paper=C(221,224,226);ink=C(38,42,47);muted=C(94,99,105);stamp=C(175,79,24);}
+ else if(interface==SKIN_GLACIER){paper=C(226,242,252);ink=C(18,49,98);muted=C(73,110,143);stamp=C(35,114,172);}
+ else if(interface==SKIN_BLOOM){paper=C(255,238,227);ink=C(77,39,65);muted=C(126,75,105);stamp=C(163,51,101);}
  else if(interface==SKIN_VOLTAGE){paper=C(228,220,244);ink=C(39,15,66);muted=C(93,65,120);stamp=C(145,33,113);}
  gradient(s,0,0,256,192,t->sky,t->shore);gfx_rect(s,12,7,236,171,t->shadow);gfx_rect(s,8,3,236,173,paper);
  for(int x=8;x<244;x+=8){gfx_rect(s,x,176,7,1,paper);gfx_rect(s,x+1,177,5,1,paper);gfx_rect(s,x+2,178,3,1,paper);}
@@ -510,7 +563,7 @@ static void receipt(Surface*s,const Game*g){
  int totals_y=dispatch?136:144;gfx_rect(s,17,dispatch?133:140,218,1,C(124,145,134));gfx_text(s,18,totals_y,"TOTAL POINTS",ink);char total[28]="";number(total,g->run.total_points,sizeof total);right(s,234,totals_y,total,ink);
  if(dispatch){gfx_text_small(s,18,147,g->contract_complete?"DISPATCH COMPLETE":"DISPATCH INCOMPLETE",g->contract_complete?ink:muted);char award[24]="+";money(award,g->contract_cash,sizeof award);right_small(s,234,147,award,ink);}
  gfx_text(s,18,156,"CASH AWARDED",ink);char cash[24]="+";money(cash,g->run.total_cash,sizeof cash);right(s,234,156,cash,ink);
- char xp[88]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);if(g->run.cash_bonus){append(xp,"  PERK +",sizeof xp);money(xp,g->run.cash_bonus,sizeof xp);}center_small(s,8,167,236,xp,muted);center(s,0,182,256,"A: Continue",t->ink);
+ char xp[88]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);if(g->run.cash_bonus){append(xp,"  PERK +",sizeof xp);money(xp,g->run.cash_bonus,sizeof xp);}center_small(s,8,167,236,xp,muted);
 }
 void ui_draw_bottom(Surface*s,const Game*g){
  interface=g->save.skin>=SKIN_FUSION && g->save.skin<SKIN_STORAGE_LIMIT?g->save.skin:SKIN_FUSION;t=&themes[interface-SKIN_FUSION];if(g->mode==M_RUN){dashboard(s,g);return;}

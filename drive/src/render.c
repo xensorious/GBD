@@ -226,7 +226,10 @@ typedef struct {uint16_t sky,sky_low,floor,floor_low,pane,ink,muted,accent,rim;}
 static const StudioTheme studio_themes[SKIN_COUNT]={
  {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(35,66,89),C(236,250,247),C(145,190,201),C(105,233,220),C(77,124,144)},
  {C(233,229,218),C(208,217,216),C(255,252,241),C(234,236,225),C(239,239,223),C(28,57,61),C(74,99,100),C(17,110,108),C(151,165,161)},
- {C(17,8,39),C(41,17,62),C(36,17,67),C(18,12,43),C(29,15,55),C(245,235,255),C(182,158,218),C(86,238,245),C(124,64,175)}
+ {C(17,8,39),C(41,17,62),C(36,17,67),C(18,12,43),C(29,15,55),C(245,235,255),C(182,158,218),C(86,238,245),C(124,64,175)},
+ {C(54,58,63),C(28,31,36),C(80,85,92),C(47,51,57),C(54,58,64),C(244,246,247),C(184,190,194),C(255,145,54),C(134,139,144)},
+ {C(10,37,91),C(23,77,128),C(39,91,155),C(13,47,100),C(19,56,109),C(241,251,255),C(169,210,240),C(127,235,255),C(117,181,233)},
+ {C(247,222,221),C(217,187,207),C(255,245,230),C(243,220,217),C(247,227,222),C(77,39,65),C(126,75,105),C(163,51,101),C(179,128,151)}
 };
 
 static const StudioTheme *theme_for(const Game *g)
@@ -1207,7 +1210,7 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
  int paint=g->save.paint[vehicle];
  if(!v->attract && g->damage_cooldown && (g->frame&2))paint=5;
  const uint16_t *art=gfx_vehicle_pixels(vehicle,pose);
- gfx_vehicle_style(s,r.left,r.top,art,CAR_W,CAR_H,w,h,paint,g->save.livery[vehicle],g->save.wheels[vehicle]);
+ gfx_vehicle_style(s,r.left,r.top,art,CAR_W,CAR_H,w,h,paint,g->save.livery[vehicle],g->save.wheels[vehicle],g->save.livery_color[vehicle]);
  if(!v->attract && (g->slow || g->drifting)) {
   gfx_rect(s,x-w/2+5,y+h/2-5-lift,3,2,C(255,83,64));
   gfx_rect(s,x+w/2-7,y+h/2-5-lift,3,2,C(255,83,64));
@@ -1486,7 +1489,7 @@ static void draw_garage_room(Surface *s,const Game *g,const StudioTheme *ui){
  int smoke=preview?g->smoke_choice:g->save.smoke[id];
  if(preview && smoke){static const uint16_t colors[5]={C(190,204,208),C(248,133,124),C(94,222,205),C(186,145,246),C(245,203,111)};ellipse(s,x+8,175,15,4,blend_color(colors[smoke],ground,90));ellipse(s,x+w-8,177,17,4,blend_color(colors[smoke],ground,90));}
  contact_shadow(s,x,y,w,h,vehicle_body_spans[id*5+2],CAR_W,CAR_H);
- gfx_vehicle_style(s,x,y,gfx_vehicle_pixels(id,2),CAR_W,CAR_H,w,h,paint,livery,wheels);
+ gfx_vehicle_style(s,x,y,gfx_vehicle_pixels(id,2),CAR_W,CAR_H,w,h,paint,livery,wheels,preview?g->livery_color_choice:g->save.livery_color[id]);
  overlay_panel(s,4,3,248,27,ui->pane);gfx_text(s,10,7,vehicles[id].name,ui->ink);
  char subtitle[56];snprintf(subtitle,sizeof subtitle,"%s / %s",locations[region].name,g->garage_tab==3?"DEALER":g->garage_tab==1?"TUNING":g->garage_tab==2?"STYLE":"YOUR COLLECTION");gfx_text_small(s,10,20,subtitle,ui->muted);
  overlay_panel(s,179,52,73,119,ui->pane);
@@ -1534,7 +1537,7 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  const uint16_t *art=gfx_vehicle_pixels(id,pose);
  int livery=g->garage_tab==3?g->livery_choice:g->save.livery[id];
  int wheels=g->garage_tab==3?g->wheel_choice:g->save.wheels[id];
- gfx_vehicle_style(scene,x,y,art,CAR_W,CAR_H,w,h,paint,livery,wheels);
+ gfx_vehicle_style(scene,x,y,art,CAR_W,CAR_H,w,h,paint,livery,wheels,g->save.livery_color[id]);
  gfx_card(scene,10,7,236,27,theme->pane,theme->rim);
  const char *receipt_title=g->end_reason==END_STOPPED?"PURSUIT ENDED":
                            g->end_reason==END_CRASH?"VEHICLE RECOVERED":"RUN BANKED";
@@ -1686,10 +1689,7 @@ int render_opening(const Game*g,const Opening*o,uint16_t*scratch,uint16_t*top,ui
   overlay_panel(&upper,19,22,218,43,theme->pane);
   opening_wordmark(&upper,"Coastline",theme->ink);
   gfx_text_small(&upper,100,55,"ENDLESS DRIVE",theme->accent);
-  if(o->phase==OPEN_TITLE){
-   overlay_panel(&upper,37,83,182,19,theme->pane);
-   gfx_text_small(&upper,56,90,"PRESS ANY BUTTON TO START",(g->frame/24u)&1u?theme->ink:theme->accent);
-  }else{
+  if(o->phase==OPEN_SLOTS){
    for(int i=0;i<SAVE_SLOT_COUNT;i++){
     int y=69+i*35,selected=o->cursor==i;
     overlay_panel(&upper,19,y,218,32,theme->pane);
@@ -1700,8 +1700,6 @@ int render_opening(const Game*g,const Opening*o,uint16_t*scratch,uint16_t*top,ui
     if(slot->valid){snprintf(label,sizeof label,"$%lu  /  %lu RUNS",(unsigned long)slot->cash,(unsigned long)slot->runs);gfx_text_small(&upper,27,y+20,label,theme->muted);gfx_text_small(&upper,129,y+6,vehicles[slot->vehicle].name,theme->accent);}
     else gfx_text_small(&upper,27,y+20,"NEW DRIVE / EMPTY SLOT",theme->muted);
    }
-   overlay_panel(&upper,19,177,218,14,theme->pane);overlay_panel(&upper,19,177,218,14,theme->pane);
-   gfx_text_small(&upper,31,181,"UP/DOWN: CHOOSE   A: OPEN   B: BACK",theme->ink);
   }
  }
  return 3;

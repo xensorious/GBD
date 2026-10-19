@@ -22,7 +22,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output',type=Path,default=ROOT/'build'/'studio-validation')
 p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
 p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
-p.add_argument('--skin',type=int,choices=range(3,6))
+p.add_argument('--skin',type=int,choices=range(3,9))
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 library=ROOT/'build'/'libstudio-qa.so'
 
@@ -30,18 +30,18 @@ if a.skin is None:
     verify_layout(ROOT)
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
         'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
-    for skin in range(3,6):
+    for skin in range(3,9):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--rom',str(a.rom),
             '--elf',str(a.elf),'--skin',str(skin)],check=True)
-    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(3,6)]
+    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(3,9)]
     assert all(c['fusion_navigation_passed'] for c in cases)
-    report={'rom':inspect(a.rom),'interfaces':['Fusion','Pearl','Voltage'],
+    report={'rom':inspect(a.rom),'interfaces':['Fusion','Pearl','Voltage','Alloy','Glacier','Bloom'],
         'garage_tabs':['Showroom','Tuning','Style','Dealer'],'cases':cases,
         'fresh_process_reload':all(c['fresh_process_reload'] for c in cases),
         'profile_source':'labelled funded review profile; all actions use buttons; RAM read only',
         'departure_interiors':13,'serialized_save_bytes':1000,'physical_save_bytes':8192}
     (a.output/'studio-results.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('All three actual-cartridge interface reviews passed.',flush=True)
+    print('All six actual-cartridge interface reviews passed.',flush=True)
     sys.exit(0)
 
 skin=a.skin;lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
@@ -59,7 +59,7 @@ write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 events=[]
 with Emulator(a.rom,directory) as e:
     e.run(180);d=DriveThrough(e,find_symbol(a.elf,'game'),a.output)
-    assert d.game().has_save and d.game().save.version==5 and d.game().save.cash==1000000
+    assert d.game().has_save and d.game().save.version==6 and d.game().save.cash==1000000
     def shot(name):d.shot(f'ui-{skin}-{name}')
     def tab(n):
         while d.game().garage_tab!=n:d.press('r')
@@ -71,13 +71,13 @@ with Emulator(a.rom,directory) as e:
         raise AssertionError('Owned vehicle missing')
     def style(values):
         tab(2)
-        for row,field,wanted in zip(range(4),('paint_choice','livery_choice','wheel_choice','smoke_choice'),values):
+        for row,field,wanted in zip((0,1,3,4),('paint_choice','livery_choice','wheel_choice','smoke_choice'),values):
             d.menu(row)
-            for _ in range(6):
+            for _ in range(16):
                 if getattr(d.game(),field)==wanted:break
                 d.press('right')
             assert getattr(d.game(),field)==wanted
-        d.menu(4);before=d.game().save.cash;d.press('a')
+        d.menu(5);before=d.game().save.cash;d.press('a')
         return before-d.game().save.cash
     shot('home')
     if skin>=3:
@@ -102,7 +102,7 @@ with Emulator(a.rom,directory) as e:
                 assert d.game().cursor==0
                 music=d.game().save.music_on;d.press('right');assert d.game().save.music_on!=music
                 d.press('left');assert d.game().save.music_on==music
-                d.menu(4);d.press('left');assert d.game().save.skin==3+(skin-3+2)%3
+                d.menu(4);d.press('left');assert d.game().save.skin==3+(skin-3+5)%6
                 d.press('right');assert d.game().save.skin==skin
                 d.menu(0);shot('settings')
                 events.extend(['L/R settings pages and wraparound','continuous Up/Down settings scrolling',
@@ -181,7 +181,7 @@ with Emulator(a.rom,directory) as e:
 geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),'--elf',str(a.elf),
     '--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/f'ui-{skin}-reloaded.png')],check=True)
-result={'skin':skin,'name':('Fusion','Pearl','Voltage')[skin-3],'checks':events,
+result={'skin':skin,'name':('Fusion','Pearl','Voltage','Alloy','Glacier','Bloom')[skin-3],'checks':events,
     'all_classes_reviewed':True,'vehicles_reviewed':48,'cosmetics_and_presets_passed':True,
     'fusion_navigation_passed':True,
     'fresh_process_reload':True,'screenshots':screenshots,**geometry}

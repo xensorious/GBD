@@ -46,15 +46,21 @@ with Emulator(rom,directory) as e:
   # Style and restore the newest high ID through ordinary menu services.
   if v==47:
    d.press('r');d.press('r');assert d.game().garage_tab==2
-   for row in range(4):d.menu(row);d.press('right')
-   d.menu(4);d.press('a');assert d.game().save.paint[v]==1 and d.game().save.smoke[v]==1
+   for row in (0,1,3,4):d.menu(row);d.press('right')
+   d.menu(5);d.press('a');assert d.game().save.paint[v]==1 and d.game().save.smoke[v]==1
    while d.game().garage_tab!=0:d.press('l')
    d.menu(4);d.press('a');assert ((d.game().save.presets[0]&31)|((d.game().save.presets[0]>>21)&32))==47
    d.shot('premium-preset')
   d.press('b');d.menu(0);d.press('a');assert d.game().vehicle==v
   d.autopilot(45,('r',));assert d.game().mode==1 and d.game().speed_q8>0
   if car['bike']:
-   d.autopilot(60,('r','a'));g=d.game();assert g.mode==1 and g.wheelie,('New motorcycle must support A-wheelies',v,g.speed_q8,g.crash_timer,g.health)
+   # Observe the actual wheelie while holding A. A collision later in a long
+   # fixed interval correctly cancels a wheelie, and must not erase evidence
+   # that the input worked before that collision.
+   for _ in range(60):
+    d.autopilot(2,('r','a'));g=d.game()
+    if g.mode!=1 or g.wheelie:break
+   assert g.mode==1 and g.wheelie,('New motorcycle must support A-wheelies',v,g.speed_q8,g.crash_timer,g.health)
   d.shot(f'premium-{v}-driving',('r',))
   d.press('start');d.menu(1);d.press('a');assert d.game().mode==2
   d.press('a');d.ticks(4);reviewed.append({'id':v,'name':car['name'],'class':('D','C','B','A','S')[car['class_id']],'price':car['price']})

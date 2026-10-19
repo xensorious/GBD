@@ -1,6 +1,6 @@
 # Coastline: Endless Drive
 
-A native Nintendo DS driving game for Delta, with three complete interfaces,
+A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 Drive a continuous four-lane highway from the city to the coast, across an ocean
 causeway, through pine country, red-rock canyons, a neon marina, mangrove
@@ -30,7 +30,7 @@ starts a new profile. Existing slots continue their saved progress.
 Press B on the main menu to return to the save selector. Earlier single-profile
 battery files are accepted as **Save 1**. Saves 2 and 3 start empty. The complete
 three-profile bank uses an **8 KiB EEPROM**, with three independently checked
-1024-byte records, each containing a 1000-byte version 5 profile. Earlier
+1024-byte records, each containing a 1000-byte version 6 profile. Earlier
 500-byte profiles and all three slots migrate together before the first write.
 
 ## Controls
@@ -63,12 +63,17 @@ clusters change with the vehicle, including classic dials, digital sports
 clusters, utility instruments and a motorcycle display. Settings offers
 **Fusion** as the standard midnight glass interface, **Pearl** with inset ivory
 ceramic tiles and brass details, and **Voltage** with illuminated cut-corner
-frames and electric foil. All three share the same layout: all four D-pad
+frames and electric foil. Three additional styles are **Alloy**, with brushed
+gray panels, dark gray insets and orange accents; **Glacier**, with faceted
+cobalt glass and ice-blue edges; and **Bloom**, with rounded rose-and-cream
+cards. All six share the same layout: all four D-pad
 directions move between home tiles, L/R cycles the Audio, Display and Guide
 pages in Settings, Up/Down scrolls through the full list, and Left/Right adjusts
 the selected value. Their artwork continues through every menu and the garage.
 The animated upper-screen drive uses compact translucent floating captions,
 leaving the skyline, scenery and road visible.
+Button explanations appear only in Controls. Menus, profile selection, the
+opening movie and the dashboard keep their space for the scene and useful data.
 Settings also includes independent music and
 sound-effect toggles and volumes, road motion, camera shake and speed units.
 
@@ -92,8 +97,8 @@ sources use the strongest qualifying action rather than stacking. Recharge
 stops during active boost, impacts, reverse travel and wall grinding. Ordinary
 straight-line acceleration, idling and coins do not refill the tank.
 
-Open Controls from Settings or Pause and use L/R to switch between the button
-guide and the Turbo Guide. All guide pages use buttons.
+Open Controls from Settings or Pause and use L/R to cycle through Driving,
+Turbo Guide and Menu Controls. All guide pages use buttons.
 
 ## Runs and rewards
 
@@ -162,8 +167,8 @@ instruments and A-wheelies. SUVs, pickups and the Insurgent use utility instrume
 Cadillac and Rolls Royce use luxury instruments. Brand-only choices are represented
 by a recognizable example: Aventador, Jesko, F8, Chiron, Panigale and Z900 respectively.
 
-Factory, Coral and Lagoon paint are open from the start.
-Other paint, the Sundown classic and several departures are earned through
+Factory, Coral, Lagoon and ten new body paints are open from the start.
+Sunburst, Orchid and Graphite paint, the Sundown classic and several departures are earned through
 the eight road challenges. There are no microtransactions.
 
 ### Permanent progression
@@ -193,7 +198,13 @@ three-wall workshop whose floor, lighting and window scenery match your departur
   Load preset shows the refitting cost before you apply it. Permanent upgrades
   belong to the vehicle and are not copied or reset by presets.
 - **Tuning:** choose a build and install engine, road grip, armor and turbo-recovery parts.
-- **Style:** preview paint, livery, tire/hardware finish and five smoke colors.
+- **Style:** preview 16 body paints, four livery patterns, 12 independent livery
+  colors, tire/hardware finish and five smoke colors. Velocity's sweeping stripe
+  and Contour's body outlines replace Checkered and Coastal band. Twin stripes
+  and Two tone remain. Livery color changes only the painted decal, preserving
+  body paint, glass, tires and mechanical details. The color row is inactive
+  with Factory livery. Available decal colors are white, black, graphite, red,
+  blue, yellow, purple, forest green, orange, teal, silver and rose gold.
   Install finish applies every pending change together or leaves everything
   unchanged if you cannot afford the total. Cosmetics never change performance.
 - **Dealer:** select a class, browse its model list, then buy a car. Owned cars
@@ -205,6 +216,9 @@ rounded up, per vehicle. Leaving the currently fitted finish in place costs noth
 Factory restoration is also a paid discounted installation. Presets follow these
 same prices, so they do not bypass cosmetic costs. Existing purchased livery and
 wheel history remains eligible for the discount after updating.
+Body paint adds black, white, cobalt blue, racing red, forest green, orange,
+silver, ice blue, sand and magenta. New colors use the same paid installation
+and per-vehicle return discounts. Presets include both body and livery colors.
 
 Dispatch offers three optional driving contracts. Choose an objective before
 a run, such as collecting coins, drifting or making close passes. Completing
@@ -230,8 +244,11 @@ Cash, vehicles, parts, setups, mastery, career perks, paints, departures,
 settings, records and challenge progress in the active profile save automatically after banking a
 run or making a menu change. Battery saves from the previous coastal release
 retain their full progression and settings. First-draft cartridge battery saves
-migrate to the expanded format, retaining their purchases and records. Version 5 expands ownership to 48 vehicles and retains installation history,
-smoke colors and presets in 1000-byte profiles inside the same 8 KiB bank.
+migrate to the expanded format, retaining their purchases and records. Version 6
+adds the wider paint palette and independent livery-color history to the
+48-vehicle, 1000-byte profiles inside the same 8 KiB bank. Previous two-tone
+finishes retain their black secondary color; other existing liveries start
+with white. Replaced patterns retain their installation history and discounts.
 All three old 512-byte records are converted in memory before the bank is written.
 Retired
 Apex, Signal and Midnight selections migrate to Fusion; existing Fusion choices
@@ -263,15 +280,16 @@ when changing models. The output is `drive/build/Coastline.nds`.
 
 ```sh
 bash drive/tests/setup_emulator.sh
-python3 drive/tests/playthrough.py --output drive/build/premium-release
-python3 drive/tests/premium.py --output drive/build/premium-release
-python3 drive/tests/studio.py --output drive/build/premium-release
-python3 drive/tests/opening.py --output drive/build/premium-release
-python3 drive/tests/migration.py --output drive/build/premium-release
-python3 drive/tests/studio_migration.py --output drive/build/premium-release
-# Requires opening.py captures from pinned release 6cc60aa, as documented in the script:
-python3 drive/tests/previous_profiles.py --source drive/build/fusion-styles-final --output drive/build/premium-release
-python3 drive/tools/package.py --validation drive/build/premium-release
+python3 drive/tests/playthrough.py --output drive/build/finish-release
+python3 drive/tests/premium.py --output drive/build/finish-release
+python3 drive/tests/studio.py --output drive/build/finish-release
+python3 drive/tests/finishes.py --output drive/build/finish-release
+python3 drive/tests/opening.py --output drive/build/finish-release
+python3 drive/tests/migration.py --output drive/build/finish-release
+python3 drive/tests/studio_migration.py --output drive/build/finish-release
+# Requires captures from pinned release fa5d188, as documented in the script:
+python3 drive/tests/previous_profiles.py --source drive/build/premium-release --output drive/build/finish-release
+python3 drive/tools/package.py --validation drive/build/finish-release
 ```
 
 Native sanitizer tests check driving, generation, scoring, shops, progression

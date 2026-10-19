@@ -17,7 +17,7 @@ from inspect_rom import inspect
 from setup_legacy import verify_pair,RELEASES
 
 class V3Game(C.LittleEndianStructure):
-    _fields_=[('save',V3Save)]+Game._fields_[1:-3]
+    _fields_=[('save',V3Save)]+Game._fields_[1:-4]
 assert C.sizeof(V3Game)==1692
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output',type=Path,default=ROOT/'build'/'studio-validation')
@@ -94,10 +94,11 @@ else:
     old=V3Save.from_buffer_copy((a.output/'source-v3-save.bin').read_bytes())
     with Emulator(rom,directory) as e:
         e.run(180);enter_opening(e,elf);g=read_game(e,find_symbol(elf,'game'))
-        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==5
+        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==6
         for name,kind in V3Save._fields_:
             if name in ('version','checksum','skin','reserved'):continue
             actual,expected=getattr(g.save,name),getattr(old,name)
+            if name=='paints':assert actual&63==expected;continue
             if isinstance(actual,C.Array):assert list(actual)[:len(expected)]==list(expected),name
             else:assert actual==expected,name
         assert g.save.skin==3 and not g.save.preset_mask and not any(g.save.presets)

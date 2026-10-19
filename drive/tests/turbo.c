@@ -183,7 +183,7 @@ static void exclusions_and_pause(void) {
 }
 static void controls_and_save(void) {
  Game g,loaded;Save before,after;begin(&g,0);
- CHECK(sizeof(Save)==1032);
+ CHECK(sizeof(Save)==1224);
  game_make_save(&g,&before);
  g.turbo_charge_q8=7;g.turbo_latched=1;g.turbo_remainder=2999;
  g.turbo_source=TS_DRIFT;g.turbo_recharging=1;
@@ -197,7 +197,7 @@ static void controls_and_save(void) {
  step(&g,K_A,K_A);CHECK(g.mode==M_SETTINGS && g.cursor==8);
  g.mode=M_PAUSE;g.cursor=2;g.controls_page=1;
  step(&g,K_A,K_A);CHECK(g.mode==M_CONTROLS && !g.controls_page);
- step(&g,K_L,K_L);CHECK(g.controls_page==1);
+ step(&g,K_L,K_L);CHECK(g.controls_page==2);
  step(&g,K_B,K_B);CHECK(g.mode==M_PAUSE && g.cursor==2);
 }
 static void recovery_upgrades(void) {
