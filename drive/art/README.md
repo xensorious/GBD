@@ -1,13 +1,13 @@
 Coastline source artwork
 =======================
 
-Free Roam adds an independent overhead vehicle library authored in
-`src/city_render.inc`. Its small shaded sprites use the factory body colors
-from the existing palettes, accept garage cosmetics, and rotate around the
-ground plane. The native city test can export all 48 designs as a review sheet.
-The city reuses the original architectural roof/wall textures described below;
-its palms and boats are original overhead drawings. These new runtime drawings
-are code-based artwork, separate from the image-generated source atlases.
+Free Roam has a new independent library of 48 detailed overhead vehicle
+paintings in `overhead/`, with reviewed source-bound material masks. Its three
+steering poses and 256-color palettes replace the earlier 16-color code drawings.
+See `overhead/README.md` for authoring and runtime details. `city-props-source.png`
+adds original overhead palms, leafy/flowering trees, shrubs, boats, a pool and
+fountain, cropped into sixteen 48x48 indexed scenery cells. The city also reuses
+the existing architectural wall/roof textures below.
 
 All source sprites and architectural textures in this directory are original
 art generated for this project with OpenAI image generation. They contain no
@@ -91,18 +91,16 @@ The 64x96 base and filtered 48x72, 32x48 and 16x24 levels share each object's
 palette. All transparent palette entries remain index zero.
 
 The complete packed art, typography and original synthesized music total
-1,267,972 bytes. Source-only references such as `scenery-original.png` and the
+approximately 1.5 MiB. Source-only references such as `scenery-original.png` and the
 old `boat-profile.png` remain available without being linked into the game.
 
 Vehicle panels and overhead designs
 -----------------------------------
 
-`tools/vehicle_details.py` authors one silhouette/profile per vehicle, with
-separate cabin, hardware, rubber, glass, headlight and rear-lamp materials.
-The overhead bank is 32x48 indexed artwork compressed per model. Four decal
-stencil bits accompany each enamel pixel; none accompany protected materials.
-Runtime recoloring cannot spill onto tires, seats, windows or lamps. Eight
-rotated sprite cache entries reuse the bank without a resident RGB atlas.
+`tools/vehicle_details.py` retains the fixed livery templates and the old
+code-drawn palette reference used by the rear-view authoring utility. The normal
+build loads the new plan-view art and reviewed masks from `overhead/`. Native
+semantic/index oracles are excluded from the ARM9 asset bank.
 
 Rear-view materials come from `materials/vehicle-materials.png`, a 384x432
 indexed atlas of 48 independent 48x72 masks. Indices 0/1/2/3 mean protected,

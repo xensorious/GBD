@@ -73,15 +73,23 @@ Vehicle art uses an authored pixel material atlas for all 48 chase-camera
 models. Paint and liveries follow the actual panels; taillight lenses, reverse
 lamps, glazing, tires and trim retain their original details. The same precise
 masks and fixed livery stencils follow all five steering poses. Patterns clip
-at panel boundaries without squeezing around protected parts. The overhead roster
-has distinct body proportions, shaded panels, window seals, tires and rims,
-plus open cabins, pickup beds, roof rails, vents and model-specific details.
+at panel boundaries without squeezing around protected parts.
 
-All 48 existing vehicles have original overhead artwork, including motorcycles
-and novelty rides. The mode uses their owned status, performance upgrades and
-mastery. Car bodies carry over paint, livery, livery color, wheel finish and
-drift smoke; novelty riders currently retain simplified clothing and hardware
-details.
+Free Roam now has a separate set of detailed overhead paintings for all 48
+vehicles, packed at 48x72 with individual 256-color material palettes. Hoods,
+roofs, cabins, pickup beds, mirrors, tires and lamps retain their own detail.
+Three front-wheel poses and filtered continuous rotation show steering without
+tipping the car off the road. The existing paint, livery, livery color, wheel
+finish and smoke choices carry over; riders' skin, protected gear and horse fur stay
+separate from customizable equipment.
+
+Lane paint is fixed to the set map and ends at the actual street boundaries.
+Junctions clear crossing stripes. Coastal palms, leafy/flowering trees, marina
+boats, bank-attached piers, courtyard pools/fountains, sidewalk joints, drains
+and bridge parapets add detail around the textured streets. Background grain
+uses world coordinates so it remains still as the camera moves.
+
+All vehicles retain their owned status, performance upgrades and mastery.
 Near misses, driving, speed streaks, drifts, wheelies and finite road coins
 feed the existing points, cash and progression systems. Highway Dispatch
 contracts are not applied to city visits. A visit restarts at the city entrance;

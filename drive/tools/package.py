@@ -83,12 +83,20 @@ comparison=report('paint-comparison-results.json')
 assert hashlib.sha256((validation/'paint-before.ppm').read_bytes()).hexdigest()==comparison['before_ppm_sha256']
 assert hashlib.sha256((validation/'paint-review.ppm').read_bytes()).hexdigest()==comparison['after_ppm_sha256']
 
+world_art=report('openworld-art-results.json')
+assert world_art['models']==48 and world_art['minimum_palette_colors']>32
+assert world_art['reviewed_body_and_protected_landmarks_pass'] and world_art['native_oracles_excluded_from_rom']
+assert any('world-fixed/clipped lane paint across 288 camera shifts' in result for result in stock['native'])
+world_comparison=report('openworld-comparison-results.json')
+for name,expected in world_comparison['files'].items():
+    assert hashlib.sha256((validation/name).read_bytes()).hexdigest()==expected,('Stale city preview',name)
+
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Corrected chase-camera finishes: 48 authored pixel material masks preserve actual lamp lenses, reverse lights, glass, rubber, trim and interiors while surrounding enamel takes paint. All 240 steering poses and 960 stencils are checked against the masks. The native style suite covers 33 combinations per model/pose, including all body paints and all liveries on Black/Graphite. Existing cartridge, six interfaces, progression, Free Roam and save tests rerun on this exact ROM. Before/after and full-roster previews use the native renderer; menu/driving captures use the DS emulator. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Free Roam visual overhaul: 48 new plan-view paintings, 256-color per-model material palettes, three steered-axle source poses and filtered rotation; detailed overhead vegetation, marina craft and courtyards; static world-anchored road paint clipped to finite streets. Native city checks cover 144 material poses, all finish combinations, cache paths and 288 camera translations across endpoints/junctions. All fifteen native suites, both actual-cartridge driving modes, six interface tours, purchases, finishes, opening profiles and save migrations pass on this exact ROM. Native vehicle galleries are labelled separately from emulator captures. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -155,6 +163,33 @@ for row,model in enumerate(models):
     for col,frame in enumerate(images):sheet.paste(frame.resize((144,216),Image.Resampling.NEAREST),(96+col*144,yy))
 sheet.save(DIST/'Paint-Fix-Comparison.png')
 
+# Actual-cartridge scenes and separately labelled native vehicle-sheet comparison.
+world_sheet=Image.new('RGB',(1024,1264),'#18303c');draw=ImageDraw.Draw(world_sheet)
+for column,(name,label) in enumerate((('city-before.png','BEFORE / DS EMULATOR'),('city-spawn.png','UPDATED / DS EMULATOR'))):
+    draw.text((column*512+10,7),label,font=font,fill='#eaf6f4')
+    view=Image.open(validation/name).convert('RGB').crop((0,0,256,192))
+    world_sheet.paste(view.resize((512,384),Image.Resampling.NEAREST),(column*512,28))
+for column,(name,label) in enumerate((('overhead-before.ppm','BEFORE / NATIVE VEHICLE RENDERER'),('overhead-vehicles.ppm','UPDATED / NATIVE VEHICLE RENDERER'))):
+    draw.text((column*512+10,428),label,font=font,fill='#eaf6f4')
+    view=Image.open(validation/name).convert('RGB');assert view.size==(512,384)
+    world_sheet.paste(view,(column*512,456))
+for column,(name,label) in enumerate((('city-route-1.png','UPDATED / NEIGHBORHOOD JUNCTION'),('city-crossing.png','UPDATED / MARINA CROSSING'))):
+    draw.text((column*512+10,848),label,font=font,fill='#eaf6f4')
+    view=Image.open(validation/name).convert('RGB').crop((0,0,256,192))
+    world_sheet.paste(view.resize((512,384),Image.Resampling.NEAREST),(column*512,872))
+world_sheet.save(DIST/'Open-World-Upgrade.png')
+world_finishes=Image.open(validation/'overhead-review.ppm').convert('RGB');assert world_finishes.size==(384,4608)
+world_finishes.save(DIST/'Overhead-Finishes.png')
+for page in range(4):
+    sheet=Image.new('RGB',(768,2208),'#18303c');draw=ImageDraw.Draw(sheet)
+    for col,label in enumerate(('FACTORY','BLACK','GRAPHITE','WHITE','TWIN','TWO TONE','VELOCITY','CONTOUR')):
+        draw.text((col*96+3,8),label,font=font,fill='#eaf6f4')
+    for row,model in enumerate(range(page*12,page*12+12)):
+        yy=36+row*180;draw.text((6,yy),f'{model:02d} / {vehicle_names[model]}',font=font,fill='#eaf6f4')
+        strip=world_finishes.crop((0,model*96+18,384,model*96+90))
+        sheet.paste(strip.resize((768,144),Image.Resampling.NEAREST),(0,yy+22))
+    sheet.save(DIST/f'Overhead-Finishes-{page+1}.png')
+
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
@@ -187,7 +222,7 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
+    'Free-Roam.png','Free-Roam.gif','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
     'Paint-Review-1.png','Paint-Review-2.png','Paint-Review-3.png','Paint-Review-4.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

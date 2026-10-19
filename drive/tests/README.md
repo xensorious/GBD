@@ -94,3 +94,12 @@ touch is passive and X/Y both open the profile selector, captures the two-screen
 animation and eased slide, earns a run on Save 1, configures distinct preferences
 in all three slots, switches back to the first profile and reloads all three in
 fresh emulator processes. No RAM writes or save-state restores are used.
+
+
+The Free Roam visual update adds exact overlap comparisons for 288 camera
+translations across road endpoints and junctions, including the old 47/48-pixel
+dash-phase seam. White highway dashes must remain inside drivable pavement.
+The city suite checks all 144 overhead source poses and all existing finish
+combinations against native-only material/index oracles, and checks finished
+steering sprites on cold and warm cache paths. Review sheets show factory,
+Black, Graphite, White and all four liveries for all 48 painted plan views.

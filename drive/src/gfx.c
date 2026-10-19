@@ -148,8 +148,8 @@ typedef struct {
  uint16_t *pixels;
  uint16_t run_capacity,pixel_capacity;
 } SpriteCache;
-#define SMALL_CACHE_COUNT 96
-#define LARGE_CACHE_COUNT 32
+#define SMALL_CACHE_COUNT 80
+#define LARGE_CACHE_COUNT 24
 #define CACHE_COUNT (SMALL_CACHE_COUNT+LARGE_CACHE_COUNT)
 static SpriteCache sprite_cache[CACHE_COUNT];
 static SpriteRun small_runs[SMALL_CACHE_COUNT][256],large_runs[LARGE_CACHE_COUNT][512];

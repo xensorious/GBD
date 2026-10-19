@@ -19,17 +19,18 @@ from game_snapshot import Game, Save, MODES, BONUSES, find_symbol, symbol_size, 
 from inspect_rom import inspect
 
 
-def native_tests():
+def native_tests(output=None):
     (ROOT/'build').mkdir(exist_ok=True)
     verify_layout(ROOT)
     results=[]
+    if output is not None:output.mkdir(parents=True,exist_ok=True)
     for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c']),('studio',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('finishes',['game.c','road.c','traffic.c','gfx.c','assets.c']),('city',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c']),('premium',['game.c','road.c','traffic.c']),('opening',['opening.c','game.c','road.c','traffic.c','gfx.c','assets.c','ui.c','render.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
         cmd += [str(ROOT/('build' if s=='assets.c' else 'src')/s) for s in sources]
         subprocess.run(cmd+['-o',str(target)],check=True,cwd=ROOT)
-        run=subprocess.run([str(target)],capture_output=True,text=True,cwd=ROOT)
+        run=subprocess.run([str(target)]+([str(output.resolve())] if output is not None and name in ('style','city') else []),capture_output=True,text=True,cwd=ROOT)
         print(run.stdout,end='',flush=True)
         if run.stderr:print(run.stderr,file=sys.stderr,end='',flush=True)
         run.check_returncode();results.append(run.stdout.strip())
@@ -336,7 +337,7 @@ def main():
     parser.add_argument('--output',type=Path,default=ROOT/'build'/'validation')
     args=parser.parse_args()
     if args.native_only and args.emulator_only:parser.error('Choose only one verification mode')
-    native=[] if args.emulator_only else native_tests()
+    native=[] if args.emulator_only else native_tests(args.output)
     if args.native_only:
         args.output.mkdir(parents=True,exist_ok=True)
         (args.output/'native-results.json').write_text(json.dumps({'rom':inspect(args.rom),'native':native},indent=2)+'\n')
