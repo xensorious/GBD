@@ -47,7 +47,7 @@ static int pixel_oracle(const Game *g,const Traffic *t) {
  int nx=128+((ahead.center+t->x_q8/Q-here.center-cam_x)*scale)/256;
  int vehicle=g->vehicle<VEHICLE_COUNT?g->vehicle:0;
  int pose=vehicle_yaw_pose(g->yaw);
- VehicleScreenRect p=vehicle_player_rect(px,vehicle==3,g->wheelie?3+(g->frame/6&1):0);
+ VehicleScreenRect p=vehicle_player_rect(px,vehicles[vehicle].bike,g->wheelie?3+(g->frame/6&1):0);
  VehicleScreenRect n=vehicle_traffic_rect(nx,z);
  const uint16_t *pp=player_pixels+(vehicle*5+pose)*48*72,*np=npc_pixels+(t->kind%6)*40*64;
  int left=p.left>n.left?p.left:n.left,right=p.left+p.width<n.left+n.width?p.left+p.width:n.left+n.width;
@@ -79,7 +79,7 @@ static void visible_contacts(void) {
   Game g;memset(&g,0,sizeof g);g.run_seed=0x26473a71u;g.vehicle=(uint8_t)vehicle;
   g.position_q8=(1337+kind*819)*Q;g.x_q8=(vehicle%2?24:-24)*Q;g.yaw=(int16_t)yaws[yaw];
   g.save.shake=(uint8_t)(kind&1);g.shake=8;g.frame=(unsigned)yaw;
-  g.wheelie=(uint8_t)(vehicle==3 && (kind&1));
+  g.wheelie=(uint8_t)(vehicles[vehicle].bike && (kind&1));
   Traffic t=car(1,0,0);t.z_q8=g.position_q8+depths[depth]*Q;t.x_q8=g.x_q8+x*Q;t.kind=(uint8_t)kind;
   int expected=pixel_oracle(&g,&t),actual=traffic_body_contact(&g,&t);
   if(expected!=actual)fprintf(stderr,"body mismatch vehicle=%d kind=%d yaw=%d z=%d dx=%d expected%d actual%d\n",

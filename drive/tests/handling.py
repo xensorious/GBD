@@ -14,7 +14,7 @@ import subprocess
 from emulator import Emulator,ROOT
 from game_snapshot import Game,Save,Traffic,find_symbol,symbol_size,verify_layout
 from inspect_rom import inspect
-from fixtures import write_battery
+from fixtures import write_battery,encode_profile
 from playthrough import DriveThrough
 
 
@@ -40,9 +40,8 @@ def main():
     profile.save.mastery_xp[0]=10000;profile.save.career_xp=22000
     profile.save.armor[0]=6;profile.save.chassis_tune[0]=2
     profile.save.perks[0]=3
-    out=Save();lib.game_make_save(C.byref(profile),C.byref(out));assert lib.game_save_valid(C.byref(out))
     save_dir=a.output/'handling-fixture-save';shutil.rmtree(save_dir,ignore_errors=True)
-    write_battery(template,save_dir/'Coastline.dsv',bytes(out))
+    write_battery(template,save_dir/'Coastline.dsv',encode_profile(lib,profile))
     address=find_symbol(a.elf,'game');assert symbol_size(a.elf,'game')==C.sizeof(Game)
     report={'rom':inspect(a.rom),'source':'native-generated battery fixture: Pacer armor6, touring chassis, Recovery3; no engine/grip/Focus modifications',
             'inputs':'joypad only','ram_access':'read only; no emulator checkpoints or state restores',

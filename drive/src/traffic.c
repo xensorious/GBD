@@ -2,17 +2,42 @@
 #include "road.h"
 #include "vehicle_projection.h"
 #include "vehicle_geometry.h"
+#include <limits.h>
 #include <string.h>
+#ifdef ARM9
+#include <nds/arm9/math.h>
+#endif
 
 #define WORLD_LIMIT (7000000*Q)
 #define LANE_CHANGE_STEP (3*Q/4)
 #define TRAFFIC_ACCEL (Q/6)
 #define TRAFFIC_BRAKE (Q/2)
 
+_Static_assert(sizeof vehicle_body_spans/sizeof vehicle_body_spans[0]==VEHICLE_COUNT*5,
+               "Collision poses must cover the complete vehicle roster");
+_Static_assert(sizeof vehicle_body_masks/sizeof vehicle_body_masks[0]==VEHICLE_COUNT*5,
+               "Collision masks must cover the complete vehicle roster");
+
 static int absi(int n) { return n<0?-n:n; }
 static int mini(int a,int b) { return a<b?a:b; }
 static int maxi(int a,int b) { return a>b?a:b; }
 static int lane_x(int lane) { return (-72+48*lane)*Q; }
+/* Gameplay and rendering run sequentially; IRQ handlers do not use the math
+ * unit. Native builds retain the same signed, truncating C quotients. */
+static __attribute__((noinline,noclone,const)) int traffic_divide(int numerator,int denominator) {
+#ifdef ARM9
+ return div32(numerator,denominator);
+#else
+ return numerator/denominator;
+#endif
+}
+static int interpolate(int from,int to,int step,int steps) {
+ int64_t numerator=((int64_t)to-from)*step;
+ if(numerator>=INT32_MIN && numerator<=INT32_MAX)
+  return from+traffic_divide((int32_t)numerator,steps);
+ /* Preserve the original wide arithmetic for extreme synthetic fixtures. */
+ return from+(int32_t)(numerator/steps);
+}
 static int free_traffic(const Game *g) {
  for(int i=0;i<TRAFFIC_COUNT;++i) if(!g->traffic[i].active) return i;
  /* Slow driving can leave the fixed pool full of cars far ahead of the
@@ -125,7 +150,7 @@ static void contact_shapes(const Game *g,const Traffic *t,ContactShape *player,C
  if(!t->active || z<DRIVE_NEAR_Z || z>ROAD_VIEW)return;
  int vehicle=g->vehicle<VEHICLE_COUNT?g->vehicle:0;
  int kind=t->kind%6;
- int bike=vehicle==3;
+ int bike=vehicles[vehicle].bike;
  int cam_x=g->x_q8/(Q*8);
  if(g->save.shake && g->shake) {
   int shake=mini(g->shake/4,2);
@@ -135,16 +160,20 @@ static void contact_shapes(const Game *g,const Traffic *t,ContactShape *player,C
  road_sample(g->run_seed,g->position_q8/Q,g->start_biome,&here);
  road_sample(g->run_seed,t->z_q8/Q,g->start_biome,&ahead);
  int player_x=vehicle_project_x(here.center+g->x_q8/Q,here.center,cam_x,0);
- int traffic_x=vehicle_project_x(ahead.center+t->x_q8/Q,here.center,cam_x,z);
+ int scale=traffic_divide(276*DRIVE_CAMERA,z+DRIVE_CAMERA);
+ int traffic_x=DRIVE_SCREEN_WIDTH/2+((ahead.center+t->x_q8/Q-here.center-cam_x)*scale)/256;
+ int size=scale*180/256,w=DRIVE_TRAFFIC_ART_W*size/256,h=DRIVE_TRAFFIC_ART_H*size/256;
+ int y=DRIVE_HORIZON+traffic_divide((DRIVE_PLAYER_Y-DRIVE_HORIZON)*DRIVE_CAMERA,z+DRIVE_CAMERA);
  int lift=g->wheelie?3+(g->frame/6&1):0;
  *player=(ContactShape){vehicle_player_rect(player_x,bike,lift),
                        vehicle_body_spans[vehicle*5+vehicle_yaw_pose(g->yaw)],
                        vehicle_body_masks[vehicle*5+vehicle_yaw_pose(g->yaw)],
                        DRIVE_PLAYER_ART_W,DRIVE_PLAYER_ART_H,0};
- *npc=(ContactShape){vehicle_traffic_rect(traffic_x,z),traffic_body_spans[kind],
+ VehicleScreenRect npc_rect={traffic_x-w/2,y-h/2,w,h};
+ *npc=(ContactShape){npc_rect,traffic_body_spans[kind],
                     traffic_body_masks[kind],DRIVE_TRAFFIC_ART_W,DRIVE_TRAFFIC_ART_H,0};
- if(player->rect.width>0)player->column_step=((unsigned)player->source_width*65536u+(unsigned)player->rect.width-1)/(unsigned)player->rect.width;
- if(npc->rect.width>0)npc->column_step=((unsigned)npc->source_width*65536u+(unsigned)npc->rect.width-1)/(unsigned)npc->rect.width;
+ if(player->rect.width>0)player->column_step=(unsigned)traffic_divide(player->source_width*65536+player->rect.width-1,player->rect.width);
+ if(npc->rect.width>0)npc->column_step=(unsigned)traffic_divide(npc->source_width*65536+npc->rect.width-1,npc->rect.width);
 }
 
 /* Match gfx_vehicle's nearest-neighbour source lookup exactly. Per-row opaque
@@ -166,6 +195,12 @@ static int body_pixel(const ContactShape *shape,const uint32_t *mask,int x) {
 }
 
 static int shapes_contact(const ContactShape *player,const ContactShape *npc) {
+ /* Opaque bodies cannot overlap by two pixels if their complete projected
+  * rectangles do not. Adjacent lanes therefore avoid per-row mask sampling. */
+ int left=maxi(0,maxi(player->rect.left,npc->rect.left));
+ int right=mini(DRIVE_SCREEN_WIDTH,mini(player->rect.left+player->rect.width,
+                                      npc->rect.left+npc->rect.width));
+ if(right-left<2)return 0;
  int top=maxi(0,maxi(player->rect.top,npc->rect.top));
  int bottom=mini(DRIVE_SCREEN_HEIGHT,mini(player->rect.top+player->rect.height,
                                           npc->rect.top+npc->rect.height));
@@ -240,11 +275,11 @@ static int swept_contact(const Game *g,const Traffic *t,int32_t old_position,
  sample.save.shake=g->save.shake;sample.shake=g->shake;
  Traffic moving=*t;
  for(int step=0;step<=steps;++step) {
-  sample.position_q8=old_position+(int32_t)(((int64_t)g->position_q8-old_position)*step/steps);
-  sample.x_q8=old_x+(int32_t)(((int64_t)g->x_q8-old_x)*step/steps);
-  sample.yaw=(int16_t)(old_yaw+(g->yaw-old_yaw)*step/steps);
-  moving.z_q8=old_z+(int32_t)(((int64_t)t->z_q8-old_z)*step/steps);
-  moving.x_q8=old_traffic_x+(int32_t)(((int64_t)t->x_q8-old_traffic_x)*step/steps);
+  sample.position_q8=interpolate(old_position,g->position_q8,step,steps);
+  sample.x_q8=interpolate(old_x,g->x_q8,step,steps);
+  sample.yaw=(int16_t)interpolate(old_yaw,g->yaw,step,steps);
+  moving.z_q8=interpolate(old_z,t->z_q8,step,steps);
+  moving.x_q8=interpolate(old_traffic_x,t->x_q8,step,steps);
   if(traffic_body_contact(&sample,&moving))return 1;
  }
  return 0;

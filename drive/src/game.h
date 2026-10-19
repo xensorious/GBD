@@ -4,14 +4,20 @@
 
 #define DRIVE_HZ 30
 #define Q 256
-#define VEHICLE_COUNT 10
+#define VEHICLE_COUNT 31
 #define UPGRADE_MAX 6
 #define PERK_COUNT 3
 #define SKIN_COUNT 3
-#define LOCATION_COUNT 8
+#define LOCATION_COUNT 13
+#define SAVE_DISK_SIZE 500
+#define CLASS_COUNT 5
+#define LIVERY_COUNT 5
+#define WHEEL_COUNT 4
+#define CONTRACT_OFFERS 3
 #define TRAFFIC_COUNT 20
 #define PICKUP_COUNT 24
 #define BONUS_COUNT 7
+#define CHALLENGE_COUNT 8
 #define ROAD_HALF 96
 #define ROAD_VIEW 1200
 #define COMBO_MAX_Q8 (5*Q)
@@ -27,23 +33,28 @@
 enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
  K_A=16u,K_B=32u,K_L=64u,K_R=128u,K_START=256u,K_SELECT=512u };
 typedef struct { uint32_t held,pressed; } Input;
-enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS };
+enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS,M_CONTRACTS };
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
 enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
 enum TurboSource { TS_NONE,TS_NEAR,TS_DRIFT,TS_WHEELIE,TS_SLOW };
 enum RunEnd { END_NONE,END_STOPPED,END_CRASH,END_BANKED,END_LIMIT };
-enum Biome { CITY,COAST,CAUSEWAY,PINES,CANYON,MARINA,WETLANDS,GROVES };
+enum Biome { CITY,COAST,CAUSEWAY,PINES,CANYON,MARINA,WETLANDS,GROVES,NEON,JUNGLE,SWAMP,AURORA,SALT };
+enum VehicleClass { CLASS_D,CLASS_C,CLASS_B,CLASS_A,CLASS_S };
+enum VehicleSpecialty { VS_VALUE,VS_BALANCED,VS_TOP,VS_ACCEL,VS_ARMOR };
+enum DispatchKind { DC_NEAR,DC_DRIFT,DC_DISTANCE,DC_COINS,DC_SPEED,DC_NONE };
 typedef struct {
  const char *name,*description,*requirement;
  uint16_t price,top_speed,acceleration,grip,armor;
- uint8_t bike,unlock;
+ uint8_t bike,unlock,class_id,specialty;
 } VehicleDef;
+typedef struct {uint32_t goal,reward;uint8_t kind,reserved[3];} DispatchContract;
 typedef struct { const char *name,*description,*requirement;uint16_t price;uint8_t unlock; } LocationDef;
 extern const VehicleDef vehicles[VEHICLE_COUNT];
 extern const LocationDef locations[LOCATION_COUNT];
 extern const char *const bonus_names[BONUS_COUNT];
 
-/* Fixed-width cartridge save. No pointers or native enums are persisted. */
+/* Unpacked profile view. The cartridge codec packs it into 500 bytes.
+ * No pointers or native enums are persisted. */
 typedef struct {
  uint32_t magic,version,checksum,cash,owned,unlocked_locations,paints;
  uint32_t best_score,best_distance,best_near,best_drift,best_speed_hold,best_wheelie,best_coins;
@@ -54,7 +65,10 @@ typedef struct {
  uint8_t power_tune[VEHICLE_COUNT],handling_tune[VEHICLE_COUNT],chassis_tune[VEHICLE_COUNT];
  uint8_t perks[PERK_COUNT];
  uint8_t music_on,sfx_on,music_volume,sfx_volume,skin,shake,units,motion;
- uint8_t reserved[3];
+ uint8_t recovery[VEHICLE_COUNT],livery[VEHICLE_COUNT],wheels[VEHICLE_COUNT];
+ uint8_t livery_owned[VEHICLE_COUNT],wheels_owned[VEHICLE_COUNT],dispatch_choice;
+ uint32_t contracts_completed;
+ uint8_t reserved[4];
 } Save;
 typedef struct {
  uint32_t count[BONUS_COUNT],points[BONUS_COUNT];
@@ -92,14 +106,20 @@ typedef struct {
  /* Pursuit is run-only. The ticket always credits the earned run rewards. */
  uint16_t police_ticks;
  uint8_t police_pressure,end_reason;
+ uint8_t garage_filter,livery_choice,wheel_choice,contract_complete;
+ DispatchContract active_contract;
+ uint32_t contract_progress,contract_cash;
 } Game;
 
 void game_init(Game *g,uint32_t seed);
 void game_update(Game *g,const Input *in);
 void game_begin_run(Game *g);
 void game_finish_run(Game *g);
+/* Canonical unpacked helpers for rules/inspection; byte codecs handle disk. */
 void game_make_save(const Game *g,Save *out);
 int game_load(Game *g,const Save *save);
+int game_encode_save(const Game *g,void *out,unsigned size);
+int game_load_bytes(Game *g,const void *raw,unsigned size);
 int game_save_valid(const Save *save);
 void game_save_result(Game *g,int okay);
 int game_top_speed(const Game *g);
@@ -115,6 +135,20 @@ int game_perk_available(const Game *g);
 const char *game_tune_name(int kind,int value);
 const char *game_tune_description(int kind,int value);
 int game_can_vehicle(const Game *g,int id);
+int game_owned_count(const Game *g);
+int game_vehicle_class(int id);
+const char *game_class_name(int class_id);
+const char *game_specialty_name(int specialty);
+int game_class_requirement(int class_id);
+int game_class_unlocked(const Game *g,int class_id);
+const char *game_vehicle_lock_reason(const Game *g,int id);
+const char *game_livery_name(int value);
+const char *game_wheel_name(int value);
+int game_cosmetic_cost(const Game *g,int kind,int value);
+int game_apply_cosmetics(Game *g);
+void game_contract_offer(const Game *g,int slot,DispatchContract *out);
+const char *game_contract_name(int kind);
+uint32_t game_contract_progress(const Game *g);
 int game_can_location(const Game *g,int id);
 const char *game_challenge_name(int i);
 const char *game_challenge_reward(int i);

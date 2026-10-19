@@ -5,8 +5,8 @@ import ctypes as C
 import json
 from pathlib import Path
 from emulator import Emulator
-from fixtures import coastal_profile
-from game_snapshot import Save,find_symbol,read_game
+from fixtures import coastal_profile,assert_imported_fields,battery_size
+from game_snapshot import V2Save,find_symbol,read_game
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--rom',type=Path,required=True)
@@ -20,12 +20,15 @@ with Emulator(a.rom,a.save_dir) as e:
     e.run(180)
     if a.current:
         g=read_game(e,address)
-        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==2
+        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==3
         old=g.save
-    else:old=Save.from_buffer_copy(e.read_ram(address,C.sizeof(Save)))
-    assert bytes(old)==bytes(coastal_profile()),'The cartridge rejected or changed the v2 fixture'
+    else:old=V2Save.from_buffer_copy(e.read_ram(address,C.sizeof(V2Save)))
+    if a.current:assert_imported_fields(old,coastal_profile())
+    else:assert bytes(old)==bytes(coastal_profile()),'The cartridge rejected or changed the v2 fixture'
     if a.output:e.screenshot(a.output)
     if a.expected:
         old.checksum=0;a.expected.write_bytes(bytes(old))
     print(json.dumps({'current_v2_profile_preserved' if a.current else 'previous_v2_rom_accepted_fixture':True,'cash':old.cash,
                       'save_bytes':C.sizeof(old),'selected_vehicle':old.selected_vehicle}),flush=True)
+if a.current:
+    assert battery_size(a.save_dir/'Coastline.dsv')==512,'Migration changed the physical save capacity'

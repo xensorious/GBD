@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef ARM9
+#include <nds/arm9/math.h>
+#endif
 
 /* The renderer never consumes the simulation's random stream.  Every roadside
  * detail has a world coordinate, including while reversing past it. */
@@ -18,7 +21,7 @@ static unsigned profile_clock(void){return ds_profile_clock();}
 #else
 static unsigned profile_clock(void){return 0;}
 #endif
-/* Microsecond-scale ARM9 timer ticks: top, bottom, total, road, objects. */
+/* ARM9 timer ticks at BUS_CLOCK/64: top, bottom, total, road, objects. */
 volatile uint32_t render_profile[5];
 volatile uint32_t scenery_profile[8];
 static uint32_t scenery_work[8];
@@ -28,6 +31,16 @@ static uint32_t scenery_work[8];
 #else
 #define FAST
 #endif
+/* ARM9 has a dedicated signed divider. Variable perspective quotients are
+ * substantially cheaper here than libgcc's software long division. */
+static FAST __attribute__((noinline,noclone,const)) int scene_divide(int numerator,int denominator)
+{
+#ifdef ARM9
+ return div32(numerator,denominator);
+#else
+ return numerator/denominator;
+#endif
+}
 #define VW 256
 #define VH 192
 #define HORIZON DRIVE_HORIZON
@@ -45,8 +58,18 @@ static uint32_t scenery_work[8];
 enum { SC_BUILDING=0,SC_SHOP=1,SC_WAREHOUSE=2,SC_PALM=3,SC_PINE=4,SC_TREE=5,
        SC_BUSH=6,SC_ROCK=7,SC_LAMP=8,SC_GANTRY=9,SC_BILLBOARD=10,SC_SAIL=11,
        SC_MANGROVE=12,SC_CITRUS=13,SC_HOTEL=14,SC_REEDS=15,SC_VILLA=16,SC_PIER=17,
-       SC_BARRIER=18 };
-enum { ITEM_PROP,ITEM_CAR,ITEM_COIN,ITEM_PLAYER,ITEM_BACK_PROP };
+       SC_VENDING=18,SC_SCULPTURE=19,SC_UTILITY=20,SC_NEON_PALM=21,
+       SC_BANANA=22,SC_BAMBOO=23,SC_FERN=24,SC_CANOPY=25,SC_FLOWER=26,SC_VINE=27,
+       SC_CYPRESS=28,SC_DEADWOOD=29,SC_RUSH=30,SC_LOG=31,
+       SC_SPRUCE=32,SC_BIRCH=33,SC_SNOW_ROCK=34,SC_SNOW_BUSH=35,SC_SNOW_BANK=36,
+       SC_CRYSTAL=37,SC_SOLAR=38,SC_SALT_MOUND=39,SC_SCRUB=40,SC_FLAMINGO=41,
+       SC_BARRIER=255 };
+enum { BL_HOUSE,BL_SHOP,BL_WAREHOUSE,BL_HOTEL,BL_VILLA,
+       BL_ARCADE,BL_NOODLES,BL_OFFICE,BL_CLUB,BL_JUNGLE_LODGE,BL_JUNGLE_HUT,
+       BL_BAYOU_CABIN,BL_BOATHOUSE,BL_CHALET,BL_OBSERVATORY,BL_SNOW_LODGE,
+       BL_PAVILION,BL_SOLAR_STATION,BL_DUPLEX,BL_POOL_VILLA,BL_MOTEL,BL_CAFE,
+       BL_MARINA_SHED,BL_APARTMENT,BL_MARINA_TOWER,BUILDING_STYLE_COUNT };
+enum { ITEM_PROP,ITEM_CAR,ITEM_COIN,ITEM_PLAYER,ITEM_BACK_PROP,ITEM_BUILDING };
 typedef struct { int z,x,kind,id,variant,side; } DrawItem;
 typedef struct { int x,z;unsigned tick; } TireMark;
 typedef struct {
@@ -88,13 +111,13 @@ static int material_blend(unsigned amount)
 static int project_y(int z)
 {
  unsigned index=(unsigned)(z-DEPTH_CACHE_MIN);
- return index<DEPTH_CACHE_COUNT?depth_y[index]:HORIZON+((PLAYER_Y-HORIZON)*CAMERA)/(z+CAMERA);
+ return index<DEPTH_CACHE_COUNT?depth_y[index]:HORIZON+scene_divide((PLAYER_Y-HORIZON)*CAMERA,z+CAMERA);
 }
 
 static int project_scale(int z)
 {
  unsigned index=(unsigned)(z-DEPTH_CACHE_MIN);
- return index<DEPTH_CACHE_COUNT?depth_scale[index]:(276*CAMERA)/(z+CAMERA);
+ return index<DEPTH_CACHE_COUNT?depth_scale[index]:scene_divide(276*CAMERA,z+CAMERA);
 }
 
 static int item_x(const View *v,int world_x,int z)
@@ -107,8 +130,8 @@ static void init_projection(void)
  initialized=1;
  for(int i=0;i<DEPTH_CACHE_COUNT;i++) {
   int z=i+DEPTH_CACHE_MIN;
-  depth_y[i]=(int16_t)(HORIZON+((PLAYER_Y-HORIZON)*CAMERA)/(z+CAMERA));
-  depth_scale[i]=(int16_t)((276*CAMERA)/(z+CAMERA));
+  depth_y[i]=(int16_t)(HORIZON+scene_divide((PLAYER_Y-HORIZON)*CAMERA,z+CAMERA));
+  depth_scale[i]=(int16_t)(scene_divide(276*CAMERA,z+CAMERA));
  }
  for(int i=1;i<256;i++)vertical_step[i]=65536u/(unsigned)i;
  for(int y=0;y<VH;y++) {
@@ -141,7 +164,8 @@ static __attribute__((noinline)) int visual_travel(int position,int motion)
 
 static __attribute__((noinline)) int physical_anchor(int visual_position,int scale)
 {
- return (visual_position/scale)*128+((visual_position%scale)*128)/scale;
+ int whole=scene_divide(visual_position,scale);
+ return whole*128+scene_divide((visual_position-whole*scale)*128,scale);
 }
 
 static __attribute__((noinline)) void contact_shadow(Surface *s,int x,int y,int w,int h,
@@ -165,13 +189,15 @@ static __attribute__((noinline)) void contact_shadow(Surface *s,int x,int y,int 
 }
 
 static int biome_water(int biome,int side)
-{return biome==CAUSEWAY || biome==WETLANDS || ((biome==COAST || biome==MARINA) && side<0)?256:0;}
+{return biome==CAUSEWAY || biome==WETLANDS ||
+ ((biome==COAST || biome==MARINA || biome==SWAMP || biome==AURORA || biome==SALT) && side<0)?256:0;}
 
 static uint16_t terrain_color(int biome)
 {
  static const uint16_t colors[LOCATION_COUNT]={
   C(157,173,164),C(119,176,116),C(41,144,169),C(67,113,85),C(192,136,91),
-  C(59,77,98),C(84,129,107),C(152,177,103)};
+  C(59,77,98),C(84,129,107),C(152,177,103),
+  C(41,52,77),C(48,112,80),C(62,105,85),C(203,223,229),C(224,223,217)};
  return colors[biome%LOCATION_COUNT];
 }
 
@@ -179,12 +205,15 @@ static uint16_t verge_color(int biome)
 {
  static const uint16_t colors[LOCATION_COUNT]={
   C(221,212,187),C(230,215,166),C(202,216,208),C(149,156,119),C(222,170,118),
-  C(106,132,145),C(163,177,137),C(193,180,127)};
+  C(106,132,145),C(163,177,137),C(193,180,127),
+  C(78,105,131),C(119,145,94),C(126,147,112),C(229,237,230),C(236,229,226)};
  return colors[biome%LOCATION_COUNT];
 }
 
 static uint16_t sea_color(int biome)
-{return biome==MARINA?C(27,86,123):biome==WETLANDS?C(57,118,118):C(35,151,180);}
+{return biome==MARINA?C(27,86,123):biome==WETLANDS?C(57,118,118):
+ biome==SWAMP?C(35,91,79):biome==AURORA?C(65,136,166):
+ biome==SALT?C(185,177,211):C(35,151,180);}
 
 static int bridge_region(int biome)
 {return biome==CAUSEWAY || biome==WETLANDS;}
@@ -199,51 +228,93 @@ static const StudioTheme studio_themes[SKIN_COUNT]={
 static const StudioTheme *theme_for(const Game *g)
 {return &studio_themes[clampi(g->save.skin,0,SKIN_COUNT-1)];}
 
+typedef struct {uint16_t high,low,haze;uint8_t night;} SkyTheme;
+static const SkyTheme sky_themes[LOCATION_COUNT]={
+ {C(82,168,211),C(189,225,225),C(122,172,177),0},
+ {C(70,171,219),C(201,236,226),C(120,184,182),0},
+ {C(83,173,216),C(202,235,233),C(135,195,201),0},
+ {C(100,171,194),C(204,222,202),C(103,145,127),0},
+ {C(122,171,211),C(242,216,173),C(177,148,126),0},
+ {C(16,28,57),C(47,80,113),C(42,74,104),255},
+ {C(91,154,168),C(187,211,184),C(99,151,139),0},
+ {C(102,181,214),C(220,235,194),C(141,177,132),0},
+ {C(16,16,47),C(45,61,104),C(35,43,76),255},
+ {C(63,137,156),C(166,204,163),C(66,129,102),0},
+ {C(30,62,76),C(95,145,133),C(48,95,88),205},
+ {C(17,35,73),C(88,148,180),C(111,166,190),220},
+ {C(119,170,217),C(243,215,226),C(191,180,210),0}
+};
+
 static __attribute__((noinline)) void draw_sky(Surface *s,const View *v,const RoadSample *region)
 {
- int transition=material_blend(region->blend);
- int night=(region->biome==MARINA)*(256-transition)+(region->next_biome==MARINA)*transition;
+ int mix=material_blend(region->blend);
+ const SkyTheme *a=&sky_themes[region->biome],*b=&sky_themes[region->next_biome];
+ int night=(a->night*(256-mix)+b->night*mix)/256;
  for(int y=0;y<=HORIZON;y++) {
-  uint16_t day=blend_color(C(82,168,211),C(189,225,225),y*256/HORIZON);
-  uint16_t dark=blend_color(C(16,28,57),C(47,80,113),y*256/HORIZON);
-  gfx_rect(s,0,y,VW,1,blend_color(day,dark,night));
+  uint16_t first=blend_color(a->high,a->low,y*256/HORIZON);
+  uint16_t second=blend_color(b->high,b->low,y*256/HORIZON);
+  gfx_rect(s,0,y,VW,1,blend_color(first,second,mix));
+ }
+ if(night>25)for(int n=0;n<22;n++) {
+  uint32_t h=road_hash(v->seed^0x57a4u,(unsigned)n);
+  int x=(int)(h%VW),y=1+(int)((h>>9)%(HORIZON-3));
+  int pulse=170+(int)((v->frame/32+h)%86);
+  gfx_rect(s,x,y,1,1,blend_color(blend_color(a->high,b->high,mix),C(235,247,238),night*pulse/256));
+ }
+ uint16_t sky=blend_color(a->high,b->high,mix);
+ uint16_t sun=blend_color(C(255,231,158),C(213,236,242),night);
+ static const uint8_t body_x[LOCATION_COUNT]={42,46,190,62,198,192,46,64,203,43,54,195,51};
+ static const uint8_t body_y[LOCATION_COUNT]={17,7,8,9,13,7,12,7,10,9,8,7,16};
+ static const uint8_t body_radius[LOCATION_COUNT]={6,5,5,4,6,4,5,5,4,4,4,4,7};
+ int celestial_x=(body_x[region->biome]*(256-mix)+body_x[region->next_biome]*mix)/256;
+ int celestial_y=(body_y[region->biome]*(256-mix)+body_y[region->next_biome]*mix)/256;
+ int radius=(body_radius[region->biome]*(256-mix)+body_radius[region->next_biome]*mix)/256;
+ gfx_circle(s,celestial_x,celestial_y,radius,sun);
+ if(night>130)gfx_circle(s,celestial_x+2,celestial_y-2,radius,sky);
+ int aura=(region->biome==AURORA)*(256-mix)+(region->next_biome==AURORA)*mix;
+ if(aura)for(int x=0;x<VW;x+=8) {
+  unsigned phase=((unsigned)x/8+v->frame/28)&31u;
+  int wave=(int)(phase<16?phase:31-phase);
+  gfx_rect(s,x,3+wave/4,8,1,blend_color(sky,C(99,231,202),aura*3/4));
+  gfx_rect(s,x,5+(15-wave)/5,8,1,blend_color(sky,C(164,139,221),aura/2));
  }
  int biome=region->blend>=128?region->next_biome:region->biome;
- uint16_t distant=blend_color(C(122,172,177),C(42,74,104),night);
- if(biome==CITY || biome==MARINA) {
-  for(int n=0;n<16;n++) {
-   int x=n*17-3;
-   if(x>108 && x<142)continue;
+ uint16_t distant=blend_color(a->haze,b->haze,mix);
+ if(biome==CITY || biome==MARINA || biome==NEON) {
+  for(int n=0;n<17;n++) {
+   int x=n*17-4;if(x>108 && x<143)continue;
    unsigned h=road_hash(v->seed^0x6163u,(unsigned)n);
-   int height=3+(h&7);
-   gfx_rect(s,x,HORIZON-height,10+(h>>7&3),height+1,distant);
-   if(night && (h&1))gfx_rect(s,x+3,HORIZON-height+2,2,1,C(159,204,215));
+   int height=3+(int)(h&7);
+   gfx_rect(s,x,HORIZON-height,10+(int)(h>>7&3),height+1,distant);
+   if(night>100) {
+    uint16_t light=biome==NEON?(h&1?C(103,222,225):C(211,124,218)):C(159,204,215);
+    gfx_rect(s,x+3,HORIZON-height+2,2,1,light);
+    if(height>5)gfx_rect(s,x+7,HORIZON-height+4,2,1,light);
+   }
   }
- } else if(biome==PINES || biome==CANYON) {
-  for(int n=0;n<4;n++) {
-   int x=n<2?24+n*46:162+(n-2)*44;
-   int height=5+(int)(road_hash(v->seed,(unsigned)n)&5);
+ } else if(biome==PINES || biome==JUNGLE || biome==SWAMP || biome==GROVES || biome==WETLANDS) {
+  for(int n=0;n<22;n++) {
+   int x=n*13-8;if(x>112 && x<140)continue;
+   unsigned h=road_hash(v->seed^0x7ee1u,(unsigned)n);
+   int height=3+(int)(h&7),half=biome==JUNGLE?10:7;
+   for(int y=0;y<height;y++)gfx_rect(s,x-half+y/3,HORIZON-height+y,half*2-y*2/3,1,distant);
+  }
+ } else if(biome==CANYON || biome==AURORA || biome==SALT) {
+  for(int n=0;n<7;n++) {
+   int x=n<3?12+n*28:164+(n-3)*29;
+   int height=4+(int)(road_hash(v->seed,(unsigned)n)&7);
    for(int row=0;row<height;row++) {
-    int half=biome==CANYON?11+row:row*2+3;
+    int half=(biome==CANYON?12:3)+row*(biome==SALT?1:2);
     gfx_rect(s,x-half,HORIZON-height+row,half*2,1,distant);
    }
   }
- } else if(biome==GROVES || biome==WETLANDS) {
-  for(int n=0;n<16;n++) {
-   int x=n*18-4;if(x>112 && x<139)continue;
-   int h=2+(int)(road_hash(v->seed,(unsigned)n)&3);
-   gfx_rect(s,x,HORIZON-h,12,h+1,distant);
-  }
  } else {
-  gfx_rect(s,0,HORIZON-2,102,3,C(133,193,201));
-  gfx_rect(s,148,HORIZON-2,108,3,C(133,193,201));
-  ellipse(s,41,HORIZON-1,44,3,distant);
-  ellipse(s,207,HORIZON,56,3,distant);
+  gfx_rect(s,0,HORIZON-2,102,3,distant);
+  gfx_rect(s,148,HORIZON-2,108,3,distant);
  }
- if(night<200)for(int i=0;i<2;i++) {
-  int x=(int)((v->frame/18+(unsigned)i*157)%320)-28;
-  int y=4+i*4;
-  uint16_t cloud=blend_color(C(216,237,233),C(72,104,131),night);
+ if(night<150)for(int i=0;i<2;i++) {
+  int x=(int)((v->frame/18+(unsigned)i*157)%320)-28,y=3+i*5;
+  uint16_t cloud=blend_color(sky,C(235,244,228),150);
   gfx_rect(s,x,y,22,2,cloud);gfx_rect(s,x+5,y-1,12,1,cloud);
  }
 }
@@ -266,6 +337,19 @@ static FAST __attribute__((noinline,noclone)) void road_span(Surface *s,int x,in
  }
  while(width>=2){*words++=pattern;width-=2;}
  if(width)*(uint16_t *)words=color;
+}
+
+static inline void road_ground_spans(Surface *s,int y,int outside_left,int outside_right,
+ int left_water_span,int right_water_span,uint16_t color)
+{
+ /* Water overwrites the screen edges below. Only fill terrain which remains
+  * visible between those spans; preserve the complete later overlay order. */
+ int left=left_water_span,right=VW-right_water_span;
+ if(left>=right)return;
+ int end=outside_left<right?outside_left:right;
+ int start=outside_right>left?outside_right:left;
+ road_span(s,left,y,end-left,color);
+ road_span(s,start,y,right-start,color);
 }
 
 /* Each scanline is a handful of halfword-safe spans, rather than a textured
@@ -291,8 +375,11 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
   right_water[k]=(biome_water(r->biome,1)*(256-transition)+biome_water(r->next_biome,1)*transition)/256;
   bridges[k]=bridge_region(r->biome)*(256-transition)+bridge_region(r->next_biome)*transition;
   rails[k]=(biome_water(r->biome,-1)!=0)*(256-transition)+(biome_water(r->next_biome,-1)!=0)*transition;
-  asphalts[k]=blend_color(r->biome==MARINA?C(49,61,78):C(64,77,85),
-                        r->next_biome==MARINA?C(49,61,78):C(64,77,85),transition);
+  uint16_t road_a=r->biome==NEON?C(28,36,56):r->biome==AURORA?C(65,83,102):
+                   r->biome==SALT?C(91,98,116):r->biome==MARINA?C(49,61,78):C(64,77,85);
+  uint16_t road_b=r->next_biome==NEON?C(28,36,56):r->next_biome==AURORA?C(65,83,102):
+                   r->next_biome==SALT?C(91,98,116):r->next_biome==MARINA?C(49,61,78):C(64,77,85);
+  asphalts[k]=blend_color(road_a,road_b,transition);
  }
  for(int y=HORIZON+1;y<VH;y++) {
   int k=y/8,t=y&7;
@@ -310,28 +397,38 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
   uint16_t asphalt=blend_color(asphalts[k],asphalts[k+1],t*32);
   int haze=clampi(72-y,0,50);
   int transition=material_blend(r->blend);
-  uint16_t haze_color=blend_color(C(185,218,219),C(41,80,110),
-     (r->biome==MARINA)*(256-transition)+(r->next_biome==MARINA)*transition);
+  uint16_t haze_color=blend_color(sky_themes[r->biome].low,sky_themes[r->next_biome].low,transition);
   ground=blend_color(ground,haze_color,haze);
   sea=blend_color(sea,haze_color,haze);
   verge=blend_color(verge,haze_color,haze);
   asphalt=blend_color(asphalt,haze_color,haze);
   int world=v->visual_position+row_z[y];
+  /* Hot flats use a moving warm haze in existing terrain spans, rather than
+   * an expensive screen filter or distortion that would hide traffic. */
+  if((biome==CANYON || biome==SALT) && y<86) {
+   int wave=(int)((v->frame/11+(unsigned)y/3)&15u);
+   int warmth=(86-y)*(wave<8?wave:15-wave)/28;
+   ground=blend_color(ground,biome==SALT?C(245,206,226):C(241,186,130),clampi(warmth,0,28));
+   sea=blend_color(sea,C(222,201,229),clampi(warmth,0,24));
+  }
   int shoulder=clampi(scale*3/256,1,5),bank=clampi(scale*3/256,1,4);
   int outside_left=cx-half-shoulder-bank;
   int outside_right=cx+half+shoulder+bank;
-  road_span(s,0,y,outside_left,ground);
-  road_span(s,outside_right,y,VW-outside_right,ground);
+  int water_spans[2];
+  for(int side=-1;side<=1;side+=2) {
+   int water=side<0?left_water[k]+(left_water[k+1]-left_water[k])*t/8:
+                     right_water[k]+(right_water[k+1]-right_water[k])*t/8;
+   int edge=cx+side*(half+7*scale/256);
+   int span=side<0?edge:VW-edge;
+   water_spans[(side+1)/2]=clampi((span*water)/256,0,VW);
+  }
+  road_ground_spans(s,y,outside_left,outside_right,water_spans[0],water_spans[1],ground);
 
   /* Water only occupies the appropriate side of a coastal or bridge road.
    * The shoreline itself approaches gradually during an environment blend. */
   for(int side=-1;side<=1;side+=2) {
-   int water=side<0?left_water[k]+(left_water[k+1]-left_water[k])*t/8:
-                     right_water[k]+(right_water[k+1]-right_water[k])*t/8;
-   if(water) {
-    int edge=cx+side*(half+7*scale/256);
-    int span=side<0?edge:VW-edge;
-    span=clampi((span*water)/256,0,VW);
+   int span=water_spans[(side+1)/2];
+   if(span) {
     int x=side<0?0:VW-span;
     road_span(s,x,y,span,sea);
     if(span>0)road_span(s,side<0?span-1:x,y,1,blend_color(sea,C(180,223,197),100));
@@ -354,6 +451,16 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
   road_span(s,cx-half-shoulder,y,shoulder,C(76,88,91));
   road_span(s,cx+half,y,shoulder,C(76,88,91));
   road_span(s,cx-half,y,half*2,asphalt);
+  if(biome==NEON && (world%144+144)%144<28) {
+   int reach=clampi(scale*10/256,1,7);
+   road_span(s,cx-half+2,y,reach,C(48,119,147));
+   road_span(s,cx+half-reach-1,y,reach,C(126,64,136));
+  }
+  if(biome==SALT && y<75 && (world%97+97)%97<17) {
+   int width=clampi(scale*120/256,8,55);
+   road_span(s,outside_left-width-8,y,width,C(226,204,223));
+   road_span(s,outside_right+8,y,width,C(207,221,224));
+  }
 
   /* A little broken aggregate avoids a featureless slab, without turning the
    * road into television noise.  All positions are attached to the road. */
@@ -401,7 +508,7 @@ static FAST __attribute__((noinline)) void draw_road(Surface *s,const Game *g,co
 
 static void add_item(DrawItem *items,int *count,int z,int x,int kind,int id,int variant,int side)
 {
- if(*count>=DRAW_MAX || z < ((kind==ITEM_PROP || kind==ITEM_BACK_PROP)?-140:-44) || z>ROAD_VIEW)return;
+ if(*count>=DRAW_MAX || z < ((kind==ITEM_PROP || kind==ITEM_BACK_PROP || kind==ITEM_BUILDING)?-140:-44) || z>ROAD_VIEW)return;
  int at=(*count)++;
  /* Far to near.  Props are queued before the vehicle on equal coordinates. */
  while(at>0 && items[at-1].z<z){items[at]=items[at-1];at--;}
@@ -423,129 +530,226 @@ static int scenery_material(const View *v,int absolute,int side,uint32_t hash,in
  return (int)((hash>>16)&255)<mix?identity.next_biome:identity.biome;
 }
 
+static int prop_world_width(int id)
+{
+ static const uint8_t widths[42]={62,62,62,54,60,58,42,48,36,64,64,78,62,54,62,44,62,120,
+  30,44,36,58,62,54,42,88,40,58,65,48,44,48,68,57,50,40,58,52,64,52,36,34};
+ return (unsigned)id<42?widths[id]:48;
+}
+
 static void place_scenery(DrawItem *items,int *count,const View *v,int absolute,
  int side,int offset,int kind,uint32_t hash,int back)
 {
  int z=absolute-v->visual_position;
- if(z < (building_id(kind)?-140:-44) || z>ROAD_VIEW)return;
+ if(z < -44 || z>ROAD_VIEW)return;
  int water;int biome=scenery_material(v,absolute,side,hash,&water);
  int floating=kind==SC_SAIL || kind==SC_PIER;
- int wet=kind==SC_MANGROVE || kind==SC_REEDS;
+ int wet=kind==SC_MANGROVE || kind==SC_REEDS || kind==SC_CYPRESS || kind==SC_RUSH ||
+         kind==SC_DEADWOOD || kind==SC_FLAMINGO || (kind==SC_CRYSTAL && biome==SALT);
  int bridge=kind==SC_LAMP && bridge_region(biome);
  if((floating && water!=256) || (!floating && !wet && !bridge && water))return;
  RoadSample road;road_sample(v->seed,v->position+z,v->start,&road);
- add_item(items,count,z,road.center+side*offset,back?ITEM_BACK_PROP:ITEM_PROP,
-          kind,(int)hash,side);
+ int world_x=road.center+side*offset;
+ int x=item_x(v,world_x,z),half=prop_world_width(kind)*project_scale(z)/512+2;
+ if(x+half<0 || x-half>=VW)return;
+ add_item(items,count,z,world_x,back?ITEM_BACK_PROP:ITEM_PROP,kind,(int)hash,side);
+}
+
+static void place_building(DrawItem *items,int *count,const View *v,int absolute,
+ int side,int offset,int style,uint32_t hash)
+{
+ int z=absolute-v->visual_position;
+ if(z < -140 || z>ROAD_VIEW || style<0)return;
+ int water;scenery_material(v,absolute,side,hash,&water);if(water)return;
+ RoadSample road;road_sample(v->seed,v->position+z,v->start,&road);
+ int inner=road.center+side*offset,outer=inner+side*100;
+ int near=z < -44?-44:z,far=z+140;
+ int a=item_x(v,inner,near),b=item_x(v,outer,near),c=item_x(v,inner,far),d=item_x(v,outer,far);
+ int low=a,high=a;
+ if(b<low)low=b;
+ if(b>high)high=b;
+ if(c<low)low=c;
+ if(c>high)high=c;
+ if(d<low)low=d;
+ if(d>high)high=d;
+ if(high<0 || low>=VW)return;
+ add_item(items,count,z,inner,ITEM_BUILDING,style,(int)hash,side);
+}
+
+static int district_building(int biome,uint32_t h,int distant)
+{
+ switch(biome) {
+ case CITY: {
+  static const uint8_t near[6]={BL_HOUSE,BL_SHOP,BL_DUPLEX,BL_WAREHOUSE,BL_APARTMENT,BL_CAFE};
+  static const uint8_t far[4]={BL_DUPLEX,BL_APARTMENT,BL_HOUSE,BL_MOTEL};
+  return distant?far[h%4]:near[h%6];
+ }
+ case COAST: {
+  static const uint8_t types[4]={BL_VILLA,BL_POOL_VILLA,BL_MOTEL,BL_CAFE};return types[h%4];
+ }
+ case PINES:return h&1?BL_JUNGLE_LODGE:BL_CHALET;
+ case CANYON:return h&1?BL_PAVILION:BL_WAREHOUSE;
+ case MARINA: {
+  static const uint8_t types[4]={BL_HOTEL,BL_MARINA_SHED,BL_MARINA_TOWER,BL_CAFE};return types[h%4];
+ }
+ case GROVES:return distant?BL_DUPLEX:(h&1?BL_WAREHOUSE:BL_CAFE);
+ case NEON: {
+  static const uint8_t near[5]={BL_ARCADE,BL_NOODLES,BL_CLUB,BL_ARCADE,BL_NOODLES};
+  static const uint8_t far[4]={BL_OFFICE,BL_CLUB,BL_APARTMENT,BL_ARCADE};
+  return distant?far[h%4]:near[h%5];
+ }
+ case JUNGLE:return h&1?BL_JUNGLE_LODGE:BL_JUNGLE_HUT;
+ case SWAMP:return h&1?BL_BAYOU_CABIN:BL_BOATHOUSE;
+ case AURORA:return distant?(h&1?BL_OBSERVATORY:BL_SNOW_LODGE):BL_CHALET;
+ case SALT:return h&1?BL_PAVILION:BL_SOLAR_STATION;
+ default:return -1;
+ }
+}
+
+static int district_lot(int biome,uint32_t h,int side,int distant)
+{
+ switch(biome) {
+ case CITY:return distant?(h&1)!=0:1;
+ case NEON:return distant?(h&1)!=0:(h&3)!=0;
+ case MARINA:return side>0 && (distant?(h&3)!=0:(h&3)!=0);
+ case COAST:return side>0 && (distant?(h&3)==0:(h&7)==0);
+ case GROVES:return (h&15)==0;
+ case PINES:case CANYON:return (h&31)==0;
+ case JUNGLE:return distant?(h&7)==0:(h&15)==0;
+ case SWAMP:return side>0 && (distant?(h&3)==0:(h&7)==0);
+ case AURORA:return side>0 && (distant?(h&3)==0:(h&7)==0);
+ case SALT:return side>0 && (distant?(h&7)==0:(h&15)==0);
+ default:return 0;
+ }
+}
+
+static int district_plant(int biome,uint32_t h,int side)
+{
+ switch(biome) {
+ case CITY:return h&1?SC_TREE:SC_PALM;
+ case COAST:return side<0?-1:(h&3?SC_PALM:SC_BANANA);
+ case CAUSEWAY:return -1;
+ case PINES: {static const uint8_t kinds[5]={SC_PINE,SC_SPRUCE,SC_TREE,SC_BIRCH,SC_ROCK};return kinds[h%5];}
+ case CANYON:return h&3?SC_ROCK:SC_SCRUB;
+ case MARINA:return side<0?-1:(h&1?SC_PALM:SC_BUSH);
+ case WETLANDS: {static const uint8_t kinds[4]={SC_REEDS,SC_MANGROVE,SC_CYPRESS,SC_RUSH};return kinds[h%4];}
+ case GROVES:return h&7?SC_CITRUS:SC_BUSH;
+ case NEON:return side>0?(h&1?SC_NEON_PALM:SC_SCULPTURE):SC_NEON_PALM;
+ case JUNGLE: {static const uint8_t kinds[7]={SC_CANOPY,SC_BANANA,SC_BAMBOO,SC_FERN,SC_FLOWER,SC_VINE,SC_PALM};return kinds[h%7];}
+ case SWAMP: {static const uint8_t kinds[6]={SC_CYPRESS,SC_DEADWOOD,SC_RUSH,SC_MANGROVE,SC_LOG,SC_REEDS};return kinds[h%6];}
+ case AURORA: {static const uint8_t kinds[5]={SC_SPRUCE,SC_BIRCH,SC_SNOW_ROCK,SC_SNOW_BUSH,SC_SNOW_BANK};return side<0?-1:kinds[h%5];}
+ case SALT: {static const uint8_t kinds[5]={SC_CRYSTAL,SC_SALT_MOUND,SC_SCRUB,SC_SOLAR,SC_FLAMINGO};return side<0?(h&1?SC_CRYSTAL:SC_FLAMINGO):kinds[h%5];}
+ default:return -1;
+ }
 }
 
 static int dock_allowed(int biome,uint32_t hash,int side)
-{return side<0 && (biome==MARINA?(hash&3)!=0:biome==COAST && (hash&3)==0);}
+{
+ if(side>=0)return 0;
+ if(biome==MARINA)return (hash&3)!=0;
+ if(biome==COAST)return (hash&3)==0;
+ if(biome==SWAMP)return (hash&7)==0;
+ if(biome==AURORA)return (hash&15)==0;
+ return 0;
+}
 
 static __attribute__((noinline)) void queue_scenery(DrawItem *items,int *count,const View *v)
 {
- /* A full lot remains stable while approaching it or reversing past it.
-  * Adjacent homes share a block setback; frontage spacing exceeds depth. */
- int first=floor_div(v->visual_position-160,160);
- int last=floor_div(v->visual_position+ROAD_VIEW,160);
+ int first=floor_div(v->visual_position-160,256),last=floor_div(v->visual_position+ROAD_VIEW,256);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
   uint32_t h=road_landmark(v->seed^0x4181u,(uint32_t)n,side);
   uint32_t block=road_landmark(v->seed^0x20b1u,(uint32_t)floor_div(n,4),side);
-  int absolute=n*160+12+(int)((block>>9)%13);
-  int water,biome=scenery_material(v,absolute,side,h,&water),kind=-1;
-  if(biome==CITY)kind=(int)((block>>4)%3);
-  if(biome==MARINA && side>0 && (h&3)!=0)kind=SC_HOTEL;
-  if(biome==COAST && side>0 && (h&7)==0)kind=SC_VILLA;
-  if(biome==GROVES && (h&15)==0)kind=SC_WAREHOUSE;
-  if(kind>=0)place_scenery(items,count,v,absolute,side,ROAD_HALF+33+(int)((block>>12)&7),kind,h,0);
+  int absolute=n*256+12+(int)((block>>9)%13),water;
+  int biome=scenery_material(v,absolute,side,h,&water);
+  if(district_lot(biome,h,side,0))place_building(items,count,v,absolute,side,
+     ROAD_HALF+33+(int)((block>>12)&7),district_building(biome,h,0),h);
  }
- /* Street lamps are deliberately regular, with a small safe shoulder
-  * offset, rather than competing with houses for the same random slot. */
+ /* A second two-dimensional lot grid occupies neighborhoods and clearings,
+  * rather than placing every object in a single band beside the shoulder. */
+ first=floor_div(v->visual_position-160,320);last=floor_div(v->visual_position+ROAD_VIEW,320);
+ for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2)for(int column=0;column<2;column++) {
+  uint32_t h=road_landmark(v->seed^0x621du^(unsigned)column*0x815u,(uint32_t)n,side);
+  int absolute=n*320+34+column*77+(int)((h>>9)%37),water;
+  int biome=scenery_material(v,absolute,side,h,&water);
+  if(district_lot(biome,h,side,1))place_building(items,count,v,absolute,side,
+     242+column*166+(int)((h>>15)%37),district_building(biome,h>>4,1),h);
+ }
  first=floor_div(v->visual_position-44,224);last=floor_div(v->visual_position+ROAD_VIEW,224);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
   uint32_t h=road_landmark(v->seed^0x1a4bu,(uint32_t)n,side);
   int absolute=n*224,water,biome=scenery_material(v,absolute,side,h,&water);
-  if(biome==CITY || biome==CAUSEWAY || (biome==MARINA && side>0))
-   place_scenery(items,count,v,absolute,side,ROAD_HALF+11,SC_LAMP,h,0);
+  if(biome==CITY || biome==CAUSEWAY || biome==NEON || (biome==MARINA && side>0))
+   place_scenery(items,count,v,absolute,side,ROAD_HALF+11,biome==NEON?SC_UTILITY:SC_LAMP,h,0);
+  if((biome==NEON || biome==CITY || biome==MARINA) && side>0 && (h&3)==0)
+   place_scenery(items,count,v,absolute+44,side,178+(int)((h>>15)%40),biome==NEON?SC_VENDING:SC_SCULPTURE,h^0x83a5u,0);
  }
- /* Plant clusters use unequal spacing and lateral depths.  They are never
-  * laid out like a row of houses, and dense forest remains intentional. */
+ /* Clusters vary species, setback and gaps. The outer two members provide
+  * real midground foliage at the corners, with intentional open clearings. */
  first=floor_div(v->visual_position-180,240);last=floor_div(v->visual_position+ROAD_VIEW,240);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
   uint32_t h=road_landmark(v->seed^0x7ee5u,(uint32_t)n,side);
   int base=n*240+(int)((h>>8)%43),water,biome=scenery_material(v,base,side,h,&water);
-  int kind=-1,number=1;
-  if(biome==PINES){kind=(h&3)?SC_PINE:SC_TREE;number=3+(int)(h&1);}
-  if(biome==GROVES){kind=SC_CITRUS;number=2+(int)(h&1);}
-  if(biome==COAST && side>0){kind=SC_PALM;number=2+(int)(h&1);}
-  if(biome==WETLANDS){kind=(h&3)?SC_REEDS:SC_MANGROVE;number=2+(int)(h&1);}
-  if(biome==CANYON){kind=(h&3)?SC_ROCK:SC_BUSH;number=1+(int)(h%3);}
-  if(biome==CITY && (h&3)==0){kind=SC_TREE;number=1;}
-  if(kind<0)continue;
+  int number=biome==JUNGLE?4:biome==PINES || biome==GROVES || biome==SWAMP || biome==WETLANDS?3:
+             biome==COAST || biome==AURORA || biome==SALT?2:1;
+  if((biome==CITY || biome==MARINA || biome==NEON) && (h&3)!=0)continue;
+  if((biome==JUNGLE || biome==PINES) && (h&31)==0)continue;
   for(int j=0;j<number;j++) {
    uint32_t plant=road_hash(h,(uint32_t)j);
+   int kind=district_plant(biome,plant,side);if(kind<0)continue;
    int absolute=base+j*34+(int)((plant>>10)%17);
-   int offset=118+(int)((plant>>3)%47)+(j&1)*17;
-   if(biome==CITY)offset=184+(int)(plant%21);
-   if(biome==WETLANDS)offset=kind==SC_REEDS?110+(int)(plant%16):137+(int)(plant%24);
-   if(kind==SC_ROCK)offset=122+(int)(plant%61);
-   place_scenery(items,count,v,absolute,side,offset,kind,plant,j&1);
+   int offset=118+(int)((plant>>3)%49);
+   if(j>=2)offset=214+(j-2)*92+(int)((plant>>14)%48);
+   if(biome==CITY || biome==MARINA || biome==NEON)offset=181+(int)(plant%58);
+   if(biome==WETLANDS || biome==SWAMP)offset=(kind==SC_REEDS || kind==SC_RUSH)?110+(int)(plant%26):137+(int)(plant%96);
+   if(biome==SALT && side<0)offset=170+(int)(plant%121);
+   place_scenery(items,count,v,absolute,side,offset,kind,plant,j>=2);
   }
  }
- /* A dock is one whole shore-connected structure, never a run of unrelated
-  * cards.  At least 520 world units separate dock anchors; a structure has
-  * exactly one or two 60-unit sections extending across the water. */
+ /* Rare shore-connected docks keep their independent exclusion rhythm. */
  first=floor_div(v->visual_position-44,520);last=floor_div(v->visual_position+ROAD_VIEW,520);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
   uint32_t h=road_landmark(v->seed^0xd0c4u,(uint32_t)n,side);
   int absolute=n*520+52,water,biome=scenery_material(v,absolute,side,h,&water);
-  if(dock_allowed(biome,h,side))
-   place_scenery(items,count,v,absolute,side,ROAD_HALF+7,SC_PIER,h,0);
+  if(dock_allowed(biome,h,side))place_scenery(items,count,v,absolute,side,ROAD_HALF+7,SC_PIER,h,0);
  }
- /* Boats keep their own wide mooring intervals offshore, so a marina reads
-  * as water with occasional vessels instead of a tightly packed wall. */
  first=floor_div(v->visual_position-44,408);last=floor_div(v->visual_position+ROAD_VIEW,408);
  for(int n=first;n<=last;n++)for(int side=-1;side<=1;side+=2) {
   uint32_t h=road_landmark(v->seed^0xb0a7u,(uint32_t)n,side);
   int absolute=n*408+184+(int)((h>>10)%53),water,biome=scenery_material(v,absolute,side,h,&water);
-  if((biome==MARINA || biome==COAST) && side<0 && (h&3)!=0) {
+  int boats=biome==MARINA || biome==COAST || biome==SWAMP || (biome==AURORA && (h&7)==0);
+  if(boats && side<0 && (h&3)!=0) {
    int dock_n=floor_div(absolute-52+260,520),dock_absolute=dock_n*520+52;
    uint32_t dock_hash=road_landmark(v->seed^0xd0c4u,(uint32_t)dock_n,side);
    int dock_water,dock_biome=scenery_material(v,dock_absolute,side,dock_hash,&dock_water);
    int separation=absolute-dock_absolute;if(separation<0)separation=-separation;
    if(separation<58 && dock_water==256 && dock_allowed(dock_biome,dock_hash,side))continue;
-   place_scenery(items,count,v,absolute,side,190+(int)((h>>5)%42),SC_SAIL,h,0);
+   place_scenery(items,count,v,absolute,side,190+(int)((h>>5)%611),SC_SAIL,h,0);
   }
  }
 }
 
 /* Organic scenery uses upright, root-anchored art. Buildings are projected
  * solids; broadside boats rise above water and docks follow its plane. */
-static int side_variant(int id)
+static const uint8_t *prop_source(int id,int side,int projected_width,
+ int *source_width,int *source_height,const uint8_t **anchor,const uint8_t **bounds,const uint16_t **palette)
 {
- switch(id) {
- case SC_BUILDING:return 0;case SC_SHOP:return 1;case SC_WAREHOUSE:return 2;
- case SC_ROCK:return 3;case SC_LAMP:return 4;case SC_HOTEL:return 5;
- case SC_VILLA:return 6;default:return -1;
- }
-}
-
-static const uint16_t *prop_source(int id,int side,int projected_width,
- int *source_width,int *source_height,const uint8_t **anchor,const uint8_t **bounds)
-{
- int variant=side>0?side_variant(id):-1;
- const uint16_t *pixels;
+ int variant=side>0 && prop_side_slot[id]!=255?prop_side_slot[id]:-1;
+ int slot=prop_slot[id];
+ const uint8_t *pixels;
  int width=projected_width>=40?64:projected_width>=27?48:projected_width>=13?32:16;
  int height=width*PROP_H/PROP_W;
  if(variant>=0) {
-  pixels=width==64?prop_side_art:width==48?prop_side_lod48:
-         width==32?prop_side_lod32:prop_side_lod16;
+  pixels=width==64?prop_side_idx:width==48?prop_side_lod48_idx:
+         width==32?prop_side_lod32_idx:prop_side_lod16_idx;
   pixels+=variant*width*height;
+  *palette=prop_palette+slot*256;
   *anchor=prop_side_anchor+variant*2;
   *bounds=(width==64?prop_side_bounds:width==48?prop_side_lod48_bounds:
            width==32?prop_side_lod32_bounds:prop_side_lod16_bounds)+variant*4;
  } else {
-  pixels=width==64?prop_art:width==48?prop_lod48:width==32?prop_lod32:prop_lod16;
-  pixels+=id*width*height;
+  pixels=width==64?prop_idx:width==48?prop_lod48_idx:width==32?prop_lod32_idx:prop_lod16_idx;
+  pixels+=slot*width*height;
+  *palette=prop_palette+slot*256;
   *anchor=prop_anchor+id*2;
   *bounds=(width==64?prop_bounds:width==48?prop_lod48_bounds:
            width==32?prop_lod32_bounds:prop_lod16_bounds)+id*4;
@@ -573,7 +777,7 @@ static FAST __attribute__((noinline)) void ground_plane(Surface *s,const View *v
   if(end<=begin)continue;
   uint16_t *dest=s->pixels+y*s->w+left+begin;
   if(!pixels) {
-   for(int x=begin;x<end;x++)*dest++=color;
+   road_span(s,left+begin,y,end-begin,color);
   } else {
    int sy=clampi(((far-z)*source_height)/depth,0,source_height-1);
    const uint16_t *row=pixels+sy*source_width;
@@ -602,18 +806,24 @@ static SceneryPoint scenery_point(const View *v,int x,int z,int height)
  return point;
 }
 
-static FAST __attribute__((noinline)) void scenery_polygon(Surface *s,const SceneryPoint *points,int count,uint16_t color)
+static FAST __attribute__((noinline,noclone)) void scenery_polygon(Surface *s,const SceneryPoint *points,int count,uint16_t color)
 {
  int left[VH],right[VH];
  int first=VH,last=0;
- for(int y=0;y<VH;y++){left[y]=VW;right[y]=-1;}
+ for(int i=0;i<count;i++) {
+  if(points[i].y<first)first=points[i].y;
+  if(points[i].y>last)last=points[i].y;
+ }
+ first=clampi(first,0,VH);last=clampi(last,0,VH);
+ if(last<=first)return;
+ for(int y=first;y<last;y++){left[y]=VW;right[y]=-1;}
  for(int edge=0;edge<count;edge++) {
   SceneryPoint a=points[edge],b=points[(edge+1)%count];
   if(a.y>b.y){SceneryPoint swap=a;a=b;b=swap;}
   if(a.y==b.y)continue;
   int y0=clampi(a.y,0,VH),y1=clampi(b.y,0,VH);
   if(y1<=y0)continue;
-  int step=((b.x-a.x)*65536)/(b.y-a.y);
+  int step=scene_divide((b.x-a.x)*65536,b.y-a.y);
   int x=a.x*65536+step*(y0-a.y);
   for(int y=y0;y<y1;y++,x+=step) {
    int at=x/65536;
@@ -652,10 +862,10 @@ static FAST __attribute__((noinline)) void scenery_edge(Surface *s,SceneryPoint 
   if(ca&cb)return;
   int code=ca?ca:cb;
   SceneryPoint p;
-  if(code&8){p.y=VH-1;p.x=a.x+(b.x-a.x)*(p.y-a.y)/(b.y-a.y);}
-  else if(code&4){p.y=0;p.x=a.x+(b.x-a.x)*(p.y-a.y)/(b.y-a.y);}
-  else if(code&2){p.x=VW-1;p.y=a.y+(b.y-a.y)*(p.x-a.x)/(b.x-a.x);}
-  else {p.x=0;p.y=a.y+(b.y-a.y)*(p.x-a.x)/(b.x-a.x);}
+  if(code&8){p.y=VH-1;p.x=a.x+scene_divide((b.x-a.x)*(p.y-a.y),b.y-a.y);}
+  else if(code&4){p.y=0;p.x=a.x+scene_divide((b.x-a.x)*(p.y-a.y),b.y-a.y);}
+  else if(code&2){p.x=VW-1;p.y=a.y+scene_divide((b.y-a.y)*(p.x-a.x),b.x-a.x);}
+  else {p.x=0;p.y=a.y+scene_divide((b.y-a.y)*(p.x-a.x),b.x-a.x);}
   if(code==ca){a=p;ca=scenery_outcode(a);}else {b=p;cb=scenery_outcode(b);}
  }
 }
@@ -664,13 +874,57 @@ static FAST __attribute__((noinline)) void scenery_edge(Surface *s,SceneryPoint 
  * row-major raster.  There is no matrix stack, z buffer, or per-pixel divide.
  * Perspective-correct horizontal texture coordinates keep window rows and
  * vertical window edges attached to the actual wall plane. */
+/* The cartridge stores indexed faces, while this bounded working set keeps
+ * the hot wall loop to one texture read. Small distant faces are reused by
+ * every district; eight full-resolution nearby faces share an LRU. */
+typedef struct {
+ const uint8_t *source;const uint16_t *palette;
+ unsigned stamp;int width,height;
+ uint16_t *pixels;
+} WallTexture;
+/* Variable capacity pools spend memory on the visible working set rather
+ * than permanently reserving both distant LODs for all 25 districts. */
+static uint16_t wall_near_pixels[8][64*64];
+static uint16_t wall_mid_pixels[12][32*32];
+static uint16_t wall_far_pixels[12][16*16];
+static WallTexture wall_textures[32];
+static unsigned wall_texture_clock;
+static int wall_textures_ready;
+volatile unsigned wall_cache_stats[3];
+
+static __attribute__((noinline)) const uint16_t *wall_texture_rgb(
+ const uint8_t *source,const uint16_t *palette,int width,int height)
+{
+ if(!wall_textures_ready) {
+  for(int i=0;i<8;i++)wall_textures[i].pixels=wall_near_pixels[i];
+  for(int i=0;i<12;i++)wall_textures[i+8].pixels=wall_mid_pixels[i];
+  for(int i=0;i<12;i++)wall_textures[i+20].pixels=wall_far_pixels[i];
+  wall_textures_ready=1;
+ }
+ int count=width*height,first=count<=256?20:count<=1024?8:0;
+ int last=first==0?8:first==8?20:32;
+ WallTexture *entry=&wall_textures[first];++wall_texture_clock;
+ for(int i=first;i<last;i++) {
+  WallTexture *candidate=&wall_textures[i];
+  if(candidate->source==source && candidate->palette==palette &&
+     candidate->width==width && candidate->height==height) {
+   candidate->stamp=wall_texture_clock;wall_cache_stats[0]++;return candidate->pixels;
+  }
+  if(candidate->stamp<entry->stamp)entry=candidate;
+ }
+ wall_cache_stats[first==0?2:1]++;
+ for(int i=0;i<count;i++)entry->pixels[i]=palette[source[i]];
+ entry->source=source;entry->palette=palette;entry->width=width;entry->height=height;
+ entry->stamp=wall_texture_clock;return entry->pixels;
+}
+
 static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *v,
- int ax,int az,int bx,int bz,int height,const uint16_t *texture,int tw,int th)
+ int ax,int az,int bx,int bz,int height,const uint8_t *texture,const uint16_t *palette,int tw,int th)
 {
  if(az < -44 && bz < -44)return;
  int ua=0,ub=tw-1;
- if(az < -44) {ua=((-44-az)*(tw-1))/(bz-az);az=-44;}
- if(bz < -44) {ub=((az+44)*(tw-1))/(az-bz);bz=-44;}
+ if(az < -44) {ua=scene_divide((-44-az)*(tw-1),bz-az);az=-44;}
+ if(bz < -44) {ub=scene_divide((az+44)*(tw-1),az-bz);bz=-44;}
  SceneryPoint a=scenery_point(v,ax,az,0),b=scenery_point(v,bx,bz,0);
  SceneryPoint at=scenery_point(v,ax,az,height),bt=scenery_point(v,bx,bz,height);
  int sa=project_scale(az),sb=project_scale(bz);
@@ -681,29 +935,27 @@ static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *
  int span=b.x-a.x;
  int x0=clampi(a.x,0,VW),x1=clampi(b.x+1,0,VW);
  if(span<1 || x1<=x0)return;
- typedef struct {int16_t top,bottom;uint16_t u;uint32_t step;} WallColumn;
+ const uint16_t *rgb=wall_texture_rgb(texture,palette,tw,th);
+ typedef struct {int16_t top,bottom;uint16_t u;uint32_t step,sample;} WallColumn;
  WallColumn columns[VW];
- int top_step=((bt.y-at.y)*65536)/span,bottom_step=((b.y-a.y)*65536)/span;
- int scale_step=((sb-sa)*65536)/span;
- int u_step=((ub*sb-ua*sa)*65536)/span;
+ int top_step=scene_divide((bt.y-at.y)*65536,span),bottom_step=scene_divide((b.y-a.y)*65536,span);
+ int scale_step=scene_divide((sb-sa)*65536,span);
+ int u_step=scene_divide((ub*sb-ua*sa)*65536,span);
  int offset=x0-a.x;
  int top=at.y*65536+top_step*offset,bottom=a.y*65536+bottom_step*offset;
  int scale=sa*65536+scale_step*offset,u=ua*sa*65536+u_step*offset;
  int first=VH,last=0;
  for(int x=x0;x<x1;x++,top+=top_step,bottom+=bottom_step,scale+=scale_step,u+=u_step) {
   int t=top/65536,base=bottom/65536;
-  if(base<=t || scale<=0){columns[x]=(WallColumn){0,0,0,0};continue;}
-  int tex=clampi(u/scale,0,tw-1);
-  columns[x]=(WallColumn){(int16_t)t,(int16_t)base,(uint16_t)tex,
-                           (uint32_t)((th*65536)/(base-t))};
+  if(base<=t || scale<=0){columns[x]=(WallColumn){0,0,0,0,0};continue;}
+  int tex=clampi(scene_divide(u,scale),0,tw-1);
   int y0=clampi(t,0,VH),y1=clampi(base,0,VH);
+  unsigned step=(unsigned)scene_divide(th*65536,base-t);
+  columns[x]=(WallColumn){(int16_t)t,(int16_t)base,(uint16_t)tex,step,(unsigned)(y0-t)*step};
   if(y0<first)first=y0;
   if(y1>last)last=y1;
  }
- /* Top and bottom boundaries are monotone across this vertical plane.
-  * Four advancing edge cursors give the exact occupied span of each row,
-  * including the original integer rounding. Empty trapezoid corners cost no
-  * texture fetches and the inner loop needs no coverage/alpha branches. */
+ int texture_shift=tw==64?6:tw==32?5:4;
  int top_left=x0,top_right=top_step>=0?x0:x1;
  int bottom_left=x0,bottom_right=x1;
  if(top_step<0)top_left=x1;
@@ -721,10 +973,21 @@ static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *
   int left=top_left>bottom_left?top_left:bottom_left;
   int right=top_right<bottom_right?top_right:bottom_right;
   uint16_t *dest=s->pixels+y*VW+left;
-  for(int x=left;x<right;x++,dest++) {
-   const WallColumn *column=&columns[x];
-   unsigned sy=((unsigned)(y-column->top)*column->step)>>16;
-   *dest=texture[sy*(unsigned)tw+column->u];
+  int x=left;
+  if((x&1) && x<right) {
+   WallColumn *c=&columns[x++];
+   *dest++=rgb[((c->sample>>16)<<texture_shift)+c->u];c->sample+=c->step;
+  }
+  for(;x+1<right;x+=2,dest+=2) {
+   WallColumn *a=&columns[x],*b=&columns[x+1];
+   uint32_t p=rgb[((a->sample>>16)<<texture_shift)+a->u];
+   p|=(uint32_t)rgb[((b->sample>>16)<<texture_shift)+b->u]<<16;
+   a->sample+=a->step;b->sample+=b->step;
+   *(uint32_t *)dest=p;
+  }
+  if(x<right) {
+   WallColumn *c=&columns[x];
+   *dest=rgb[((c->sample>>16)<<texture_shift)+c->u];c->sample+=c->step;
   }
  }
 }
@@ -732,22 +995,10 @@ static FAST __attribute__((noinline)) void building_wall(Surface *s,const View *
 static int building_style(int id)
 {return id==SC_SHOP?1:id==SC_WAREHOUSE?2:id==SC_HOTEL?3:id==SC_VILLA?4:0;}
 
-static const uint16_t *building_end_texture(int style,int mirrored,int width)
+static const uint8_t *building_end_texture(int style,int width)
 {
- static uint16_t reflected[5][32*64+16*32+8*16];
- static uint8_t ready[5];
  int height=width*2;
- int offset=width==32?0:width==16?32*64:32*64+16*32;
- unsigned flag=width==32?1u:width==16?2u:4u;
- const uint16_t *source=(width==32?building_end_art:
-                        width==16?building_end_lod16:building_end_lod8)+style*width*height;
- if(!mirrored)return source;
- if(!(ready[style]&flag)) {
-  for(int y=0;y<height;y++)for(int x=0;x<width;x++)
-   reflected[style][offset+y*width+x]=source[y*width+width-1-x];
-  ready[style]|=(uint8_t)flag;
- }
- return reflected[style]+offset;
+ return (width==32?building_end_idx:width==16?building_end_lod16_idx:building_end_lod8_idx)+style*width*height;
 }
 
 static void building_end_wall(Surface *s,const View *v,int inner,int outer,int z,
@@ -767,31 +1018,40 @@ static void building_end_wall(Surface *s,const View *v,int inner,int outer,int z
  if(x1<=x0 || y1<=y0)return;
  int source_width=width<=8 && h<=16?8:width<=16 && h<=32?16:32;
  int source_height=source_width*2;
- const uint16_t *texture=building_end_texture(style,a.x>b.x,source_width);
+ const uint8_t *texture=building_end_texture(style,source_width);
+ const uint16_t *palette=building_palette+style*256;
  uint8_t source_x[VW];
- unsigned x_step=((unsigned)source_width*65536u+(unsigned)width-1)/(unsigned)width;
- unsigned y_step=((unsigned)source_height*65536u+(unsigned)h-1)/(unsigned)h;
- for(int x=x0;x<x1;x++)source_x[x]=(uint8_t)(((unsigned)(x-left)*x_step)>>16);
+ unsigned x_step=(unsigned)scene_divide(source_width*65536+width-1,width);
+ unsigned y_step=(unsigned)scene_divide(source_height*65536+h-1,h);
+ for(int x=x0;x<x1;x++) {
+  unsigned sample=((unsigned)(x-left)*x_step)>>16;
+  source_x[x]=(uint8_t)(a.x>b.x?(unsigned)source_width-1u-sample:sample);
+ }
  unsigned sample=(unsigned)(y0-b.y)*y_step;
  for(int y=y0;y<y1;y++,sample+=y_step) {
-  const uint16_t *row=texture+(sample>>16)*(unsigned)source_width;
+  const uint8_t *row=texture+(sample>>16)*(unsigned)source_width;
   uint16_t *dest=s->pixels+y*VW+x0;
   int x=x0;
-  for(;x+3<x1;x+=4) {
-   dest[0]=row[source_x[x]];dest[1]=row[source_x[x+1]];
-   dest[2]=row[source_x[x+2]];dest[3]=row[source_x[x+3]];dest+=4;
+  if((uintptr_t)dest&2) {
+   *dest++=palette[row[source_x[x++]]];
   }
-  for(;x<x1;x++)*dest++=row[source_x[x]];
+  for(;x+1<x1;x+=2,dest+=2) {
+   uint32_t pair=palette[row[source_x[x]]];
+   pair|=(uint32_t)palette[row[source_x[x+1]]]<<16;
+   *(uint32_t *)dest=pair;
+  }
+  if(x<x1)*dest=palette[row[source_x[x]]];
  }
 }
 
 static FAST __attribute__((noinline)) void draw_building(Surface *s,const View *v,const DrawItem *item)
 {
- static const uint8_t widths[5]={54,62,68,58,60};
- static const uint8_t depths[5]={88,92,104,92,94};
- static const uint8_t heights[5]={48,43,47,76,52};
- static const uint8_t pitches[5]={18,12,8,10,20};
- int style=building_style(item->id),width=widths[style],depth=depths[style];
+ static const uint8_t widths[BUILDING_STYLE_COUNT]={54,62,68,58,60,65,50,75,70,60,42,52,60,58,80,75,60,82,60,68,96,55,70,64,68};
+ static const uint8_t depths[BUILDING_STYLE_COUNT]={88,92,104,92,94,98,80,112,110,92,72,86,96,90,110,124,88,112,94,104,132,78,110,112,124};
+ static const uint8_t heights[BUILDING_STYLE_COUNT]={48,43,47,76,52,50,42,100,64,46,35,43,44,55,64,68,33,40,54,51,44,35,48,104,120};
+ static const uint8_t pitches[BUILDING_STYLE_COUNT]={18,12,8,10,20,8,14,0,4,20,24,16,12,24,20,22,8,7,18,16,10,12,8,4,3};
+ int style=item->kind==ITEM_BUILDING?item->id:building_style(item->id);
+ int width=widths[style],depth=depths[style];
  int height=heights[style],pitch=pitches[style],side=item->side;
  int inner=item->x,outer=inner+side*width,ridge=inner+side*(width/2);
  int near=item->z,far=near+depth;
@@ -806,24 +1066,28 @@ static FAST __attribute__((noinline)) void draw_building(Surface *s,const View *
  if(ob.x>maxx)maxx=ob.x;
  if(maxx<0 || minx>=VW)return;
  unsigned wall_start=profile_clock();
- uint16_t paving=C(184,190,174);
- ground_plane(s,v,inner+side*width/2,near+depth/2,width+6,depth+7,0,0,0,paving);
  int projected_width=inf.x-ib.x;if(projected_width<0)projected_width=-projected_width;
  int projected_height=height*project_scale(near < -44?-44:near)/256;
+ const uint16_t *palette=building_palette+style*256;
+ int distant=near>360;
+ if(!distant) {
+  uint16_t paving=C(184,190,174);
+  ground_plane(s,v,inner+side*width/2,near+depth/2,width+6,depth+7,0,0,0,paving);
+ }
  int resolution=projected_width<=16 && projected_height<=16?16:
                 projected_width<=32 && projected_height<=32?32:64;
- const uint16_t *wall=(resolution==64?building_wall_art:
-                       resolution==32?building_wall_lod32:building_wall_lod16)+style*resolution*resolution;
- building_wall(s,v,inner,near,inner,far,height,wall,resolution,resolution);
+ const uint8_t *wall=(resolution==64?building_wall_idx:
+                       resolution==32?building_wall_lod32_idx:building_wall_lod16_idx)+style*resolution*resolution;
+ building_wall(s,v,inner,near,inner,far,height,wall,palette,resolution,resolution);
  building_end_wall(s,v,inner,outer,near,height,style);
  scenery_work[6]+=(profile_clock()-wall_start)&65535u;
  unsigned roof_start=profile_clock();
  SceneryPoint in=scenery_point(v,inner,near,height),iff=scenery_point(v,inner,far,height);
  SceneryPoint out=scenery_point(v,outer,near,height),of=scenery_point(v,outer,far,height);
  SceneryPoint rn=scenery_point(v,ridge,near,height+pitch),rf=scenery_point(v,ridge,far,height+pitch);
- const uint16_t *roof=building_roof_art+style*32*32;
- uint16_t roof_color=roof[16*32+16],roof_dark=blend_color(roof_color,C(26,49,53),36);
- uint16_t seam=blend_color(roof[8*32+8],C(39,53,57),64);
+ const uint8_t *roof=building_roof_idx+style*32*32;
+ uint16_t roof_color=palette[roof[16*32+16]],roof_dark=blend_color(roof_color,C(26,49,53),36);
+ uint16_t seam=blend_color(palette[roof[8*32+8]],C(39,53,57),64);
  SceneryPoint outer_plane[4]={out,of,rf,rn};
  SceneryPoint inner_plane[4]={in,iff,rf,rn};
  int camera_delta=ridge-v->center-v->cam_x;if(camera_delta<0)camera_delta=-camera_delta;
@@ -832,17 +1096,17 @@ static FAST __attribute__((noinline)) void draw_building(Surface *s,const View *
  scenery_polygon(s,inner_plane,4,roof_color);
  /* Tile seams are world-space lines on the pitched roof.  Longitudinal
   * seams share the road vanishing point; cross seams follow the roof slope. */
- for(int u=1;u<4;u++) {
+ if(!distant && projected_height>16)for(int u=1;u<4;u++) {
   int x=inner+side*(width*u/8),y=height+pitch*u/4;
   scenery_edge(s,scenery_point(v,x,near,y),scenery_point(v,x,far,y),seam);
  }
- for(int z=near+18;z<far;z+=18) {
+ if(!distant && projected_height>16)for(int z=near+18;z<far;z+=18) {
   scenery_edge(s,scenery_point(v,inner,z,height),scenery_point(v,ridge,z,height+pitch),seam);
   if(outer_visible)scenery_edge(s,scenery_point(v,ridge,z,height+pitch),scenery_point(v,outer,z,height),seam);
  }
  if(near>=-44) {
   SceneryPoint gable[3]={in,out,rn};
-  uint16_t wall=building_end_art[style*32*64+4*32+16];
+  uint16_t wall=palette[building_end_idx[style*32*64+4*32+16]];
   scenery_polygon(s,gable,3,wall);
   scenery_edge(s,in,rn,seam);scenery_edge(s,rn,out,seam);
   scenery_edge(s,in,inf,C(86,104,102));scenery_edge(s,out,onf,C(86,104,102));
@@ -856,12 +1120,17 @@ static void draw_water_prop(Surface *s,const View *v,const DrawItem *item)
  if(item->z < -44)return;
  int scale=project_scale(item->z),x=item_x(v,item->x,item->z),y=project_y(item->z);
  if(item->id==SC_SAIL) {
-  int w=78*scale/256,h=w*48/64;
+  int boat=(int)((unsigned)item->variant>>14)%4;
+  int biome=row_biome[clampi(y,HORIZON+1,VH-1)];
+  if(biome==SWAMP)boat=2+boat%2;
+  if(biome==AURORA)boat=3;
+  static const uint8_t widths[4]={78,74,48,65};
+  int w=widths[boat]*scale/256,h=w*48/64;
   if(w<3 || h<3)return;
   uint16_t sea=sea_color(row_biome[clampi(y,HORIZON+1,VH-1)]);
   ellipse(s,x,y+1,w+3,clampi(w/9,1,4),blend_color(sea,C(193,233,225),85));
-  gfx_scaled_sprite(s,x-boat_profile_anchor[0]*w/64,y-boat_profile_anchor[1]*h/48,
-                    boat_profile,64,48,w,h);
+  gfx_indexed_sprite(s,x-boat_profile_anchor[boat*2]*w/64,y-boat_profile_anchor[boat*2+1]*h/48,
+                    boat_profile_idx+boat*64*48,boat_palette+boat*256,64,48,w,h);
  } else {
   int sections=1+(((unsigned)item->variant>>8)&1);
   int width=60,depth=16;
@@ -883,25 +1152,106 @@ static void draw_water_prop(Surface *s,const View *v,const DrawItem *item)
 
 static void draw_prop(Surface *s,const View *v,const DrawItem *item)
 {
- if(building_id(item->id)){draw_building(s,v,item);return;}
+ if(item->kind==ITEM_BUILDING || building_id(item->id)){draw_building(s,v,item);return;}
  if(item->id==SC_SAIL || item->id==SC_PIER){draw_water_prop(s,v,item);return;}
  if(item->z < -44)return;
  int y=project_y(item->z),x=item_x(v,item->x,item->z);
- int scale=project_scale(item->z),world_width=48;
- if(item->id==SC_LAMP)world_width=36;
+ int scale=project_scale(item->z),world_width=prop_world_width(item->id);
  if(item->kind==ITEM_BACK_PROP)world_width=world_width*218/256;
  int w=world_width*scale/256,h=w*PROP_H/PROP_W;
  if(w<2 || h<3)return;
  int source_width,source_height;
  const uint8_t *anchor,*bounds;
- const uint16_t *pixels=prop_source(item->id,item->side,w,&source_width,&source_height,&anchor,&bounds);
+ const uint16_t *palette;
+ const uint8_t *pixels=prop_source(item->id,item->side,w,&source_width,&source_height,&anchor,&bounds,&palette);
  (void)bounds;
  int contact_width=item->id==SC_LAMP?clampi(w/8,1,4):clampi(w/5,2,8);
  ellipse(s,x,y,contact_width,clampi(contact_width/3,1,3),C(53,81,73));
  int sway=(item->id==SC_REEDS || item->id==SC_BUSH)?
              (int)((v->frame/14+(unsigned)item->variant)&1):0;
- gfx_scaled_sprite(s,x-anchor[0]*w/PROP_W+sway,y-anchor[1]*h/PROP_H,
-                   pixels,source_width,source_height,w,h);
+ gfx_indexed_sprite(s,x-anchor[0]*w/PROP_W+sway,y-anchor[1]*h/PROP_H,
+                   pixels,palette,source_width,source_height,w,h);
+}
+
+static __attribute__((noinline)) void draw_far_landscape(Surface *s,const View *v)
+{
+ int first=floor_div(v->visual_position+ROAD_VIEW,320);
+ int last=floor_div(v->visual_position+FAR_DISTANCE,320);
+ for(int n=last;n>=first;n--)for(int side=-1;side<=1;side+=2)for(int column=2;column>=0;column--) {
+  uint32_t h=road_landmark(v->seed^0xfa418u^(unsigned)column*0x751u,(uint32_t)n,side);
+  int absolute=n*320+41+(int)((h>>9)%67),z=absolute-v->visual_position;
+  if(z<ROAD_VIEW || z>FAR_DISTANCE || (h&15)==0)continue;
+  int water,biome=scenery_material(v,absolute,side,h,&water);
+  int urban=biome==CITY || biome==MARINA || biome==NEON;
+  if(!urban && !(biome==AURORA && side<0))continue;
+  RoadSample road;road_sample(v->seed,v->position+z,v->start,&road);
+  int world_x=road.center+side*(410+column*282+(int)((h>>15)%72));
+  int scale=project_scale(z),x=item_x(v,world_x,z),ground=project_y(z);
+  int width=(55+(int)(h%63))*scale/256;
+  if(width<2 || x+width<0 || x-width>=VW)continue;
+  uint16_t haze=sky_themes[biome].haze;
+  if(urban && !water) {
+   int style=district_building(biome,h,1);
+   int height=(58+(int)((h>>7)%115))*scale/256;
+   const uint16_t *palette=building_palette+style*256;
+   uint16_t base=palette[building_wall_idx[style*64*64+4*64+4]];
+   uint16_t face=blend_color(base,haze,150),end=blend_color(face,C(40,67,83),35);
+   int outer=world_x+side*(70+(int)(h%34)),back=z+90;
+   SceneryPoint a=scenery_point(v,world_x,z,0),b=scenery_point(v,world_x,back,0);
+   SceneryPoint at=scenery_point(v,world_x,z,58+(int)((h>>7)%115));
+   SceneryPoint bt=scenery_point(v,world_x,back,58+(int)((h>>7)%115));
+   SceneryPoint plane[4]={a,b,bt,at};scenery_polygon(s,plane,4,face);
+   int edge=item_x(v,outer,z),left=x<edge?x:edge,w=x<edge?edge-x:x-edge;
+   gfx_rect(s,left,ground-height,w+1,height,end);
+   if(height>=6) {
+    uint16_t light=biome==NEON?(h&1?C(100,203,212):C(204,115,209)):C(175,194,181);
+    gfx_rect(s,left+1,ground-height+2,clampi(w-1,1,10),1,light);
+    if(height>=10)gfx_rect(s,left+1,ground-height+5,clampi(w-1,1,10),1,light);
+   }
+  } else if(biome==AURORA && side<0) {
+   SceneryPoint berg[4]={scenery_point(v,world_x-65,z,0),scenery_point(v,world_x-30,z+45,27),
+     scenery_point(v,world_x+24,z+60,45),scenery_point(v,world_x+70,z,0)};
+   scenery_polygon(s,berg,4,C(174,212,225));
+   gfx_rect(s,x-width/2,ground+1,width,1,C(118,175,200));
+  }
+ }
+ /* Authored small sprites form the outer woodland, marsh and salt layers.
+  * Their ground grid spans hundreds of lateral units, so distant cards enter
+  * at the corners and clip sideways before growing into foreground trees.
+  * Midground cells extend closer, but their large setbacks carry them off
+  * the side naturally. The outer, sparser cells occupy the distant corners. */
+ first=floor_div(v->visual_position-44,360);
+ last=floor_div(v->visual_position+FAR_DISTANCE,360);
+ for(int n=last;n>=first;n--)for(int side=-1;side<=1;side+=2)for(int column=1;column>=0;column--) {
+  uint32_t h=road_landmark(v->seed^0x7fba9u^(unsigned)column*0x27fu,(uint32_t)n,side);
+  if(column && (h&3)!=0)continue;
+  int absolute=n*360+31+column*67+(int)((h>>8)%59),z=absolute-v->visual_position;
+  if(z < -44 || z>FAR_DISTANCE)continue;
+  int water,biome=scenery_material(v,absolute,side,h,&water),kind=-1;
+  if(biome==CITY || biome==NEON || biome==MARINA || biome==CAUSEWAY)continue;
+  if(biome==JUNGLE) {
+   static const uint8_t types[5]={SC_CANOPY,SC_BANANA,SC_BAMBOO,SC_PALM,SC_VINE};kind=types[h%5];
+  } else if(biome==PINES) {
+   static const uint8_t types[4]={SC_PINE,SC_SPRUCE,SC_BIRCH,SC_TREE};kind=types[h%4];
+  } else if(biome==SWAMP || biome==WETLANDS) {
+   static const uint8_t types[4]={SC_CYPRESS,SC_MANGROVE,SC_DEADWOOD,SC_RUSH};kind=types[h%4];
+  } else if(biome==AURORA && side>0)kind=h&1?SC_SPRUCE:SC_BIRCH;
+  else if(biome==SALT)kind=h&1?SC_CRYSTAL:SC_SALT_MOUND;
+  else if(biome==COAST && side>0)kind=h&1?SC_PALM:SC_BANANA;
+  else if(biome==GROVES)kind=h&3?SC_CITRUS:SC_TREE;
+  else if(biome==CANYON)kind=h&3?SC_ROCK:SC_SCRUB;
+  if(kind<0)continue;
+  if(water && !(biome==SWAMP || biome==WETLANDS || biome==SALT))continue;
+  RoadSample road;road_sample(v->seed,v->position+z,v->start,&road);
+  int offset=column?700+(int)((h>>16)%301):320+(int)((h>>16)%201);
+  int world_x=road.center+side*offset;
+  int x=item_x(v,world_x,z),y=project_y(z);
+  int width=prop_world_width(kind)*project_scale(z)/256,height=width*PROP_H/PROP_W;
+  if(width<3 || height<3 || x+width<0 || x-width>=VW)continue;
+  int sw,sh;const uint8_t *anchor,*bounds;const uint16_t *palette;
+  const uint8_t *pixels=prop_source(kind,side,width,&sw,&sh,&anchor,&bounds,&palette);(void)bounds;
+  gfx_indexed_sprite(s,x-anchor[0]*width/PROP_W,y-anchor[1]*height/PROP_H,pixels,palette,sw,sh,width,height);
+ }
 }
 
 static void draw_coin(Surface *s,const View *v,const DrawItem *item)
@@ -953,10 +1303,10 @@ static void draw_player(Surface *s,const Game *g,const View *v,const DrawItem *i
    gfx_circle(s,sx,sy,2+age/6,age>9?C(114,131,132):C(179,190,183));
   }
  }
- const uint16_t *art=vehicle_art+(vehicle*5+pose)*CAR_W*CAR_H;
  int paint=g->save.paint[vehicle];
  if(!v->attract && g->damage_cooldown && (g->frame&2))paint=5;
- gfx_vehicle(s,r.left,r.top,art,CAR_W,CAR_H,w,h,paint);
+ const uint16_t *art=gfx_vehicle_pixels(vehicle,pose);
+ gfx_vehicle_style(s,r.left,r.top,art,CAR_W,CAR_H,w,h,paint,g->save.livery[vehicle],g->save.wheels[vehicle]);
  if(!v->attract && (g->slow || g->drifting)) {
   gfx_rect(s,x-w/2+5,y+h/2-5-lift,3,2,C(255,83,64));
   gfx_rect(s,x+w/2-7,y+h/2-5-lift,3,2,C(255,83,64));
@@ -994,37 +1344,73 @@ static void draw_police(Surface *s,const Game *g,const View *v)
  }
 }
 
-static void draw_ambient(Surface *s,const View *v)
+static __attribute__((noinline)) void draw_ambient(Surface *s,const View *v)
 {
- /* Distant seabirds stay beside the coast; they are decorative, never traffic. */
- int biome=row_biome[30];
- if(biome!=COAST && biome!=CAUSEWAY)return;
- for(int i=0;i<3;i++) {
-  unsigned t=v->frame+i*61;
-  int x=(int)((t/2+i*23)%310)-25;
-  int y=20+i*15+(int)((t/22)%3);
+ RoadSample region;road_sample(v->seed,v->position,v->start,&region);
+ int biome=region.blend>=128?region.next_biome:region.biome;
+ if(biome==COAST || biome==CAUSEWAY || biome==SALT)for(int i=0;i<3;i++) {
+  unsigned t=v->frame+(unsigned)i*61;
+  int x=(int)((t/2+(unsigned)i*23)%310)-25,y=20+i*15+(int)((t/22)%3);
   if(x>road_x[y]-road_half[y]-9 && x<road_x[y]+road_half[y]+9)continue;
-  int wing=(t/9)&1?2:-1;
-  gfx_line(s,x-3,y+wing,x,y,C(240,241,215));
-  gfx_line(s,x,y,x+3,y+wing,C(240,241,215));
+  int wing=(t/9)&1?2:-1;uint16_t color=biome==SALT?C(222,166,194):C(240,241,215);
+  gfx_line(s,x-3,y+wing,x,y,color);gfx_line(s,x,y,x+3,y+wing,color);
+ }
+ if(biome==NEON || biome==JUNGLE)for(int i=0;i<10;i++) {
+  uint32_t h=road_hash(v->seed^0x4a17u,(unsigned)i);
+  int x=(int)((h+v->frame*3u)%278u)-11;
+  int y=HORIZON+7+(int)(((h>>9)+v->frame*5u)%(VH-HORIZON-10));
+  gfx_line(s,x,y,x-1,y+3,biome==NEON?C(108,143,177):C(133,183,163));
+ }
+ if(biome==SWAMP || biome==WETLANDS)for(int i=0;i<13;i++) {
+  uint32_t h=road_hash(v->seed^0xf14eu,(unsigned)i);
+  int x=(int)((h+v->frame/8)%VW),y=HORIZON+12+(int)(((h>>9)+v->frame/17)%128);
+  if(x>road_x[y]-road_half[y] && x<road_x[y]+road_half[y])continue;
+  if(((v->frame/15+h)&7u)<5u)gfx_rect(s,x,y,1+(int)(h&1),1,C(206,226,132));
+ }
+ if(biome==SWAMP || biome==JUNGLE)for(int i=0;i<3;i++) {
+  int side=i&1?1:-1,y=48+i*18;
+  int x=side<0?14+(int)((v->frame/12+(unsigned)i*17)%26u):223-(int)((v->frame/15)%26u);
+  ellipse(s,x,y,37+i*6,3,biome==SWAMP?C(110,148,135):C(115,165,140));
+ }
+ if(biome==AURORA)for(int i=0;i<17;i++) {
+  uint32_t h=road_hash(v->seed^0x5a0fu,(unsigned)i);
+  int x=(int)((h+v->frame/2u)%VW),y=HORIZON+5+(int)(((h>>9)+v->frame/2u)%165u);
+  gfx_rect(s,x,y,1+(int)(h&1),1,h&1?C(214,236,240):C(160,205,224));
+ }
+ if(biome==PINES || biome==GROVES || biome==COAST)for(int i=0;i<4;i++) {
+  unsigned t=v->frame+(unsigned)i*59u;
+  if((t/90u)&1u)continue;
+  int x=(int)((t*2u+(unsigned)i*71u)%290u)-17,y=39+(int)((t/8u+(unsigned)i*29u)%118u);
+  gfx_rect(s,x,y,2,1,biome==COAST?C(178,198,104):C(147,180,101));
  }
 }
 
-static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,int attract)
+static View make_view(const Game *g,int attract,RoadSample *player)
 {
  View v;
  v.attract=attract;v.frame=g->frame;
  v.seed=attract?g->save.seed:g->run_seed;
- v.position=attract?(int)((g->frame*4)%(ROAD_BIOME_LENGTH*LOCATION_COUNT)):g->position_q8/Q;
+ /* A departure preview loops inside its selected section. Its moving road
+  * never advances to the next biome while the player studies the menu. */
+ unsigned preview_span=ROAD_BIOME_LENGTH-ROAD_BLEND_LENGTH-FAR_DISTANCE-1000;
+ if(attract && g->mode==M_DEPARTURES)
+  v.position=(int)((g->frame%(preview_span/4u))*4u);
+ else v.position=attract?(int)((g->frame*4u)%(ROAD_BIOME_LENGTH*LOCATION_COUNT)):g->position_q8/Q;
  v.motion=clampi(g->save.motion,0,2);
  v.visual_scale=v.motion==0?205:v.motion==2?384:307;
  v.visual_position=visual_travel(v.position,v.motion);
  v.speed=attract?145:(g->speed_q8<0?-g->speed_q8:g->speed_q8)/Q;
  v.start=attract?(g->mode==M_DEPARTURES?g->cursor:COAST):g->start_biome;
- RoadSample player;road_sample(v.seed,v.position,v.start,&player);
- v.center=player.center;
+ road_sample(v.seed,v.position,v.start,player);
+ v.center=player->center;
  v.cam_x=attract?0:g->x_q8/(Q*8);
  if(!attract && g->save.shake && g->shake)v.cam_x+=(g->frame&1?1:-1)*clampi(g->shake/4,0,2);
+ return v;
+}
+
+static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,int attract)
+{
+ RoadSample player;View v=make_view(g,attract,&player);
  draw_sky(s,&v,&player);
 
  if(!attract) {
@@ -1039,6 +1425,7 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
  }
  unsigned road_start=profile_clock();
  draw_road(s,g,&v);
+ draw_far_landscape(s,&v);
  render_profile[3]=(profile_clock()-road_start)&65535u;
  unsigned object_start=profile_clock();
  DrawItem items[DRAW_MAX];int count=0;
@@ -1072,9 +1459,9 @@ static FAST __attribute__((noinline)) void draw_world(Surface *s,const Game *g,i
  for(int i=0;i<count;i++) {
   unsigned stage_start=profile_clock();
   switch(items[i].kind) {
-  case ITEM_PROP:case ITEM_BACK_PROP:
+  case ITEM_PROP:case ITEM_BACK_PROP:case ITEM_BUILDING:
    draw_prop(s,&v,&items[i]);
-   scenery_work[building_id(items[i].id)?1:(items[i].id==SC_PIER || items[i].id==SC_SAIL)?3:2]+=
+   scenery_work[(items[i].kind==ITEM_BUILDING || building_id(items[i].id))?1:(items[i].id==SC_PIER || items[i].id==SC_SAIL)?3:2]+=
       (profile_clock()-stage_start)&65535u;break;
   case ITEM_CAR:draw_traffic(s,&v,&items[i]);scenery_work[4]+=(profile_clock()-stage_start)&65535u;break;
   case ITEM_COIN:draw_coin(s,&v,&items[i]);break;
@@ -1179,10 +1566,12 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  int id=receipt?g->vehicle:g->selection;
  if(id<0 || id>=VEHICLE_COUNT)id=g->save.selected_vehicle;
  int pose=2,w=vehicles[id].bike?48:78,h=116,x=104-w/2,y=63;
- const uint16_t *art=vehicle_art+(id*5+pose)*CAR_W*CAR_H;
  int paint=!receipt && g->garage_tab==0 && g->cursor==2?g->paint_choice:g->save.paint[id];
  contact_shadow(scene,x,y,w,h,vehicle_body_spans[id*5+pose],CAR_W,CAR_H);
- gfx_vehicle(scene,x,y,art,CAR_W,CAR_H,w,h,paint);
+ const uint16_t *art=gfx_vehicle_pixels(id,pose);
+ int livery=g->garage_tab==3?g->livery_choice:g->save.livery[id];
+ int wheels=g->garage_tab==3?g->wheel_choice:g->save.wheels[id];
+ gfx_vehicle_style(scene,x,y,art,CAR_W,CAR_H,w,h,paint,livery,wheels);
  gfx_card(scene,10,7,236,27,theme->pane,theme->rim);
  const char *receipt_title=g->end_reason==END_STOPPED?"PURSUIT ENDED":
                            g->end_reason==END_CRASH?"VEHICLE RECOVERED":"RUN BANKED";

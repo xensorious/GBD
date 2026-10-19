@@ -33,7 +33,7 @@ int main(void)
   }
  }
  CHECK(seen==(1u<<LOCATION_COUNT)-1u); CHECK(changed>10000);
- CHECK(features==(ROAD_F_BRIDGE|ROAD_F_OVERPASS|ROAD_F_PALMS|ROAD_F_HARBOR|ROAD_F_PINES|ROAD_F_ROCKS|ROAD_F_CITY|ROAD_F_MARINA|ROAD_F_WETLANDS|ROAD_F_GROVES));
+ CHECK(features==(ROAD_F_BRIDGE|ROAD_F_OVERPASS|ROAD_F_PALMS|ROAD_F_HARBOR|ROAD_F_PINES|ROAD_F_ROCKS|ROAD_F_CITY|ROAD_F_MARINA|ROAD_F_WETLANDS|ROAD_F_GROVES|ROAD_F_NEON|ROAD_F_JUNGLE|ROAD_F_SWAMP|ROAD_F_AURORA|ROAD_F_SALT));
  for(int start=0;start<LOCATION_COUNT;start++) {
   for(int cycle=-3;cycle<=3;cycle++) {
    for(int section=0;section<LOCATION_COUNT;section++) {
@@ -44,7 +44,7 @@ int main(void)
     RoadSample next=sample(123,z+ROAD_BIOME_LENGTH,start);
     CHECK(end.blend==255 && !next.blend && end.next_biome==next.biome);
     /* Use distinct scalar palette values to prove exact endpoint color
-     * continuity, independent of which eight palettes the renderer chooses. */
+     * continuity, independent of which palettes the renderer chooses. */
     int end_material=(end.biome*31*(255-end.blend)+end.next_biome*31*end.blend)/255;
     int next_material=(next.biome*31*(255-next.blend)+next.next_biome*31*next.blend)/255;
     CHECK(end_material==next_material);

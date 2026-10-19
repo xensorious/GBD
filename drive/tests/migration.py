@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-"""Boot released v1/v2 profiles, then verify migration and preservation.
+"""Migrate four published profiles on their genuine 512-byte battery chips.
 
-The 100-byte fixture is accepted by the original ROM and migrated by the
-revised ROM. A detailed 204-byte fixture is accepted by the previous coastal
-ROM and loaded byte-exactly by this revision. Every extra boot uses a fresh
-process. No emulated RAM writes, checkpoints or cheats are used.
+Each old fixture must first boot in its released cartridge. The unchanged 512B
+file then boots in the revised cartridge, which writes its compact 500B v3
+profile and reloads all 596 RAM bytes in a fresh process. No RAM writes or
+emulator checkpoints are used.
 """
 import argparse
 import ctypes as C
 import json
+from pathlib import Path
 import shutil
 import subprocess
 import sys
-from pathlib import Path
 from emulator import Emulator,ROOT
-from fixtures import legacy_profile,coastal_profile,write_battery
-from game_snapshot import LegacySave,Game,find_symbol,read_game,symbol_size
+from fixtures import (legacy_profile,coastal_profile,write_battery,
+                      assert_imported_fields,assert_compact_battery,battery_size)
+from game_snapshot import Game,find_symbol,read_game,symbol_size
 from inspect_rom import inspect
-from setup_legacy import verify_pair,COASTAL_SHA256,TURBO_SHA256
+from setup_legacy import verify_pair,RELEASES
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
@@ -25,92 +26,78 @@ p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
 p.add_argument('--baseline',type=Path,default=ROOT/'build'/'legacy-baseline')
 p.add_argument('--v2-baseline',type=Path,default=ROOT/'build'/'coastal-baseline')
 p.add_argument('--turbo-baseline',type=Path,default=ROOT/'build'/'turbo-baseline')
+p.add_argument('--handling-baseline',type=Path,default=ROOT/'build'/'handling-baseline')
 p.add_argument('--output',type=Path,default=ROOT/'build'/'validation')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
-if not (a.baseline/'Coastline.nds').exists() or not (a.baseline/'arm9.elf').exists():
-    subprocess.run([sys.executable,str(ROOT/'tests'/'setup_legacy.py'),
-                    '--output',str(a.baseline)],check=True)
-verify_pair(a.baseline/'Coastline.nds',a.baseline/'arm9.elf')
-fixture=a.output/'legacy-fixture-save';shutil.rmtree(fixture,ignore_errors=True)
-legacy=legacy_profile()
-write_battery(a.baseline/'validation'/'save'/'Coastline.dsv',fixture/'Coastline.dsv',bytes(legacy))
+
+def prepare(release,directory):
+    if not (directory/'Coastline.nds').exists() or not (directory/'arm9.elf').exists():
+        subprocess.run([sys.executable,str(ROOT/'tests'/'setup_legacy.py'),
+                        '--release',release,'--output',str(directory)],check=True)
+    verify_pair(directory/'Coastline.nds',directory/'arm9.elf',RELEASES[release][1])
+    return directory
+
+def fixture(name,baseline,payload):
+    directory=a.output/(name+'-fixture-save');shutil.rmtree(directory,ignore_errors=True)
+    write_battery(baseline/'validation'/'save'/'Coastline.dsv',directory/'Coastline.dsv',payload)
+    assert battery_size(directory/'Coastline.dsv')==512
+    return directory
+
+def reload(directory,expected,image):
+    subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
+        '--elf',str(a.elf),'--save-dir',str(directory),'--expected',str(expected),
+        '--output',str(a.output/image)],check=True)
+    assert_compact_battery(directory/'Coastline.dsv')
+
+baseline=prepare('original',a.baseline);legacy=legacy_profile()
+directory=fixture('legacy',baseline,bytes(legacy))
 subprocess.run([sys.executable,str(ROOT/'tests'/'legacy_boot.py'),
-    '--rom',str(a.baseline/'Coastline.nds'),'--elf',str(a.baseline/'arm9.elf'),
-    '--save-dir',str(fixture)],check=True)
+    '--rom',str(baseline/'Coastline.nds'),'--elf',str(baseline/'arm9.elf'),
+    '--save-dir',str(directory)],check=True)
 address=find_symbol(a.elf,'game');assert symbol_size(a.elf,'game')==C.sizeof(Game)
-with Emulator(a.rom,fixture) as e:
+with Emulator(a.rom,directory) as e:
     e.run(180);g=read_game(e,address)
-    assert g.mode==0 and g.has_save and g.save_ok and g.save.version==2
-    for name,_ in LegacySave._fields_:
-        if name not in ('magic','version','checksum','paint','engine','grip','armor','reserved'):
-            assert getattr(g.save,name)==getattr(legacy,name),name
-    for name in ('paint','engine','grip','armor'):
-        assert list(getattr(g.save,name))[:6]==list(getattr(legacy,name)),name
-        assert list(getattr(g.save,name))[6:]==[0]*4,name
-    assert g.save.music_on==1 and g.save.sfx_on==1
-    assert 0<=g.save.skin<3 and 0<=g.save.units<2
+    assert g.mode==0 and g.has_save and g.save_ok
+    assert_imported_fields(g.save,legacy)
     e.screenshot(a.output/'legacy-migrated.png')
     g.save.checksum=0;expected=bytes(g.save)
-(a.output/'expected-migrated-profile.bin').write_bytes(expected)
-subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
-    '--elf',str(a.elf),'--save-dir',str(fixture),
-    '--expected',str(a.output/'expected-migrated-profile.bin'),
-    '--output',str(a.output/'legacy-reloaded.png')],check=True)
-result={'rom':inspect(a.rom),'baseline_rom':inspect(a.baseline/'Coastline.nds'),
-        'profile_source':'documented native-generated 100-byte legacy fixture, accepted by original v1 ROM',
-        'preserved':'cash, six-car parts and paint, selected motorcycle/departure, all run records and unlocks',
-        'legacy_bytes':100,'migrated_bytes':len(expected),'fresh_process_reload':True,
-        'inputs':'ordinary cartridge boot; no emulator RAM writes or state restores',
+expected_path=a.output/'expected-migrated-profile.bin';expected_path.write_bytes(expected)
+geometry=assert_compact_battery(directory/'Coastline.dsv')
+reload(directory,expected_path,'legacy-reloaded.png')
+result={'rom':inspect(a.rom),'baseline_rom':inspect(baseline/'Coastline.nds'),
+        'profile_source':'100-byte legacy fixture accepted by original released ROM on unchanged 512B chip',
+        'legacy_bytes':100,'migrated_bytes':len(expected),'migrated_ram_bytes':len(expected),
+        'legacy_fields_preserved':True,'new_expansion_defaults':True,'fresh_process_reload':True,
+        **geometry,'inputs':'ordinary cartridge boot; no RAM writes, checkpoint restore or chip enlargement',
         'screenshots':['legacy-migrated.png','legacy-reloaded.png']}
-if not (a.v2_baseline/'Coastline.nds').exists() or not (a.v2_baseline/'arm9.elf').exists():
-    subprocess.run([sys.executable,str(ROOT/'tests'/'setup_legacy.py'),
-                    '--release','coastal','--output',str(a.v2_baseline)],check=True)
-verify_pair(a.v2_baseline/'Coastline.nds',a.v2_baseline/'arm9.elf',COASTAL_SHA256)
-v2fixture=a.output/'coastal-fixture-save';shutil.rmtree(v2fixture,ignore_errors=True)
-coastal=coastal_profile()
-write_battery(a.output/'save'/'Coastline.dsv',v2fixture/'Coastline.dsv',bytes(coastal))
-subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
-    '--rom',str(a.v2_baseline/'Coastline.nds'),'--elf',str(a.v2_baseline/'arm9.elf'),
-    '--save-dir',str(v2fixture)],check=True)
-# The old DeSmuME core cannot safely re-initialize in this parent process.
-# Each additional cartridge boot uses a fresh child, as the reload checks do.
-subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
-    '--rom',str(a.rom),'--elf',str(a.elf),'--save-dir',str(v2fixture),
-    '--current','--output',str(a.output/'coastal-save-preserved.png'),
-    '--expected',str(a.output/'expected-preserved-profile.bin')],check=True)
-expected_v2=(a.output/'expected-preserved-profile.bin').read_bytes()
-subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
-    '--elf',str(a.elf),'--save-dir',str(v2fixture),
-    '--expected',str(a.output/'expected-preserved-profile.bin'),
-    '--output',str(a.output/'coastal-save-reloaded.png')],check=True)
-result['previous_v2_compatibility']={
-    'baseline_rom':inspect(a.v2_baseline/'Coastline.nds'),
-    'profile_source':'documented 204-byte v2 fixture accepted by previous coastal release',
-    'bytes':len(expected_v2),'byte_exact_on_load':True,'fresh_process_reload':True,
-    'preserved':'all ten cars, parts, mastery, tuning, career perks, money, records, departures, paint and settings',
-    'screenshots':['coastal-save-preserved.png','coastal-save-reloaded.png']}
-if not (a.turbo_baseline/'Coastline.nds').exists() or not (a.turbo_baseline/'arm9.elf').exists():
-    subprocess.run([sys.executable,str(ROOT/'tests'/'setup_legacy.py'),
-                    '--release','turbo','--output',str(a.turbo_baseline)],check=True)
-verify_pair(a.turbo_baseline/'Coastline.nds',a.turbo_baseline/'arm9.elf',TURBO_SHA256)
-turbo_fixture=a.output/'turbo-fixture-save';shutil.rmtree(turbo_fixture,ignore_errors=True)
-write_battery(a.output/'save'/'Coastline.dsv',turbo_fixture/'Coastline.dsv',bytes(coastal))
-subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
-    '--rom',str(a.turbo_baseline/'Coastline.nds'),'--elf',str(a.turbo_baseline/'arm9.elf'),
-    '--save-dir',str(turbo_fixture)],check=True)
-subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
-    '--rom',str(a.rom),'--elf',str(a.elf),'--save-dir',str(turbo_fixture),
-    '--current','--output',str(a.output/'turbo-save-preserved.png'),
-    '--expected',str(a.output/'expected-turbo-profile.bin')],check=True)
-subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),
-    '--elf',str(a.elf),'--save-dir',str(turbo_fixture),
-    '--expected',str(a.output/'expected-turbo-profile.bin'),
-    '--output',str(a.output/'turbo-save-reloaded.png')],check=True)
-result['previous_turbo_v2_compatibility']={
-    'baseline_rom':inspect(a.turbo_baseline/'Coastline.nds'),
-    'profile_source':'same detailed 204-byte fixture accepted by immediately preceding turbo release',
-    'bytes':204,'byte_exact_on_load':True,'fresh_process_reload':True,
-    'preserved':'all vehicle progress, money, records, unlocks and settings',
-    'screenshots':['turbo-save-preserved.png','turbo-save-reloaded.png']}
+
+for release,baseline,key in (
+    ('coastal',a.v2_baseline,'previous_v2_compatibility'),
+    ('turbo',a.turbo_baseline,'previous_turbo_v2_compatibility'),
+    ('handling',a.handling_baseline,'previous_handling_v2_compatibility')):
+    baseline=prepare(release,baseline);old=coastal_profile()
+    directory=fixture(release,baseline,bytes(old))
+    subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
+        '--rom',str(baseline/'Coastline.nds'),'--elf',str(baseline/'arm9.elf'),
+        '--save-dir',str(directory)],check=True)
+    # The old core cannot safely re-initialize inside this parent process.
+    # Every additional cartridge boot uses an independent child process.
+    expected_path=a.output/('expected-'+release+'-profile.bin')
+    kept_image=release+'-save-preserved.png';reload_image=release+'-save-reloaded.png'
+    subprocess.run([sys.executable,str(ROOT/'tests'/'coastal_boot.py'),
+        '--rom',str(a.rom),'--elf',str(a.elf),'--save-dir',str(directory),
+        '--current','--output',str(a.output/kept_image),
+        '--expected',str(expected_path)],check=True)
+    geometry=assert_compact_battery(directory/'Coastline.dsv')
+    reload(directory,expected_path,reload_image)
+    assert len(expected_path.read_bytes())==596
+    result[key]={'baseline_rom':inspect(baseline/'Coastline.nds'),
+        'profile_source':'detailed 204-byte fixture accepted by released '+release+' ROM',
+        'source_ram_bytes':204,'migrated_ram_bytes':596,
+        'legacy_fields_preserved':True,'new_expansion_defaults':True,
+        'fresh_process_reload':True,**geometry,
+        'preserved':'all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings',
+        'defaults':'21 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch',
+        'screenshots':[kept_image,reload_image]}
 (a.output/'migration-results.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))

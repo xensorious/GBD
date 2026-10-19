@@ -12,7 +12,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from emulator import Emulator,ROOT
-from fixtures import write_battery
+from fixtures import write_battery,encode_profile
 from game_snapshot import Game,Save,find_symbol,symbol_size
 from inspect_rom import inspect
 from playthrough import DriveThrough
@@ -35,9 +35,8 @@ g.save.career_xp=50000
 for i in range(3):g.save.perks[i]=3
 g.save.engine[2]=6;g.save.grip[2]=4;g.save.armor[2]=6
 g.save.power_tune[2]=1;g.save.handling_tune[2]=1;g.save.chassis_tune[2]=2
-out=Save();lib.game_make_save(C.byref(g),C.byref(out));assert lib.game_save_valid(C.byref(out))
 fixture=a.output/'transition-fixture-save';shutil.rmtree(fixture,ignore_errors=True)
-write_battery(a.output/'save'/'Coastline.dsv',fixture/'Coastline.dsv',bytes(out))
+write_battery(a.output/'save'/'Coastline.dsv',fixture/'Coastline.dsv',encode_profile(lib,g))
 address=find_symbol(a.elf,'game');assert symbol_size(a.elf,'game')==C.sizeof(Game)
 frames=[];shots=[];seen=set();boundary=21000;next_frame=boundary-1200
 with Emulator(a.rom,fixture) as e:

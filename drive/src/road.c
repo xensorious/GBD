@@ -44,6 +44,11 @@ static uint16_t feature_for(int biome,int32_t within)
  case MARINA: return ROAD_F_MARINA | ROAD_F_HARBOR | ROAD_F_CITY | ROAD_F_PALMS;
  case WETLANDS: return ROAD_F_WETLANDS | ROAD_F_BRIDGE | ROAD_F_PALMS;
  case GROVES: return ROAD_F_GROVES | ROAD_F_PALMS;
+ case NEON: return ROAD_F_NEON | ROAD_F_CITY;
+ case JUNGLE: return ROAD_F_JUNGLE | ROAD_F_PALMS;
+ case SWAMP: return ROAD_F_SWAMP | ROAD_F_WETLANDS;
+ case AURORA: return ROAD_F_AURORA | ROAD_F_PINES;
+ case SALT: return ROAD_F_SALT | ROAD_F_ROCKS;
  default: return 0;
  }
 }

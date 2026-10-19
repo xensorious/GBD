@@ -2,7 +2,7 @@ COASTLINE: ENDLESS DRIVE
 
 An original Nintendo DS procedural highway game created for this project.
 Original vehicle and roadside illustrations were generated for Coastline and
-prepared as native RGB555 sprites. Road geometry, driving, traffic, scoring,
+prepared as palette-indexed sprites and textures with RGB555 palettes. Road geometry, driving, traffic, scoring,
 progression, dashboard, menus, synthesized music and engine/road/horn sounds
 were created for the game. No commercial vehicle logos, game art or ROM data
 are required. Checked-in source art permits rebuilding without an image service.

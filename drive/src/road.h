@@ -19,7 +19,12 @@ enum RoadFeature {
  ROAD_F_CITY     = 1u << 6,
  ROAD_F_MARINA   = 1u << 7,
  ROAD_F_WETLANDS = 1u << 8,
- ROAD_F_GROVES   = 1u << 9
+ ROAD_F_GROVES   = 1u << 9,
+ ROAD_F_NEON     = 1u << 10,
+ ROAD_F_JUNGLE   = 1u << 11,
+ ROAD_F_SWAMP    = 1u << 12,
+ ROAD_F_AURORA   = 1u << 13,
+ ROAD_F_SALT     = 1u << 14
 };
 
 typedef struct {
@@ -42,7 +47,7 @@ uint32_t road_landmark(uint32_t seed,uint32_t segment,int side);
  *
  * Continuity checks: sample +/-1 around every ROAD_NODE_LENGTH boundary.
  * Centers differ by at most one unit and tangent tends to zero at the node.
- * The eight-biome cycle returns to its start after 168,000 units. At every
+ * The thirteen-biome cycle returns to its start after 273,000 units. At every
  * section boundary, the preceding sample is next_biome at blend=255 and the
  * new sample is that same biome at blend=0: blended colors match exactly.
  * Scenery should keep an identity based on its world anchor, not the current

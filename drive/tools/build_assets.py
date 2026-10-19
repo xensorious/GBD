@@ -2,11 +2,14 @@
 
 The source atlases are original generated artwork. Curated boxes retain the
 whole bus, gantry and other tall/wide shapes where the painted grid varies.
-Runtime assets use transparent RGB555 and compact .incbin assembly declarations.
+Runtime sprites and faces use indexed 8-bit textures with RGB555 palettes;
+traffic and dock planking stay RGB555. Compact .incbin declarations keep
+the complete expanded library within Nintendo DS resident memory.
 """
 from __future__ import annotations
 
 import array
+import json
 import math
 from pathlib import Path
 import random
@@ -64,7 +67,7 @@ PROP_GROUNDED_BOXES = (
     (0, 860, 530, 1135), (610, 790, 802, 1199), (972, 792, 1200, 1199),
 )
 PROP_GROUNDED_IDS = (0, 1, 2, 14, 16, 8, 7)
-PROP_SIDE_IDS = (0, 1, 2, 7, 8, 14, 16)
+PROP_SIDE_IDS = (7, 8)
 # Each style is packed as independent flat faces. Perspective is supplied by
 # the renderer's geometry; no diagonal/isometric wall edges are baked here.
 BUILDING_IDS = (0, 1, 2, 14, 16)
@@ -79,7 +82,15 @@ PROP_NAMES = (
     "GLASS", "BRICK", "WAREHOUSE", "PALM", "PINE", "TREE",
     "SHRUB", "ROCK", "LAMP", "GANTRY", "BILLBOARD", "BOAT",
     "MANGROVE", "CITRUS", "HOTEL", "REEDS", "VILLA", "PIER",
+    "VENDING", "NEON_SCULPTURE", "UTILITY_POLE", "NEON_PALM",
+    "BANANA", "BAMBOO", "FERN", "CANOPY", "RAINFLOWER", "VINE",
+    "CYPRESS", "DEADWOOD", "RUSH", "FALLEN_LOG", "SPRUCE", "BIRCH",
+    "SNOW_ROCK", "SNOW_BUSH", "SNOW_BANK", "CRYSTAL", "SOLAR_ARRAY",
+    "SALT_MOUND", "SCRUB", "FLAMINGO",
 )
+VEHICLE_COUNT = 31
+BUILDING_COUNT = 25
+BOAT_COUNT = 4
 ASSETS: list[tuple[str, str, int]] = []
 
 
@@ -228,97 +239,255 @@ def preview(name: str, images: list[Image.Image], cols: int, scale: int = 2) -> 
     sheet.resize((sheet.width * scale, sheet.height * scale), Image.Resampling.NEAREST).save(OUT / name)
 
 
+def grid_crops(path: Path, cols: int, rows: int) -> list[Image.Image]:
+    source = Image.open(path).convert("RGBA")
+    return [content(source.crop((round(x * source.width / cols), round(y * source.height / rows),
+                                 round((x + 1) * source.width / cols), round((y + 1) * source.height / rows))))
+            for y in range(rows) for x in range(cols)]
+
+
+def material_class(vehicle: int, r: int, g: int, b: int, x: float, y: float) -> int:
+    """Material metadata only; never alter the authored silhouette or alpha.
+
+    Separate palette partitions allow a gray shirt and gray chrome to remain
+    different materials even when their final RGB555 color is identical.
+    Human skin/hair and horse fur are protected. Novelty finish means hardware,
+    such as skateboard trucks, scooter trim or saddle fittings.
+    """
+    hi, lo = max(r, g, b), min(r, g, b)
+    sat = (hi - lo) / max(1, hi)
+    if vehicle >= 25 or vehicle == 3:
+        if vehicle == 3 and r > 95 and g > 65 and b < min(r, g) * .55 and .10 < y < .85:
+            return 1
+        skin_or_fur = r > b * 1.15 and r >= g * 1.03 and g > b * 1.03
+        if skin_or_fur:
+            return 0
+        # Saturated clothing and vehicle frames are safe; helmets, skin and
+        # hair stay original. Horse blue riding jacket is separately bounded.
+        if sat > .34 and hi > 65 and .16 < y < (.53 if vehicle == 30 else .91):
+            return 1
+        if vehicle == 28 and .24 < y < .59 and .20 < x < .80 and sat < .30 and hi > 18:
+            return 1
+        if vehicle == 30:
+            return 2 if .30 < y < .49 and (x < .25 or x > .75) and sat < .50 and hi > 12 else 0
+        if y > .70 and sat < .24 and hi > 65:
+            return 2
+        return 0
+    # Spatially limited neutral trim is finishable; dark glass and black tire
+    # rubber remain protected. Saturated painted body panels use partition1.
+    if ((x < .25 or x > .75) and y > .30 or y > .86 and (x < .40 or x > .60)) and sat < .50 and 25 < hi < 235:
+        return 2
+    if sat > .30 and hi > 65:
+        return 1
+    if sat > .28 and hi > 35 and g > r * 1.15 and g > b * 1.15:
+        return 1
+    if .24 < x < .76 and y < .86 and hi > 165 and sat < .22:
+        return 1
+    return 0
+
+
+def indexed_group(images: list[Image.Image], vehicle: int | None = None):
+    """Quantize one logical object, keeping index0 transparent in every LOD."""
+    palettes = [0] * 256
+    flags = bytearray(256)
+    buffers = [bytearray(im.width * im.height) for im in images]
+    classes = (0, 1, 2) if vehicle is not None else (0,)
+    budgets = (128, 96, 31) if vehicle is not None else (255,)
+    cursor = 1
+    for material, budget in zip(classes, budgets):
+        values, positions = [], []
+        for frame, im in enumerate(images):
+            bounds = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
+            assert bounds is not None
+            for p, (r, g, b, a) in enumerate(pixels(im.convert("RGBA"))):
+                if a < ALPHA:
+                    continue
+                x, y = p % im.width, p // im.width
+                tag = material_class(vehicle, r, g, b, (x - bounds[0]) / max(1, bounds[2] - bounds[0] - 1),
+                                     (y - bounds[1]) / max(1, bounds[3] - bounds[1] - 1)) if vehicle is not None else 0
+                if tag == material:
+                    values.append((r, g, b)); positions.append((frame, p))
+        if not values:
+            cursor += budget
+            continue
+        strip = Image.new("RGB", (len(values), 1)); strip.putdata(values)
+        quantized = strip.quantize(colors=budget, method=Image.Quantize.MEDIANCUT,
+                                   dither=Image.Dither.NONE)
+        rgb = quantized.getpalette()
+        for index in set(pixels(quantized)):
+            r, g, b = rgb[index * 3:index * 3 + 3]
+            palettes[cursor + index] = 0x8000 | (r >> 3) | ((g >> 3) << 5) | ((b >> 3) << 10)
+            flags[cursor + index] = material
+        for (frame, p), index in zip(positions, pixels(quantized)):
+            buffers[frame][p] = cursor + index
+        cursor += budget
+    words = array.array("H", palettes)
+    if sys.byteorder != "little": words.byteswap()
+    return [bytes(data) for data in buffers], words.tobytes(), bytes(flags)
+
+
+def decode_indexed(data: bytes, palette: bytes, width: int, height: int) -> Image.Image:
+    words = array.array("H"); words.frombytes(palette)
+    if sys.byteorder != "little": words.byteswap()
+    im = Image.new("RGBA", (width, height))
+    im.putdata([((words[i] & 31) * 255 // 31, ((words[i] >> 5) & 31) * 255 // 31,
+                 ((words[i] >> 10) & 31) * 255 // 31, 255) if i else (0, 0, 0, 0) for i in data])
+    return im
+
+
 def artwork() -> None:
     cars = atlas_crops(ART / "vehicles.png", VEHICLE_BOXES, (1383, 1137))
     expansion = atlas_crops(ART / "vehicles-expansion.png", EXPANSION_BOXES, (1269, 1240))
-    player_cars = cars[:6] + expansion
-    poses = [vehicle_pose(car, offset) for car in player_cars for offset in YAW_FRONT_OFFSETS]
-    raw("vehicle_art", b"".join(rgb555(im) for im in poses), "uint16_t", 10 * 5 * VEHICLE_W * VEHICLE_H)
-    raw("vehicle_bounds", silhouette_bounds(poses), "uint8_t", 10 * 5 * 4)
+    roster = Image.open(ART / "vehicles-roster.png").convert("RGBA")
+    additions = []
+    for top, bottom in ((0, 324), (326, 630), (638, 972)):
+        additions += [content(roster.crop((round(x * 1619 / 5), top,
+                                          round((x + 1) * 1619 / 5), bottom))) for x in range(5)]
+    novelty = Image.open(ART / "vehicles-novelty.png").convert("RGBA")
+    additions += [content(novelty.crop((round(x * 1145 / 3), 0,
+                                        round((x + 1) * 1145 / 3), 620))) for x in range(3)]
+    additions += [content(novelty.crop((round(x * 1145 / 3), 615,
+                                        round((x + 1) * 1145 / 3), 1374))) for x in range(3)]
+    player_cars = cars[:6] + expansion + additions
+    assert len(player_cars) == VEHICLE_COUNT
+    poses, indexed, palettes, materials = [], [], [], []
+    material_counts = []
+    for vehicle, car in enumerate(player_cars):
+        authored = [vehicle_pose(car, offset) for offset in YAW_FRONT_OFFSETS]
+        frames, palette, flags = indexed_group(authored, vehicle)
+        decoded = [decode_indexed(frame, palette, 48, 72) for frame in frames]
+        poses.extend(decoded); indexed.extend(frames); palettes.append(palette); materials.append(flags)
+        material_counts.append({"vehicle": vehicle, "paint": sum(flags[i] == 1 for frame in frames for i in frame),
+                                "hardware": sum(flags[i] == 2 for frame in frames for i in frame)})
+    raw("vehicle_indexed", b"".join(indexed), "uint8_t", VEHICLE_COUNT * 5 * 48 * 72)
+    raw("vehicle_palette", b"".join(palettes), "uint16_t", VEHICLE_COUNT * 256)
+    raw("vehicle_palette_flags", b"".join(materials), "uint8_t", VEHICLE_COUNT * 256)
+    # Oracle only: never linked into the cartridge; indexed decode is exact.
+    (OUT / "vehicle_art.bin").write_bytes(b"".join(rgb555(im) for im in poses))
+    raw("vehicle_bounds", silhouette_bounds(poses), "uint8_t", VEHICLE_COUNT * 5 * 4)
     traffic = [contain(car, TRAFFIC_W, TRAFFIC_H) for car in cars[6:]]
     raw("traffic_art", b"".join(rgb555(im) for im in traffic), "uint16_t", 6 * TRAFFIC_W * TRAFFIC_H)
     raw("traffic_bounds", silhouette_bounds(traffic), "uint8_t", 6 * 4)
     vehicle_geometry(poses, traffic)
+
     prop_sources = atlas_crops(ART / "scenery.png", PROP_BOXES, (1383, 1137))
     prop_sources += atlas_crops(ART / "scenery-expansion.png", PROP_EXPANSION_BOXES, (1536, 1024))
     grounded = atlas_crops(ART / "scenery-grounded.png", PROP_GROUNDED_BOXES, (1312, 1199))
     for prop_id, source in zip(PROP_GROUNDED_IDS, grounded[:7]):
         prop_sources[prop_id] = source
+    sheet = Image.open(ART / "biome-props.png").convert("RGBA")
+    boxes = ((30, 0, 200, 263), (270, 0, 458, 263), (505, 0, 667, 263),
+             (687, 0, 1022, 263), (1028, 0, 1280, 263), (1280, 40, 1536, 263),
+             (0, 263, 326, 535), (290, 265, 568, 535), (548, 265, 782, 535),
+             (782, 265, 1025, 542), (1030, 265, 1283, 542), (1286, 270, 1536, 542),
+             (0, 545, 330, 750), (339, 525, 568, 782), (572, 533, 775, 782),
+             (773, 620, 1024, 771), (1030, 577, 1276, 766), (1270, 644, 1534, 755),
+             (0, 748, 246, 1024), (248, 800, 520, 1010), (519, 817, 772, 1024),
+             (773, 810, 1028, 1015), (1034, 756, 1275, 1024), (1280, 760, 1536, 1024))
+    biome = [content(sheet.crop(box)) for box in boxes]
+    boats_sheet = Image.open(ART / "boats-neon-palm.png").convert("RGBA")
+    boat_boxes = ((4, 322, 512, 596), (516, 88, 912, 598), (934, 453, 1370, 600),
+                  (1368, 323, 1815, 602))
+    boat_sources = [content(boats_sheet.crop(box)) for box in boat_boxes]
+    boat_sources[3] = content(Image.open(ART / "cabin-boat.png"))
+    # New logical IDs18..41, in the renderer's biome roster order.
+    prop_sources += biome[:3] + [content(Image.open(ART / "neon-palm.png"))] + biome[3:23]
+    assert len(prop_sources) == len(PROP_NAMES)
     props = [contain(im, PROP_W, PROP_H, bottom=True) for im in prop_sources]
     frontage = (0, 1, 2, 14, 16)
-    anchors = [ground_contact(im, inner_corner=i in frontage or i == 7)
-               for i, im in enumerate(props)]
-    side_props = [props[i].transpose(Image.Transpose.FLIP_LEFT_RIGHT) for i in PROP_SIDE_IDS]
-    side_anchors = [(PROP_W - 1 - anchors[i][0], anchors[i][1]) for i in PROP_SIDE_IDS]
-    raw("prop_art", b"".join(rgb555(im) for im in props), "uint16_t", len(props) * PROP_W * PROP_H)
-    raw("prop_bounds", silhouette_bounds(props), "uint8_t", len(props) * 4)
+    anchors = [ground_contact(im, inner_corner=i in frontage or i == 7) for i, im in enumerate(props)]
     raw("prop_anchor", bytes(v for xy in anchors for v in xy), "uint8_t", len(props) * 2)
-    raw("prop_side_art", b"".join(rgb555(im) for im in side_props), "uint16_t", len(side_props) * PROP_W * PROP_H)
-    raw("prop_side_bounds", silhouette_bounds(side_props), "uint8_t", len(side_props) * 4)
-    raw("prop_side_anchor", bytes(v for xy in side_anchors for v in xy), "uint8_t", len(side_props) * 2)
-    boat = contain(grounded[7].transpose(Image.Transpose.ROTATE_270), 128, 64)
-    pier = contain(grounded[8], 64, 128)
-    raw("boat_ground", rgb555(boat), "uint16_t", 128 * 64)
-    raw("pier_ground", rgb555(pier), "uint16_t", 64 * 128)
-    faces = Image.open(ART / "building-elevations.png").convert("RGBA")
-    if faces.size != (971, 1619):
-        raise ValueError("Building elevation atlas dimensions changed")
-    wall_faces, end_faces, roof_faces = [], [], []
+    unused = {0, 1, 2, 9, 10, 11, 14, 16, 17}
+    active_ids = [i for i in range(len(props)) if i not in unused]
+    slots = [255] * len(props)
+    for slot, prop_id in enumerate(active_ids): slots[prop_id] = slot
+    raw("prop_slot", bytes(slots), "uint8_t", len(props))
+    side_ids = (7, 8)
+    side_slots = [255] * len(props)
+    for slot, prop_id in enumerate(side_ids): side_slots[prop_id] = slot
+    raw("prop_side_slot", bytes(side_slots), "uint8_t", len(props))
+    levels = (64, 48, 32, 16)
+    by_level = {width: [] for width in levels}
+    side_level = {width: [] for width in levels}
+    prop_palettes = []
+    for prop_id in active_ids:
+        images = [props[prop_id].resize((w, w * 3 // 2), Image.Resampling.LANCZOS) for w in levels]
+        frames, palette, _ = indexed_group(images)
+        prop_palettes.append(palette)
+        for w, frame in zip(levels, frames):
+            by_level[w].append(frame)
+            if prop_id in side_ids:
+                side_level[w].append(Image.frombytes("L", (w, w * 3 // 2), frame).transpose(Image.Transpose.FLIP_LEFT_RIGHT).tobytes())
+    raw("prop_palette", b"".join(prop_palettes), "uint16_t", len(active_ids) * 256)
+    for w in levels:
+        stem = "prop_idx" if w == 64 else f"prop_lod{w}_idx"
+        side_stem = "prop_side_idx" if w == 64 else f"prop_side_lod{w}_idx"
+        raw(stem, b"".join(by_level[w]), "uint8_t", len(active_ids) * w * (w * 3 // 2))
+        raw(side_stem, b"".join(side_level[w]), "uint8_t", len(side_ids) * w * (w * 3 // 2))
+        all_images = [im.resize((w, w * 3 // 2), Image.Resampling.LANCZOS) for im in props]
+        bound_stem = "prop_bounds" if w == 64 else f"prop_lod{w}_bounds"
+        side_bound_stem = "prop_side_bounds" if w == 64 else f"prop_side_lod{w}_bounds"
+        raw(bound_stem, silhouette_bounds(all_images), "uint8_t", len(props) * 4)
+        raw(side_bound_stem, silhouette_bounds([all_images[i].transpose(Image.Transpose.FLIP_LEFT_RIGHT) for i in side_ids]), "uint8_t", len(side_ids) * 4)
+    side_anchors = [(63 - anchors[i][0], anchors[i][1]) for i in side_ids]
+    raw("prop_side_anchor", bytes(v for xy in side_anchors for v in xy), "uint8_t", len(side_ids) * 2)
+
+    face_sheet = Image.open(ART / "building-elevations.png").convert("RGBA")
+    walls, ends, roofs = [], [], []
     for wall_box, end_box, roof_box in BUILDING_FACE_BOXES:
-        wall_faces.append(faces.crop(wall_box).resize((64, 64), Image.Resampling.LANCZOS))
-        end_faces.append(faces.crop(end_box).resize((32, 64), Image.Resampling.LANCZOS))
-        roof_faces.append(faces.crop(roof_box).resize((32, 32), Image.Resampling.LANCZOS))
-    raw("building_wall_art", b"".join(rgb555(im) for im in wall_faces), "uint16_t", 5 * 64 * 64)
-    raw("building_end_art", b"".join(rgb555(im) for im in end_faces), "uint16_t", 5 * 32 * 64)
-    raw("building_roof_art", b"".join(rgb555(im) for im in roof_faces), "uint16_t", 5 * 32 * 32)
-    # These opaque faces keep the full geometry while reducing texture working
-    # sets in the ARM9's small data cache. Distant facades also gain the same
-    # offline filtering as foliage, rather than dropping windows unpredictably.
-    for height in (32, 16):
-        wall_lod = [im.resize((height, height), Image.Resampling.LANCZOS) for im in wall_faces]
-        end_width = height // 2
-        end_lod = [im.resize((end_width, height), Image.Resampling.LANCZOS) for im in end_faces]
-        raw(f"building_wall_lod{height}", b"".join(rgb555(im) for im in wall_lod),
-            "uint16_t", 5 * height * height)
-        raw(f"building_end_lod{end_width}", b"".join(rgb555(im) for im in end_lod),
-            "uint16_t", 5 * end_width * height)
-        preview(f"building-walls-lod{height}.png", wall_lod, 5, 4)
-        preview(f"building-ends-lod{end_width}.png", end_lod, 5, 4)
-    # A raised broadside cabin and hull sit above an explicit waterline, as an
-    # upright billboard. The old overhead image is not reused as a profile.
-    boat_profile = contain(Image.open(ART / "boat-profile.png"), 64, 48, bottom=True)
-    raw("boat_profile", rgb555(boat_profile), "uint16_t", 64 * 48)
-    raw("boat_profile_anchor", bytes(ground_contact(boat_profile)), "uint8_t", 2)
-    # Only the uninterrupted central planking is reused. Cropping away the
-    # old end caps makes every segment meet the next with zero alpha gap.
+        walls.append(face_sheet.crop(wall_box).resize((64, 64), Image.Resampling.LANCZOS))
+        ends.append(face_sheet.crop(end_box).resize((32, 64), Image.Resampling.LANCZOS))
+        roofs.append(face_sheet.crop(roof_box).resize((32, 32), Image.Resampling.LANCZOS))
+    batches = (("buildings-neon-jungle.png", (0, 675, 1005, 1536), (0, 200, 384, 580, 776, 1024)),
+               ("buildings-jungle-snow.png", (0, 615, 922, 1536), (0, 200, 397, 594, 791, 1024)),
+               ("buildings-snow-coast.png", (0, 720, 985, 1536), (0, 223, 411, 594, 792, 1024)),
+               ("buildings-coastal-civic.png", (0, 774, 1025, 1536), (0, 204, 384, 575, 802, 1024)))
+    for filename, xs, ys in batches:
+        source = Image.open(ART / filename).convert("RGBA")
+        for row in range(5):
+            top, bottom = ys[row], ys[row + 1]
+            # End-cell gables/sky are cropped away: geometry supplies the roof.
+            wall_box = (xs[0] + 7, top + max(6, (bottom - top) // 10), xs[1] - 7, bottom - 7)
+            end_box = (xs[1] + 7, top + (bottom - top) // 3, xs[2] - 7, bottom - 7)
+            roof_box = (xs[2] + 7, top + 7, xs[3] - 7, bottom - 7)
+            walls.append(source.crop(wall_box).resize((64, 64), Image.Resampling.LANCZOS))
+            ends.append(source.crop(end_box).resize((32, 64), Image.Resampling.LANCZOS))
+            roofs.append(source.crop(roof_box).resize((32, 32), Image.Resampling.LANCZOS))
+    building_frames = {name: [] for name in ("building_wall_idx", "building_end_idx", "building_roof_idx",
+                       "building_wall_lod32_idx", "building_wall_lod16_idx", "building_end_lod16_idx", "building_end_lod8_idx")}
+    building_palettes = []
+    for wall, end, roof in zip(walls, ends, roofs):
+        images = [wall, end, roof, wall.resize((32, 32), Image.Resampling.LANCZOS),
+                  wall.resize((16, 16), Image.Resampling.LANCZOS), end.resize((16, 32), Image.Resampling.LANCZOS),
+                  end.resize((8, 16), Image.Resampling.LANCZOS)]
+        frames, palette, _ = indexed_group(images)
+        for name, frame in zip(building_frames, frames): building_frames[name].append(frame)
+        building_palettes.append(palette)
+    assert len(walls) == BUILDING_COUNT
+    for name, frames in building_frames.items(): raw(name, b"".join(frames), "uint8_t", sum(map(len, frames)))
+    raw("building_palette", b"".join(building_palettes), "uint16_t", BUILDING_COUNT * 256)
+    boat_frames, boat_palettes, boat_anchors = [], [], []
+    boats = [contain(source, 64, 48, bottom=True) for source in boat_sources[:4]]
+    for boat in boats:
+        frames, palette, _ = indexed_group([boat]); boat_frames.extend(frames); boat_palettes.append(palette)
+        boat_anchors.extend(ground_contact(boat))
+    raw("boat_profile_idx", b"".join(boat_frames), "uint8_t", BOAT_COUNT * 64 * 48)
+    raw("boat_palette", b"".join(boat_palettes), "uint16_t", BOAT_COUNT * 256)
+    raw("boat_profile_anchor", bytes(boat_anchors), "uint8_t", BOAT_COUNT * 2)
     dock = grounded[8]
-    dock = dock.crop((round(dock.width * .22), round(dock.height * .18),
-                      round(dock.width * .78), round(dock.height * .82)))
+    dock = dock.crop((round(dock.width * .22), round(dock.height * .18), round(dock.width * .78), round(dock.height * .82)))
     dock = dock.transpose(Image.Transpose.ROTATE_270).resize((64, 32), Image.Resampling.LANCZOS)
     raw("dock_segment", rgb555(dock), "uint16_t", 64 * 32)
-    preview("building-walls-preview.png", wall_faces, 5, 3)
-    preview("building-ends-preview.png", end_faces, 5, 3)
-    preview("building-roofs-preview.png", roof_faces, 5, 4)
-    boat_profile.save(OUT / "boat-profile-preview.png")
-    dock.save(OUT / "dock-segment-preview.png")
-    # Offline filtering avoids high-frequency scintillation when scenery scales
-    # down and streams past at speed. Resize the entire framed sprite so its
-    # normalized ground contact and padding stay consistent across all levels.
-    for width in (48, 32, 16):
-        height = width * PROP_H // PROP_W
-        lod = [im.resize((width, height), Image.Resampling.LANCZOS) for im in props]
-        raw(f"prop_lod{width}", b"".join(rgb555(im) for im in lod), "uint16_t", len(props) * width * height)
-        raw(f"prop_lod{width}_bounds", silhouette_bounds(lod), "uint8_t", len(props) * 4)
-        side_lod = [im.resize((width, height), Image.Resampling.LANCZOS) for im in side_props]
-        raw(f"prop_side_lod{width}", b"".join(rgb555(im) for im in side_lod), "uint16_t", len(side_lod) * width * height)
-        raw(f"prop_side_lod{width}_bounds", silhouette_bounds(side_lod), "uint8_t", len(side_lod) * 4)
-        preview(f"scenery-lod{width}.png", lod, 6, 3)
     preview("vehicle-poses.png", poses, 5)
     preview("traffic-preview.png", traffic, 6)
-    preview("scenery-preview.png", props, 6)
-    preview("scenery-side-preview.png", side_props, 7, 3)
-    boat.save(OUT / "boat-ground-preview.png")
-    pier.save(OUT / "pier-ground-preview.png")
+    preview("scenery-preview.png", props, 7)
+    preview("building-walls-preview.png", walls, 5, 3)
+    preview("building-ends-preview.png", ends, 5, 3)
+    preview("building-roofs-preview.png", roofs, 5, 4)
+    preview("boats-preview.png", boats, 4, 4)
+    (OUT / "artwork-manifest.json").write_text(json.dumps({"final_original_art": True,
+        "vehicles": VEHICLE_COUNT, "buildings": BUILDING_COUNT, "logical_props": len(props),
+        "packed_props": len(active_ids), "boat_profiles": BOAT_COUNT, "vehicle_material_pixels": material_counts}, indent=2) + "\n")
 
 
 def fonts() -> None:
@@ -383,18 +552,18 @@ def declarations(music_bytes: int, music_rate: int) -> None:
         lines.extend((f"#define ASSET_{stem}_W {width}", f"#define ASSET_{stem}_H {height}"))
     lines.extend(f"#define ASSET_PROP_{name} {index}" for index, name in enumerate(PROP_NAMES))
     lines.append(f"#define ASSET_PROP_COUNT {len(PROP_NAMES)}")
+    lines.append("#define ASSET_PROP_SPRITE_COUNT 33")
     lines.append(f"#define ASSET_PROP_SIDE_COUNT {len(PROP_SIDE_IDS)}")
     lines.extend(f"#define ASSET_PROP_SIDE_{PROP_NAMES[prop_id]} {index}"
                  for index, prop_id in enumerate(PROP_SIDE_IDS))
-    lines.extend(("#define ASSET_BOAT_GROUND_W 128", "#define ASSET_BOAT_GROUND_H 64",
-                  "#define ASSET_PIER_GROUND_W 64", "#define ASSET_PIER_GROUND_H 128"))
-    lines.extend(("#define ASSET_BUILDING_COUNT 5", "#define ASSET_BUILDING_WALL_W 64",
+    lines.extend((f"#define ASSET_BUILDING_COUNT {BUILDING_COUNT}", "#define ASSET_BUILDING_WALL_W 64",
                   "#define ASSET_BUILDING_WALL_H 64", "#define ASSET_BUILDING_END_W 32",
                   "#define ASSET_BUILDING_END_H 64", "#define ASSET_BUILDING_ROOF_W 32",
                   "#define ASSET_BUILDING_ROOF_H 32", "#define ASSET_BOAT_PROFILE_W 64",
                   "#define ASSET_BOAT_PROFILE_H 48", "#define ASSET_DOCK_SEGMENT_W 64",
                   "#define ASSET_DOCK_SEGMENT_H 32"))
-    lines.append("#define ASSET_VEHICLE_COUNT 10")
+    lines.append(f"#define ASSET_BOAT_PROFILE_COUNT {BOAT_COUNT}")
+    lines.append(f"#define ASSET_VEHICLE_COUNT {VEHICLE_COUNT}")
     lines.extend((f"#define MUSIC_BYTES {music_bytes}", f"#define MUSIC_RATE {music_rate}", "#endif", ""))
     (OUT / "assets.h").write_text("\n".join(lines))
     with (OUT / "assets.c").open("w") as output:

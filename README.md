@@ -2,9 +2,11 @@
 
 An original **Nintendo DS** procedural highway driving game for Delta.
 Drive from the city to tropical coastlines, an ocean causeway, pine forests,
-red-rock canyons, a neon marina, mangrove wetlands and citrus groves.
+red-rock canyons, a neon marina, mangrove wetlands and citrus groves, then
+into a neon metropolis, jungle, ghostly bayou, aurora coast and luminous saltway.
 Earn points and cash, collect an itemized traffic ticket, and return
-to the garage to buy, tune and paint your vehicles.
+to the garage to buy, tune and customize your vehicles. Optional dispatch
+contracts give each run a specific driving goal.
 
 - [Download the DS cartridge](drive/dist/Coastline.nds)
 - [Download the complete ZIP](drive/dist/Coastline-DS.zip)
@@ -12,6 +14,7 @@ to the garage to buy, tune and paint your vehicles.
 - [See the turbo dashboard and guide](drive/dist/Turbo.png)
 - [See grounded roadside and water scenery](drive/dist/Grounding.png)
 - [See pursuit warnings and traffic tickets](drive/dist/Pursuit.png)
+- [See classes, customization and Dispatch](drive/dist/Progression.png)
 - [Controls, progression and build instructions](drive/README.md)
 
 ![Actual Nintendo DS screens](drive/dist/Preview.png)
@@ -34,19 +37,25 @@ awards the earned cash to your wallet.
 
 Roadside buildings use projected walls and roofs that share the road's
 vanishing point. Houses, tree clusters and large waterfront props have their
-own placement rules. Boats use upright profiles, and short connected docks
+own placement rules across frontage, middle-distance and distant layers.
+Distinct local architecture, vegetation and atmospheric effects give each region
+a theme. Boats use upright profiles, and short connected docks
 reach the water from the shoreline. Overhead signs remain removed.
 
-This version contains ten vehicles, eight regions, seeded traffic and road
-coins, close-overtake bonuses, capped speed/drift/wheelie streaks, six-stage
-parts, vehicle mastery, handling setups and shared career perks. Glass menus,
+This version contains 31 vehicles, thirteen regions, seeded traffic and road
+coins, close-overtake bonuses, capped speed/drift/wheelie streaks, four tracks of
+six-stage parts, vehicle mastery, handling setups and shared career perks.
+Classes D/C/B/A/S require 0/2/5/8/10 owned vehicles to purchase from. Each class
+includes five core roles; six extra novelty rides include skates, a bicycle,
+a moped, a Segway, a skateboard and a horse. Paint, liveries and wheel finishes
+provide permanent visual customization. Glass menus,
 vehicle-specific dashboard designs and three interface skins accompany
 independent music/SFX settings. Purchases and progression persist in cartridge
 battery saves, including migration from the first draft. The standard motorcycle
 is a cash purchase without a challenge requirement. Special gear, paint and
 locations use challenge rewards.
 
-![Eight environments and the motorcycle](drive/dist/Locations.png)
+![Thirteen environments and the motorcycle](drive/dist/Locations.png)
 
 Scenery captures use a documented pre-unlocked battery-save fixture for visual
 review. The main validation plays a fresh profile and checks normal earnings,
@@ -61,6 +70,7 @@ bash drive/tests/setup_emulator.sh
 make -C drive test
 python3 drive/tests/handling.py
 python3 drive/tests/scenery.py
+python3 drive/tests/expansion.py
 python3 drive/tests/migration.py
 python3 drive/tests/transition.py
 python3 drive/tools/package.py

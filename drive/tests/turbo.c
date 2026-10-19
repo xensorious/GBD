@@ -183,7 +183,7 @@ static void exclusions_and_pause(void) {
 }
 static void controls_and_save(void) {
  Game g,loaded;Save before,after;begin(&g,0);
- CHECK(sizeof(Save)==204);
+ CHECK(sizeof(Save)==596);
  game_make_save(&g,&before);
  g.turbo_charge_q8=7;g.turbo_latched=1;g.turbo_remainder=2999;
  g.turbo_source=TS_DRIFT;g.turbo_recharging=1;
@@ -200,8 +200,36 @@ static void controls_and_save(void) {
  step(&g,K_L,K_L);CHECK(g.controls_page==1);
  step(&g,K_B,K_B);CHECK(g.mode==M_PAUSE && g.cursor==2);
 }
+static void recovery_upgrades(void) {
+ int previous=0;
+ for(int rank=0;rank<=UPGRADE_MAX;++rank) {
+  Game g;begin(&g,0);g.save.recovery[0]=(uint8_t)rank;g.speed_q8=100*Q;g.turbo_charge_q8=0;
+  ticks(&g,DRIVE_HZ,K_R|K_DOWN);
+  CHECK(g.turbo_source==TS_SLOW);
+  CHECK(g.turbo_charge_q8==TURBO_MAX_Q8*2*(100+5*rank)/10000);
+  CHECK(g.turbo_charge_q8>previous);previous=g.turbo_charge_q8;
+  begin(&g,0);g.save.recovery[0]=(uint8_t)rank;g.speed_q8=120*Q;g.turbo_charge_q8=0;
+  g.drift_hold=SKILL_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;g.vx_q8=Q;
+  ticks(&g,DRIVE_HZ,K_R|K_DOWN|K_B|K_RIGHT);
+  CHECK(g.turbo_source==TS_DRIFT && g.combo_q8==COMBO_MAX_Q8);
+  CHECK(g.turbo_charge_q8==TURBO_MAX_Q8*8*(100+5*rank)/10000);
+  begin(&g,0);g.save.recovery[0]=(uint8_t)rank;g.run_ticks=100;
+  g.speed_q8=game_top_speed(&g)*Q;g.speed_hold=SPEED_COMBO_TICKS;g.combo_q8=COMBO_MAX_Q8;
+  g.turbo_charge_q8=0;near_car(&g,0,25);step(&g,K_R,0);
+  CHECK(g.turbo_source==TS_NEAR && g.turbo_charge_q8==(TURBO_MAX_Q8/10)*2*(100+5*rank)/100);
+  /* Recovery parts increase replenishment, never the boost duration. */
+  begin(&g,0);g.save.recovery[0]=(uint8_t)rank;
+  ticks(&g,8*DRIVE_HZ,K_R|K_UP);
+  CHECK(!g.turbo_charge_q8 && g.turbo_latched);
+ }
+ /* The new two-wheel models use the same deliberate wheelie recharge. */
+ for(int v=26;v<=27;++v) {
+  Game g;begin(&g,v);g.speed_q8=100*Q;g.turbo_charge_q8=0;
+  ticks(&g,DRIVE_HZ,K_R|K_A);CHECK(g.wheelie && g.turbo_source==TS_WHEELIE);
+ }
+}
 int main(void) {
- finite_tank();near_miss_fuel();skill_recharge();exclusions_and_pause();controls_and_save();
- printf("turbo: %u checks; exact 8s fuel, release/re-arm reserve, skill-only recharge, 5x-to-2x balance, exclusions, pause and unchanged saves pass\n",checks);
+ finite_tank();near_miss_fuel();skill_recharge();exclusions_and_pause();controls_and_save();recovery_upgrades();
+ printf("turbo: %u checks; exact 8s fuel, seven recovery ranks, skill-only recharge, 5x-to-2x balance, exclusions, pause and saves pass\n",checks);
  return 0;
 }

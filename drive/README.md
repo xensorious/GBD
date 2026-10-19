@@ -1,11 +1,13 @@
 # Coastline: Endless Drive
 
 A native Nintendo DS driving game for Delta, with a coastal glass interface,
-ten vehicles and permanent vehicle mastery and driver progression.
+31 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 Drive a continuous four-lane highway from the city to the coast, across an ocean
 causeway, through pine country, red-rock canyons, a neon marina, mangrove
-wetlands and citrus groves. Bank each run's score
-and cash, then buy vehicles, tune them, change paint and choose a departure.
+wetlands and citrus groves, then into a neon metropolis, a deep jungle,
+a ghostly bayou, an aurora coast and a luminous saltway. Bank each run's score
+and cash, complete optional dispatch jobs, then buy vehicles, tune them,
+change their appearance and choose a departure.
 
 Import `Coastline.nds` into Delta's Nintendo DS library. Use a controller skin
 that exposes both shoulder buttons and Start. No commercial ROM or patch is
@@ -21,13 +23,14 @@ needed. The game never uses touch input.
 | Up + R | Hold Turbo to spend reserve for more acceleration and a higher top speed |
 | Down + R | Hold Slow for gentler acceleration and a lower cruising speed |
 | B | Hold and steer for a controlled drift; release to straighten |
-| A | Sound the horn in cars; hold a wheelie on the motorcycle |
+| A | Sound the horn; hold a wheelie on motorcycle, bicycle or moped |
 | Start | Pause; resume, bank the run, review controls, or change settings |
 
 Slow takes priority if Up and Down are held together. Turbo and Slow are hold
 modifiers, not switches. Menus use Up/Down and A/B. In Garage, L/R switches
-between Showroom, Parts and Setup. Left/Right on the vehicle row browses models;
-on Paint or a setup row it previews a choice, then A applies it.
+between Showroom, Parts, Setup and Style. Select changes the vehicle class
+filter. Left/Right on the vehicle row browses models; on a style or setup row
+it previews a choice, then A applies or purchases it.
 
 The upper screen shows driving from a lower chase camera, with a thin flat
 horizon and a longer view of approaching traffic. The lower screen is a noninteractive
@@ -93,23 +96,49 @@ return to the main menu. You can bank a run from Pause. Each run pays out once.
 Only new forward distance earns mileage points; reversing does not create new
 coin rows. Idling does not farm survival points. Coins are collected once.
 
-The garage contains ten vehicles, including a **standard motorcycle available
-for cash with no challenge prerequisite**, a roadster, luxury sedan, sport
-wagon and exotic. Factory, Coral and Lagoon paint are open from the start.
+The garage contains **31 vehicles**. Each of the five classes includes a value
+option, an all-rounder, and specialists in top speed, acceleration and armor.
+The standard motorcycle remains a cash purchase without a driving challenge.
+Roller skates, a bicycle, a moped, a Segway, a skateboard and a horse are
+playable rides using the same driving controls and progression.
+
+| Class | Total vehicles needed to purchase |
+| --- | --- |
+| D | 0 |
+| C | 2 |
+| B | 5 |
+| A | 8 |
+| S | 10 |
+
+These counts include all owned vehicles, including novelty rides. Existing
+purchases remain available after updating. Higher classes cost more and offer
+stronger factory performance. Select in the garage cycles All, D, C, B, A, S and Oddities filters.
+Factory, Coral and Lagoon paint are open from the start.
 Other paint, the Sundown classic and several departures are earned through
-the five road challenges. There are no microtransactions.
+the eight road challenges. There are no microtransactions.
 
 ### Permanent progression
 
 Cash and upgrades survive a crash. Each vehicle has its own mastery, earned
 from new distance and driving bonuses when a run is banked. Six stages of
-engine, grip and armor parts become available as mastery grows. Early parts
+engine, grip, armor and turbo-recovery parts become available as mastery grows.
+Turbo recovery improves recharge by 5% per stage. Early parts
 are affordable immediately; later parts reward time spent learning a vehicle.
 
 Mastery also opens power, handling and chassis setups. These are free to switch
 in the garage and have tradeoffs: acceleration against top speed, road grip
 against slide handling, and lightness against impact protection. Parts improve
 a vehicle; setups let you choose how it drives.
+
+Style offers five livery choices and four wheel or hardware finishes alongside the existing
+paints. Purchased cosmetics are retained per vehicle and do not alter its stats.
+The showroom previews the selected appearance before you apply it.
+
+Dispatch offers three optional driving contracts. Choose an objective before
+a run, such as collecting coins, drifting or making close passes. Completing
+the selected objective and banking the run awards an additional cash payment.
+A contract pays once; later offers provide new goals. Contracts are available
+offline and do not depend on a daily reset.
 
 The same runs build shared career experience. Career levels award points for
 three permanent perk paths: one emergency repair per run, faster combo growth,
@@ -119,7 +148,7 @@ caps at 5x. Cash rewards, mastery and career experience are banked once.
 
 The city is the initial departure. Palm Coast, Marina Nights and Citrus
 Parkway are cash purchases. Mangrove Run opens at career level 2. Other starts
-reward close overtakes, long-distance driving and drifting. All eight environments
+reward close overtakes, long-distance driving and drifting. All thirteen environments
 can also appear naturally during a continuous run. Each region lasts about
 7 km, with a gradual transition near its end.
 
@@ -129,7 +158,8 @@ Cash, vehicles, parts, setups, mastery, career perks, paints, departures,
 settings, records and challenge progress save automatically after banking a
 run or making a menu change. Battery saves from the previous coastal release
 retain their full progression and settings. First-draft cartridge battery saves
-migrate to the expanded format, retaining their purchases and records. Delta
+migrate to the expanded format, retaining their purchases and records. Version 3
+uses a packed 500-byte battery image, preserving the original save-chip size. Delta
 stores this as cartridge battery data. An unfinished run is not saved. Keep an
 exported battery save when moving devices; save states include program state
 and can depend on the exact ROM version. This game's save is separate from
@@ -159,6 +189,7 @@ bash drive/tests/setup_emulator.sh
 make -C drive test
 python3 drive/tests/handling.py
 python3 drive/tests/scenery.py
+python3 drive/tests/expansion.py
 python3 drive/tests/migration.py
 python3 drive/tests/transition.py
 python3 drive/tools/package.py
@@ -183,14 +214,16 @@ scoring distance or handling. Prefiltered scenery levels keep broad shapes
 readable as perspective and speed change. Each roadside object keeps its identity
 across a region transition instead of swapping into a different kind of prop.
 Buildings use separate wall and roof textures projected through the road's
-camera. Their vertical edges stay upright, and depth edges converge toward the
+camera. Architecture and local vegetation differ by region, with frontage,
+set-back neighborhoods and distant scenery filling the sides of the view. Their vertical edges stay upright, and depth edges converge toward the
 same horizon point as the highway. Houses occupy frontage plots, trees grow in
 irregular clusters, and larger waterfront structures have wider spacing.
 Trees and lamps attach at their roots and pole bases. Upright boat profiles
 rise above their waterline, broadside to the road. Docks extend perpendicular
 to the highway from the shoreline, with one or two connected sections.
-Overhead signs,
-roadside billboards and the small bridge sign frames have been removed.
+Sun, moon, stars and local atmospheric effects distinguish the regions.
+Location previews remain in the highlighted region while animating the road.
+Overhead signs and roadside billboards remain removed.
 Traffic follows safe gaps instead of driving through other cars.
 Handling, rewards and progression remain subject to
 playtesting. The earlier games remain in their own folders and branches.

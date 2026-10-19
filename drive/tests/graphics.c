@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=224 };
+enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=512 };
 typedef struct {
  uint16_t before[GUARD],pixels[WIDTH*HEIGHT],after[GUARD];
 } GuardedFrame;
@@ -21,11 +21,20 @@ typedef struct {
  const uint16_t *pixels;
  int width,height,scaled_api,prop_id;
  const char *name;
+ const uint8_t *indices;
+ const uint16_t *palette;
 } Asset;
 static GuardedFrame actual,expected;
 static Asset assets[MAX_ASSETS];
 static unsigned asset_count,checks;
 static uint16_t uncached_source[65*97];
+static uint16_t *owned[MAX_ASSETS];
+static unsigned owned_count;
+static const uint16_t *vehicle_images[ASSET_VEHICLE_COUNT*5];
+static const uint16_t *prop_images[4][ASSET_PROP_SPRITE_COUNT];
+static const uint16_t *side_images[4][ASSET_PROP_SIDE_COUNT];
+static const uint16_t *building_images[7][ASSET_BUILDING_COUNT];
+static const uint16_t *boat_images[ASSET_BOAT_PROFILE_COUNT];
 
 static void fail(const char *label,unsigned id,int paint,int w,int h,int x,int y,int offset)
 {
@@ -51,19 +60,9 @@ static void compare(const char *label,unsigned id,int paint,int w,int h,int x,in
 /* Independent reference: integer nearest-neighbor sampling and explicit
  * destination clipping. Scenery expectations use the documented offline LOD
  * bands, without invoking the implementation's cache or sampling helpers. */
-static Asset expected_source(Asset a,int w,int h)
-{
- if(a.prop_id>=0) {
-  if(w<=16&&h<=24){a.pixels=prop_lod16+a.prop_id*16*24;a.width=16;a.height=24;}
-  else if(w<=32&&h<=48){a.pixels=prop_lod32+a.prop_id*32*48;a.width=32;a.height=48;}
-  else if(w<=48&&h<=72){a.pixels=prop_lod48+a.prop_id*48*72;a.width=48;a.height=72;}
- }
- return a;
-}
 static void nearest_reference(Asset a,int w,int h,int x,int y)
 {
  if(w<=0||h<=0)return;
- a=expected_source(a,w,h);
  for(int row=0;row<h;row++)for(int col=0;col<w;col++) {
   int xx=x+col,yy=y+row;
   if(xx<0||xx>=WIDTH||yy<0||yy>=HEIGHT)continue;
@@ -74,7 +73,8 @@ static void nearest_reference(Asset a,int w,int h,int x,int y)
 static void draw(Asset a,int w,int h,int x,int y,int paint)
 {
  Surface surface={actual.pixels,WIDTH,HEIGHT};
- if(a.scaled_api&&!paint)gfx_scaled_sprite(&surface,x,y,a.pixels,a.width,a.height,w,h);
+ if(a.indices&&!paint)gfx_indexed_sprite(&surface,x,y,a.indices,a.palette,a.width,a.height,w,h);
+ else if(a.scaled_api&&!paint)gfx_scaled_sprite(&surface,x,y,a.pixels,a.width,a.height,w,h);
  else gfx_vehicle(&surface,x,y,a.pixels,a.width,a.height,w,h,paint);
 }
 static void factory_case(Asset a,unsigned id,int w,int h,int x,int y)
@@ -111,38 +111,50 @@ static void paint_case(Asset a,unsigned id,int paint,int w,int h,int x,int y)
 static void add_asset(const uint16_t *pixels,int width,int height,int scaled_api,int prop_id,const char *name)
 {
  if(asset_count==MAX_ASSETS)fail("asset catalog overflow",asset_count,0,0,0,0,0,0);
- assets[asset_count++]=(Asset){pixels,width,height,scaled_api,prop_id,name};
+ assets[asset_count++]=(Asset){pixels,width,height,scaled_api,prop_id,name,0,0};
+}
+static uint16_t *allocate_pixels(int count){
+ uint16_t *pixels=malloc((size_t)count*sizeof(*pixels));
+ if(!pixels||owned_count>=MAX_ASSETS)fail("native reference allocation",asset_count,0,0,0,0,0,0);
+ owned[owned_count++]=pixels;return pixels;
+}
+static const uint16_t *add_indexed(const uint8_t *indices,const uint16_t *palette,int w,int h,const char *name){
+ uint16_t *pixels=allocate_pixels(w*h);
+ for(int at=0;at<w*h;at++)pixels[at]=palette[indices[at]];
+ add_asset(pixels,w,h,1,-1,name);
+ assets[asset_count-1].indices=indices;assets[asset_count-1].palette=palette;
+ return pixels;
 }
 static void catalog(void)
 {
- for(int i=0;i<ASSET_VEHICLE_COUNT*5;i++)
-  add_asset(vehicle_art+i*48*72,48,72,0,-1,"vehicle pose");
- for(int i=0;i<6;i++)add_asset(traffic_art+i*40*64,40,64,0,-1,"traffic");
- for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_art+i*64*96,64,96,1,i,"prop with LOD");
- for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod48+i*48*72,48,72,1,-1,"LOD48");
- for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod32+i*32*48,32,48,1,-1,"LOD32");
- for(int i=0;i<ASSET_PROP_COUNT;i++)add_asset(prop_lod16+i*16*24,16,24,1,-1,"LOD16");
- /* Side sprites have already-selected LOD sources in the scene renderer.
-  * They intentionally use the generic scaling contract here, rather than
-  * the automatic prop_art-pointer LOD selection used by the original set. */
- for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_art+i*64*96,64,96,1,-1,"opposite shoulder");
- for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod48+i*48*72,48,72,1,-1,"side LOD48");
- for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod32+i*32*48,32,48,1,-1,"side LOD32");
- for(int i=0;i<ASSET_PROP_SIDE_COUNT;i++)add_asset(prop_side_lod16+i*16*24,16,24,1,-1,"side LOD16");
- add_asset(boat_ground,ASSET_BOAT_GROUND_W,ASSET_BOAT_GROUND_H,1,-1,"planar yacht");
- add_asset(pier_ground,ASSET_PIER_GROUND_W,ASSET_PIER_GROUND_H,1,-1,"planar pier");
- for(int i=0;i<ASSET_BUILDING_COUNT;i++) {
-  add_asset(building_wall_art+i*64*64,64,64,1,-1,"flat wall elevation");
-  add_asset(building_end_art+i*32*64,32,64,1,-1,"flat end elevation");
-  add_asset(building_roof_art+i*32*32,32,32,1,-1,"overhead roof");
-  add_asset(building_wall_lod32+i*32*32,32,32,1,-1,"wall LOD32");
-  add_asset(building_wall_lod16+i*16*16,16,16,1,-1,"wall LOD16");
-  add_asset(building_end_lod16+i*16*32,16,32,1,-1,"end LOD16");
-  add_asset(building_end_lod8+i*8*16,8,16,1,-1,"end LOD8");
+ for(int i=0;i<ASSET_VEHICLE_COUNT*5;i++){
+  uint16_t *pixels=allocate_pixels(48*72);
+  memcpy(pixels,gfx_vehicle_pixels(i/5,i%5),48*72*sizeof(*pixels));
+  vehicle_images[i]=pixels;add_asset(pixels,48,72,0,-1,"decoded vehicle pose");
  }
- add_asset(boat_profile,ASSET_BOAT_PROFILE_W,ASSET_BOAT_PROFILE_H,1,-1,"raised profile yacht");
+ for(int i=0;i<6;i++)add_asset(traffic_art+i*40*64,40,64,0,-1,"traffic");
+ const uint8_t *prop_levels[]={prop_idx,prop_lod48_idx,prop_lod32_idx,prop_lod16_idx};
+ const uint8_t *side_levels[]={prop_side_idx,prop_side_lod48_idx,prop_side_lod32_idx,prop_side_lod16_idx};
+ const int widths[]={64,48,32,16};
+ for(int level=0;level<4;level++){
+  int w=widths[level],h=w*3/2;
+  for(int i=0;i<ASSET_PROP_SPRITE_COUNT;i++)
+   prop_images[level][i]=add_indexed(prop_levels[level]+i*w*h,prop_palette+i*256,w,h,"compact prop LOD");
+  for(int id=0;id<ASSET_PROP_COUNT;id++)if(prop_side_slot[id]!=255){
+   int side=prop_side_slot[id],slot=prop_slot[id];
+   side_images[level][side]=add_indexed(side_levels[level]+side*w*h,prop_palette+slot*256,w,h,"mirrored prop LOD");
+  }
+ }
+ const uint8_t *faces[]={building_wall_idx,building_end_idx,building_roof_idx,
+                       building_wall_lod32_idx,building_wall_lod16_idx,building_end_lod16_idx,building_end_lod8_idx};
+ const int fw[]={64,32,32,32,16,16,8},fh[]={64,64,32,32,16,32,16};
+ for(int i=0;i<ASSET_BUILDING_COUNT;i++) {
+  for(int face=0;face<7;face++)building_images[face][i]=add_indexed(faces[face]+i*fw[face]*fh[face],
+                                            building_palette+i*256,fw[face],fh[face],"building face LOD");
+ }
+ for(int i=0;i<ASSET_BOAT_PROFILE_COUNT;i++)boat_images[i]=add_indexed(boat_profile_idx+i*64*48,boat_palette+i*256,64,48,"raised profile boat");
  add_asset(dock_segment,ASSET_DOCK_SEGMENT_W,ASSET_DOCK_SEGMENT_H,1,-1,"modular dock");
- if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_COUNT*4+ASSET_PROP_SIDE_COUNT*4+39)
+ if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_SPRITE_COUNT*4+ASSET_PROP_SIDE_COUNT*4+ASSET_BUILDING_COUNT*7+ASSET_BOAT_PROFILE_COUNT+1)
   fail("incomplete asset catalog",asset_count,0,0,0,0,0,0);
  for(unsigned i=0;i<asset_count;i++) {
   unsigned visible=0;
@@ -159,9 +171,8 @@ static void clean_vehicle_metadata(void)
 {
  for(int group=0;group<2;group++) {
   int count=group?6:ASSET_VEHICLE_COUNT*5,w=group?40:48,h=group?64:72;
-  const uint16_t *pixels=group?traffic_art:vehicle_art;
   for(int id=0;id<count;id++) {
-   const uint16_t *source=pixels+id*w*h;
+   const uint16_t *source=group?traffic_art+id*w*h:vehicle_images[id];
    unsigned total=0,head=0,tail=0,dark=0;
    uint16_t queue[48*72];uint8_t visited[48*72]={0};
    for(int y=0;y<h;y++) {
@@ -192,8 +203,9 @@ static void clean_vehicle_metadata(void)
     * tires/glass or treating all dark pixels as a background color. */
    while(head<tail) {
     int pixel=queue[head++],x=pixel%w,y=pixel/w;
-    const int dx[]={-1,1,0,0},dy[]={0,0,-1,1};
-    for(int n=0;n<4;n++) {
+    /* Single-pixel diagonal mirror stems are connected in pixel artwork. */
+    const int dx[]={-1,1,0,0,-1,-1,1,1},dy[]={0,0,-1,1,-1,1,-1,1};
+    for(int n=0;n<8;n++) {
      int xx=x+dx[n],yy=y+dy[n],p=yy*w+xx;
      if(xx<0||xx>=w||yy<0||yy>=h||visited[p]||!source[p])continue;
      visited[p]=1;queue[tail++]=(uint16_t)p;
@@ -207,112 +219,86 @@ static void clean_vehicle_metadata(void)
 }
 static void dimensional_texture_metadata(void)
 {
- const uint16_t *faces[]={building_wall_art,building_end_art,building_roof_art,dock_segment,
-                         building_wall_lod32,building_wall_lod16,building_end_lod16,building_end_lod8};
- const int lengths[]={5*64*64,5*32*64,5*32*32,64*32,5*32*32,5*16*16,5*16*32,5*8*16};
- for(unsigned face=0;face<sizeof faces/sizeof faces[0];face++) {
-  for(int p=0;p<lengths[face];p++)if(!faces[face][p])
-   fail("wall/roof/dock face contains a transparent seam",face,0,0,0,0,0,p);
+ const int lengths[]={64*64,32*64,32*32,32*32,16*16,16*32,8*16};
+ for(int face=0;face<7;face++)for(int id=0;id<ASSET_BUILDING_COUNT;id++){
+  for(int p=0;p<lengths[face];p++)if(!building_images[face][id][p])
+   fail("wall/roof face contains a transparent seam",(unsigned)id,face,0,0,0,0,p);
   checks++;
  }
- int first=ASSET_BOAT_PROFILE_H,last=-1,left=ASSET_BOAT_PROFILE_W,right=-1;
- for(int y=0;y<ASSET_BOAT_PROFILE_H;y++)for(int x=0;x<ASSET_BOAT_PROFILE_W;x++)
-  if(boat_profile[y*ASSET_BOAT_PROFILE_W+x]) {
+ for(int p=0;p<64*32;p++)if(!dock_segment[p])
+  fail("modular dock contains a transparent seam",0,0,64,32,0,0,p);
+ checks++;
+ for(int boat=0;boat<ASSET_BOAT_PROFILE_COUNT;boat++){
+  int first=48,last=-1,left=64,right=-1;
+  for(int y=0;y<48;y++)for(int x=0;x<64;x++)if(boat_images[boat][y*64+x]){
    if(y<first)first=y;
    if(y>last)last=y;
    if(x<left)left=x;
    if(x>right)right=x;
   }
- if(last-first<12||right-left<=2*(last-first)||boat_profile_anchor[1]!=last
-   ||boat_profile_anchor[0]<left||boat_profile_anchor[0]>right)
-  fail("boat profile must rise above anchored broadside waterline",0,0,64,48,left,first,last);
- checks++;
+  int ax=boat_profile_anchor[boat*2],ay=boat_profile_anchor[boat*2+1];
+  /* A sailboat may have a tall mast; every hull is still anchored to its
+   * lowest waterline instead of flattened into a top-down water decal. */
+  if(last-first<10||right-left<16||ay!=last||ax<left||ax>right)
+   fail("boat profile/waterline anchor",(unsigned)boat,0,64,48,left,first,last);
+  checks++;
+ }
 }
 static void ground_metadata(void)
 {
- static const struct {
-  const uint16_t *pixels;
-  const uint8_t *bounds;
-  int width,height,count;
- } silhouettes[]={
-  {prop_art,prop_bounds,64,96,ASSET_PROP_COUNT},
-  {prop_lod48,prop_lod48_bounds,48,72,ASSET_PROP_COUNT},
-  {prop_lod32,prop_lod32_bounds,32,48,ASSET_PROP_COUNT},
-  {prop_lod16,prop_lod16_bounds,16,24,ASSET_PROP_COUNT},
-  {prop_side_art,prop_side_bounds,64,96,ASSET_PROP_SIDE_COUNT},
-  {prop_side_lod48,prop_side_lod48_bounds,48,72,ASSET_PROP_SIDE_COUNT},
-  {prop_side_lod32,prop_side_lod32_bounds,32,48,ASSET_PROP_SIDE_COUNT},
-  {prop_side_lod16,prop_side_lod16_bounds,16,24,ASSET_PROP_SIDE_COUNT}
- };
- for(unsigned group=0;group<sizeof silhouettes/sizeof silhouettes[0];group++) {
-  int w=silhouettes[group].width,h=silhouettes[group].height;
-  for(int id=0;id<silhouettes[group].count;id++) {
-   int left=w,right=-1,top=h,bottom=-1;
-   const uint16_t *source=silhouettes[group].pixels+id*w*h;
-   for(int row=0;row<h;row++)for(int col=0;col<w;col++)if(source[row*w+col]) {
-    if(col<left)left=col;
-    if(col>right)right=col;
-    if(row<top)top=row;
-    if(row>bottom)bottom=row;
-   }
-   const uint8_t *bounds=silhouettes[group].bounds+id*4;
-   if(bounds[0]!=left||bounds[1]!=top||bounds[2]!=right+1||bounds[3]!=bottom+1)
-    fail("silhouette bounds omit or expand pixels",group,0,w,h,id,0,0);
+ const uint8_t *all_bounds[]={prop_bounds,prop_lod48_bounds,prop_lod32_bounds,prop_lod16_bounds};
+ const uint8_t *side_bounds[]={prop_side_bounds,prop_side_lod48_bounds,prop_side_lod32_bounds,prop_side_lod16_bounds};
+ const int widths[]={64,48,32,16};
+ unsigned slots[ASSET_PROP_SPRITE_COUNT]={0},sides[ASSET_PROP_SIDE_COUNT]={0};
+ for(int id=0;id<ASSET_PROP_COUNT;id++){
+  int slot=prop_slot[id],side=prop_side_slot[id];
+  if(slot!=255){
+   if(slot>=ASSET_PROP_SPRITE_COUNT||slots[slot]++)fail("invalid compact prop slot",(unsigned)id,0,0,0,slot,0,0);
+   int anchor_x=prop_anchor[id*2],anchor_y=prop_anchor[id*2+1],lowest=-1;
+   if(anchor_x>=64||anchor_y>=96)fail("ground anchor outside sprite",(unsigned)id,0,64,96,anchor_x,anchor_y,0);
+   for(int row=0;row<96;row++)for(int col=0;col<64;col++)if(prop_images[0][slot][row*64+col])lowest=row;
+   if(lowest<0||anchor_y<lowest-4||anchor_y>lowest+1)
+    fail("ground anchor above foot",(unsigned)id,0,64,96,anchor_x,anchor_y,lowest);
    checks++;
+   for(int level=0;level<4;level++){
+    int w=widths[level],h=w*3/2,left=w,right=-1,top=h,bottom=-1;
+    const uint16_t *source=prop_images[level][slot];
+    for(int row=0;row<h;row++)for(int col=0;col<w;col++)if(source[row*w+col]){
+     if(col<left)left=col;
+     if(col>right)right=col;
+     if(row<top)top=row;
+     if(row>bottom)bottom=row;
+    }
+    const uint8_t *bounds=all_bounds[level]+id*4;
+    if(bounds[0]!=left||bounds[1]!=top||bounds[2]!=right+1||bounds[3]!=bottom+1)
+     fail("compact silhouette bounds",(unsigned)id,level,w,h,left,top,0);
+    checks++;
+   }
+  }
+  if(side!=255){
+   if(side>=ASSET_PROP_SIDE_COUNT||sides[side]++||slot==255)
+    fail("invalid compact side slot",(unsigned)id,0,0,0,side,0,0);
+   if(prop_side_anchor[side*2]!=63-prop_anchor[id*2]||prop_side_anchor[side*2+1]!=prop_anchor[id*2+1])
+    fail("opposite shoulder anchor mirror",(unsigned)id,0,64,96,side,0,0);
+   for(int level=0;level<4;level++){
+    int w=widths[level],h=w*3/2;
+    const uint8_t *original=all_bounds[level]+id*4,*mirror=side_bounds[level]+side*4;
+    if(mirror[0]!=w-original[2]||mirror[2]!=w-original[0]||mirror[1]!=original[1]||mirror[3]!=original[3])
+     fail("opposite shoulder bounds mirror",(unsigned)id,level,w,h,side,0,0);
+    for(int row=0;row<h;row++)for(int col=0;col<w;col++)
+     if(side_images[level][side][row*w+col]!=prop_images[level][slot][row*w+w-1-col])
+      fail("opposite shoulder indexed art mirror",(unsigned)id,level,w,h,col,row,side);
+    checks++;
+   }
   }
  }
- static const int side_ids[]={ASSET_PROP_GLASS,ASSET_PROP_BRICK,ASSET_PROP_WAREHOUSE,
-  ASSET_PROP_ROCK,ASSET_PROP_LAMP,ASSET_PROP_HOTEL,ASSET_PROP_VILLA};
- static const int side_indices[]={ASSET_PROP_SIDE_GLASS,ASSET_PROP_SIDE_BRICK,
-  ASSET_PROP_SIDE_WAREHOUSE,ASSET_PROP_SIDE_ROCK,ASSET_PROP_SIDE_LAMP,
-  ASSET_PROP_SIDE_HOTEL,ASSET_PROP_SIDE_VILLA};
- if(sizeof side_ids/sizeof side_ids[0]!=ASSET_PROP_SIDE_COUNT)
-  fail("side metadata coverage",asset_count,0,0,0,0,0,0);
- for(int id=0;id<ASSET_PROP_COUNT;id++) {
-  int x=prop_anchor[id*2],y=prop_anchor[id*2+1],lowest=-1;
-  if(x>=ASSET_PROP_W||y>=ASSET_PROP_H)
-   fail("ground anchor outside sprite",(unsigned)id,0,ASSET_PROP_W,ASSET_PROP_H,x,y,0);
-  const uint16_t *source=prop_art+id*ASSET_PROP_W*ASSET_PROP_H;
-  for(int row=0;row<ASSET_PROP_H;row++)for(int col=0;col<ASSET_PROP_W;col++)
-   if(source[row*ASSET_PROP_W+col])lowest=row;
-  /* Anchors may sit just beside a transparent ground corner. They must still
-   * coincide with the foot's vertical band, rather than a roof or canopy. */
-  if(lowest<0||y<lowest-4||y>lowest+1)
-   fail("ground anchor above foot",(unsigned)id,0,ASSET_PROP_W,ASSET_PROP_H,x,y,lowest);
-  checks++;
- }
- for(int side=0;side<ASSET_PROP_SIDE_COUNT;side++) {
-  int id=side_ids[side];
-  if(side_indices[side]!=side||prop_side_anchor[side*2]!=ASSET_PROP_W-1-prop_anchor[id*2]
-    ||prop_side_anchor[side*2+1]!=prop_anchor[id*2+1])
-   fail("opposite shoulder anchor mirror",(unsigned)side,0,ASSET_PROP_W,ASSET_PROP_H,0,0,id);
-  for(int row=0;row<ASSET_PROP_H;row++)for(int col=0;col<ASSET_PROP_W;col++)
-   if(prop_side_art[(side*ASSET_PROP_H+row)*ASSET_PROP_W+col]
-     !=prop_art[(id*ASSET_PROP_H+row)*ASSET_PROP_W+ASSET_PROP_W-1-col])
-    fail("opposite shoulder art mirror",(unsigned)side,0,ASSET_PROP_W,ASSET_PROP_H,col,row,id);
-  checks++;
- }
- if(ASSET_BOAT_GROUND_W!=128||ASSET_BOAT_GROUND_H!=64
-   ||ASSET_PIER_GROUND_W!=64||ASSET_PIER_GROUND_H!=128)
-  fail("water-plane texture format",asset_count,0,0,0,0,0,0);
- /* Boats run across their source width; piers run along source height. This
-  * catches an accidental upright yacht or a transposed pier at pack time. */
- const uint16_t *planes[]={boat_ground,pier_ground};
- const int widths[]={ASSET_BOAT_GROUND_W,ASSET_PIER_GROUND_W};
- const int heights[]={ASSET_BOAT_GROUND_H,ASSET_PIER_GROUND_H};
- for(int plane=0;plane<2;plane++) {
-  int left=widths[plane],right=-1,top=heights[plane],bottom=-1;
-  for(int row=0;row<heights[plane];row++)for(int col=0;col<widths[plane];col++)
-   if(planes[plane][row*widths[plane]+col]) {
-    if(col<left)left=col;
-    if(col>right)right=col;
-    if(row<top)top=row;
-    if(row>bottom)bottom=row;
-   }
-  if(right<left||bottom<top||(plane==0?right-left<=bottom-top:bottom-top<=right-left))
-   fail("water-plane texture orientation",(unsigned)plane,0,widths[plane],heights[plane],left,top,0);
-  checks++;
- }
+ for(int slot=0;slot<ASSET_PROP_SPRITE_COUNT;slot++)if(slots[slot]!=1)
+  fail("unmapped compact prop sprite",(unsigned)slot,0,0,0,0,0,0);
+ for(int side=0;side<ASSET_PROP_SIDE_COUNT;side++)if(sides[side]!=1)
+  fail("unmapped compact side sprite",(unsigned)side,0,0,0,0,0,0);
+ static const int omitted[]={0,1,2,9,10,11,14,16,17};
+ for(unsigned id=0;id<sizeof omitted/sizeof *omitted;id++)if(prop_slot[omitted[id]]!=255)
+  fail("unused billboard or old facade occupies texture memory",id,0,0,0,omitted[id],0,0);
 }
 static void all_scales_and_edges(void)
 {
@@ -355,6 +341,40 @@ static void palette_contract(void)
   compare("palette contract",0,paint,7,1,7,8);
  }
 }
+/* Independent pre-optimization formula. A mutable width65 source bypasses
+ * opaque sprite caching, so every RGB555 color tests the live paint path. */
+static uint16_t old_paint_formula(uint16_t c,int paint)
+{
+ if(!paint)return c;
+ int r=c&31,g=(c>>5)&31,b=(c>>10)&31;
+ int hi=r>g?r:g;if(b>hi)hi=b;
+ int lo=r<g?r:g;if(b<lo)lo=b;
+ if(hi<14||hi-lo<7||lo>22)return c;
+ static const int colors[6][3]={{31,31,31},{31,12,10},{7,29,27},{31,25,7},{25,13,31},{17,20,23}};
+ int light=(r*2+g*3+b)/6+4;
+ r=colors[paint][0]*light/22;g=colors[paint][1]*light/22;b=colors[paint][2]*light/22;
+ if(r>31)r=31;
+ if(g>31)g=31;
+ if(b>31)b=31;
+ return (uint16_t)(0x8000|r|(g<<5)|(b<<10));
+}
+static void all_rgb555_paints(void)
+{
+ uint16_t source[65]={0},target[65]={0};Surface surface={target,65,1};
+ for(int paint=0;paint<6;paint++){
+  for(unsigned rgb=0;rgb<32768;rgb++){
+   source[0]=(uint16_t)(0x8000u|rgb);target[0]=0;
+   gfx_vehicle(&surface,0,0,source,65,1,65,1,paint);
+   if(target[0]!=old_paint_formula(source[0],paint))
+    fail("all RGB555 paint formula",rgb,paint,65,1,0,0,target[0]);
+   checks++;
+  }
+  source[0]=0;target[0]=0xa571u;
+  gfx_vehicle(&surface,0,0,source,65,1,65,1,paint);
+  if(target[0]!=0xa571u)fail("transparent paint source",0,paint,65,1,0,0,target[0]);
+  checks++;
+ }
+}
 static void eviction_replay(void)
 {
  /* More distinct keys than either cache pool can hold; revisit keys after
@@ -373,9 +393,9 @@ static void capacity_and_empty_cases(void)
   checker[y*64+x]=((x+y)&1)?opaque[y*64+x]:0;
  }
  Asset samples[]={
-  {opaque,64,96,0,-1,"full opaque capacity"},
-  {checker,64,96,0,-1,"run overflow fallback"},
-  {empty,64,96,0,-1,"empty alpha"}
+  {opaque,64,96,0,-1,"full opaque capacity",0,0},
+  {checker,64,96,0,-1,"run overflow fallback",0,0},
+  {empty,64,96,0,-1,"empty alpha",0,0}
  };
  for(unsigned n=0;n<sizeof samples/sizeof samples[0];n++) {
   factory_case(samples[n],200+n,32,64,4,2);
@@ -398,8 +418,10 @@ int main(void)
  all_scales_and_edges();
  all_paints();
  palette_contract();
+ all_rgb555_paints();
  eviction_replay();
  capacity_and_empty_cases();
- printf("graphics: %u pixel-exact checks passed across %u asset frames; cache/paint/LOD/clipping/capacity\n",checks,asset_count);
+ for(unsigned i=0;i<owned_count;i++)free(owned[i]);
+ printf("graphics: %u pixel-exact checks passed across %u asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity\n",checks,asset_count);
  return 0;
 }

@@ -23,7 +23,7 @@ def native_tests():
     (ROOT/'build').mkdir(exist_ok=True)
     verify_layout(ROOT)
     results=[]
-    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c'])]:
+    for name,sources in [('road',['road.c']),('gameplay',['game.c','road.c','traffic.c']),('legacy_save',['game.c','road.c','traffic.c']),('traffic',['game.c','road.c','traffic.c']),('progression',['game.c','road.c','traffic.c']),('turbo',['game.c','road.c','traffic.c']),('handling',['game.c','road.c','traffic.c']),('graphics',['gfx.c','assets.c']),('style',['gfx.c','assets.c']),('renderer_geometry',['game.c','road.c','traffic.c','gfx.c','assets.c','ui.c'])]:
         target=ROOT/'build'/('test-'+name)
         cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
              '-fsanitize=address,undefined','-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests'/(name+'.c'))]
@@ -55,7 +55,7 @@ class DriveThrough:
         self.e.screenshot(self.output/(name+'.png'));self.shots.append(name+'.png')
         print(f'Capture {name}: {MODES[self.game().mode]}, frame {self.game().frame}',flush=True)
     def menu(self,target):
-        for _ in range(12):
+        for _ in range(16):
             g=self.game()
             if g.cursor==target: return
             self.press('down')
