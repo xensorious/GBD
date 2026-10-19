@@ -22,7 +22,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output',type=Path,default=ROOT/'build'/'studio-validation')
 p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
 p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
-p.add_argument('--skin',type=int,choices=range(4))
+p.add_argument('--skin',type=int,choices=range(3,6))
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 library=ROOT/'build'/'libstudio-qa.so'
 
@@ -30,18 +30,18 @@ if a.skin is None:
     verify_layout(ROOT)
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
         'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
-    for skin in range(4):
+    for skin in range(3,6):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--rom',str(a.rom),
             '--elf',str(a.elf),'--skin',str(skin)],check=True)
-    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(4)]
-    assert cases[3]['fusion_navigation_passed']
-    report={'rom':inspect(a.rom),'interfaces':['Apex','Signal','Midnight','Fusion'],
+    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(3,6)]
+    assert all(c['fusion_navigation_passed'] for c in cases)
+    report={'rom':inspect(a.rom),'interfaces':['Fusion','Pearl','Voltage'],
         'garage_tabs':['Showroom','Tuning','Style','Dealer'],'cases':cases,
         'fresh_process_reload':all(c['fresh_process_reload'] for c in cases),
         'profile_source':'labelled funded review profile; all actions use buttons; RAM read only',
         'departure_interiors':13,'serialized_save_bytes':500,'physical_save_bytes':8192}
     (a.output/'studio-results.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('All four actual-cartridge interface reviews passed.',flush=True)
+    print('All three actual-cartridge interface reviews passed.',flush=True)
     sys.exit(0)
 
 skin=a.skin;lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
@@ -71,16 +71,16 @@ with Emulator(a.rom,directory) as e:
         raise AssertionError('Owned vehicle missing')
     def style(values):
         tab(2)
-        for row,field,wanted in zip(range(1,5),('paint_choice','livery_choice','wheel_choice','smoke_choice'),values):
+        for row,field,wanted in zip(range(4),('paint_choice','livery_choice','wheel_choice','smoke_choice'),values):
             d.menu(row)
             for _ in range(6):
                 if getattr(d.game(),field)==wanted:break
                 d.press('right')
             assert getattr(d.game(),field)==wanted
-        d.menu(5);before=d.game().save.cash;d.press('a')
+        d.menu(4);before=d.game().save.cash;d.press('a')
         return before-d.game().save.cash
     shot('home')
-    if skin==3:
+    if skin>=3:
         for key,target in (('left',0),('up',0),('right',1),('right',1),('down',3),('left',2),('down',4),('down',4),('right',5),('up',3),('up',1),('left',0)):
             d.press(key);assert d.game().cursor==target,(key,target,d.game().cursor)
         events.append('four-direction tile navigation and bounded edges')
@@ -88,7 +88,7 @@ with Emulator(a.rom,directory) as e:
         d.menu(home);d.press('a');assert d.game().mode==mode
         shot(name)
         if mode==9:
-            if skin==3:
+            if skin>=3:
                 before=bytes(d.game().save)
                 d.press('r');assert d.game().cursor==4;shot('settings-display')
                 d.press('r');assert d.game().cursor==8;shot('settings-guide')
@@ -102,11 +102,11 @@ with Emulator(a.rom,directory) as e:
                 assert d.game().cursor==0
                 music=d.game().save.music_on;d.press('right');assert d.game().save.music_on!=music
                 d.press('left');assert d.game().save.music_on==music
-                d.menu(4);d.press('left');assert d.game().save.skin==2
-                d.press('right');assert d.game().save.skin==3
+                d.menu(4);d.press('left');assert d.game().save.skin==3+(skin-3+2)%3
+                d.press('right');assert d.game().save.skin==skin
                 d.menu(0);shot('settings')
                 events.extend(['L/R settings pages and wraparound','continuous Up/Down settings scrolling',
-                    'page switching preserves preferences','Fusion selected through ordinary settings'])
+                    'page switching preserves preferences','Interface selected through ordinary settings'])
             d.menu(4);shot('interface-setting');d.menu(8);d.press('a');shot('controls')
             d.press('r');shot('turbo-guide');d.press('b')
         d.press('b');assert d.game().mode==0
@@ -131,38 +131,40 @@ with Emulator(a.rom,directory) as e:
                 assert d.game().save.cash==cash-vehicles[10]['price']
         shot('dealer-'+str(cls))
     assert reviewed==set(range(31))
-    tab(0);owned(0);d.menu(1);d.press('a');assert d.game().save.selected_vehicle==0
-    tab(1);d.menu(3);cash=d.game().save.cash;d.press('a')
+    tab(0);owned(0);d.menu(0);d.press('a');assert d.game().save.selected_vehicle==0
+    tab(1);d.menu(2);cash=d.game().save.cash;d.press('a')
     assert d.game().save.engine[0]==1 and d.game().save.cash<cash
-    d.menu(1)
+    d.menu(0)
     while d.game().build_choice!=2:d.press('right')
-    d.menu(2);d.press('a');assert d.game().save.power_tune[0]==2
+    d.menu(1);d.press('a');assert d.game().save.power_tune[0]==2
     shot('tuning')
     assert style((1,2,3,2))==490
     shot('style')
-    tab(0);d.menu(2);d.press('right');assert d.game().save.selected_location==1
-    d.menu(6);d.press('a');assert d.game().save.preset_mask==1
+    tab(0);d.menu(1);d.press('a');d.menu(1);d.press('a');assert d.game().save.selected_location==1
+    d.press('b');assert d.game().cursor==1
+    d.menu(4);d.press('a');assert d.game().save.preset_mask==1
     saved=d.game().save.presets[0]
     assert style((0,0,0,0))==81
     assert style((1,2,3,2))==245
     assert style((0,0,0,0))==81
-    tab(0);d.menu(2);d.press('right');assert d.game().save.selected_location==2
-    owned(2);d.menu(1);d.press('a');assert d.game().save.selected_vehicle==2
-    d.menu(5);cash=d.game().save.cash;d.press('a');g=d.game()
+    tab(0);d.menu(1);d.press('a');d.menu(2);d.press('a');assert d.game().save.selected_location==2
+    d.press('b');assert d.game().cursor==1
+    owned(2);d.menu(0);d.press('a');assert d.game().save.selected_vehicle==2
+    d.menu(3);cash=d.game().save.cash;d.press('a');g=d.game()
     assert g.save.cash==cash-245 and g.save.selected_vehicle==0 and g.save.selected_location==1
     assert g.save.smoke[0]==2 and g.save.presets[0]==saved
     shot('presets')
     events.extend(['owned-only showroom','all 31 cars in five class lists','dealer purchase',
         'engine upgrade and top-speed build','full-price installation $490',
         'factory restoration $81','returning finish $245','paid preset restores car/build/route/style'])
-    # All departure themes are selected through the actual route library.
-    d.menu(3);d.press('a');assert d.game().mode==4;shot('routes')
-    if skin==2:
+    # All departure themes are selected through the single Departure selector.
+    d.menu(1);d.press('a');assert d.game().mode==4;shot('routes')
+    if skin==3:
         for region in range(13):
             d.menu(region);d.press('a');shot(f'location-{region:02d}')
             d.press('b');assert d.game().mode==3
             shot(f'room-{region:02d}')
-            d.menu(3);d.press('a')
+            d.menu(1);d.press('a')
     d.menu(0);d.press('a');d.press('b');assert d.game().mode==3
     d.press('b');assert d.game().mode==0
     # Short live drive verifies skin-specific dashboard, smoke and pause paths.
@@ -179,9 +181,9 @@ with Emulator(a.rom,directory) as e:
 geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),'--elf',str(a.elf),
     '--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/f'ui-{skin}-reloaded.png')],check=True)
-result={'skin':skin,'name':('Apex','Signal','Midnight','Fusion')[skin],'checks':events,
+result={'skin':skin,'name':('Fusion','Pearl','Voltage')[skin-3],'checks':events,
     'all_classes_reviewed':True,'vehicles_reviewed':31,'cosmetics_and_presets_passed':True,
-    'fusion_navigation_passed':skin==3,
+    'fusion_navigation_passed':True,
     'fresh_process_reload':True,'screenshots':screenshots,**geometry}
 (a.output/f'studio-{skin}.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result),flush=True)

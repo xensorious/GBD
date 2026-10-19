@@ -49,12 +49,12 @@ with Emulator(rom,directory) as e:
  assert d.game().save.total_runs==1 and d.game().save.cash==d.game().run.total_cash
  d.press('a')
  expected=[]
- for slot,target_skin,volume in ((0,3,45),(1,0,60),(2,1,80)):
+ for slot,target_skin,volume in ((0,3,45),(1,4,60),(2,5,80)):
   if slot:
    d.press('b');assert state(e).phase==1;d.press('down');d.press('a')
    while state(e).phase==2:d.ticks(2)
    assert state(e).active_slot==slot and d.game().save.cash==0 and d.game().save.total_runs==0
-   assert d.game().save.skin==2 and d.game().save.music_volume==70
+   assert d.game().save.skin==3 and d.game().save.music_volume==70
   d.menu(4);d.press('a');d.menu(4)
   while d.game().save.skin!=target_skin:d.press('right')
   d.menu(1)

@@ -223,14 +223,14 @@ static int bridge_region(int biome)
 {return biome==CAUSEWAY || biome==WETLANDS;}
 
 typedef struct {uint16_t sky,sky_low,floor,floor_low,pane,ink,muted,accent,rim;} StudioTheme;
-static const StudioTheme studio_themes[3]={
- {C(236,239,242),C(220,227,232),C(255,255,255),C(234,240,244),C(247,250,252),C(22,33,46),C(91,110,125),C(0,107,174),C(190,206,219)},
- {C(8,14,25),C(14,25,42),C(16,30,48),C(9,18,31),C(16,30,48),C(231,247,255),C(127,163,185),C(180,244,75),C(48,83,111)},
- {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(35,66,89),C(236,250,247),C(145,190,201),C(105,233,220),C(77,124,144)}
+static const StudioTheme studio_themes[SKIN_COUNT]={
+ {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(35,66,89),C(236,250,247),C(145,190,201),C(105,233,220),C(77,124,144)},
+ {C(233,229,218),C(208,217,216),C(255,252,241),C(234,236,225),C(239,239,223),C(28,57,61),C(74,99,100),C(17,110,108),C(151,165,161)},
+ {C(17,8,39),C(41,17,62),C(36,17,67),C(18,12,43),C(29,15,55),C(245,235,255),C(182,158,218),C(86,238,245),C(124,64,175)}
 };
 
 static const StudioTheme *theme_for(const Game *g)
-{int skin=clampi(g->save.skin,0,SKIN_COUNT-1);return &studio_themes[skin==SKIN_FUSION?SKIN_MIDNIGHT:skin];}
+{return &studio_themes[clampi(g->save.skin-SKIN_FUSION,0,SKIN_COUNT-1)];}
 
 typedef struct {uint16_t high,low,haze;uint8_t night;} SkyTheme;
 static const SkyTheme sky_themes[LOCATION_COUNT]={
@@ -1489,7 +1489,8 @@ static void draw_garage_room(Surface *s,const Game *g,const StudioTheme *ui){
  gfx_vehicle_style(s,x,y,gfx_vehicle_pixels(id,2),CAR_W,CAR_H,w,h,paint,livery,wheels);
  overlay_panel(s,4,3,248,27,ui->pane);gfx_text(s,10,7,vehicles[id].name,ui->ink);
  char subtitle[56];snprintf(subtitle,sizeof subtitle,"%s / %s",locations[region].name,g->garage_tab==3?"DEALER":g->garage_tab==1?"TUNING":g->garage_tab==2?"STYLE":"YOUR COLLECTION");gfx_text_small(s,10,20,subtitle,ui->muted);
- overlay_panel(s,179,66,73,105,ui->pane);
+ overlay_panel(s,179,52,73,119,ui->pane);
+ char class_text[16];snprintf(class_text,sizeof class_text,"CLASS %s",game_class_name(vehicles[id].class_id));gfx_text_small(s,184,57,class_text,ui->accent);
  static const char*const labels[4]={"TOP SPEED","0-100 km/h","ROAD GRIP","ARMOR"};
  for(int stat=0;stat<4;stat++){int value=game_preview_stat(g,id,stat),row=70+stat*24;gfx_text_small(s,184,row,labels[stat],ui->muted);char text[24];
   if(stat==0){if(g->save.units)value=(value*621+500)/1000;snprintf(text,sizeof text,"%d %s",value,g->save.units?"mph":"km/h");}
@@ -1499,7 +1500,7 @@ static void draw_garage_room(Surface *s,const Game *g,const StudioTheme *ui){
  }
  overlay_panel(s,4,179,248,13,ui->pane);
  if(g->notice_timer && g->notice[0])gfx_text_small(s,9,182,g->notice,ui->ink);
- else{char line[64];snprintf(line,sizeof line,"CLASS %s  /  MASTERY %d  /  %s",game_class_name(vehicles[id].class_id),game_mastery_level(g,id),game_specialty_name(vehicles[id].specialty));gfx_text_small(s,9,182,line,ui->ink);}
+ else{char line[64];snprintf(line,sizeof line,"MASTERY %d  /  %s",game_mastery_level(g,id),game_specialty_name(vehicles[id].specialty));gfx_text_small(s,9,182,line,ui->ink);}
 }
 static void draw_showroom(Surface *s,const Game *g,int receipt)
 {
@@ -1572,28 +1573,39 @@ static void draw_showroom(Surface *s,const Game *g,int receipt)
  gfx_copy(s->pixels,studio_art,VW*VH);
 }
 
-static uint16_t menu_header_art[VW*33],menu_footer_art[6][VW*17];
 static const char *const menu_captions[6]={
  "CITY LIGHTS TO OPEN WATER","A NEW HORIZON STARTS HERE",
  "MAKE EVERY MILE COUNT","BUILT FOR BUTTONS",
  "MOMENTUM BUILDS YOUR STORY","MAKE THIS DRIVE YOURS"};
 
-static void init_menu_chrome(const Game *g)
-{
- static int skin=-1;
- if(skin==g->save.skin)return;
- const StudioTheme *theme=theme_for(g);
- Surface header={menu_header_art,VW,33};
- for(int y=0;y<33;y++)gfx_rect(&header,0,y,VW,1,blend_color(theme->floor,theme->pane,y*5));
- gfx_rect(&header,0,31,VW,2,theme->accent);
- gfx_text(&header,14,5,"C O A S T L I N E",theme->ink);
- gfx_text_small(&header,15,21,"ENDLESS ROADS.  YOUR OWN LINE.",theme->muted);
- for(int i=0;i<6;i++) {
-  Surface footer={menu_footer_art[i],VW,17};
-  gfx_rect(&footer,0,0,VW,17,theme->pane);
-  gfx_text_small(&footer,14,5,menu_captions[i],theme->muted);
+/* Cached glyph coverage keeps antialiasing transparent over the moving scene. */
+static uint8_t menu_chrome_alpha[VW*45];
+static void chrome_glyphs(int x,int y,const char*text,int small){
+ const uint8_t *alpha=small?font_small_alpha:font_alpha,*advance=small?font_small_advance:font_advance;
+ while(*text){unsigned ch=(unsigned char)*text++;if(ch<32||ch>127)ch='?';const uint8_t*p=alpha+(ch-32)*12*14;
+  for(int j=0;j<14 && y+j<45;j++)for(int i=0;i<12 && x+i<VW;i++)if(x+i>=0 && y+j>=0){
+   uint8_t *a=&menu_chrome_alpha[(y+j)*VW+x+i];if(p[j*12+i]>*a)*a=p[j*12+i];
+  }x+=advance[ch-32];
  }
- skin=g->save.skin;
+}
+static void draw_menu_chrome(Surface*s,const Game*g,int caption,int fade){
+ static int old_caption=-1;
+ const StudioTheme *ui=theme_for(g);
+ if(old_caption!=caption){
+  memset(menu_chrome_alpha,0,sizeof menu_chrome_alpha);
+  chrome_glyphs(12,5,"C O A S T L I N E",0);
+  chrome_glyphs(12,18,"ENDLESS ROADS. YOUR OWN LINE.",1);
+  chrome_glyphs(12,36,menu_captions[caption],1);old_caption=caption;
+ }
+ /* Compact 38%-opaque floating material, never full-width letterboxing. */
+ for(int y=2;y<28;y++)for(int x=7;x<180;x++){
+  int cut=y==2||y==27?3:y==3||y==26?1:0;
+  if(x>=7+cut&&x<180-cut)s->pixels[y*VW+x]=blend_color(s->pixels[y*VW+x],ui->pane,fade*96/256);
+ }
+ int width=0;for(const char*p=menu_captions[caption];*p;p++)width+=font_small_advance[(unsigned char)*p-32];
+ for(int y=177;y<190;y++)for(int x=7;x<18+width;x++)s->pixels[y*VW+x]=blend_color(s->pixels[y*VW+x],ui->pane,fade*96/256);
+ for(int y=2;y<28;y++)for(int x=7;x<180;x++){int alpha=menu_chrome_alpha[y*VW+x];if(alpha)s->pixels[y*VW+x]=blend_color(s->pixels[y*VW+x],ui->ink,fade*alpha/255);}
+ for(int y=177;y<190;y++)for(int x=7;x<18+width;x++){int alpha=menu_chrome_alpha[(y-145)*VW+x];if(alpha)s->pixels[y*VW+x]=blend_color(s->pixels[y*VW+x],ui->ink,fade*alpha/255);}
 }
 
 static void draw_menu_decoration(Surface *s,const Game *g)
@@ -1602,11 +1614,9 @@ static void draw_menu_decoration(Surface *s,const Game *g)
   draw_showroom(s,g,g->mode==M_RECEIPT);return;
  }
  draw_world(s,g,1);
- /* Letterboxing gives the menu's animated drive a calmer, cinematic frame. */
- init_menu_chrome(g);
+
  int caption=g->mode==M_DEPARTURES?1:g->mode==M_CHALLENGES?2:g->mode==M_CONTROLS?3:g->mode==M_CAREER?4:g->mode==M_SETTINGS?5:0;
- gfx_copy(s->pixels,menu_header_art,VW*33);
- gfx_copy(s->pixels+VW*175,menu_footer_art[caption],VW*17);
+ draw_menu_chrome(s,g,caption,256);
 }
 
 static Game bottom_key;
@@ -1669,9 +1679,7 @@ int render_opening(const Game*g,const Opening*o,uint16_t*scratch,uint16_t*top,ui
   Surface menu={scratch,VW,VH};ui_draw_bottom(&menu,g);
   gfx_copy(bottom+(VH-p)*VW,scratch,VW*p);
   if(p>128){
-   init_menu_chrome(g);int alpha=(p-128)*256/64;
-   for(int y=0;y<33;y++)for(int x=0;x<VW;x++)top[y*VW+x]=blend_color(top[y*VW+x],menu_header_art[y*VW+x],alpha);
-   for(int y=0;y<17;y++)for(int x=0;x<VW;x++)top[(175+y)*VW+x]=blend_color(top[(175+y)*VW+x],menu_footer_art[0][y*VW+x],alpha);
+   draw_menu_chrome(&upper,g,0,(p-128)*256/64);
   }
  }else{
   const StudioTheme*theme=theme_for(g);

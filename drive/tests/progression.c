@@ -27,7 +27,7 @@ static void thresholds(void) {
  CHECK(!game_mastery_level(&g,-1));CHECK(!game_mastery_level(&g,VEHICLE_COUNT));
 }
 static void parts_and_tunes(void) {
- Game g;init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.selection=0;g.cursor=3;
+ Game g;init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.selection=0;g.cursor=2;
  CHECK(game_upgrade_cost(&g,0)==60);
  step(&g,K_A,K_A);CHECK(g.save.engine[0]==1 && g.save.cash==49940);
  step(&g,K_A,K_A);CHECK(g.save.engine[0]==2);
@@ -45,7 +45,7 @@ static void parts_and_tunes(void) {
   CHECK(vehicles[v].name&&*vehicles[v].name);CHECK(game_vehicle_stat(&g,v,STAT_TOP)>=100);
   CHECK(game_vehicle_stat(&g,v,STAT_ACCEL)>=15);CHECK(game_vehicle_stat(&g,v,STAT_GRIP)>=40);
  }
- init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=2;g.selection=0;g.build_choice=1;
+ init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=1;g.selection=0;g.build_choice=1;
  int top=game_vehicle_stat(&g,0,STAT_TOP),acc=game_vehicle_stat(&g,0,STAT_ACCEL);
  CHECK(game_preview_stat(&g,0,STAT_TOP)==top-12);CHECK(game_preview_stat(&g,0,STAT_ACCEL)==acc+12);
  step(&g,K_A,K_A);CHECK(!g.save.power_tune[0]);
@@ -106,12 +106,12 @@ static void perks_and_banking(void) {
 static void settings_and_locations(void) {
  Game g;game_init(&g,5);
  CHECK(g.save.music_on && g.save.sfx_on && g.save.music_volume==70 && g.save.sfx_volume==75);
- CHECK(g.save.shake && g.save.motion==1 && !g.save.units && g.save.skin==2);
+ CHECK(g.save.shake && g.save.motion==1 && !g.save.units && g.save.skin==SKIN_FUSION);
  g.mode=M_SETTINGS;g.menu_return=M_PAUSE;g.cursor=0;step(&g,K_A,K_A);CHECK(!g.save.music_on);
  g.cursor=1;g.save.music_volume=100;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.music_volume==100);
  g.save.music_volume=0;step(&g,K_LEFT,K_LEFT);CHECK(!g.save.music_volume);
  g.cursor=3;step(&g,K_LEFT,K_LEFT);CHECK(g.save.sfx_volume==70);
- g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==1);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==2);
+ g.cursor=4;step(&g,K_LEFT,K_LEFT);CHECK(g.save.skin==SKIN_VOLTAGE);step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.skin==SKIN_FUSION);
  g.cursor=5;step(&g,K_RIGHT,K_RIGHT);CHECK(g.save.motion==2);
  g.cursor=6;step(&g,K_A,K_A);CHECK(!g.save.shake);
  g.cursor=7;step(&g,K_A,K_A);CHECK(g.save.units);
@@ -120,7 +120,7 @@ static void settings_and_locations(void) {
  step(&g,K_B,K_B);CHECK(g.mode==M_PAUSE && g.cursor==3);
  Save save;game_make_save(&g,&save);CHECK(game_save_valid(&save));
  Game loaded;game_init(&loaded,7);CHECK(game_load(&loaded,&save));
- CHECK(loaded.save.skin==2 && loaded.save.motion==2 && !loaded.save.shake && loaded.save.units);
+ CHECK(loaded.save.skin==SKIN_FUSION && loaded.save.motion==2 && !loaded.save.shake && loaded.save.units);
  CHECK(!loaded.save.music_on && loaded.save.sfx_volume==70);
  CHECK(LOCATION_COUNT==13 && vehicles[3].bike && !vehicles[6].bike && !vehicles[7].bike && !vehicles[8].bike);
  CHECK(game_can_location(&g,5) && game_can_location(&g,7) && !game_can_location(&g,6));
@@ -169,7 +169,7 @@ static void classes_and_roster(void) {
  CHECK(game_vehicle_class(-1)==-1 && game_vehicle_class(VEHICLE_COUNT)==-1);
  /* Existing S ownership is honored even below the new ten-key gate. */
  init(&g);g.save.owned|=1u<<9;CHECK(!game_class_unlocked(&g,CLASS_S) && game_can_vehicle(&g,9));
- g.mode=M_GARAGE;g.selection=9;g.cursor=1;g.save.cash=0;step(&g,K_A,K_A);
+ g.mode=M_GARAGE;g.selection=9;g.cursor=0;g.save.cash=0;step(&g,K_A,K_A);
  CHECK(g.save.selected_vehicle==9 && !g.save.cash);
  /* A new purchase needs both its class and its independent challenge. */
  init(&g);CHECK(!game_can_vehicle(&g,1));g.save.owned|=1u<<10;CHECK(game_can_vehicle(&g,1));
@@ -187,7 +187,7 @@ static void classes_and_roster(void) {
  g.garage_tab=3;
  for(int c=0;c<CLASS_COUNT;c++){g.garage_filter=(uint8_t)c;g.cursor=0;
   for(int i=0;i<game_dealer_count(c);i++){step(&g,K_DOWN,K_DOWN);CHECK(game_vehicle_class(g.selection)==c);}}
- g.garage_tab=1;g.cursor=0;step(&g,K_UP,K_UP);CHECK(g.cursor==6);
+ g.garage_tab=1;g.cursor=0;step(&g,K_UP,K_UP);CHECK(g.cursor==5);
 
 }
 static void cosmetics_and_recovery(void) {
@@ -215,7 +215,7 @@ static void cosmetics_and_recovery(void) {
  CHECK(loaded.save.livery_owned[0]==3 && loaded.save.livery[10]==2 && loaded.save.wheels[10]==3);
  CHECK(loaded.save.livery_owned[10]==5 && loaded.save.wheels_owned[10]==9);
  /* Recovery follows the same mastery gate as the other lasting parts. */
- init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=6;g.selection=0;
+ init(&g);g.mode=M_GARAGE;g.garage_tab=1;g.cursor=5;g.selection=0;
  int previous_cost=0;
  for(int rank=1;rank<=UPGRADE_MAX;++rank) {
   int cost_now=game_upgrade_cost(&g,3);CHECK(cost_now>previous_cost);previous_cost=cost_now;

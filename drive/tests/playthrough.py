@@ -59,7 +59,7 @@ class DriveThrough:
         for _ in range(16):
             g=self.game()
             if g.cursor==target: return
-            if g.mode==0 and g.save.skin==3:
+            if g.mode==0:
                 self.press('down' if g.cursor//2<target//2 else 'up' if g.cursor//2>target//2 else 'right' if g.cursor%2<target%2 else 'left')
             else:self.press('down')
         raise AssertionError(f'Menu cursor did not reach {target}')
@@ -177,7 +177,7 @@ def emulator_tests(rom,elf,output):
         p.press('r');assert p.game().garage_tab==2;p.shot('garage-tuning')
         p.press('l');p.press('l');assert p.game().garage_tab==0
         p.press('b');assert p.game().mode==0
-        p.menu(1);p.press('a');p.menu(3);p.press('a');assert p.game().mode==4;p.shot('departures')
+        p.menu(1);p.press('a');p.menu(1);p.press('a');assert p.game().mode==4;p.shot('departures')
         p.press('b');assert p.game().mode==3;p.press('b');assert p.game().mode==0
         p.menu(2);p.press('a');assert p.game().mode==5;p.shot('challenges')
         p.press('b');assert p.game().mode==0
@@ -297,7 +297,7 @@ def emulator_tests(rom,elf,output):
         purchased=False
         if cash>=cost:
             p.press('r');assert p.game().garage_tab==1
-            p.menu(4);before=p.game().save.cash;p.press('a');g=p.game()
+            p.menu(3);before=p.game().save.cash;p.press('a');g=p.game()
             assert g.save.grip[0]==1
             assert g.save.cash==before-game_grip_cost
             purchased=True;p.shot('garage-upgraded')

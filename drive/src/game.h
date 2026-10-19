@@ -7,7 +7,8 @@
 #define VEHICLE_COUNT 31
 #define UPGRADE_MAX 6
 #define PERK_COUNT 3
-#define SKIN_COUNT 4
+#define SKIN_COUNT 3
+#define SKIN_STORAGE_LIMIT 6
 #define LOCATION_COUNT 13
 #define SAVE_DISK_SIZE 500
 #define CLASS_COUNT 5
@@ -36,7 +37,8 @@ enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
  K_A=16u,K_B=32u,K_L=64u,K_R=128u,K_START=256u,K_SELECT=512u,K_X=1024u,K_Y=2048u };
 typedef struct { uint32_t held,pressed; } Input;
 enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS,M_CONTRACTS };
-enum InterfaceSkin { SKIN_APEX,SKIN_SIGNAL,SKIN_MIDNIGHT,SKIN_FUSION };
+/* IDs 0..2 belong to retired interfaces; preserve battery compatibility. */
+enum InterfaceSkin { SKIN_FUSION=3,SKIN_PEARL,SKIN_VOLTAGE };
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
 enum Bonus { B_DISTANCE,B_SURVIVAL,B_NEAR,B_SPEED,B_DRIFT,B_WHEELIE,B_COIN };
 enum TurboSource { TS_NONE,TS_NEAR,TS_DRIFT,TS_WHEELIE,TS_SLOW };

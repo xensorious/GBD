@@ -26,8 +26,8 @@ assert len(stock['native'])==12,'Run all twelve native sanitizer suites.'
 assert stock['battery_save_reload'] and stock['upgrade_purchased'],'Verify earned cash, an actual part purchase and battery reload.'
 assert stock['long_drive_cadence']['updates']>0 and stock['long_drive_cadence']['hz']>=28
 studio=report('studio-results.json')
-assert studio['interfaces']==['Apex','Signal','Midnight','Fusion'] and len(studio['cases'])==4
-assert studio['cases'][3]['fusion_navigation_passed'],'Verify Fusion grid, settings pages and fresh save reload.'
+assert studio['interfaces']==['Fusion','Pearl','Voltage'] and len(studio['cases'])==3
+assert all(case['fusion_navigation_passed'] for case in studio['cases']),'Verify Fusion grid, settings pages and fresh save reload.'
 assert studio['garage_tabs']==['Showroom','Tuning','Style','Dealer']
 assert studio['departure_interiors']==13 and studio['fresh_process_reload']
 for case in studio['cases']:
@@ -46,6 +46,9 @@ assert previous['serialized_save_bytes']==500 and previous['physical_save_bytes'
 opening=report('opening-results.json')
 assert opening['dual_screen_cinematic'] and opening['three_independent_profiles']
 assert opening['fresh_process_reloads']==3 and opening['any_button_x_y_passed'] and opening['touch_ignored']
+profiles=report('previous-profiles-results.json')
+assert profiles['all_progress_preserved'] and profiles['retired_interfaces_migrated_to_fusion']
+assert profiles['profiles_imported']==3 and profiles['fresh_process_reloads']==3
 v4=None
 if (validation/'previous-v4-results.json').exists():
     v4=report('previous-v4-results.json')
@@ -60,8 +63,8 @@ shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Cinematic and save-slot release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, twelve native suites and five previous-release migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun.'},indent=2)+'\n')
+    'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Fusion styles release: exact-ROM stock run, three interface tours with shared directional/page controls, thirteen garage interiors, twelve native suites and five previous-release migrations. Dual-screen opening, three independent profiles and fresh-process reloads passed. Broader world tours were not rerun.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -83,20 +86,20 @@ contact('Preview.png',[
     ('ui-3-home','FUSION / DIRECTIONAL TILE MENU'),('ui-3-settings','FUSION / SETTINGS PAGES'),
     ('ui-3-showroom','FUSION / YOUR GARAGE'),('race-city','ACTUAL STOCK-PROFILE DRIVE')],screen='dual')
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
-    for mode in ('home','settings') for s,name in enumerate(studio['interfaces'])],columns=4)
+    for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
     ('home','FUSION / FOUR-DIRECTION TILE MENU'),('settings','AUDIO / L-R TO CHANGE PAGE'),
     ('settings-display','DISPLAY / UP-DOWN TO SCROLL'),('settings-guide','GUIDE / BUTTON CONTROLS'))])
 contact('Garage.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
-    for mode in ('showroom','tuning','style','dealer-4') for s,name in enumerate(studio['interfaces'])],columns=4)
+    for mode in ('showroom','tuning','style','dealer-4') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 locations=('METRO DAWN','PALM COAST','SKYWATER CAUSEWAY','PINE RIDGE','REDROCK PASS',
     'MARINA NIGHTS','MANGROVE RUN','CITRUS PARKWAY','NEON CURRENT','JADE CANOPY',
     'GHOSTWATER BAYOU','AURORA REACH','PRISM SALTWAY')
-contact('Garage-Interiors.png',[(f'ui-2-room-{i:02d}',title+' / WORKSHOP') for i,title in enumerate(locations)],columns=3,screen='top')
-contact('Locations.png',[(f'ui-2-location-{i:02d}',title+' / ROUTE PREVIEW') for i,title in enumerate(locations)],columns=3,screen='top')
+contact('Garage-Interiors.png',[(f'ui-3-room-{i:02d}',title+' / WORKSHOP') for i,title in enumerate(locations)],columns=3,screen='top')
+contact('Locations.png',[(f'ui-3-location-{i:02d}',title+' / ROUTE PREVIEW') for i,title in enumerate(locations)],columns=3,screen='top')
 contact('Progression.png',[
-    ('ui-2-presets','PAID PRESET REFIT / SAVED SETUPS'),('ui-0-style','INSTALLED FINISH / RETURNING STYLES HALF PRICE'),
-    ('ui-1-dealer-3','CLASS-BASED DEALER'),('ui-1-receipt','RUN STATEMENT / CASH AWARDED')])
+    ('ui-3-presets','PAID PRESET REFIT / SAVED SETUPS'),('ui-4-style','INSTALLED FINISH / RETURNING STYLES HALF PRICE'),
+    ('ui-5-dealer-3','CLASS-BASED DEALER'),('ui-5-receipt','RUN STATEMENT / CASH AWARDED')])
 # Remove only known superseded presentation files, never user files.
 for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursuit.png','highway-motion.gif','biome-transition.gif'):
     (DIST/name).unlink(missing_ok=True)

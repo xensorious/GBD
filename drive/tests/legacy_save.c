@@ -73,7 +73,8 @@ static void v2_and_compact(void) {
  CHECK(!memcmp((const uint8_t *)&imported.save+12,(const uint8_t *)&old+12,60));
  CHECK(imported.save.selected_vehicle==9 && imported.save.selected_location==7);
  CHECK(imported.save.career_xp==old.career_xp && !memcmp(imported.save.perks,old.perks,3));
- CHECK(!memcmp(&imported.save.music_on,&old.music_on,8));
+ CHECK(!memcmp(&imported.save.music_on,&old.music_on,4));
+ CHECK(imported.save.skin==SKIN_FUSION && !memcmp(&imported.save.shake,&old.shake,3));
  for(int i=0;i<10;++i) {
   CHECK(imported.save.paint[i]==old.paint[i] && imported.save.engine[i]==old.engine[i]);
   CHECK(imported.save.grip[i]==old.grip[i] && imported.save.armor[i]==old.armor[i]);

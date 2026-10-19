@@ -110,7 +110,7 @@ static uint32_t checksum_bytes(const void *save,size_t size) {
 }
 static void default_settings(Save *s) {
  s->music_on=1;s->sfx_on=1;s->music_volume=70;s->sfx_volume=75;
- s->skin=2;s->shake=1;s->units=0;s->motion=1;
+ s->skin=SKIN_FUSION;s->shake=1;s->units=0;s->motion=1;
 }
 void game_make_save(const Game *g,Save *out) {
  *out=g->save; out->magic=SAVE_MAGIC; out->version=SAVE_VERSION;
@@ -151,7 +151,7 @@ static void v2_convert(const SaveV2 *old,Save *out) {
   out->handling_tune[i]=old->handling_tune[i];out->chassis_tune[i]=old->chassis_tune[i];
  }
  out->career_xp=old->career_xp;memcpy(out->perks,old->perks,sizeof(out->perks));
- memcpy(&out->music_on,&old->music_on,8);out->skin=2;new_save_defaults(out);out->version=SAVE_VERSION;out->checksum=0;
+ memcpy(&out->music_on,&old->music_on,8);out->skin=SKIN_FUSION;new_save_defaults(out);out->version=SAVE_VERSION;out->checksum=0;
 }
 static void legacy_convert(const LegacySave *old,Save *out) {
  memset(out,0,sizeof(*out));
@@ -173,7 +173,7 @@ static int valid_expanded(const Save *s) {
  if(!valid_common(s,VEHICLE_COUNT,UPGRADE_MAX,LOCATION_COUNT))return 0;
  if(s->career_xp>STAT_LIMIT || s->contracts_completed>STAT_LIMIT || s->dispatch_choice>CONTRACT_OFFERS ||
     s->music_on>1 || s->sfx_on>1 || s->music_volume>100 || s->sfx_volume>100 ||
-    s->skin>=SKIN_COUNT || s->motion>2 || s->shake>1 || s->units>1)return 0;
+    s->skin>=SKIN_STORAGE_LIMIT || s->motion>2 || s->shake>1 || s->units>1)return 0;
  int spent=0;
  for(int i=0;i<PERK_COUNT;++i) {if(s->perks[i]>3)return 0;spent+=s->perks[i];}
  static const uint32_t career_thresholds[9]={200,600,1300,2400,4000,6500,10000,15000,22000};
@@ -225,6 +225,7 @@ int game_load(Game *g,const Save *save) {
   SaveV2 old;Save converted;if(!read_v2(save,&old,&converted))return 0;
   g->save=converted;g->save_requested=1;
  } else {g->save=*save;g->save_requested=0;}
+ if(g->save.skin<SKIN_FUSION){g->save.skin=SKIN_FUSION;g->save_requested=1;}
  g->has_save=1;g->save_ok=1;g->mode=M_HOME;g->cursor=0;
  g->selection=g->save.selected_vehicle;g->vehicle=g->save.selected_vehicle;
  g->start_biome=g->save.selected_location;g->biome=g->start_biome;
@@ -303,8 +304,8 @@ int game_load_bytes(Game *g,const void *raw,unsigned size) {
  expanded.dispatch_choice=disk.dispatch_choice;expanded.contracts_completed=disk.contracts_completed;
  expanded.version=SAVE_VERSION;
  for(int i=0;i<VEHICLE_COUNT;i++){expanded.paint_seen[i]=(uint8_t)(1u|(expanded.paint[i]<PAINT_COUNT?1u<<expanded.paint[i]:0u));expanded.smoke_seen[i]=1;}
- /* Previous color-only skins become the retained Midnight interface. */
- expanded.skin=2;expanded.checksum=checksum_bytes(&expanded,sizeof(expanded));
+ /* Retired interfaces migrate to the standard Fusion interface. */
+ expanded.skin=SKIN_FUSION;expanded.checksum=checksum_bytes(&expanded,sizeof(expanded));
  int loaded=game_load(g,&expanded);if(loaded)g->save_requested=1;return loaded;
 }
 void game_save_result(Game *g,int okay) {
@@ -401,7 +402,7 @@ const char *game_tune_description(int kind,int value) {
 static int vehicle_stat(const Game *g,int v,int kind,int preview) {
  if(v<0 || v>=VEHICLE_COUNT || kind<STAT_TOP || kind>STAT_ARMOR) return 0;
  int power=g->save.power_tune[v],handling=g->save.handling_tune[v],chassis=g->save.chassis_tune[v];
- if(preview && g->mode==M_GARAGE && g->garage_tab==1 && g->selection==v && g->build_choice<5 && (g->cursor==1 || g->cursor==2)) {
+ if(preview && g->mode==M_GARAGE && g->garage_tab==1 && g->selection==v && g->build_choice<5 && (g->cursor==0 || g->cursor==1)) {
   static const uint8_t builds[5][3]={{0,0,0},{1,0,0},{2,0,0},{0,1,2},{1,2,0}};
   int build=clampi(g->build_choice,0,4);power=builds[build][0];handling=builds[build][1];chassis=builds[build][2];
  }
@@ -913,34 +914,32 @@ static void garage_tick(Game *g,const Input *in){
   if(dx || (in->pressed&K_SELECT)){g->garage_filter=(uint8_t)((g->garage_filter+5+(dx?dx:1))%5);g->cursor=0;}
   int count=game_dealer_count(g->garage_filter);g->cursor=(uint8_t)((g->cursor+count+1+dy)%(count+1));
   g->selection=(uint8_t)game_dealer_vehicle(g->garage_filter,g->cursor?g->cursor-1:0);refresh_vehicle(g);
-  if(in->pressed&K_A){if(!g->cursor)g->cursor=1;else if(g->save.owned&(1u<<g->selection)){g->garage_tab=0;g->cursor=1;notice(g,"Already in your collection. Grab your keys.");}else purchase_vehicle(g);}
+  if(in->pressed&K_A){if(!g->cursor)g->cursor=1;else if(g->save.owned&(1u<<g->selection)){g->garage_tab=0;g->cursor=0;notice(g,"Already in your collection. Grab your keys.");}else purchase_vehicle(g);}
   return;
  }
- int rows=g->garage_tab==2?6:7;g->cursor=(uint8_t)((g->cursor+rows+dy)%rows);
- if(g->cursor==0 && dx)browse_owned(g,dx);
+ int rows=g->garage_tab==1?6:5;g->cursor=(uint8_t)((g->cursor+rows+dy)%rows);
+ if(g->garage_tab==0 && g->cursor==0 && dx)browse_owned(g,dx);
  if(g->garage_tab==0){
-  if(g->cursor==2&&dx){int id=g->save.selected_location;for(int i=0;i<LOCATION_COUNT;i++){id=(id+LOCATION_COUNT+dx)%LOCATION_COUNT;if(g->save.unlocked_locations&(1u<<id)){g->save.selected_location=(uint8_t)id;g->biome=g->start_biome=(uint8_t)id;g->save_requested=1;break;}}}
-  if(g->cursor==4&&dx)g->preset_choice=(uint8_t)((g->preset_choice+PRESET_COUNT+dx)%PRESET_COUNT);
- }else if(g->garage_tab==1){if(g->cursor==1&&dx)g->build_choice=(uint8_t)((g->build_choice+5+dx)%5);}
+  if(g->cursor==2&&dx)g->preset_choice=(uint8_t)((g->preset_choice+PRESET_COUNT+dx)%PRESET_COUNT);
+ }else if(g->garage_tab==1){if(g->cursor==0&&dx)g->build_choice=(uint8_t)((g->build_choice+5+dx)%5);}
  else if(dx){
-  if(g->cursor==1)g->paint_choice=(uint8_t)((g->paint_choice+PAINT_COUNT+dx)%PAINT_COUNT);
-  if(g->cursor==2)g->livery_choice=(uint8_t)((g->livery_choice+LIVERY_COUNT+dx)%LIVERY_COUNT);
-  if(g->cursor==3)g->wheel_choice=(uint8_t)((g->wheel_choice+WHEEL_COUNT+dx)%WHEEL_COUNT);
-  if(g->cursor==4)g->smoke_choice=(uint8_t)((g->smoke_choice+SMOKE_COUNT+dx)%SMOKE_COUNT);
+  if(g->cursor==0)g->paint_choice=(uint8_t)((g->paint_choice+PAINT_COUNT+dx)%PAINT_COUNT);
+  if(g->cursor==1)g->livery_choice=(uint8_t)((g->livery_choice+LIVERY_COUNT+dx)%LIVERY_COUNT);
+  if(g->cursor==2)g->wheel_choice=(uint8_t)((g->wheel_choice+WHEEL_COUNT+dx)%WHEEL_COUNT);
+  if(g->cursor==3)g->smoke_choice=(uint8_t)((g->smoke_choice+SMOKE_COUNT+dx)%SMOKE_COUNT);
  }
  if(!(in->pressed&K_A))return;
- if(g->cursor==0){g->cursor=1;return;}
  if(g->garage_tab==0){
-  if(g->cursor==1)purchase_vehicle(g);
-  else if(g->cursor==2||g->cursor==3){g->mode=M_DEPARTURES;g->cursor=g->save.selected_location;g->menu_return=M_GARAGE;}
-  else if(g->cursor==5){preset_load(g);refresh_vehicle(g);}
-  else if(g->cursor==6){g->save.presets[g->preset_choice]=preset_pack(g,g->selection);g->save.preset_mask|=(uint8_t)(1u<<g->preset_choice);g->save_requested=1;notice(g,"Preset saved: vehicle, build, finish and route.");}
+  if(g->cursor==0)purchase_vehicle(g);
+  else if(g->cursor==1){g->mode=M_DEPARTURES;g->cursor=g->save.selected_location;g->menu_return=M_GARAGE;}
+  else if(g->cursor==3){preset_load(g);refresh_vehicle(g);}
+  else if(g->cursor==4){g->save.presets[g->preset_choice]=preset_pack(g,g->selection);g->save.preset_mask|=(uint8_t)(1u<<g->preset_choice);g->save_requested=1;notice(g,"Preset saved: vehicle, build, finish and route.");}
  }else if(g->garage_tab==1){
-  if(g->cursor==2 && g->build_choice>=5){notice(g,"Your custom build is already installed.");}
-  else if(g->cursor==2){int b=clampi(g->build_choice,0,4),rank=game_mastery_level(g,g->selection),need=build_tunes[b][2]?3:build_tunes[b][1]?2:build_tunes[b][0]?1:0;
+  if(g->cursor==1 && g->build_choice>=5){notice(g,"Your custom build is already installed.");}
+  else if(g->cursor==1){int b=clampi(g->build_choice,0,4),rank=game_mastery_level(g,g->selection),need=build_tunes[b][2]?3:build_tunes[b][1]?2:build_tunes[b][0]?1:0;
    if(rank<need)notice(g,"Raise this vehicle's mastery to use this build.");else{g->save.power_tune[g->selection]=build_tunes[b][0];g->save.handling_tune[g->selection]=build_tunes[b][1];g->save.chassis_tune[g->selection]=build_tunes[b][2];g->save_requested=1;notice(g,"Build installed. Setups are free to change.");}}
-  else if(g->cursor>=3)upgrade(g,g->cursor-3);
- }else if(g->cursor==5)game_apply_cosmetics(g);
+  else if(g->cursor>=2)upgrade(g,g->cursor-2);
+ }else if(g->cursor==4)game_apply_cosmetics(g);
 }
 static void contract_tick(Game *g,const Input *in) {
  if(in->pressed&K_B) {g->mode=M_HOME;g->cursor=5;return;}
@@ -952,7 +951,7 @@ static void contract_tick(Game *g,const Input *in) {
  }
 }
 static void departure_tick(Game *g,const Input *in) {
- if(in->pressed&K_B) {g->mode=M_GARAGE;g->garage_tab=0;g->cursor=2;return;}
+ if(in->pressed&K_B) {g->mode=M_GARAGE;g->garage_tab=0;g->cursor=1;return;}
  g->cursor=(uint8_t)((g->cursor+LOCATION_COUNT+vertical(in))%LOCATION_COUNT);
  if(!(in->pressed&K_A)) return;
  int id=g->cursor;
@@ -975,7 +974,7 @@ static void career_tick(Game *g,const Input *in) {
 }
 static void settings_tick(Game *g,const Input *in) {
  if(in->pressed&K_B) {g->mode=g->menu_return==M_PAUSE?M_PAUSE:M_HOME;g->cursor=g->mode==M_PAUSE?3:4;return;}
- if(g->save.skin==SKIN_FUSION && (in->pressed&(K_L|K_R))) {
+ if(in->pressed&(K_L|K_R)) {
   int section=g->cursor<4?0:g->cursor<8?1:2;
   int direction=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
   if(direction)g->cursor=(uint8_t)(((section+3+direction)%3)*4);
@@ -1000,7 +999,8 @@ static void settings_tick(Game *g,const Input *in) {
  if(g->cursor==1||g->cursor==3) {
   if(confirm)*value=(uint8_t)(*value>=100?0:clampi(*value+5,0,100));
   else *value=(uint8_t)clampi(*value+dx*5,0,100);
- } else *value=(uint8_t)((*value+choices+(dx?dx:1))%choices);
+ } else if(g->cursor==4)*value=(uint8_t)(SKIN_FUSION+(*value-SKIN_FUSION+SKIN_COUNT+(dx?dx:1))%SKIN_COUNT);
+ else *value=(uint8_t)((*value+choices+(dx?dx:1))%choices);
  g->muted=(uint8_t)!g->save.music_on;g->save_requested=1;
 }
 void game_update(Game *g,const Input *in) {
@@ -1011,10 +1011,10 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;
   case M_HOME:
-   if(g->save.skin==SKIN_FUSION) {
+   {
     int row=clampi(g->cursor/2+vertical(in),0,2),column=clampi(g->cursor%2+horizontal(in),0,1);
     g->cursor=(uint8_t)(row*2+column);
-   } else g->cursor=(uint8_t)((g->cursor+6+vertical(in))%6);
+   }
    if(in->pressed&K_A) {
     switch(g->cursor) {
      case 0:game_begin_run(g);break;

@@ -111,11 +111,12 @@ def assert_imported_fields(current,old):
             assert values[:count]==list(getattr(old,name)),name
             assert not any(values[count:]),name
         for name in ('career_xp','music_on','sfx_on','music_volume','sfx_volume',
-                     'skin','shake','units','motion'):
+                     'shake','units','motion'):
             assert getattr(current,name)==getattr(old,name),name
         assert list(current.perks)==list(old.perks)
     else:
         assert current.music_on and current.sfx_on
+    assert current.skin==3
     assert current.version==4
     for name in ('recovery','livery','wheels'):
         assert not any(getattr(current,name)),name

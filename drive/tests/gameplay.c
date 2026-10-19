@@ -120,12 +120,12 @@ static void economy(void) {
  step(&g,K_A,K_A);CHECK(!(g.save.owned&2u) && !g.save.cash);
  g.save.owned|=1u<<10;g.save.cash=vehicles[1].price;step(&g,K_A,K_A);
  CHECK(g.save.owned&2u);CHECK(!g.save.cash && g.save.selected_vehicle==1 && g.save_requested);
- g.garage_tab=0;g.cursor=1;step(&g,K_A,K_A);CHECK(!g.save.cash); /* re-equipping is free */
- g.selection=2;g.garage_tab=1;g.cursor=3;g.save.cash=50000;
+ g.garage_tab=0;g.cursor=0;step(&g,K_A,K_A);CHECK(!g.save.cash); /* re-equipping is free */
+ g.selection=2;g.garage_tab=1;g.cursor=2;g.save.cash=50000;
  uint32_t cash=g.save.cash;step(&g,K_A,K_A);CHECK(g.save.cash==cash && !g.save.engine[2]);
  g.selection=1;g.save.mastery_xp[1]=1000000;
  for(int kind=0;kind<4;kind++) {
-  g.cursor=(uint8_t)(3+kind);
+  g.cursor=(uint8_t)(2+kind);
   for(int level=0;level<UPGRADE_MAX;level++) {
    int cost=game_upgrade_cost(&g,kind);CHECK(cost>0);cash=g.save.cash;
    step(&g,K_A,K_A);CHECK(g.save.cash==cash-(unsigned)cost);
@@ -134,7 +134,7 @@ static void economy(void) {
  }
  CHECK(g.save.engine[1]==UPGRADE_MAX && g.save.grip[1]==UPGRADE_MAX && g.save.armor[1]==UPGRADE_MAX);
  CHECK(!game_upgrade_cost(&g,-1) && !game_upgrade_cost(&g,4));
- g.garage_tab=2;g.cursor=5;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
+ g.garage_tab=2;g.cursor=4;g.paint_choice=3;step(&g,K_A,K_A);CHECK(!g.save.paint[1]);
  g.paint_choice=2;step(&g,K_A,K_A);CHECK(g.save.paint[1]==2);
  g.mode=M_DEPARTURES;g.cursor=1;g.save.cash=locations[1].price-1;
  step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&2u));
@@ -167,7 +167,7 @@ static void saves(void) {
  INVALID(paints,0);INVALID(paints,127);INVALID(engine[0],UPGRADE_MAX+1);INVALID(grip[0],UPGRADE_MAX+1);INVALID(armor[0],UPGRADE_MAX+1);
  INVALID(paint[0],6);INVALID(paint[0],3);INVALID(cash,UINT32_MAX);INVALID(seed,0);INVALID(best_score,UINT32_MAX);
  INVALID(music_on,2);INVALID(sfx_on,2);INVALID(music_volume,101);INVALID(sfx_volume,101);
- INVALID(skin,SKIN_COUNT);INVALID(shake,2);INVALID(units,2);INVALID(motion,3);
+ INVALID(skin,SKIN_STORAGE_LIMIT);INVALID(shake,2);INVALID(units,2);INVALID(motion,3);
  INVALID(mastery_xp[0],UINT32_MAX);INVALID(career_xp,UINT32_MAX);INVALID(perks[0],4);INVALID(perks[0],1);
  INVALID(power_tune[0],3);INVALID(handling_tune[0],3);INVALID(chassis_tune[0],3);
  INVALID(power_tune[0],1);INVALID(handling_tune[0],1);INVALID(chassis_tune[0],1);

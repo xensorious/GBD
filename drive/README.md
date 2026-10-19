@@ -47,7 +47,7 @@ three-profile bank uses an **8 KiB EEPROM**, with three independently checked
 
 Slow takes priority if Up and Down are held together. Turbo and Slow are hold
 modifiers, not switches. Menus use Up/Down and A/B. In Garage, L/R switches
-between Showroom, Tuning, Style and Dealer. Left/Right on the vehicle row
+between Showroom, Tuning, Style and Dealer. Left/Right on Grab your keys in Showroom
 browses owned models. In Dealer, Left/Right or Select changes class; Up/Down
 highlights cars and A purchases one. Style and build choices are previews until
 you choose their Install row. B returns to the previous menu.
@@ -60,13 +60,14 @@ underneath that information. Every menu is on the lower screen;
 the upper screen shows an animated drive or a vehicle in a departure-themed garage. Instrument
 clusters change with the vehicle, including classic dials, digital sports
 clusters, utility instruments and a motorcycle display. Settings offers
-**Midnight**, the retained glass interface; **Apex**, a bright tile workspace;
-**Signal**, a dark driver terminal with a settings sidebar; and **Fusion**,
-which combines Midnight's colors and glass borders, Apex's tile home screen,
-and Signal's settings layout. In Fusion, all four D-pad directions move between
-home tiles. L/R cycles the Audio, Display and Guide pages in Settings, while
-Up/Down scrolls through the full list and Left/Right adjusts the selected value.
-These interfaces continue through the garage, route library, career, challenges, pause and results.
+**Fusion** as the standard midnight glass interface, **Pearl** with inset ivory
+ceramic tiles and brass details, and **Voltage** with illuminated cut-corner
+frames and electric foil. All three share the same layout: all four D-pad
+directions move between home tiles, L/R cycles the Audio, Display and Guide
+pages in Settings, Up/Down scrolls through the full list, and Left/Right adjusts
+the selected value. Their artwork continues through every menu and the garage.
+The animated upper-screen drive uses compact translucent floating captions,
+leaving the skyline, scenery and road visible.
 Settings also includes independent music and
 sound-effect toggles and volumes, road motion, camera shake and speed units.
 
@@ -163,8 +164,10 @@ count just below them. The top screen displays the highlighted car inside a
 three-wall workshop whose floor, lighting and window scenery match your departure.
 
 - **Showroom:** browse owned vehicles and **Grab your keys** to equip one.
-  Change an owned departure with Left/Right, or open Route library to review
-  and unlock destinations. Departures now live here rather than on the main menu.
+  Left/Right browses your collection; A equips the highlighted vehicle.
+  Open **Departure** to browse, unlock, purchase and select locations in one
+  place. The upper screen shows the highlighted vehicle, class and stats;
+  Tuning and Style work on that vehicle without a duplicate selection card.
   Three saved presets remember a vehicle, installed build, finish and departure.
   Load preset shows the refitting cost before you apply it. Permanent upgrades
   belong to the vehicle and are not copied or reset by presets.
@@ -209,7 +212,8 @@ retain their full progression and settings. First-draft cartridge battery saves
 migrate to the expanded format, retaining their purchases and records. Version 4
 adds installation history, smoke colors and presets to the same packed 500-byte
 profile image. The opening stores three such profiles in the larger 8 KiB bank. Previous color-only
-Miami/Sunset selections migrate to Midnight; choose Apex, Signal or Fusion in Settings. Delta
+Apex, Signal and Midnight selections migrate to Fusion; existing Fusion choices
+are retained. Choose Fusion, Pearl or Voltage in Settings. Delta
 stores this as cartridge battery data. An unfinished run is not saved. Keep an
 exported battery save when moving devices; save states include program state
 and can depend on the exact ROM version. This game's save is separate from
@@ -236,12 +240,14 @@ service. The output is `drive/build/Coastline.nds`.
 
 ```sh
 bash drive/tests/setup_emulator.sh
-python3 drive/tests/playthrough.py --output drive/build/studio-validation
-python3 drive/tests/studio.py
-python3 drive/tests/opening.py
-python3 drive/tests/migration.py --output drive/build/studio-validation
-python3 drive/tests/studio_migration.py
-python3 drive/tools/package.py
+python3 drive/tests/playthrough.py --output drive/build/fusion-styles-final
+python3 drive/tests/studio.py --output drive/build/fusion-styles-final
+python3 drive/tests/opening.py --output drive/build/fusion-styles-final
+python3 drive/tests/migration.py --output drive/build/fusion-styles-final
+python3 drive/tests/studio_migration.py --output drive/build/fusion-styles-final
+# Requires opening.py captures from pinned release dfca164, as documented in the script:
+python3 drive/tests/previous_profiles.py --source drive/build/opening-validation --output drive/build/fusion-styles-final
+python3 drive/tools/package.py --validation drive/build/fusion-styles-final
 ```
 
 Native sanitizer tests check driving, generation, scoring, shops, progression

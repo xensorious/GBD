@@ -65,7 +65,7 @@ if a.phase is None:
         '--output',str(a.output/'v3-reloaded.png')],check=True)
     result={'rom':inspect(rom),'baseline_rom':inspect(baseline/'Coastline.nds'),
         'previous_v3_compatibility':True,'legacy_fields_preserved':True,
-        'old_color_only_skins_migrate_to_midnight':True,'fresh_process_reload':True,
+        'old_color_only_skins_migrate_to_fusion':True,'fresh_process_reload':True,
         'source':'rich 31-car fixture first accepted by previous published ROM',
         'old_ram_bytes':596,'new_ram_bytes':708,**assert_compact_battery(directory/'Coastline.dsv')}
     (a.output/'studio-migration-results.json').write_text(json.dumps(result,indent=2)+'\n')
@@ -87,7 +87,7 @@ else:
             actual,expected=getattr(g.save,name),getattr(old,name)
             if isinstance(actual,C.Array):assert list(actual)==list(expected),name
             else:assert actual==expected,name
-        assert g.save.skin==2 and not g.save.preset_mask and not any(g.save.presets)
+        assert g.save.skin==3 and not g.save.preset_mask and not any(g.save.presets)
         for v in range(31):
             assert g.save.paint_seen[v]==(1|(1<<old.paint[v]))
             assert g.save.smoke[v]==0 and g.save.smoke_seen[v]==1
