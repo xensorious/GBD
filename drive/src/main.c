@@ -50,7 +50,9 @@ int main(void){
   if(game.save_requested){
    int encoded=opening_store(&opening,&game);
    unsigned address=opening.active_slot*SAVE_RECORD_SIZE;
-   game_save_result(&game,encoded && ds_save_write_at(address,opening.records+address,SAVE_RECORD_SIZE));
+   int okay=encoded && (opening.migrate?ds_save_write(opening.records,SAVE_BANK_SIZE):ds_save_write_at(address,opening.records+address,SAVE_RECORD_SIZE));
+   if(okay)opening.migrate=0;
+   game_save_result(&game,okay);
   }
   /* The platform already owns two VRAM pages for the upper screen. Draw
      directly into the hidden page instead of retaining a third RAM copy. */

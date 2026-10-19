@@ -15,7 +15,24 @@ static void preview(Opening*o,Game*g){
 }
 void opening_init(Opening*o,Game*g,const void*raw,unsigned size){
  memset(o,0,sizeof *o);memset(o->records,0xff,sizeof o->records);o->active_slot=255;
- if(raw){if(size>sizeof o->records)size=sizeof o->records;memcpy(o->records,raw,size);}
+ if(raw){
+  const uint8_t*data=raw;int current=0;
+  for(int i=0;i<SAVE_SLOT_COUNT;i++)if(size>=(unsigned)i*SAVE_RECORD_SIZE+8){uint32_t h[2];memcpy(h,data+i*SAVE_RECORD_SIZE,8);if(h[0]==0x434c4452u && h[1]==5u)current=1;}
+  if(current){if(size>sizeof o->records)size=sizeof o->records;memcpy(o->records,raw,size);}
+  else for(int i=0;i<SAVE_SLOT_COUNT;i++){
+   unsigned offset=i*512;if(size<offset+8)continue;
+   const uint8_t*p=data+offset;unsigned available=size-offset;
+   if(i){if(available<512)continue;uint32_t tag[3];memcpy(tag,p+500,12);if(tag[0]!=SLOT_MAGIC || tag[1]!=(unsigned)i || tag[2]!=checksum(p,500))continue;}
+   Game imported;game_init(&imported,1);
+   if(game_load_bytes(&imported,p,available<500?available:500)){
+    uint8_t*record=o->records+i*SAVE_RECORD_SIZE;
+    if(game_encode_save(&imported,record,SAVE_RECORD_SIZE)){
+     uint32_t tag[3]={SLOT_MAGIC,(unsigned)i,checksum(record,SAVE_DISK_SIZE)};
+     memcpy(record+SAVE_DISK_SIZE,tag,sizeof tag);o->migrate=1;
+    }
+   }
+  }
+ }
  for(int i=0;i<SAVE_SLOT_COUNT;i++){Game test;game_init(&test,1);if(load_slot(o,&test,i))metadata(&o->slots[i],&test);}
  for(int i=0;i<SAVE_SLOT_COUNT;i++)if(o->slots[i].valid){o->cursor=(uint8_t)i;break;}
  preview(o,g);

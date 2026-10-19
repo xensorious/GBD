@@ -166,14 +166,14 @@ static void garage(Surface*s,const Game*g){
  static const char*const tabs[4]={"Showroom","Tuning","Style","Dealer"};
  for(int i=0;i<4;i++){glass(s,i*64,0,63,20,g->garage_tab==i);center_small(s,i*64,6,63,tabs[i],g->garage_tab==i?t->selected_ink:t->ink);}
  char cash[24]="";money(cash,g->save.cash,sizeof cash);gfx_text_small(s,6,25,g->garage_tab==3?"SELECT CLASS":g->garage_tab==0?"YOUR COLLECTION":g->garage_tab==1?"PERFORMANCE":"CUSTOM FINISH",t->muted);right_small(s,179,25,cash,t->accent);
- char own[24]="OWNED ";number(own,game_owned_count(g),sizeof own);append(own,"/31",sizeof own);right_small(s,251,25,own,t->muted);
+ char own[24]="OWNED ";number(own,game_owned_count(g),sizeof own);append(own,"/48",sizeof own);right_small(s,251,25,own,t->muted);
  int id=clamp(g->selection,0,VEHICLE_COUNT-1);
  if(g->garage_tab==3){
-  glass(s,4,37,248,22,0);limited(s,11,40,150,vehicles[id].name,t->ink);char meta[32]="CLASS ";append(meta,game_class_name(vehicles[id].class_id),sizeof meta);append(meta," / ",sizeof meta);append(meta,game_specialty_name(vehicles[id].specialty),sizeof meta);right_small(s,244,44,meta,t->accent);
+  glass(s,4,37,248,22,0);limited(s,11,40,150,vehicles[id].name,t->ink);char meta[32]="CLASS ";append(meta,game_class_name(vehicles[id].class_id),sizeof meta);append(meta," / ",sizeof meta);append(meta,game_tier_name(id),sizeof meta);right_small(s,244,44,meta,t->accent);
   for(int c=0;c<5;c++){int x=5+c*50;glass(s,x,63,47,18,c==g->garage_filter);center_small(s,x,68,47,game_class_name(c),c==g->garage_filter?t->selected_ink:t->muted);}
   int count=game_dealer_count(g->garage_filter),selected=g->cursor?g->cursor-1:0,first=clamp(selected-2,0,count>5?count-5:0);
   for(int r=0;r<5 && first+r<count;r++){
-   int v=game_dealer_vehicle(g->garage_filter,first+r),sel=g->cursor==first+r+1,owned=(g->save.owned&(1u<<v))!=0,y=85+r*19;
+   int v=game_dealer_vehicle(g->garage_filter,first+r),sel=g->cursor==first+r+1,owned=save_owns(&g->save,v),y=85+r*19;
    glass(s,4,y,248,18,sel);limited(s,12,y+3,127,vehicles[v].name,sel?t->selected_ink:t->ink);
    char price[24]="";if(owned)append(price,"IN COLLECTION",sizeof price);else if(!game_can_vehicle(g,v))append(price,game_class_unlocked(g,g->garage_filter)?"CHALLENGE":"CLASS LOCKED",sizeof price);else money(price,vehicles[v].price,sizeof price);
    right_small(s,244,y+5,price,sel?t->selected_detail:t->accent);
@@ -192,7 +192,7 @@ static void garage(Surface*s,const Game*g){
   for(int i=0;i<4;i++){char label[36]="",value[24]="";append(label,names[i],sizeof label);append(label," ",sizeof label);number(label,levels[i][id],sizeof label);append(label,"/6",sizeof label);
    int locked=game_mastery_level(g,id)<game_upgrade_rank(g,i);if(levels[i][id]>=6)append(value,"MAX",sizeof value);else if(locked){append(value,"MASTERY ",sizeof value);number(value,game_upgrade_rank(g,i),sizeof value);}else money(value,game_upgrade_cost(g,i),sizeof value);garage_line(s,g,2+i,label,value,locked);}
  }else{
-  const char *labels[4]={"Paint","Livery",id>=25?"Hardware":"Tire finish","Tire smoke"};
+  const char *labels[4]={"Paint","Livery",(id>=25 && id<=30)?"Hardware":"Tire finish","Tire smoke"};
   const char *values[4]={paint_names[g->paint_choice%6],game_livery_name(g->livery_choice),game_wheel_name(g->wheel_choice),game_smoke_name(g->smoke_choice)};
   int kinds[4]={2,0,1,3},choices[4]={g->paint_choice,g->livery_choice,g->wheel_choice,g->smoke_choice},total=0,locked=0;
   for(int i=0;i<4;i++){int cost=game_cosmetic_cost(g,kinds[i],choices[i]);char value[64]="";append(value,values[i],sizeof value);append(value," / ",sizeof value);if(cost<0){append(value,"LOCKED",sizeof value);locked=1;}else if(!cost)append(value,"FITTED",sizeof value);else{money(value,(uint32_t)cost,sizeof value);total+=cost;}garage_line(s,g,i,labels[i],value,cost<0);}
@@ -274,11 +274,11 @@ static void pause_menu(Surface*s,const Game*g){
 enum Cluster { CL_CLASSIC,CL_DIGITAL,CL_UTILITY,CL_BIKE,CL_LUXURY,CL_RACE,CL_ACTIVE,CL_BALANCE,CL_HORSE };
 static int cluster_for(int v){
  switch(v){
- case 0:case 5:case 10:return CL_CLASSIC;
- case 1:case 6:case 11:case 14:case 17:return CL_DIGITAL;
- case 2:case 8:case 12:case 13:case 20:case 24:return CL_UTILITY;
- case 3:case 27:return CL_BIKE;
- case 7:case 15:case 18:case 22:return CL_LUXURY;
+ case 0:case 5:case 10:case 31:case 33:return CL_CLASSIC;
+ case 1:case 6:case 11:case 14:case 17:case 32:case 35:return CL_DIGITAL;
+ case 2:case 8:case 12:case 13:case 20:case 24:case 34:case 42:case 46:return CL_UTILITY;
+ case 3:case 27:case 43:case 44:case 45:return CL_BIKE;
+ case 7:case 15:case 18:case 22:case 40:case 41:return CL_LUXURY;
  case 25:case 26:case 29:return CL_ACTIVE;
  case 28:return CL_BALANCE;
  case 30:return CL_HORSE;

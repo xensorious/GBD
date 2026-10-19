@@ -39,7 +39,7 @@ if a.skin is None:
         'garage_tabs':['Showroom','Tuning','Style','Dealer'],'cases':cases,
         'fresh_process_reload':all(c['fresh_process_reload'] for c in cases),
         'profile_source':'labelled funded review profile; all actions use buttons; RAM read only',
-        'departure_interiors':13,'serialized_save_bytes':500,'physical_save_bytes':8192}
+        'departure_interiors':13,'serialized_save_bytes':1000,'physical_save_bytes':8192}
     (a.output/'studio-results.json').write_text(json.dumps(report,indent=2)+'\n')
     print('All three actual-cartridge interface reviews passed.',flush=True)
     sys.exit(0)
@@ -47,11 +47,11 @@ if a.skin is None:
 skin=a.skin;lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 vehicles,locations=catalogue(lib)
 profile=Game();lib.game_init(C.byref(profile),0x53545544)
-profile.save.skin=skin;profile.save.cash=1000000;profile.save.owned=0x7fffffff&~(1<<10)
+profile.save.skin=skin;profile.save.cash=1000000;profile.save.owned=0xffffffff&~(1<<10);profile.save.owned_hi=0xffff
 profile.save.unlocked_locations=(1<<13)-1;profile.save.paints=63
 profile.save.career_xp=50000;profile.save.best_near=20;profile.save.best_drift=3000
 profile.save.best_distance=6000;profile.save.best_speed_hold=240;profile.save.best_wheelie=1000
-for v in range(31):profile.save.mastery_xp[v]=10000
+for v in range(48):profile.save.mastery_xp[v]=10000
 directory=a.output/f'studio-{skin}-save';shutil.rmtree(directory,ignore_errors=True)
 template=a.output/'save'/'Coastline.dsv'
 assert template.exists(),'Run the stock playthrough first to create a genuine battery footer.'
@@ -59,13 +59,13 @@ write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 events=[]
 with Emulator(a.rom,directory) as e:
     e.run(180);d=DriveThrough(e,find_symbol(a.elf,'game'),a.output)
-    assert d.game().has_save and d.game().save.version==4 and d.game().save.cash==1000000
+    assert d.game().has_save and d.game().save.version==5 and d.game().save.cash==1000000
     def shot(name):d.shot(f'ui-{skin}-{name}')
     def tab(n):
         while d.game().garage_tab!=n:d.press('r')
     def owned(v):
         d.menu(0)
-        for _ in range(31):
+        for _ in range(48):
             if d.game().selection==v:return
             d.press('right')
         raise AssertionError('Owned vehicle missing')
@@ -116,13 +116,13 @@ with Emulator(a.rom,directory) as e:
     # Showroom cannot browse unowned cars; the Dealer has ordered class lists.
     d.menu(0)
     visited=[]
-    for _ in range(30):visited.append(d.game().selection);d.press('right')
-    assert len(set(visited))==30 and 10 not in visited
+    for _ in range(47):visited.append(d.game().selection);d.press('right')
+    assert len(set(visited))==47 and 10 not in visited
     owned(0);shot('showroom');tab(3)
     reviewed=set()
     for cls in range(5):
         while d.game().garage_filter!=cls:d.press('right')
-        expected=[v['id'] for v in vehicles if v['class_id']==cls]
+        expected=sorted([v['id'] for v in vehicles if v['class_id']==cls],key=lambda v:(0 if v<31 and vehicles[v]['specialty']==0 else 1 if v<31 else 3 if v in (37,39,41,46,47) else 2,vehicles[v]['price'],v))
         for row,v in enumerate(expected,1):
             d.menu(row);assert d.game().selection==v;reviewed.add(v)
             if v==10:
@@ -130,7 +130,7 @@ with Emulator(a.rom,directory) as e:
                 assert d.game().save.owned&(1<<10)
                 assert d.game().save.cash==cash-vehicles[10]['price']
         shot('dealer-'+str(cls))
-    assert reviewed==set(range(31))
+    assert reviewed==set(range(48))
     tab(0);owned(0);d.menu(0);d.press('a');assert d.game().save.selected_vehicle==0
     tab(1);d.menu(2);cash=d.game().save.cash;d.press('a')
     assert d.game().save.engine[0]==1 and d.game().save.cash<cash
@@ -154,7 +154,7 @@ with Emulator(a.rom,directory) as e:
     assert g.save.cash==cash-245 and g.save.selected_vehicle==0 and g.save.selected_location==1
     assert g.save.smoke[0]==2 and g.save.presets[0]==saved
     shot('presets')
-    events.extend(['owned-only showroom','all 31 cars in five class lists','dealer purchase',
+    events.extend(['owned-only showroom','all 48 vehicles in five class lists','dealer purchase',
         'engine upgrade and top-speed build','full-price installation $490',
         'factory restoration $81','returning finish $245','paid preset restores car/build/route/style'])
     # All departure themes are selected through the single Departure selector.
@@ -182,7 +182,7 @@ geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),'--elf',str(a.elf),
     '--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/f'ui-{skin}-reloaded.png')],check=True)
 result={'skin':skin,'name':('Fusion','Pearl','Voltage')[skin-3],'checks':events,
-    'all_classes_reviewed':True,'vehicles_reviewed':31,'cosmetics_and_presets_passed':True,
+    'all_classes_reviewed':True,'vehicles_reviewed':48,'cosmetics_and_presets_passed':True,
     'fusion_navigation_passed':True,
     'fresh_process_reload':True,'screenshots':screenshots,**geometry}
 (a.output/f'studio-{skin}.json').write_text(json.dumps(result,indent=2)+'\n')

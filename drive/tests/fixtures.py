@@ -52,21 +52,21 @@ def write_battery(template:Path,destination:Path,payload:bytes):
 
 
 def encode_profile(library,game):
-    """Use the cartridge codec; the 708-byte RAM view is never a disk fixture."""
-    from game_snapshot import Game,Save,DiskSave3
+    """Use the cartridge codec; the unpacked RAM view is never a disk fixture."""
+    from game_snapshot import Game,Save,SAVE_DISK_SIZE
     library.game_make_save.argtypes=[C.POINTER(Game),C.POINTER(Save)]
     library.game_save_valid.argtypes=[C.POINTER(Save)]
     canonical=Save();library.game_make_save(C.byref(game),C.byref(canonical))
     assert library.game_save_valid(C.byref(canonical)),'Invalid native review profile'
     library.game_encode_save.argtypes=[C.POINTER(Game),C.c_void_p,C.c_uint]
     library.game_encode_save.restype=C.c_int
-    data=(C.c_uint8*500)()
+    data=(C.c_uint8*SAVE_DISK_SIZE)()
     assert library.game_encode_save(C.byref(game),data,len(data))
     payload=bytes(data)
-    assert len(payload)==500 and struct.unpack_from('<I',payload,4)[0]==4
+    assert len(payload)==SAVE_DISK_SIZE and struct.unpack_from('<I',payload,4)[0]==5
     loaded=Game();library.game_init(C.byref(loaded),123)
     library.game_load_bytes.argtypes=[C.POINTER(Game),C.c_void_p,C.c_uint]
-    assert library.game_load_bytes(C.byref(loaded),data,500)
+    assert library.game_load_bytes(C.byref(loaded),data,SAVE_DISK_SIZE)
     roundtrip=Save();library.game_make_save(C.byref(loaded),C.byref(roundtrip))
     assert bytes(roundtrip)==bytes(canonical)
 
@@ -81,16 +81,16 @@ def battery_size(path:Path):
 
 
 def assert_compact_battery(path:Path):
-    """Independently validate the 500-byte first profile in the 8 KiB bank."""
+    """Independently validate the 1000-byte first profile in the 8 KiB bank."""
     assert battery_size(path)==8192,'Three profiles require the 8 KiB save bank'
-    payload=bytearray(path.read_bytes()[:500])
-    assert struct.unpack_from('<II',payload)==(0x434c4452,4)
+    payload=bytearray(path.read_bytes()[:1000])
+    assert struct.unpack_from('<II',payload)==(0x434c4452,5)
     stored=struct.unpack_from('<I',payload,8)[0];payload[8:12]=b'\0'*4
     value=2166136261
     for byte in payload:value=((value^byte)*16777619)&0xffffffff
-    assert value==stored,'The serialized v4 checksum does not cover the full 500-byte profile'
-    assert payload[204:]!=b'\xff'*296,'No profile tail was written beyond the old payload'
-    return {'serialized_save_bytes':500,'physical_save_bytes':8192,'disk_checksum_valid':True}
+    assert value==stored,'The serialized v5 checksum does not cover the full 1000-byte profile'
+    assert payload[204:]!=b'\xff'*796,'No profile tail was written beyond the old payload'
+    return {'serialized_save_bytes':1000,'physical_save_bytes':8192,'disk_checksum_valid':True}
 
 
 def assert_imported_fields(current,old):
@@ -117,10 +117,10 @@ def assert_imported_fields(current,old):
     else:
         assert current.music_on and current.sfx_on
     assert current.skin==3
-    assert current.version==4
+    assert current.version==5
     for name in ('recovery','livery','wheels'):
         assert not any(getattr(current,name)),name
     for name in ('livery_owned','wheels_owned'):
-        assert list(getattr(current,name))==[1]*31,name
+        assert list(getattr(current,name))==[1]*48,name
     assert current.dispatch_choice==3 and not current.contracts_completed
     assert not any(current.reserved)

@@ -1500,7 +1500,7 @@ static void draw_garage_room(Surface *s,const Game *g,const StudioTheme *ui){
  }
  overlay_panel(s,4,179,248,13,ui->pane);
  if(g->notice_timer && g->notice[0])gfx_text_small(s,9,182,g->notice,ui->ink);
- else{char line[64];snprintf(line,sizeof line,"MASTERY %d  /  %s",game_mastery_level(g,id),game_specialty_name(vehicles[id].specialty));gfx_text_small(s,9,182,line,ui->ink);}
+ else{char line[64];snprintf(line,sizeof line,"%s  /  MASTERY %d  /  %s",game_tier_name(id),game_mastery_level(g,id),game_specialty_name(vehicles[id].specialty));gfx_text_small(s,9,182,line,ui->ink);}
 }
 static void draw_showroom(Surface *s,const Game *g,int receipt)
 {

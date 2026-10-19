@@ -130,7 +130,7 @@ static void settings_and_locations(void) {
 }
 static void classes_and_roster(void) {
  static const int gates[5]={0,2,5,8,10};
- Game g;init(&g);CHECK(VEHICLE_COUNT==31 && LOCATION_COUNT==13);
+ Game g;init(&g);CHECK(VEHICLE_COUNT==48 && LOCATION_COUNT==13);
  int old_value_price=-1,old_fastest=0;
  for(int cls=CLASS_D;cls<=CLASS_S;++cls) {
   int members=0,seen=0,value=-1,top=-1,accel=-1,armor=-1;
@@ -155,7 +155,7 @@ static void classes_and_roster(void) {
   CHECK(vehicles[value].price>old_value_price && vehicles[top].top_speed>old_fastest);
   old_value_price=vehicles[value].price;old_fastest=vehicles[top].top_speed;
   for(int n=0;n<=VEHICLE_COUNT;++n) {
-   g.save.owned=n?((1u<<n)-1u):0;
+   g.save.owned=0;g.save.owned_hi=0;for(int id=0;id<n;id++)save_add_vehicle(&g.save,id);
    CHECK(game_owned_count(&g)==n);
    CHECK(game_class_unlocked(&g,cls)==(n>=gates[cls]));
   }
@@ -209,8 +209,8 @@ static void cosmetics_and_recovery(void) {
  for(int i=0;i<LIVERY_COUNT;++i)CHECK(*game_livery_name(i));
  for(int i=0;i<WHEEL_COUNT;++i)CHECK(*game_wheel_name(i));
  CHECK(game_cosmetic_cost(&g,-1,0)==-1 && game_cosmetic_cost(&g,0,LIVERY_COUNT)==-1);
- uint8_t disk[512];memset(disk,0xa5,sizeof(disk));CHECK(game_encode_save(&g,disk,sizeof(disk)));
- for(int i=SAVE_DISK_SIZE;i<512;++i)CHECK(disk[i]==0xa5);
+ uint8_t disk[SAVE_DISK_SIZE+12];memset(disk,0xa5,sizeof(disk));CHECK(game_encode_save(&g,disk,sizeof(disk)));
+ for(int i=SAVE_DISK_SIZE;i<(int)sizeof disk;++i)CHECK(disk[i]==0xa5);
  game_init(&loaded,7);CHECK(game_load_bytes(&loaded,disk,sizeof(disk)));
  CHECK(loaded.save.livery_owned[0]==3 && loaded.save.livery[10]==2 && loaded.save.wheels[10]==3);
  CHECK(loaded.save.livery_owned[10]==5 && loaded.save.wheels_owned[10]==9);
@@ -274,6 +274,6 @@ static void dispatch_contracts(void) {
 int main(void) {
  thresholds();parts_and_tunes();perks_and_banking();settings_and_locations();
  classes_and_roster();cosmetics_and_recovery();dispatch_contracts();
- printf("progression: %u checks; 31-ride classes/specialties/gates, lasting parts, cosmetics, contracts, mastery, perks and bank-once rewards pass\n",checks);
+ printf("progression: %u checks; 48-ride classes/specialties/gates, lasting parts, cosmetics, contracts, mastery, perks and bank-once rewards pass\n",checks);
  return 0;
 }

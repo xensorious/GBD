@@ -14,7 +14,7 @@ static void quiet(Game *g) {
  g->next_spawn_q8=6000000*Q;
 }
 static void begin(Game *g,int vehicle) {
- game_init(g,0x7ab31u);g->save.owned|=1u<<vehicle;
+ game_init(g,0x7ab31u);save_add_vehicle(&g->save,vehicle);
  g->save.selected_vehicle=(uint8_t)vehicle;game_begin_run(g);quiet(g);
  g->x_q8=g->vx_q8=0;
 }
@@ -137,9 +137,9 @@ static void police_recovery_and_pause(void) {
 }
 static void reasons_and_save(void) {
  Game g,loaded;Save before,after;begin(&g,0);
- CHECK(sizeof(Save)==708 && sizeof(RunStats)==108);
- CHECK(sizeof(Game)==1808 && offsetof(Game,police_ticks)==1776);
- CHECK(offsetof(Game,police_pressure)==1778 && offsetof(Game,end_reason)==1779);
+ CHECK(sizeof(Save)==1032 && sizeof(RunStats)==108);
+ CHECK(sizeof(Game)==2132 && offsetof(Game,police_ticks)==2100);
+ CHECK(offsetof(Game,police_pressure)==2102 && offsetof(Game,end_reason)==2103);
  game_make_save(&g,&before);g.police_ticks=89;g.police_pressure=98;g.end_reason=END_CRASH;
  game_make_save(&g,&after);CHECK(!memcmp(&before,&after,sizeof(before)));
  game_init(&loaded,41);CHECK(game_load(&loaded,&before));game_begin_run(&loaded);

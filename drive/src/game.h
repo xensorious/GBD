@@ -4,13 +4,15 @@
 
 #define DRIVE_HZ 30
 #define Q 256
-#define VEHICLE_COUNT 31
+#define VEHICLE_COUNT 48
 #define UPGRADE_MAX 6
 #define PERK_COUNT 3
 #define SKIN_COUNT 3
 #define SKIN_STORAGE_LIMIT 6
 #define LOCATION_COUNT 13
-#define SAVE_DISK_SIZE 500
+#define SAVE_DISK_SIZE 1000
+#define VEHICLE_MASK_LOW UINT32_MAX
+#define VEHICLE_MASK_HIGH 0xffffu
 #define CLASS_COUNT 5
 #define LIVERY_COUNT 5
 #define WHEEL_COUNT 4
@@ -58,7 +60,7 @@ extern const VehicleDef vehicles[VEHICLE_COUNT];
 extern const LocationDef locations[LOCATION_COUNT];
 extern const char *const bonus_names[BONUS_COUNT];
 
-/* Unpacked profile view. The cartridge codec packs it into 500 bytes.
+/* Unpacked profile view. The cartridge codec packs it into 1000 bytes.
  * No pointers or native enums are persisted. */
 typedef struct {
  uint32_t magic,version,checksum,cash,owned,unlocked_locations,paints;
@@ -77,6 +79,7 @@ typedef struct {
  uint8_t paint_seen[VEHICLE_COUNT],smoke[VEHICLE_COUNT],smoke_seen[VEHICLE_COUNT];
  uint32_t presets[PRESET_COUNT];
  uint8_t preset_mask;
+ uint32_t owned_hi;
 } Save;
 typedef struct {
  uint32_t count[BONUS_COUNT],points[BONUS_COUNT];
@@ -145,6 +148,11 @@ const char *game_tune_name(int kind,int value);
 const char *game_tune_description(int kind,int value);
 int game_can_vehicle(const Game *g,int id);
 int game_owned_count(const Game *g);
+const char *game_tier_name(int vehicle);
+int game_vehicle_tier(int vehicle);
+/* Split ownership avoids undefined shifts above vehicle 31 on ARM9. */
+static inline int save_owns(const Save*s,int id){return id>=0 && id<VEHICLE_COUNT && ((id<32?s->owned:s->owned_hi)&(UINT32_C(1)<<(id&31)))!=0;}
+static inline void save_add_vehicle(Save*s,int id){if(id>=0 && id<VEHICLE_COUNT){if(id<32)s->owned|=UINT32_C(1)<<id;else s->owned_hi|=UINT32_C(1)<<(id-32);}}
 int game_vehicle_class(int id);
 const char *game_class_name(int class_id);
 const char *game_specialty_name(int specialty);

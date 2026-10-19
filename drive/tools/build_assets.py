@@ -88,14 +88,14 @@ PROP_NAMES = (
     "SNOW_ROCK", "SNOW_BUSH", "SNOW_BANK", "CRYSTAL", "SOLAR_ARRAY",
     "SALT_MOUND", "SCRUB", "FLAMINGO",
 )
-VEHICLE_COUNT = 31
+VEHICLE_COUNT = 48
 BUILDING_COUNT = 25
 BOAT_COUNT = 4
 ASSETS: list[tuple[str, str, int]] = []
 
 
 def raw(name: str, data: bytes, ctype: str, count: int) -> None:
-    size = {"uint8_t": 1, "int8_t": 1, "uint16_t": 2}[ctype]
+    size = {"uint8_t": 1, "int8_t": 1, "uint16_t": 2, "uint32_t": 4}[ctype]
     if len(data) != count * size:
         raise ValueError(f"{name}: byte length does not match declaration")
     (OUT / f"{name}.bin").write_bytes(data)
@@ -104,6 +104,36 @@ def raw(name: str, data: bytes, ctype: str, count: int) -> None:
 
 def pixels(im: Image.Image):
     return im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()
+
+
+def lz10(data: bytes) -> bytes:
+    """Deterministic LZ10; five poses share a single cold-loaded vehicle bank."""
+    import collections
+    result = bytearray((0x10, len(data) & 255, len(data) >> 8 & 255, len(data) >> 16))
+    chains = collections.defaultdict(collections.deque)
+    at = 0
+    while at < len(data):
+        flag_at = len(result); result.append(0); flags = 0
+        for bit in range(8):
+            if at >= len(data): break
+            key = data[at:at + 3]; choices = chains[key]
+            while choices and at - choices[0] > 4096: choices.popleft()
+            length, distance = 0, 0
+            for earlier in reversed(choices):
+                n = 3
+                while n < 18 and at + n < len(data) and data[earlier + n] == data[at + n]: n += 1
+                if n > length: length, distance = n, at - earlier
+                if n == 18: break
+            amount = length if length >= 3 else 1
+            if amount > 1:
+                flags |= 128 >> bit
+                value = ((amount - 3) << 12) | (distance - 1)
+                result.extend((value >> 8, value & 255))
+            else: result.append(data[at])
+            for index in range(at, at + amount): chains[data[index:index + 3]].append(index)
+            at += amount
+        result[flag_at] = flags
+    return bytes(result)
 
 
 def rgb555(im: Image.Image) -> bytes:
@@ -256,8 +286,10 @@ def material_class(vehicle: int, r: int, g: int, b: int, x: float, y: float) -> 
     """
     hi, lo = max(r, g, b), min(r, g, b)
     sat = (hi - lo) / max(1, hi)
-    if vehicle >= 25 or vehicle == 3:
-        if vehicle == 3 and r > 95 and g > 65 and b < min(r, g) * .55 and .10 < y < .85:
+    if vehicle == 47 and .10 < y < .78 and .12 < x < .88 and hi > 24 and sat < .25 and not (.28 < x < .72 and .27 < y < .50):
+        return 1
+    if 25 <= vehicle <= 30 or vehicle in (3, 43, 44, 45):
+        if vehicle in (3, 43, 44, 45) and r > 95 and g > 65 and b < min(r, g) * .55 and .10 < y < .85:
             return 1
         skin_or_fur = r > b * 1.15 and r >= g * 1.03 and g > b * 1.03
         if skin_or_fur:
@@ -349,6 +381,10 @@ def artwork() -> None:
     additions += [content(novelty.crop((round(x * 1145 / 3), 615,
                                         round((x + 1) * 1145 / 3), 1374))) for x in range(3)]
     player_cars = cars[:6] + expansion + additions
+    premium_sheet = Image.open(ART / "vehicles-premium.png").convert("RGBA")
+    additions_premium = [content(premium_sheet.crop((round((i % 5) * premium_sheet.width / 5), ((0, 282), (283, 547), (548, 827), (828, 1122))[i // 5][0],
+        round((i % 5 + 1) * premium_sheet.width / 5), ((0, 282), (283, 547), (548, 827), (828, 1122))[i // 5][1]))) for i in range(17)]
+    player_cars += additions_premium
     assert len(player_cars) == VEHICLE_COUNT
     poses, indexed, palettes, materials = [], [], [], []
     material_counts = []
@@ -360,6 +396,13 @@ def artwork() -> None:
         material_counts.append({"vehicle": vehicle, "paint": sum(flags[i] == 1 for frame in frames for i in frame),
                                 "hardware": sum(flags[i] == 2 for frame in frames for i in frame)})
     raw("vehicle_indexed", b"".join(indexed), "uint8_t", VEHICLE_COUNT * 5 * 48 * 72)
+    compressed, offsets = bytearray(), array.array("I", [0])
+    for vehicle in range(VEHICLE_COUNT):
+        frames = b"".join(indexed[vehicle*5:(vehicle+1)*5])
+        compressed.extend(lz10(frames)); offsets.append(len(compressed))
+    if sys.byteorder != "little": offsets.byteswap()
+    raw("vehicle_lz", bytes(compressed), "uint8_t", len(compressed))
+    raw("vehicle_lz_offsets", offsets.tobytes(), "uint32_t", VEHICLE_COUNT + 1)
     raw("vehicle_palette", b"".join(palettes), "uint16_t", VEHICLE_COUNT * 256)
     raw("vehicle_palette_flags", b"".join(materials), "uint8_t", VEHICLE_COUNT * 256)
     # Oracle only: never linked into the cartridge; indexed decode is exact.
@@ -569,7 +612,9 @@ def declarations(music_bytes: int, music_rate: int) -> None:
     with (OUT / "assets.c").open("w") as output:
         output.write("/* Original Coastline assets; generated by tools/build_assets.py. */\n")
         for name, _, _ in ASSETS:
+            if name == "vehicle_indexed": output.write("#ifndef ARM9\n")
             output.write('__asm__(".section .rodata\\n.balign 4\\n.global ' + name + '\\n' + name + ':\\n.incbin \\\"build/' + name + '.bin\\\"\\n.previous\\n");\n')
+            if name == "vehicle_indexed": output.write("#endif\n")
 
 
 def main() -> None:

@@ -252,12 +252,31 @@ static unsigned material_v_step;
 static int decoded_id=-1,decoded_pose=-1,styled_id=-1,styled_pose=-1;
 static int styled_paint=-1,styled_livery=-1,styled_wheels=-1;
 
+/* Decompress only when changing models; steering poses reuse the same bank.
+ * The compressed library stays resident without paying 17 KiB per owned car. */
+static uint8_t vehicle_bank[5*VEHICLE_POSE_PIXELS];
+static int bank_id=-1;
+static int unpack_bank(int vehicle){
+ const uint8_t*src=vehicle_lz+vehicle_lz_offsets[vehicle];
+ unsigned size=vehicle_lz_offsets[vehicle+1]-vehicle_lz_offsets[vehicle],in=4,out=0;
+ if(size<4 || src[0]!=0x10 || ((unsigned)src[1]|(unsigned)src[2]<<8|(unsigned)src[3]<<16)!=sizeof vehicle_bank)return 0;
+ while(out<sizeof vehicle_bank){if(in>=size)return 0;unsigned flags=src[in++];
+  for(unsigned bit=128;bit && out<sizeof vehicle_bank;bit>>=1){
+   if(flags&bit){if(in+2>size)return 0;unsigned code=(unsigned)src[in]<<8|src[in+1];in+=2;
+    unsigned n=(code>>12)+3,back=(code&4095)+1;if(back>out || n>sizeof vehicle_bank-out)return 0;
+    while(n--){vehicle_bank[out]=vehicle_bank[out-back];out++;}
+   }else{if(in>=size)return 0;vehicle_bank[out++]=src[in++];}
+  }
+ }return 1;
+}
+
 const uint16_t *gfx_vehicle_pixels(int vehicle,int pose){
  if(vehicle<0||vehicle>=ASSET_VEHICLE_COUNT)vehicle=0;
  if(pose<0||pose>=5)pose=2;
  if(vehicle==decoded_id && pose==decoded_pose)return decoded_vehicle;
  forget_sprite(decoded_vehicle);
- const uint8_t*indices=vehicle_indexed+(vehicle*5+pose)*VEHICLE_POSE_PIXELS;
+ if(bank_id!=vehicle){if(!unpack_bank(vehicle)){memset(decoded_vehicle,0,sizeof decoded_vehicle);return decoded_vehicle;}bank_id=vehicle;}
+ const uint8_t*indices=vehicle_bank+pose*VEHICLE_POSE_PIXELS;
  const uint16_t*palette=vehicle_palette+vehicle*256;
  const uint8_t*flags=vehicle_palette_flags+vehicle*256;
  uint8_t right[72]={0};

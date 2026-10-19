@@ -2,8 +2,8 @@
 """Import four published single-profile batteries into Save 1 of the 8 KiB bank.
 
 Each old fixture must first boot in its released cartridge. The genuine 512B
-file then boots in the revised cartridge, which imports its compact 500B v4
-profile into the expanded bank and reloads all 708 RAM bytes in a fresh process. No RAM writes or
+file then boots in the revised cartridge, which imports its expanded 1000B v5
+profile into the expanded bank and reloads all 1032 RAM bytes in a fresh process. No RAM writes or
 emulator checkpoints are used.
 """
 import argparse
@@ -91,14 +91,14 @@ for release,baseline,key in (
         '--expected',str(expected_path)],check=True)
     geometry=assert_compact_battery(directory/'Coastline.dsv')
     reload(directory,expected_path,reload_image)
-    assert len(expected_path.read_bytes())==708
+    assert len(expected_path.read_bytes())==1032
     result[key]={'baseline_rom':inspect(baseline/'Coastline.nds'),
         'profile_source':'detailed 204-byte fixture accepted by released '+release+' ROM',
-        'source_ram_bytes':204,'migrated_ram_bytes':708,
+        'source_ram_bytes':204,'migrated_ram_bytes':1032,
         'legacy_fields_preserved':True,'new_expansion_defaults':True,
         'fresh_process_reload':True,**geometry,
         'preserved':'all ten old vehicles, parts, mastery, tuning, career, money, records, departures, paint and settings',
-        'defaults':'21 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch',
+        'defaults':'38 new vehicles, recovery/style arrays, stock cosmetic masks, no selected Dispatch',
         'screenshots':[kept_image,reload_image]}
 (a.output/'migration-results.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result,indent=2))

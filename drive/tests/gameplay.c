@@ -117,6 +117,7 @@ static void awards(void) {
 }
 static void economy(void) {
  Game g;game_init(&g,77);g.mode=M_GARAGE;g.garage_tab=3;g.garage_filter=CLASS_C;g.selection=1;g.cursor=1;
+ for(int row=0;row<game_dealer_count(CLASS_C);row++)if(game_dealer_vehicle(CLASS_C,row)==1)g.cursor=(uint8_t)(row+1);
  step(&g,K_A,K_A);CHECK(!(g.save.owned&2u) && !g.save.cash);
  g.save.owned|=1u<<10;g.save.cash=vehicles[1].price;step(&g,K_A,K_A);
  CHECK(g.save.owned&2u);CHECK(!g.save.cash && g.save.selected_vehicle==1 && g.save_requested);
@@ -143,7 +144,8 @@ static void economy(void) {
  g.cursor=2;g.save.cash=10000;step(&g,K_A,K_A);CHECK(!(g.save.unlocked_locations&4u));
  /* Standard motorcycle is a cash purchase and is never challenge gated. */
  CHECK(vehicles[3].bike && vehicles[3].price>0 && !vehicles[3].unlock);
- CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.garage_tab=3;g.garage_filter=CLASS_D;g.cursor=3;g.save.cash=vehicles[3].price;
+ CHECK(game_can_vehicle(&g,3));g.mode=M_GARAGE;g.selection=3;g.garage_tab=3;g.garage_filter=CLASS_D;g.cursor=1;g.save.cash=vehicles[3].price;
+ for(int row=0;row<game_dealer_count(CLASS_D);row++)if(game_dealer_vehicle(CLASS_D,row)==3)g.cursor=(uint8_t)(row+1);
  step(&g,K_A,K_A);CHECK((g.save.owned&(1u<<3)) && !g.save.cash);
  /* Challenge rewards are applied to the completed run's best statistics. */
  begin(&g);g.run.count[B_NEAR]=10;g.run.distance_m=6000;g.run.drift_points=1500;
@@ -155,7 +157,7 @@ static void economy(void) {
  CHECK(!game_can_location(&g,-1) && !game_can_location(&g,LOCATION_COUNT));
 }
 static void saves(void) {
- CHECK(sizeof(Save)==708);Game g,loaded;Save s;
+ CHECK(sizeof(Save)==1032);Game g,loaded;Save s;
  game_init(&g,0);game_make_save(&g,&s);CHECK(game_save_valid(&s));
  game_init(&loaded,7);CHECK(game_load(&loaded,&s));CHECK(loaded.has_save && loaded.mode==M_HOME);
  for(size_t i=0;i<sizeof s;i++) {Save bad=s;((unsigned char*)&bad)[i]^=0x40;CHECK(!game_save_valid(&bad));}
@@ -163,7 +165,7 @@ static void saves(void) {
  /* Re-signing malformed fields still cannot bypass semantic validation. */
  #define INVALID(field,value) do {game_init(&g,9);g.save.field=(value);game_make_save(&g,&bad);CHECK(!game_save_valid(&bad));} while(0)
  INVALID(selected_vehicle,VEHICLE_COUNT);INVALID(selected_vehicle,1);INVALID(selected_location,LOCATION_COUNT);
- INVALID(owned,0);INVALID(owned,0x80000001u);INVALID(unlocked_locations,0);INVALID(unlocked_locations,(1u<<LOCATION_COUNT)|1u);
+ INVALID(owned,0);INVALID(owned_hi,0x10000u);INVALID(unlocked_locations,0);INVALID(unlocked_locations,(1u<<LOCATION_COUNT)|1u);
  INVALID(paints,0);INVALID(paints,127);INVALID(engine[0],UPGRADE_MAX+1);INVALID(grip[0],UPGRADE_MAX+1);INVALID(armor[0],UPGRADE_MAX+1);
  INVALID(paint[0],6);INVALID(paint[0],3);INVALID(cash,UINT32_MAX);INVALID(seed,0);INVALID(best_score,UINT32_MAX);
  INVALID(music_on,2);INVALID(sfx_on,2);INVALID(music_volume,101);INVALID(sfx_volume,101);

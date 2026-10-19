@@ -22,7 +22,7 @@ with Emulator(a.rom,a.save_dir) as e:
     enter_opening(e,a.elf)
     if a.current:
         g=read_game(e,address)
-        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==4
+        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==5
         old=g.save
     else:old=V2Save.from_buffer_copy(e.read_ram(address,C.sizeof(V2Save)))
     if a.current:assert_imported_fields(old,coastal_profile())

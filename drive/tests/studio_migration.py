@@ -4,6 +4,7 @@ import argparse
 import ctypes as C
 import json
 import io
+import re
 import tarfile
 from pathlib import Path
 import shutil
@@ -37,6 +38,18 @@ if a.phase is None:
             if member.isfile() and Path(member.name).parent==Path('drive/src'):
                 target=baseline/'src'/Path(member.name).name;target.parent.mkdir(exist_ok=True)
                 target.write_bytes(bundle.extractfile(member).read())
+    # The old codec's traffic translation unit needs the unchanged original
+    # 31-model geometry prefix, rather than the expanded 48-model dimensions.
+    lines=[];vehicle=False;row=0
+    for line in (ROOT/'build'/'vehicle_geometry.h').read_text().splitlines():
+        if line.startswith('static const'):
+            vehicle='vehicle_body_' in line;row=0
+            if vehicle:line=re.sub(r'(vehicle_body_\w+\[)\d+',r'\g<1>155',line)
+        elif vehicle and line.startswith(' {'):
+            row+=1
+            if row>155:continue
+        lines.append(line)
+    (baseline/'src'/'vehicle_geometry.h').write_text('\n'.join(lines)+'\n')
     libpath=baseline/'rules.so'
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-I'+str(baseline/'src'),
         '-Ibuild',*[str(baseline/'src'/s) for s in ('game.c','road.c','traffic.c')],
@@ -67,7 +80,7 @@ if a.phase is None:
         'previous_v3_compatibility':True,'legacy_fields_preserved':True,
         'old_color_only_skins_migrate_to_fusion':True,'fresh_process_reload':True,
         'source':'rich 31-car fixture first accepted by previous published ROM',
-        'old_ram_bytes':596,'new_ram_bytes':708,**assert_compact_battery(directory/'Coastline.dsv')}
+        'old_ram_bytes':596,'new_ram_bytes':C.sizeof(Game().save),**assert_compact_battery(directory/'Coastline.dsv')}
     (a.output/'studio-migration-results.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result,indent=2));sys.exit(0)
 
@@ -81,11 +94,11 @@ else:
     old=V3Save.from_buffer_copy((a.output/'source-v3-save.bin').read_bytes())
     with Emulator(rom,directory) as e:
         e.run(180);enter_opening(e,elf);g=read_game(e,find_symbol(elf,'game'))
-        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==4
+        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==5
         for name,kind in V3Save._fields_:
             if name in ('version','checksum','skin','reserved'):continue
             actual,expected=getattr(g.save,name),getattr(old,name)
-            if isinstance(actual,C.Array):assert list(actual)==list(expected),name
+            if isinstance(actual,C.Array):assert list(actual)[:len(expected)]==list(expected),name
             else:assert actual==expected,name
         assert g.save.skin==3 and not g.save.preset_mask and not any(g.save.presets)
         for v in range(31):

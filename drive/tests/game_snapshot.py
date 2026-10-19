@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 
 U8,U16,U32,I16,I32=C.c_uint8,C.c_uint16,C.c_uint32,C.c_int16,C.c_int32
-VEHICLE_COUNT,LOCATION_COUNT,SAVE_DISK_SIZE=31,13,500
+VEHICLE_COUNT,LOCATION_COUNT,SAVE_DISK_SIZE=48,13,1000
 class LegacySave(C.LittleEndianStructure):
     _fields_=[(n,U32) for n in (
         'magic','version','checksum','cash','owned','unlocked_locations','paints',
@@ -45,8 +45,10 @@ class DiskSave3(C.LittleEndianStructure):
         (n,U8) for n in ('music_on','sfx_on','music_volume','sfx_volume',
                         'skin','shake','units','motion')]+[
         ('dispatch_choice',U8),('reserved',U8),('contracts_completed',U32)]
-class Save(C.LittleEndianStructure):
+class V4Save(C.LittleEndianStructure):
     _fields_=V3Save._fields_+[('paint_seen',U8*31),('smoke',U8*31),('smoke_seen',U8*31),('presets',U32*3),('preset_mask',U8)]
+class Save(C.LittleEndianStructure):
+    _fields_=[(name, U8*48 if kind==U8*31 else U32*48 if kind==U32*31 else kind) for name,kind in V4Save._fields_]+[('owned_hi',U32)]
 class DispatchContract(C.LittleEndianStructure):
     _fields_=[('goal',U32),('reward',U32),('kind',U8),('reserved',U8*3)]
 class VehicleDef(C.Structure):
@@ -99,8 +101,8 @@ def verify_layout(root:Path):
                     '-I',str(root/'src'),'-x','c','-fsyntax-only','-'],
                    input='\n'.join(declarations)+'\n',text=True,check=True)
     assert C.sizeof(LegacySave)==100 and C.sizeof(V2Save)==204 and C.sizeof(V3Save)==596
-    assert C.sizeof(DiskSave3)==SAVE_DISK_SIZE
-    assert C.sizeof(Save)==708 and C.sizeof(Game)==1808
+    assert C.sizeof(DiskSave3)==500
+    assert C.sizeof(V4Save)==708
 
 MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings','contracts')
 END_REASONS=('none','stopped by patrol','crash impound','banked voluntarily','route limit')
@@ -124,7 +126,7 @@ def catalogue(library):
     def vehicle_info(i,v):
         return {'id':i,'name':v.name.decode(),'description':v.description.decode(),
                 'price':int(v.price),'class_id':int(v.class_id),'specialty':int(v.specialty),
-                'bike':bool(v.bike),'novelty':i>=25}
+                'bike':bool(v.bike),'novelty':25<=i<=30}
     return [vehicle_info(i,v) for i,v in enumerate(vehicles)],[
         {'id':i,'name':v.name.decode(),'description':v.description.decode(),
          'price':int(v.price),'unlock':int(v.unlock)} for i,v in enumerate(locations)]
@@ -132,7 +134,7 @@ def catalogue(library):
 class SlotInfo(C.LittleEndianStructure):
     _fields_=[('cash',U32),('distance',U32),('runs',U32),('valid',U8),('vehicle',U8),('location',U8),('skin',U8)]
 class Opening(C.LittleEndianStructure):
-    _fields_=[('records',U8*1536),('slots',SlotInfo*3),('slide',U16),('phase',U8),('cursor',U8),('active_slot',U8),('reserved',U8)]
+    _fields_=[('records',U8*3072),('slots',SlotInfo*3),('slide',U16),('phase',U8),('cursor',U8),('active_slot',U8),('migrate',U8)]
 def enter_opening(emulator,elf,slot=0):
     """Physically choose a profile, if this cartridge has the opening movie."""
     if not elf.exists():return

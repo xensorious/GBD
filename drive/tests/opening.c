@@ -15,14 +15,14 @@ int main(void){
  key(&o,&g,K_Y);key(&o,&g,K_A);CHECK(o.phase==OPEN_SLIDE && o.active_slot==0);
  CHECK(opening_store(&o,&g));game_save_result(&g,1);menu(&o,&g);
  g.save.cash=12345;g.save.skin=SKIN_FUSION;g.save.presets[0]=0;g.save.preset_mask=1;CHECK(opening_store(&o,&g));
- uint8_t first[512];memcpy(first,o.records,512);
+ uint8_t first[SAVE_RECORD_SIZE];memcpy(first,o.records,SAVE_RECORD_SIZE);
  key(&o,&g,K_B);key(&o,&g,K_DOWN);key(&o,&g,K_A);CHECK(o.active_slot==1 && !g.save.cash && !g.save.preset_mask);
- g.save.cash=22222;CHECK(opening_store(&o,&g));CHECK(!memcmp(first,o.records,512));menu(&o,&g);
+ g.save.cash=22222;CHECK(opening_store(&o,&g));CHECK(!memcmp(first,o.records,SAVE_RECORD_SIZE));menu(&o,&g);
  key(&o,&g,K_B);key(&o,&g,K_DOWN);key(&o,&g,K_A);CHECK(o.active_slot==2 && !g.save.cash);g.save.cash=33333;CHECK(opening_store(&o,&g));menu(&o,&g);
  opening_init(&reloaded,&loaded,o.records,sizeof o.records);CHECK(reloaded.slots[0].cash==12345 && reloaded.slots[1].cash==22222 && reloaded.slots[2].cash==33333);
  CHECK(loaded.save.skin==SKIN_FUSION && loaded.save.preset_mask==1);
- o.records[512+90]^=1;opening_init(&reloaded,&loaded,o.records,sizeof o.records);CHECK(reloaded.slots[0].valid && !reloaded.slots[1].valid && reloaded.slots[2].valid);
- opening_init(&reloaded,&loaded,first,500);CHECK(reloaded.slots[0].valid && !reloaded.slots[1].valid && !reloaded.slots[2].valid);
+ o.records[SAVE_RECORD_SIZE+90]^=1;opening_init(&reloaded,&loaded,o.records,sizeof o.records);CHECK(reloaded.slots[0].valid && !reloaded.slots[1].valid && reloaded.slots[2].valid);
+ opening_init(&reloaded,&loaded,first,SAVE_DISK_SIZE);CHECK(reloaded.slots[0].valid && !reloaded.slots[1].valid && !reloaded.slots[2].valid);
  pixels.a=pixels.b=0xa55aa55a;game_init(&g,1);opening_init(&o,&g,0,0);
  for(int region=0;region<LOCATION_COUNT;region++){
   g.frame=(unsigned)region*50;

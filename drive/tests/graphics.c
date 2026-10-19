@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=512 };
+enum { WIDTH=83,HEIGHT=109,GUARD=8,MAX_ASSETS=1024 };
 typedef struct {
  uint16_t before[GUARD],pixels[WIDTH*HEIGHT],after[GUARD];
 } GuardedFrame;
