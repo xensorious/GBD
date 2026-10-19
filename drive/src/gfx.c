@@ -255,10 +255,6 @@ void FAST gfx_indexed_sprite(Surface*s,int x,int y,const uint8_t*p,const uint16_
 static uint16_t decoded_vehicle[VEHICLE_POSE_PIXELS] __attribute__((aligned(4)));
 static uint16_t styled_vehicle[VEHICLE_POSE_PIXELS] __attribute__((aligned(4)));
 static uint8_t decoded_material[VEHICLE_POSE_PIXELS];
-static uint8_t material_left[72],material_width[72];
-static uint16_t material_u_step[72];
-static int material_top,material_height;
-static unsigned material_v_step;
 static int decoded_id=-1,decoded_pose=-1,styled_id=-1,styled_pose=-1;
 static int styled_paint=-1,styled_livery=-1,styled_wheels=-1,styled_color=-1;
 
@@ -289,27 +285,10 @@ const uint16_t *gfx_vehicle_pixels(int vehicle,int pose){
  const uint8_t*indices=vehicle_bank+pose*VEHICLE_POSE_PIXELS;
  const uint16_t*palette=vehicle_palette+vehicle*256;
  const uint8_t*flags=vehicle_palette_flags+vehicle*256;
- uint8_t right[72]={0};
- memset(material_left,48,sizeof material_left);material_top=72;int bottom=0;
  for(int i=0;i<VEHICLE_POSE_PIXELS;i++){
   decoded_vehicle[i]=palette[indices[i]];
   decoded_material[i]=flags[indices[i]];
-  if(decoded_vehicle[i] && (decoded_material[i]&1u)){
-   int row=i/48,column=i%48;
-   if(column<material_left[row])material_left[row]=(uint8_t)column;
-   if(column+1>right[row])right[row]=(uint8_t)(column+1);
-   if(row<material_top)material_top=row;
-   if(row+1>bottom)bottom=row+1;
-  }
  }
- for(int row=0;row<72;row++){
-  int width=right[row]?right[row]-material_left[row]:0;
-  material_width[row]=(uint8_t)width;
-  material_u_step[row]=(uint16_t)(width>1?65535u/(unsigned)(width-1):0);
- }
- material_height=bottom>material_top?bottom-material_top:1;
- if(material_top==72)material_top=0;
- material_v_step=material_height>1?65535u/(unsigned)(material_height-1):0;
  decoded_id=vehicle;decoded_pose=pose;
  return decoded_vehicle;
 }
@@ -340,10 +319,7 @@ void gfx_vehicle_style(Surface*s,int x,int y,const uint16_t*source,int sw,int sh
    uint16_t c=decoded_vehicle[at];unsigned material=decoded_material[at];
    if(c && (material&1u)){
     c=material_paint(c,paint);
-    int row=at/48,column=at%48;
-    int u=material_width[row]>1?(int)(((unsigned)(column-material_left[row])*material_u_step[row])>>11):16;
-    int v=material_height>1?(int)(((unsigned)(row-material_top)*material_v_step)>>10):32;
-    if(livery_pixel(livery,u,v,material_width[row]<4)){
+    if(livery && (material & (1u<<(livery+1)))){
      const FinishColor*color=livery_finish(livery_color);
      /* Shade the decal from factory material, independently of body paint. */
      c=material_tint(decoded_vehicle[at],color->r,color->g,color->b);

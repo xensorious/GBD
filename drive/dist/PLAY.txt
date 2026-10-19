@@ -69,6 +69,12 @@ distance, combo and pending earnings. Parking is safe in this mode and earns
 no idle rewards. Pause and choose Bank this run to return to the normal menus;
 crashing also ends the visit with the existing itemized receipt.
 
+Vehicle art now uses individually fitted, fixed livery stencils in both modes.
+Patterns clip at paint-panel boundaries without squeezing around glass, trim,
+lamps or tires. Red rear lamps retain their factory color. The overhead roster
+has distinct body proportions, shaded panels, window seals, tires and rims,
+plus open cabins, pickup beds, roof rails, vents and model-specific details.
+
 All 48 existing vehicles have original overhead artwork, including motorcycles
 and novelty rides. The mode uses their owned status, performance upgrades and
 mastery. Car bodies carry over paint, livery, livery color, wheel finish and

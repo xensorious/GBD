@@ -91,5 +91,22 @@ The 64x96 base and filtered 48x72, 32x48 and 16x24 levels share each object's
 palette. All transparent palette entries remain index zero.
 
 The complete packed art, typography and original synthesized music total
-1,456,312 bytes. Source-only references such as `scenery-original.png` and the
+1,281,973 bytes. Source-only references such as `scenery-original.png` and the
 old `boat-profile.png` remain available without being linked into the game.
+
+Vehicle panels and overhead designs
+-----------------------------------
+
+`tools/vehicle_details.py` authors one silhouette/profile per vehicle, with
+separate cabin, hardware, rubber, glass, headlight and rear-lamp materials.
+The overhead bank is 32x48 indexed artwork compressed per model. Four decal
+stencil bits accompany each enamel pixel; none accompany protected materials.
+Runtime recoloring cannot spill onto tires, seats, windows or lamps. Eight
+rotated sprite cache entries reuse the bank without a resident RGB atlas.
+
+Rear-view masks are fitted once to each neutral vehicle's painted envelope,
+then sampled using the exact inverse of the existing steering-pose transform.
+Each palette entry carries material and stencil coverage. Quantization keeps
+those partitions separate, including protected rear lamps and cabin regions.
+There is no per-row UV normalization or narrow-panel fallback. New designs
+must retain all four patterns in every pose; the packer asserts this.

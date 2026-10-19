@@ -22,14 +22,6 @@ static inline const FinishColor *livery_finish(int id){
   {"Orange",31,15,3},{"Teal",4,26,23},{"Silver",24,27,29},{"Rose gold",31,20,16}};
  return &colors[id>=0&&id<LIVERY_COLOR_COUNT?id:0];
 }
-/* Coordinates are normalized to the paintable body, with v=0 at the nose.
- * These shapes affect painted panels only; glass and mechanical parts stay intact. */
-static inline int livery_pixel(int pattern,int u,int v,int narrow){
- if(narrow && pattern>=3)return v%24<9;
- if(pattern==1)return (u>=7&&u<=11)||(u>=20&&u<=24)||narrow;
- if(pattern==2)return u<8||u>23||(narrow&&v>=32);
- if(pattern==3){int sweep=5+v*20/64;return (u>=sweep&&u<=sweep+4)||(v>36&&v<48&&u>24);}
- if(pattern==4){int edge=v<20?3+v/5:v>48?3+(64-v)/5:7;return u==edge||u==edge+1||u==31-edge||u==30-edge||(v>=8&&v<=11&&u>10&&u<22);}
- return 0;
-}
+/* Decal stencils are baked per model before steering/rotation. Their
+ * coverage lives beside material IDs; no runtime scanline remapping. */
 #endif

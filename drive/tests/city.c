@@ -2,6 +2,7 @@
 #include "city.h"
 #include "city_render.h"
 #include "render.h"
+#include "assets.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,20 @@ static void shot(const char*dir,const char*name,Game*g){
  render_game(g,top,bottom);if(!dir)return;char path[512];snprintf(path,sizeof path,"%s/%s.ppm",dir,name);FILE*f=fopen(path,"wb");CHECK(f!=0);fprintf(f,"P6\n256 384\n255\n");
  for(int screen=0;screen<2;screen++)for(int i=0;i<256*192;i++){unsigned c=screen?bottom[i]:top[i];fputc((c&31)*255/31,f);fputc((c>>5&31)*255/31,f);fputc((c>>10&31)*255/31,f);}
  fclose(f);
+}
+/* Decode the packed material oracle. Color equality is insufficient: a
+ * painted gray panel may legitimately share RGB555 with unpainted chrome. */
+static void overhead_roles(int v,uint8_t*out){
+ const uint8_t*src=overhead_lz+overhead_offsets[v];unsigned in=4,pos=0,size=overhead_offsets[v+1]-overhead_offsets[v];
+ CHECK(src[0]==0x10 && (src[1]|src[2]<<8|src[3]<<16)==32*48);
+ while(pos<32*48){CHECK(in<size);unsigned flags=src[in++];
+  for(unsigned bit=128;bit&&pos<32*48;bit>>=1){
+   if(flags&bit){CHECK(in+2<=size);unsigned code=src[in]<<8|src[in+1];in+=2;unsigned n=(code>>12)+3,back=(code&4095)+1;
+    CHECK(back<=pos&&n<=32*48-pos);while(n--){out[pos]=out[pos-back];pos++;}
+   }else{CHECK(in<size);out[pos++]=src[in++];}
+  }
+ }
+ for(int at=0;at<32*48;at++)if((out[at]&15)>7 || !(out[at]&15))CHECK(!(out[at]&0xf0));
 }
 int main(int argc,char**argv){
  const char*dir=argc>1?argv[1]:0;Game g;game_init(&g,123);press(&g,K_A);CHECK(g.mode==M_DRIVE&&!city.active);shot(dir,"mode-select",&g);
@@ -33,6 +48,42 @@ int main(int argc,char**argv){
  g.save.cash=1000;unsigned earned=g.run.total_cash;game_finish_run(&g);CHECK(g.mode==M_RECEIPT&&g.save.cash==1000+earned);game_finish_run(&g);CHECK(g.save.cash==1000+earned);
  unsigned char disk[SAVE_DISK_SIZE];CHECK(game_encode_save(&g,disk,sizeof disk));Game loaded;game_init(&loaded,2);CHECK(game_load_bytes(&loaded,disk,sizeof disk)&&loaded.save.cash==g.save.cash);
  game_begin_run(&g);CHECK(!city.active&&g.mode==M_RUN);
+ /* Raw material invariants: no cosmetic may change glass, rubber, lights,
+    rider or trim. Wheels change only rim metal, and every fitted stencil
+    has visible paint coverage without changing the silhouette. */
+ for(int v=0;v<VEHICLE_COUNT;v++){
+  uint16_t original[32*48],painted[32*48],decaled[32*48],rims[32*48];uint8_t roles[32*48];overhead_roles(v,roles);Save finish={0};
+  city_vehicle_pixels(original,v,&finish);
+  for(int pattern=1;pattern<5;pattern++){
+   finish.paint[v]=4;finish.livery[v]=0;finish.wheels[v]=0;city_vehicle_pixels(painted,v,&finish);
+   finish.livery[v]=(uint8_t)pattern;finish.livery_color[v]=3;city_vehicle_pixels(decaled,v,&finish);
+   finish.livery[v]=0;finish.wheels[v]=3;city_vehicle_pixels(rims,v,&finish);
+   unsigned changes=0,hardware=0,lights=0,rubber=0;
+   for(int at=0;at<32*48;at++){
+    uint16_t c=original[at];CHECK((c!=0)==(painted[at]!=0));CHECK((c!=0)==(decaled[at]!=0));
+    int index=roles[at]&15;CHECK(c==overhead_palette[v*16+index]);
+    if(index>=8){
+     CHECK(painted[at]==c&&decaled[at]==c);
+     if(index!=11)CHECK(rims[at]==c);
+     lights+=index==12||index==13;rubber+=index==10;
+    }
+    changes+=decaled[at]!=painted[at];hardware+=rims[at]!=painted[at];
+   }
+   if(!changes||!hardware||!lights||!rubber)fprintf(stderr,"vehicle %d stencil %d: decals=%u rims=%u lights=%u rubber=%u\n",v,pattern,changes,hardware,lights,rubber);
+   CHECK(changes>0&&hardware>0&&lights>0&&rubber>0);
+  }
+ }
+ for(int v=0;v<VEHICLE_COUNT;v++){
+  uint16_t base[32*48],finished[32*48];uint8_t roles[32*48];overhead_roles(v,roles);Save finish={0};city_vehicle_pixels(base,v,&finish);
+  for(int paint=1;paint<PAINT_COUNT;paint++)for(int pattern=1;pattern<5;pattern++)for(int color=0;color<LIVERY_COLOR_COUNT;color++){
+   finish.paint[v]=(uint8_t)paint;finish.livery[v]=(uint8_t)pattern;finish.livery_color[v]=(uint8_t)color;
+   city_vehicle_pixels(finished,v,&finish);
+   for(int at=0;at<32*48;at++){
+    CHECK((base[at]!=0)==(finished[at]!=0));
+    if((roles[at]&15)>=8)CHECK(finished[at]==base[at]);
+   }
+  }
+ }
  /* Every owned vehicle has an overhead silhouette; all skins render city UI. */
  for(int v=0;v<VEHICLE_COUNT;v++){memset(top,0,sizeof top);Surface s={top,256,192};city_draw_vehicle(&s,128,96,v*13,v,&g.save);unsigned occupied=0;for(int i=0;i<256*192;i++)occupied+=top[i]!=0;CHECK(occupied>100&&occupied<2200);}
  if(dir){
@@ -41,6 +92,18 @@ int main(int argc,char**argv){
   char path[512];snprintf(path,sizeof path,"%s/overhead-vehicles.ppm",dir);FILE*f=fopen(path,"wb");CHECK(f!=0);fprintf(f,"P6\n512 384\n255\n");
   for(int i=0;i<512*384;i++){unsigned c=gallery[i];fputc((c&31)*255/31,f);fputc((c>>5&31)*255/31,f);fputc((c>>10&31)*255/31,f);}
   fclose(f);
+  /* Factory and all four fitted liveries, both actual renderers, all models. */
+  static uint16_t finishes[480*4608];Surface review={finishes,480,4608};
+  gfx_rect(&review,0,0,480,4608,C(111,132,141));
+  Save finish={0};
+  for(int v=0;v<VEHICLE_COUNT;v++)for(int pattern=0;pattern<5;pattern++){
+   int xx=pattern*96,yy=v*96;finish.paint[v]=pattern?4:0;finish.livery[v]=(uint8_t)pattern;finish.wheels[v]=2;
+   gfx_text_small(&review,xx+1,yy+1,vehicles[v].name,C(230,242,245));
+   gfx_vehicle_style(&review,xx+2,yy+17,gfx_vehicle_pixels(v,2),48,72,48,72,finish.paint[v],pattern,2,0);
+   city_draw_vehicle(&review,xx+72,yy+60,0,v,&finish);
+  }
+  snprintf(path,sizeof path,"%s/vehicle-finishes.ppm",dir);f=fopen(path,"wb");CHECK(f!=0);fprintf(f,"P6\n480 4608\n255\n");
+  for(int i=0;i<480*4608;i++){unsigned c=finishes[i];fputc((c&31)*255/31,f);fputc((c>>5&31)*255/31,f);fputc((c>>10&31)*255/31,f);}fclose(f);
  }
  city_begin(&g);for(int skin=3;skin<9;skin++){g.save.skin=(uint8_t)skin;shot(0,"",&g);}
  printf("city: %u checks; fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 overhead vehicles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;

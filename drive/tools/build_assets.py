@@ -16,6 +16,7 @@ import random
 import sys
 
 from PIL import Image, ImageDraw, ImageFont
+from vehicle_details import decal_mask, overhead_sprite, protected_lamp, protected_glass
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -257,6 +258,8 @@ def vehicle_pose(source: Image.Image, front_offset: int) -> Image.Image:
             (1, slope, -front_offset / 2 - slope * top, 0, 1, 0),
             resample=Image.Resampling.BICUBIC,
         )
+    result.info["yaw_top"]=top
+    result.info["yaw_height"]=body.height
     return result
 
 
@@ -284,6 +287,7 @@ def material_class(vehicle: int, r: int, g: int, b: int, x: float, y: float) -> 
     Human skin/hair and horse fur are protected. Novelty finish means hardware,
     such as skateboard trucks, scooter trim or saddle fittings.
     """
+    if protected_glass(vehicle,x,y): return 0
     hi, lo = max(r, g, b), min(r, g, b)
     sat = (hi - lo) / max(1, hi)
     if vehicle == 47 and .10 < y < .78 and .12 < x < .88 and hi > 24 and sat < .25 and not (.28 < x < .72 and .27 < y < .50):
@@ -319,43 +323,67 @@ def material_class(vehicle: int, r: int, g: int, b: int, x: float, y: float) -> 
 
 
 def indexed_group(images: list[Image.Image], vehicle: int | None = None):
-    """Quantize one logical object, keeping index0 transparent in every LOD."""
+    """Keep material AND fitted decal coverage in palette metadata.
+
+    Coverage is authored in the neutral model's coordinates before yaw, never
+    normalized independently to a scanline or squeezed around glass/trim.
+    """
     palettes = [0] * 256
     flags = bytearray(256)
     buffers = [bytearray(im.width * im.height) for im in images]
-    classes = (0, 1, 2) if vehicle is not None else (0,)
-    budgets = (128, 96, 31) if vehicle is not None else (255,)
-    cursor = 1
-    for material, budget in zip(classes, budgets):
-        values, positions = [], []
-        for frame, im in enumerate(images):
-            bounds = im.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
-            assert bounds is not None
-            for p, (r, g, b, a) in enumerate(pixels(im.convert("RGBA"))):
-                if a < ALPHA:
-                    continue
-                x, y = p % im.width, p // im.width
-                tag = material_class(vehicle, r, g, b, (x - bounds[0]) / max(1, bounds[2] - bounds[0] - 1),
-                                     (y - bounds[1]) / max(1, bounds[3] - bounds[1] - 1)) if vehicle is not None else 0
-                if tag == material:
-                    values.append((r, g, b)); positions.append((frame, p))
-        if not values:
-            cursor += budget
-            continue
-        strip = Image.new("RGB", (len(values), 1)); strip.putdata(values)
-        quantized = strip.quantize(colors=budget, method=Image.Quantize.MEDIANCUT,
-                                   dither=Image.Dither.NONE)
-        rgb = quantized.getpalette()
-        for index in set(pixels(quantized)):
-            r, g, b = rgb[index * 3:index * 3 + 3]
-            palettes[cursor + index] = 0x8000 | (r >> 3) | ((g >> 3) << 5) | ((b >> 3) << 10)
-            flags[cursor + index] = material
-        for (frame, p), index in zip(positions, pixels(quantized)):
-            buffers[frame][p] = cursor + index
-        cursor += budget
-    words = array.array("H", palettes)
-    if sys.byteorder != "little": words.byteswap()
-    return [bytes(data) for data in buffers], words.tobytes(), bytes(flags)
+    groups = {}
+    neutral = images[2] if vehicle is not None else images[0]
+    bounds = neutral.getchannel("A").point(lambda a: 255 if a >= ALPHA else 0).getbbox()
+    left, top, right, bottom = bounds
+    width, height = right-left-1, bottom-top-1
+    if vehicle is not None:
+        panels=[]
+        for at,(r,g,b,a) in enumerate(pixels(neutral)):
+            x,y=at%neutral.width,at//neutral.width
+            u,v=(x-left)/max(1,width),(y-top)/max(1,height)
+            if a>=ALPHA and material_class(vehicle,r,g,b,u,v)==1 and not protected_lamp(vehicle,r,g,b,u,v):panels.append((x,y))
+        assert panels,("No painted panels",vehicle)
+        panel_left=min(x for x,y in panels);panel_top=min(y for x,y in panels)
+        panel_width=max(x for x,y in panels)-panel_left
+        panel_height=max(y for x,y in panels)-panel_top
+    for frame, im in enumerate(images):
+        for at, (r,g,b,a) in enumerate(pixels(im.convert("RGBA"))):
+            if a < ALPHA: continue
+            x,y = at%im.width,at//im.width
+            # Same inverse mapping as vehicle_pose. All five poses share one
+            # physical panel template, including the lamp protection regions.
+            if vehicle is not None:
+                offset = YAW_FRONT_OFFSETS[frame]
+                canonical_x = x + offset*(y-neutral.info["yaw_top"])/max(1,neutral.info["yaw_height"]-1)-offset/2
+                u,v = (canonical_x-left)/max(1,width),(y-top)/max(1,height)
+                material = material_class(vehicle,r,g,b,u,v)
+                if protected_lamp(vehicle,r,g,b,u,v): material=0
+                tag = material | (decal_mask(vehicle,(canonical_x-panel_left)/max(1,panel_width),(y-panel_top)/max(1,panel_height))<<2 if material==1 else 0)
+            else: tag=0
+            groups.setdefault(tag,[]).append((frame,at,(r,g,b)))
+    # Share the original 96 body-color slots between coverage partitions;
+    # protected lights/glass retain 128 slots and hardware retains 31.
+    cursor=1
+    for material,total in ((0,128),(2,31),(1,96)) if vehicle is not None else ((0,255),):
+        tags=sorted(tag for tag in groups if tag&3==material)
+        counts=sum(len(groups[tag]) for tag in tags)
+        remaining=total
+        for n,tag in enumerate(tags):
+            values=groups[tag]
+            budget=remaining if n==len(tags)-1 else max(1,min(remaining-(len(tags)-n-1),round(total*len(values)/counts)))
+            strip=Image.new("RGB",(len(values),1));strip.putdata([v[2] for v in values])
+            quantized=strip.quantize(colors=budget,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE)
+            rgb=quantized.getpalette()
+            for index in set(pixels(quantized)):
+                r,g,b=rgb[index*3:index*3+3]
+                palettes[cursor+index]=0x8000|(r>>3)|((g>>3)<<5)|((b>>3)<<10)
+                flags[cursor+index]=tag
+            for (frame,at,_),index in zip(values,pixels(quantized)): buffers[frame][at]=cursor+index
+            cursor+=budget;remaining-=budget
+        cursor+=remaining
+    words=array.array("H",palettes)
+    if sys.byteorder!="little": words.byteswap()
+    return [bytes(data) for data in buffers],words.tobytes(),bytes(flags)
 
 
 def decode_indexed(data: bytes, palette: bytes, width: int, height: int) -> Image.Image:
@@ -391,10 +419,14 @@ def artwork() -> None:
     for vehicle, car in enumerate(player_cars):
         authored = [vehicle_pose(car, offset) for offset in YAW_FRONT_OFFSETS]
         frames, palette, flags = indexed_group(authored, vehicle)
+        for pose,frame in enumerate(frames):
+            for pattern in range(1,5):
+                assert any(flags[i] & (1<<(pattern+1)) for i in frame),("Empty fitted livery",vehicle,pose,pattern)
+        assert all(not (tag&0xfc) for tag in flags if not (tag&1)),("Decal outside enamel",vehicle)
         decoded = [decode_indexed(frame, palette, 48, 72) for frame in frames]
         poses.extend(decoded); indexed.extend(frames); palettes.append(palette); materials.append(flags)
-        material_counts.append({"vehicle": vehicle, "paint": sum(flags[i] == 1 for frame in frames for i in frame),
-                                "hardware": sum(flags[i] == 2 for frame in frames for i in frame)})
+        material_counts.append({"vehicle": vehicle, "paint": sum(flags[i] & 1 for frame in frames for i in frame),
+                                "hardware": sum(bool(flags[i] & 2) for frame in frames for i in frame)})
     raw("vehicle_indexed", b"".join(indexed), "uint8_t", VEHICLE_COUNT * 5 * 48 * 72)
     compressed, offsets = bytearray(), array.array("I", [0])
     for vehicle in range(VEHICLE_COUNT):
@@ -405,6 +437,17 @@ def artwork() -> None:
     raw("vehicle_lz_offsets", offsets.tobytes(), "uint32_t", VEHICLE_COUNT + 1)
     raw("vehicle_palette", b"".join(palettes), "uint16_t", VEHICLE_COUNT * 256)
     raw("vehicle_palette_flags", b"".join(materials), "uint8_t", VEHICLE_COUNT * 256)
+    overhead, overhead_offsets, overhead_palettes = bytearray(), array.array("I",[0]), bytearray()
+    for vehicle in range(VEHICLE_COUNT):
+        data, palette, review = overhead_sprite(vehicle)
+        assert all(any(value & (1<<(pattern+3)) for value in data) for pattern in range(1,5)),("Empty overhead stencil",vehicle)
+        assert all(not(value&0xf0) for value in data if not 1<=value&15<=7),("Overhead decal outside enamel",vehicle)
+        overhead.extend(lz10(data)); overhead_offsets.append(len(overhead)); overhead_palettes.extend(palette)
+        review.save(OUT/f"overhead-{vehicle:02}.png")
+    if sys.byteorder != "little": overhead_offsets.byteswap()
+    raw("overhead_lz",bytes(overhead),"uint8_t",len(overhead))
+    raw("overhead_offsets",overhead_offsets.tobytes(),"uint32_t",VEHICLE_COUNT+1)
+    raw("overhead_palette",bytes(overhead_palettes),"uint16_t",VEHICLE_COUNT*16)
     # Oracle only: never linked into the cartridge; indexed decode is exact.
     (OUT / "vehicle_art.bin").write_bytes(b"".join(rgb555(im) for im in poses))
     raw("vehicle_bounds", silhouette_bounds(poses), "uint8_t", VEHICLE_COUNT * 5 * 4)

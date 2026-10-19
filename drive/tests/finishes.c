@@ -13,9 +13,8 @@ static void draw(uint16_t*p,int v,int paint,int pattern,int color){memset(p,0,N*
 static unsigned hash(const uint16_t*p){unsigned h=2166136261u;for(int i=0;i<N;i++)h=(h^p[i])*16777619u;return h;}
 static void press(Game*g,unsigned key){Input in={key,key};game_update(g,&in);}
 int main(void){
- static const int sample[]={0,3,25,30,31,36,43,47};
- for(unsigned k=0;k<sizeof sample/sizeof sample[0];k++){
-  int v=sample[k];draw(a,v,8,3,3);draw(b,v,8,3,4);draw(c,v,11,3,3);unsigned decals=0,body=0;
+ for(int v=0;v<VEHICLE_COUNT;v++)for(int pattern=1;pattern<LIVERY_COUNT;pattern++){
+  draw(a,v,8,pattern,3);draw(b,v,8,pattern,4);draw(c,v,11,pattern,3);unsigned decals=0,body=0;
   const uint8_t*indices=vehicle_indexed+(v*5+2)*N,*flags=vehicle_palette_flags+v*256;const uint16_t*palette=vehicle_palette+v*256;
   for(int i=0;i<N;i++){
    CHECK((a[i]!=0)==(palette[indices[i]]!=0));CHECK((b[i]!=0)==(a[i]!=0));CHECK((c[i]!=0)==(a[i]!=0));

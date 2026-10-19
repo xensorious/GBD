@@ -79,7 +79,7 @@ shutil.copyfile(rom,DIST/rom.name)
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
     'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Free Roam first draft: button-driven city route through highway, neighborhood junctions and a bridge; shared customized vehicle, pause, banking, fresh-process reload and measured route cadence. Fifteen native sanitizer suites include fixed road connectivity, all 48 overhead vehicles and six city dashboards. Existing highway, all six interfaces, all 17 premium vehicle purchases/drives, finish studio and earlier save migrations rerun on this exact ROM. A fully customized v6 battery from the previous release remains byte-for-byte unchanged. Physical Delta/iPhone/DS testing and every possible city route were not performed.'},indent=2)+'\n')
+    'scope':'Vehicle detail revision: all 48 overhead designs rebuilt with fitted paint-panel stencils and independent glass, lamps, tires and wheel metal. Both renderers clip pre-fitted liveries to materials, without scanline distortion; authored rear lamp regressions and all overhead paint/livery colors are tested. Free Roam first draft: button-driven city route through highway, neighborhood junctions and a bridge; shared customized vehicle, pause, banking, fresh-process reload and measured route cadence. Fifteen native sanitizer suites include fixed road connectivity, all 48 overhead vehicles and six city dashboards. Existing highway, all six interfaces, all 17 premium vehicle purchases/drives, finish studio and earlier save migrations rerun on this exact ROM. A fully customized v6 battery from the previous release remains byte-for-byte unchanged. Physical Delta/iPhone/DS testing and every possible city route were not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -105,9 +105,15 @@ contact('Free-Roam.png',[
     ('city-route-1','NEIGHBORHOOD JUNCTIONS'),('city-crossing','CONNECTED HIGHWAY BRIDGE'),
     ('city-route-4','GLASS QUAY / CONTINUE EXPLORING'),('city-receipt','SHARED EARNINGS / BANKED RUN')],columns=3,screen='dual')
 shutil.copyfile(validation/'Free-Roam.gif',DIST/'Free-Roam.gif')
-gallery=Image.open(ROOT/'build'/'city-native'/'overhead-vehicles.ppm').convert('RGB')
+gallery=Image.open(validation/'overhead-vehicles.ppm').convert('RGB')
 assert gallery.size==(512,384)
 gallery.resize((1024,768),Image.Resampling.NEAREST).save(DIST/'Overhead-Vehicles.png')
+finishes_gallery=Image.open(validation/'vehicle-finishes.ppm')
+finishes_gallery.save(DIST/'Vehicle-Finishes.png')
+vehicle_details=Image.new('RGB',(480,576))
+for row,model in enumerate((31,32,36,42,43,47)):
+    vehicle_details.paste(finishes_gallery.crop((0,model*96,480,(model+1)*96)),(0,row*96))
+vehicle_details.resize((960,1152),Image.Resampling.NEAREST).save(DIST/'Vehicle-Details.png')
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
@@ -140,7 +146,7 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
+    'Free-Roam.png','Free-Roam.gif','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'
 with zipfile.ZipFile(archive_path,'w',zipfile.ZIP_DEFLATED) as archive:

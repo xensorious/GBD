@@ -40,6 +40,15 @@ static void source_case(int vehicle,int pose){
  const uint16_t *palette=vehicle_palette+vehicle*256;
  const uint8_t *flags=vehicle_palette_flags+vehicle*256;
  CHECK(palette[0]==0 && flags[0]==0);
+ for(int i=0;i<256;i++)if(!(flags[i]&1u))CHECK(!(flags[i]&0xfcu));
+ /* Authored neutral rear lamp samples: purple Hellcat, blue Charger,
+    blue Bugatti and silver Rolls must keep red emitters through repaint. */
+ static const int lamps[][3]={{31,12,47},{35,10,45},{39,12,45},{41,11,47}};
+ if(pose==2)for(unsigned n=0;n<sizeof lamps/sizeof lamps[0];n++)if(vehicle==lamps[n][0]){
+  int at=lamps[n][2]*48+lamps[n][1];unsigned color=palette[indices[at]];
+  CHECK((color&31)>15 && (color&31)>((color>>5)&31)*2);
+  CHECK(flags[indices[at]]==0);
+ }
  unsigned paintable=0,hardware=0,protected_pixels=0;
  for(int at=0;at<PIXELS;at++){
   uint16_t color=palette[indices[at]];

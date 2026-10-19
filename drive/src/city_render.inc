@@ -3,8 +3,33 @@ static int city_abs(int x){return x<0?-x:x;}
 typedef struct {int model,angle,paint,pattern,color,wheels;unsigned used;uint16_t pixels[54*54];} CitySprite;
 static CitySprite city_sprites[8];
 static unsigned city_sprite_clock;
-/* Original overhead vehicle artwork: independent of the chase-camera banks.
- * A tiny reusable sprite is shaded, customized and rotated in fixed point. */
+/* Pre-fitted indexed artwork uses the same finishes as the chase camera.
+ * Decode one 1.5 KiB model on cache misses, retaining eight rotated sprites. */
+void city_vehicle_pixels(uint16_t*out,int model,const Save*save){
+ uint8_t art[32*48];
+ const uint8_t*src=overhead_lz+overhead_offsets[model];unsigned in=4,pos=0;
+ while(pos<sizeof art){unsigned flags=src[in++];
+  for(unsigned bit=128;bit&&pos<sizeof art;bit>>=1){
+   if(flags&bit){unsigned code=(unsigned)src[in]<<8|src[in+1];in+=2;
+    unsigned n=(code>>12)+3,back=(code&4095)+1;
+    while(n--){art[pos]=art[pos-back];pos++;}
+   }else art[pos++]=src[in++];
+  }
+ }
+ int paint=save?save->paint[model]:0,livery=save?save->livery[model]:0,wheels=save?save->wheels[model]:0;
+ const FinishColor*body=body_finish(paint),*decal=livery_finish(save?save->livery_color[model]:0);
+ const uint16_t*palette=overhead_palette+model*16;
+ static const uint8_t shade[8]={0,10,17,24,28,30,34,40};
+ static const uint8_t rims[4][3]={{16,18,20},{9,12,14},{28,30,31},{31,24,8}};
+ for(unsigned at=0;at<sizeof art;at++){
+  unsigned index=art[at]&15;uint16_t c=palette[index];
+  if(index&&index<=7){
+   const FinishColor*color=livery>0&&livery<5&&(art[at]&(1u<<(livery+3)))?decal:paint?body:0;
+   if(color){int light=shade[index];c=(uint16_t)(0x8000|clampi(color->r*light/31,0,31)|(clampi(color->g*light/31,0,31)<<5)|(clampi(color->b*light/31,0,31)<<10));}
+  }else if(index==11&&wheels>0&&wheels<4)c=(uint16_t)(0x8000|rims[wheels][0]|rims[wheels][1]<<5|rims[wheels][2]<<10);
+  out[at]=c;
+ }
+}
 void city_draw_vehicle(Surface*s,int x,int y,int angle,int model,const Save*save){
  int paint=save?save->paint[model]:0,pattern=save?save->livery[model]:0,color=save?save->livery_color[model]:0,wheels=save?save->wheels[model]:0;
  unsigned call_start=profile_clock();
@@ -15,55 +40,7 @@ void city_draw_vehicle(Surface*s,int x,int y,int angle,int model,const Save*save
  }
  cached->model=model;cached->angle=angle;cached->paint=paint;cached->pattern=pattern;cached->color=color;cached->wheels=wheels;cached->used=city_sprite_clock;
  unsigned render_start=profile_clock();
- uint16_t pixels[32*48];Surface car={pixels,32,48};memset(pixels,0,sizeof pixels);
- int bike=vehicles[model].bike,novel=model>=25&&model<=30;
- int wide=vehicles[model].specialty==VS_ARMOR?11:9;
- const FinishColor*p=body_finish(paint),*decal=livery_finish(color);
- static uint8_t factory[VEHICLE_COUNT][3];
- if(!factory[model][0]){int r=0,green_sum=0,b=0,count=0;
-  for(int n=1;n<256;n++)if(vehicle_palette_flags[model*256+n]&1){uint16_t c=vehicle_palette[model*256+n];r+=c&31;green_sum+=(c>>5)&31;b+=(c>>10)&31;count++;}
-  factory[model][0]=(uint8_t)clampi(count?r/count+1:15,1,31);factory[model][1]=(uint8_t)clampi(count?green_sum/count+1:15,1,31);factory[model][2]=(uint8_t)clampi(count?b/count+1:20,1,31);
- }
- int red=paint?p->r:factory[model][0],green=paint?p->g:factory[model][1],blue=paint?p->b:factory[model][2];
- int length=vehicles[model].class_id>=CLASS_A?39:35;if(wide==11)length=40;
- if(bike||novel){wide=4;length=32;}
- for(int row=4;row<4+length;row++){
-  int edge=row<8?wide-2:row>length?wide-1:wide;
-  for(int col=16-edge;col<=16+edge;col++){
-   int shade=col<16?30:25;uint16_t c=C(red*shade/4,green*shade/4,blue*shade/4);
-   if(livery_pixel(pattern,(col-16+wide)*31/(wide*2),(row-4)*63/length,wide<5))c=C(decal->r*shade/4,decal->g*shade/4,decal->b*shade/4);
-   pixels[row*32+col]=c;
-  }
- }
- if(!bike&&!novel){
-  gfx_rect(&car,16-wide-2,10,3,8,C(16,22,29));gfx_rect(&car,16+wide,10,3,8,C(16,22,29));
-  gfx_rect(&car,16-wide-2,length-7,3,8,C(16,22,29));gfx_rect(&car,16+wide,length-7,3,8,C(16,22,29));
-  gfx_rect(&car,16-wide+2,4,4,2,C(248,238,185));gfx_rect(&car,16+wide-5,4,4,2,C(248,238,185));
-  gfx_rect(&car,16-wide+1,length+2,4,2,C(237,70,70));gfx_rect(&car,16+wide-4,length+2,4,2,C(237,70,70));
-  int roof=wide==11?10:model%3==0?7:9;
-  gfx_rect(&car,16-roof,14,roof*2+1,7,C(26,52,68));gfx_rect(&car,17-roof,14,roof*2-1,2,C(115,176,188));
-  gfx_rect(&car,17-roof,29,roof*2-1,5,C(25,47,62));
-  gfx_rect(&car,16-wide,21,2,10,C(25,47,62));gfx_rect(&car,15+wide,21,2,10,C(25,47,62));
-  if(save&&save->wheels[model]){static const uint16_t rims[4]={C(30,35,40),C(67,82,90),C(214,225,226),C(225,180,81)};int rim=save->wheels[model];
-   gfx_rect(&car,15-wide,11,2,6,rims[rim]);gfx_rect(&car,16+wide,11,2,6,rims[rim]);gfx_rect(&car,15-wide,length-6,2,6,rims[rim]);gfx_rect(&car,16+wide,length-6,2,6,rims[rim]);}
-  if(model%4==0)gfx_rect(&car,11,8,10,2,C(40,44,49));
-  if(model>=36&&model<=41){gfx_rect(&car,8,length,16,2,C(24,29,38));}
-  if(model==42){gfx_rect(&car,9,17,14,18,C(32,37,44));gfx_rect(&car,10,18,12,15,C(56,61,67));}
-  if(model==31||model==35){gfx_rect(&car,13,8,6,4,C(23,29,35));}
-  if(model==32){gfx_rect(&car,7,37,18,3,C(31,35,42));}
-  if(model==33){gfx_rect(&car,9,21,14,12,C(26,32,42));gfx_rect(&car,10,24,5,6,C(137,91,62));gfx_rect(&car,17,24,5,6,C(137,91,62));}
-  if(model==46){gfx_rect(&car,8,18,17,14,C(88,96,83));gfx_rect(&car,8,21,17,2,C(130,139,116));}
-  if(model==47){gfx_rect(&car,4,25,5,17,C(30,35,44));gfx_rect(&car,24,25,5,17,C(30,35,44));gfx_rect(&car,14,36,5,6,C(233,135,61));}
- }else if(model==30){
-  gfx_rect(&car,10,10,12,30,C(102,62,37));gfx_rect(&car,11,4,10,10,C(133,84,46));gfx_rect(&car,9,2,3,7,C(65,40,25));gfx_rect(&car,20,2,3,7,C(65,40,25));
-  gfx_rect(&car,15,36,3,9,C(45,30,25));gfx_rect(&car,11,17,10,11,C(32,47,76));gfx_rect(&car,13,14,6,6,C(222,178,133));
- }else{
-  gfx_rect(&car,13,2,6,9,C(17,24,29));gfx_rect(&car,13,35,6,9,C(17,24,29));
-  gfx_rect(&car,8,14,16,3,C(130,145,151));gfx_rect(&car,11,18,10,12,C(32,43,64));gfx_rect(&car,12,12,8,8,C(245,235,211));
-  if(model==25){gfx_rect(&car,8,30,5,12,C(220,192,111));gfx_rect(&car,19,30,5,12,C(220,192,111));gfx_rect(&car,13,2,6,9,0);gfx_rect(&car,13,35,6,9,0);}
-  if(model==28){gfx_rect(&car,7,23,5,10,C(18,26,33));gfx_rect(&car,21,23,5,10,C(18,26,33));gfx_rect(&car,12,26,9,5,C(132,150,154));}
-  if(model==29){gfx_rect(&car,11,28,11,14,C(189,130,71));gfx_rect(&car,13,2,6,9,0);gfx_rect(&car,13,35,6,9,0);gfx_rect(&car,12,36,9,2,C(38,43,51));}
- }
+ uint16_t pixels[32*48];city_vehicle_pixels(pixels,model,save);
  city_profile[4]+=(profile_clock()-render_start)&65535;render_start=profile_clock();
  int sn=city_sin(angle),cs=city_cos(angle);uint16_t*rotated=cached->pixels;
  for(int yy=-27;yy<27;yy++){
