@@ -24,7 +24,8 @@ assert len(stock['native'])==11,'Run all eleven native sanitizer suites.'
 assert stock['battery_save_reload'] and stock['upgrade_purchased'],'Verify earned cash, an actual part purchase and battery reload.'
 assert stock['long_drive_cadence']['updates']>0 and stock['long_drive_cadence']['hz']>=28
 studio=report('studio-results.json')
-assert studio['interfaces']==['Apex','Signal','Midnight'] and len(studio['cases'])==3
+assert studio['interfaces']==['Apex','Signal','Midnight','Fusion'] and len(studio['cases'])==4
+assert studio['cases'][3]['fusion_navigation_passed'],'Verify Fusion grid, settings pages and fresh save reload.'
 assert studio['garage_tabs']==['Showroom','Tuning','Style','Dealer']
 assert studio['departure_interiors']==13 and studio['fresh_process_reload']
 for case in studio['cases']:
@@ -50,7 +51,7 @@ shutil.copyfile(rom,DIST/rom.name)
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,
     'v1_v2_save_migration':legacy,'v3_save_migration':previous,'dealer_and_style_regressions':extra,
-    'scope':'Menu-focused release: exact-ROM stock run, three interface tours, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun.'},indent=2)+'\n')
+    'scope':'Menu-focused release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -66,12 +67,15 @@ def contact(filename,items,columns=2,screen='bottom'):
     sheet.save(DIST/filename)
 
 contact('Preview.png',[
-    ('ui-2-showroom','MIDNIGHT / YOUR GARAGE'),('ui-0-style','APEX / FINISH STUDIO'),
-    ('ui-1-tuning','SIGNAL / TUNING'),('race-city','ACTUAL STOCK-PROFILE DRIVE')],screen='dual')
+    ('ui-3-home','FUSION / DIRECTIONAL TILE MENU'),('ui-3-settings','FUSION / SETTINGS PAGES'),
+    ('ui-3-showroom','FUSION / YOUR GARAGE'),('race-city','ACTUAL STOCK-PROFILE DRIVE')],screen='dual')
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
-    for mode in ('home','settings') for s,name in enumerate(studio['interfaces'])],columns=3)
+    for mode in ('home','settings') for s,name in enumerate(studio['interfaces'])],columns=4)
+contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
+    ('home','FUSION / FOUR-DIRECTION TILE MENU'),('settings','AUDIO / L-R TO CHANGE PAGE'),
+    ('settings-display','DISPLAY / UP-DOWN TO SCROLL'),('settings-guide','GUIDE / BUTTON CONTROLS'))])
 contact('Garage.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
-    for mode in ('showroom','tuning','style','dealer-4') for s,name in enumerate(studio['interfaces'])],columns=3)
+    for mode in ('showroom','tuning','style','dealer-4') for s,name in enumerate(studio['interfaces'])],columns=4)
 locations=('METRO DAWN','PALM COAST','SKYWATER CAUSEWAY','PINE RIDGE','REDROCK PASS',
     'MARINA NIGHTS','MANGROVE RUN','CITRUS PARKWAY','NEON CURRENT','JADE CANOPY',
     'GHOSTWATER BAYOU','AURORA REACH','PRISM SALTWAY')
@@ -85,7 +89,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Interface.png','Garage.png',
+files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

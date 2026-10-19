@@ -10,7 +10,8 @@ contracts give each run a specific driving goal.
 
 - [Download the DS cartridge](drive/dist/Coastline.nds)
 - [Download the complete ZIP](drive/dist/Coastline-DS.zip)
-- [Compare Midnight, Apex and Signal interfaces](drive/dist/Interface.png)
+- [Compare Midnight, Apex, Signal and Fusion interfaces](drive/dist/Interface.png)
+- [See the Fusion interface](drive/dist/Fusion.png)
 - [See all four garage tabs](drive/dist/Garage.png)
 - [See departure-themed garage interiors](drive/dist/Garage-Interiors.png)
 - [See customization and saved setups](drive/dist/Progression.png)
@@ -51,7 +52,9 @@ Showroom, Tuning, Style and class-based Dealer tabs. Three presets save a car,
 installed build, finish and departure. Paint, liveries, wheel finishes and smoke
 colors are paid installations; returning to a previous finish costs half price.
 Midnight retains the glass interface, Apex adds a bright tile workspace and
-Signal adds a driver terminal. Vehicle-specific dashboards accompany
+Signal adds a driver terminal. The fourth interface, **Fusion**, combines Midnight
+styling, a four-direction tile menu and settings pages switched with L/R.
+Vehicle-specific dashboards accompany
 independent music/SFX settings. Purchases and progression persist in cartridge
 battery saves, including migration from the first draft. The standard motorcycle
 is a cash purchase without a challenge requirement. Special gear, paint and

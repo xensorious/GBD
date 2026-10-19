@@ -1,6 +1,6 @@
 # Coastline: Endless Drive
 
-A native Nintendo DS driving game for Delta, with three complete interfaces,
+A native Nintendo DS driving game for Delta, with four complete interfaces,
 31 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 Drive a continuous four-lane highway from the city to the coast, across an ocean
 causeway, through pine country, red-rock canyons, a neon marina, mangrove
@@ -42,8 +42,12 @@ the upper screen shows an animated drive or a vehicle in a departure-themed gara
 clusters change with the vehicle, including classic dials, digital sports
 clusters, utility instruments and a motorcycle display. Settings offers
 **Midnight**, the retained glass interface; **Apex**, a bright tile workspace;
-and **Signal**, a dark driver terminal with a settings sidebar. These interfaces
-continue through the garage, route library, career, challenges, pause and results.
+**Signal**, a dark driver terminal with a settings sidebar; and **Fusion**,
+which combines Midnight's colors and glass borders, Apex's tile home screen,
+and Signal's settings layout. In Fusion, all four D-pad directions move between
+home tiles. L/R cycles the Audio, Display and Guide pages in Settings, while
+Up/Down scrolls through the full list and Left/Right adjusts the selected value.
+These interfaces continue through the garage, route library, career, challenges, pause and results.
 Settings also includes independent music and
 sound-effect toggles and volumes, road motion, camera shake and speed units.
 
@@ -186,7 +190,7 @@ retain their full progression and settings. First-draft cartridge battery saves
 migrate to the expanded format, retaining their purchases and records. Version 4
 adds installation history, smoke colors and presets to the same packed 500-byte
 battery image, preserving the original save-chip size. Previous color-only
-Miami/Sunset selections migrate to Midnight; choose Apex or Signal in Settings. Delta
+Miami/Sunset selections migrate to Midnight; choose Apex, Signal or Fusion in Settings. Delta
 stores this as cartridge battery data. An unfinished run is not saved. Keep an
 exported battery save when moving devices; save states include program state
 and can depend on the exact ROM version. This game's save is separate from

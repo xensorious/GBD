@@ -8,7 +8,8 @@ typedef struct {
  uint16_t selected_top,selected_bottom,selected_ink,selected_detail;
  uint16_t cockpit_top,cockpit_bottom,light;
 } Theme;
-static const Theme themes[SKIN_COUNT]={
+/* Fusion shares Midnight's palette and component artwork exactly. */
+static const Theme themes[3]={
  {C(236,239,242),C(220,227,232),C(255,255,255),C(245,247,249),C(208,218,225),C(193,205,214),C(22,33,46),C(91,110,125),C(0,107,174),C(228,93,55),C(20,44,64),C(20,44,64),C(255,255,255),C(102,226,215),C(22,33,46),C(12,20,29),C(102,226,215)},
  {C(8,14,25),C(14,25,42),C(16,30,48),C(16,30,48),C(48,83,111),C(0,6,14),C(231,247,255),C(127,163,185),C(180,244,75),C(255,132,85),C(26,57,68),C(26,57,68),C(224,255,187),C(180,244,75),C(12,25,42),C(4,12,22),C(180,244,75)},
  {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(102,148,165),C(6,20,36),C(236,250,247),C(155,198,208),C(105,233,220),C(250,146,155),C(50,128,147),C(34,89,121),C(248,255,249),C(255,218,163),C(28,44,76),C(9,20,40),C(145,206,255)}
@@ -53,7 +54,7 @@ static void limited(Surface*s,int x,int y,int width,const char*text,uint16_t col
 static void disc(Surface*s,int x,int y,int r,uint16_t color){int r2=r*r;for(int dy=-r;dy<=r;dy++){int dx=r;while(dx&&dx*dx+dy*dy>r2)dx--;gfx_rect(s,x-dx,y+dy,dx*2+1,1,color);}}
 static void gradient(Surface*s,int x,int y,int w,int h,uint16_t top,uint16_t bottom){for(int j=0;j<h;j++)gfx_rect(s,x,y+j,w,1,mix(top,bottom,h>1?j*256/(h-1):0));}
 static void glass(Surface*s,int x,int y,int w,int h,int selected){
- if(interface!=2){
+ if(interface!=SKIN_MIDNIGHT && interface!=SKIN_FUSION){
   uint16_t fill=selected?t->selected_top:t->card_top;
   gfx_rect(s,x,y,w,h,fill);
   if(interface==0){gfx_rect(s,x,y+h-1,w,1,t->edge);if(selected)gfx_rect(s,x,y,3,h,t->selected_detail);}
@@ -82,7 +83,7 @@ static uint16_t menu_art[256*192] __attribute__((aligned(4)));
 static int menu_skin=-1;
 static void backdrop(Surface*s,int skin){
  if(menu_skin!=skin){Surface bg={menu_art,256,192};
-  if(skin==2){gradient(&bg,0,0,256,192,t->sky,t->shore);
+  if(skin==SKIN_MIDNIGHT || skin==SKIN_FUSION){gradient(&bg,0,0,256,192,t->sky,t->shore);
    disc(&bg,236,12,42,mix(t->sky,t->edge,34));disc(&bg,236,12,32,mix(t->sky,t->edge,62));disc(&bg,236,12,24,mix(t->sky,t->edge,100));
    for(int j=0;j<5;j++)gfx_line(&bg,-20,151+j*8,278,118+j*9,mix(t->shore,t->edge,55+j*12));
    palm(&bg,-6,91,3,mix(t->sky,t->accent,36));palm(&bg,249,123,2,mix(t->shore,t->accent,32));
@@ -130,11 +131,11 @@ static void home_icon(Surface*s,int x,int y,int i,int selected){
 static void home(Surface*s,const Game*g){
  static const char*const labels[6]={"Drive","Garage","Challenges","Career","Settings","Dispatch"};
  static const char*const hints[6]={"START RUN","YOUR COLLECTION","ROAD REWARDS","DRIVER PERKS","PREFERENCES","BONUS CONTRACT"};
- if(interface==0){
+ if(interface==SKIN_APEX || interface==SKIN_FUSION){
   gfx_text(s,12,8,"C O A S T L I N E",t->ink);char cash[24]="";money(cash,g->save.cash,sizeof cash);right(s,244,8,cash,t->accent);
   glass(s,10,37,236,40,0);gfx_text_small(s,20,42,"READY IN YOUR BAY",t->muted);limited(s,20,55,120,vehicles[g->save.selected_vehicle].name,t->ink);right_small(s,238,56,locations[g->save.selected_location].name,t->accent);
   for(int i=0;i<6;i++){int x=10+(i%2)*120,y=84+(i/2)*30,sel=g->cursor==i;glass(s,x,y,116,26,sel);home_icon(s,x+12,y+13,i,sel);gfx_text(s,x+25,y+7,labels[i],sel?t->selected_ink:t->ink);}
-  footer(s,"APEX  /  DRIVE CLUB","A: Open");return;
+  footer(s,interface==SKIN_FUSION?"FUSION / D-PAD: CHOOSE":"APEX  /  DRIVE CLUB","A: Open");return;
  }
  if(interface==1){
   gfx_text_small(s,17,8,"SIGNAL / COASTLINE",t->accent);char cash[24]="";money(cash,g->save.cash,sizeof cash);right(s,244,8,cash,t->ink);
@@ -231,11 +232,12 @@ static void career(Surface*s,const Game*g){
  static const char*const desc[4]={"Once/run at low health: +10/18/26.","Reach 5x combos 15% sooner per rank.","Earn 8% more run cash per rank.","Return every spent career point, free."};limited(s,15,165,226,desc[clamp(g->cursor,0,3)],t->muted);footer(s,"A: Invest  |  L2: Mangroves","B: Back");
 }
 static void settings(Surface*s,const Game*g){
- header(s,"PERSONAL SETTINGS",g);static const char*const names[9]={"Music","Music volume","Sound effects","Effects volume","Interface","Road motion","Impact shake","Speed units","Controls"};static const char*const skins[3]={"Apex","Signal","Midnight"};static const char*const motion[3]={"Calm","Cruise","Express"};
+ header(s,"PERSONAL SETTINGS",g);static const char*const names[9]={"Music","Music volume","Sound effects","Effects volume","Interface","Road motion","Impact shake","Speed units","Controls"};static const char*const skins[SKIN_COUNT]={"Apex","Signal","Midnight","Fusion"};static const char*const motion[3]={"Calm","Cruise","Express"};
  if(interface==0){gfx_text_small(s,15,34,g->cursor<4?"01 / AUDIO":g->cursor<8?"02 / DISPLAY":"03 / BUTTON GUIDE",t->accent);}
- if(interface==1){
+ if(interface==SKIN_SIGNAL || interface==SKIN_FUSION){
   int section=g->cursor<4?0:g->cursor<8?1:2;static const char*const groups[3]={"AUDIO","DISPLAY","GUIDE"};
   for(int j=0;j<3;j++){glass(s,13,40+j*38,64,32,section==j);center_small(s,13,52+j*38,64,groups[j],section==j?t->selected_ink:t->muted);}
+  if(interface==SKIN_FUSION)gfx_text_small(s,15,31,"L/R: Pages  |  Up/Down: Scroll",t->muted);
  }
  for(int i=0;i<9;i++){char val[28]="";switch(i){case 0:append(val,g->save.music_on?"On":"Off",sizeof val);break;case 1:number(val,g->save.music_volume,sizeof val);append(val,"%",sizeof val);break;case 2:append(val,g->save.sfx_on?"On":"Off",sizeof val);break;case 3:number(val,g->save.sfx_volume,sizeof val);append(val,"%",sizeof val);break;case 4:append(val,skins[g->save.skin%SKIN_COUNT],sizeof val);break;case 5:append(val,motion[g->save.motion%3],sizeof val);break;case 6:append(val,g->save.shake?"On":"Off",sizeof val);break;case 7:append(val,g->save.units?"mph":"km/h",sizeof val);break;default:append(val,"Open",sizeof val);break;}
   if(interface==2)row(s,34+i*15,14,names[i],val,g->cursor==i,0);
@@ -490,7 +492,7 @@ static void dashboard(Surface*s,const Game*g){
  dashboard_previous=now;dashboard_target=s->pixels;dashboard_target_key=key;
 }
 static void receipt(Surface*s,const Game*g){
- if(interface!=2){
+ if(interface!=SKIN_MIDNIGHT && interface!=SKIN_FUSION){
   backdrop(s,interface);header(s,interface==0?"RUN STATEMENT":"CITATION / CLOSED",g);
   char info[64]="";number(info,g->run.distance_m,sizeof info);append(info," m / ",sizeof info);time_text(info,g->run_ticks,sizeof info);gfx_text_small(s,16,35,info,t->muted);
   for(int i=0;i<BONUS_COUNT;i++){char val[40]="";number(val,g->run.count[i],sizeof val);append(val," x / ",sizeof val);number(val,g->run.points[i],sizeof val);row(s,49+i*12,11,bonus_names[i],val,0,0);}
@@ -515,7 +517,7 @@ static void receipt(Surface*s,const Game*g){
  char xp[88]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);if(g->run.cash_bonus){append(xp,"  PERK +",sizeof xp);money(xp,g->run.cash_bonus,sizeof xp);}center_small(s,8,167,236,xp,muted);center(s,0,182,256,"A: Continue",t->ink);
 }
 void ui_draw_bottom(Surface*s,const Game*g){
- interface=g->save.skin%SKIN_COUNT;t=&themes[interface];if(g->mode==M_RUN){dashboard(s,g);return;}
+ interface=g->save.skin%SKIN_COUNT;t=&themes[interface==SKIN_FUSION?SKIN_MIDNIGHT:interface];if(g->mode==M_RUN){dashboard(s,g);return;}
  dashboard_target=0;
  if(g->mode==M_RECEIPT){receipt(s,g);return;}
  backdrop(s,g->save.skin%SKIN_COUNT);

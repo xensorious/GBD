@@ -22,7 +22,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--output',type=Path,default=ROOT/'build'/'studio-validation')
 p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds')
 p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
-p.add_argument('--skin',type=int,choices=range(3))
+p.add_argument('--skin',type=int,choices=range(4))
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 library=ROOT/'build'/'libstudio-qa.so'
 
@@ -30,17 +30,18 @@ if a.skin is None:
     verify_layout(ROOT)
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
         'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
-    for skin in range(3):
+    for skin in range(4):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--rom',str(a.rom),
             '--elf',str(a.elf),'--skin',str(skin)],check=True)
-    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(3)]
-    report={'rom':inspect(a.rom),'interfaces':['Apex','Signal','Midnight'],
+    cases=[json.loads((a.output/f'studio-{skin}.json').read_text()) for skin in range(4)]
+    assert cases[3]['fusion_navigation_passed']
+    report={'rom':inspect(a.rom),'interfaces':['Apex','Signal','Midnight','Fusion'],
         'garage_tabs':['Showroom','Tuning','Style','Dealer'],'cases':cases,
         'fresh_process_reload':all(c['fresh_process_reload'] for c in cases),
         'profile_source':'labelled funded review profile; all actions use buttons; RAM read only',
         'departure_interiors':13,'serialized_save_bytes':500,'physical_save_bytes':512}
     (a.output/'studio-results.json').write_text(json.dumps(report,indent=2)+'\n')
-    print('All three actual-cartridge interface reviews passed.',flush=True)
+    print('All four actual-cartridge interface reviews passed.',flush=True)
     sys.exit(0)
 
 skin=a.skin;lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
@@ -79,10 +80,33 @@ with Emulator(a.rom,directory) as e:
         d.menu(5);before=d.game().save.cash;d.press('a')
         return before-d.game().save.cash
     shot('home')
+    if skin==3:
+        for key,target in (('left',0),('up',0),('right',1),('right',1),('down',3),('left',2),('down',4),('down',4),('right',5),('up',3),('up',1),('left',0)):
+            d.press(key);assert d.game().cursor==target,(key,target,d.game().cursor)
+        events.append('four-direction tile navigation and bounded edges')
     for home,mode,name in ((4,9,'settings'),(2,5,'challenges'),(3,8,'career'),(5,10,'dispatch')):
         d.menu(home);d.press('a');assert d.game().mode==mode
         shot(name)
         if mode==9:
+            if skin==3:
+                before=bytes(d.game().save)
+                d.press('r');assert d.game().cursor==4;shot('settings-display')
+                d.press('r');assert d.game().cursor==8;shot('settings-guide')
+                d.press('r');assert d.game().cursor==0
+                d.press('l');assert d.game().cursor==8
+                d.press('up');assert d.game().cursor==7
+                d.press('down');assert d.game().cursor==8
+                d.press('down');assert d.game().cursor==0
+                assert bytes(d.game().save)==before,'Paging must not edit preferences'
+                for cursor in range(9):assert d.game().cursor==cursor;d.press('down')
+                assert d.game().cursor==0
+                music=d.game().save.music_on;d.press('right');assert d.game().save.music_on!=music
+                d.press('left');assert d.game().save.music_on==music
+                d.menu(4);d.press('left');assert d.game().save.skin==2
+                d.press('right');assert d.game().save.skin==3
+                d.menu(0);shot('settings')
+                events.extend(['L/R settings pages and wraparound','continuous Up/Down settings scrolling',
+                    'page switching preserves preferences','Fusion selected through ordinary settings'])
             d.menu(4);shot('interface-setting');d.menu(8);d.press('a');shot('controls')
             d.press('r');shot('turbo-guide');d.press('b')
         d.press('b');assert d.game().mode==0
@@ -155,8 +179,9 @@ with Emulator(a.rom,directory) as e:
 geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(a.rom),'--elf',str(a.elf),
     '--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/f'ui-{skin}-reloaded.png')],check=True)
-result={'skin':skin,'name':('Apex','Signal','Midnight')[skin],'checks':events,
+result={'skin':skin,'name':('Apex','Signal','Midnight','Fusion')[skin],'checks':events,
     'all_classes_reviewed':True,'vehicles_reviewed':31,'cosmetics_and_presets_passed':True,
+    'fusion_navigation_passed':skin==3,
     'fresh_process_reload':True,'screenshots':screenshots,**geometry}
 (a.output/f'studio-{skin}.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps(result),flush=True)

@@ -3,16 +3,16 @@
     "title": "COASTLINE",
     "game_code": "KCWE",
     "bytes": 1850880,
-    "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
+    "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 1818256
+        "bytes": 1818672
       },
       "arm7": {
-        "offset": 1835008,
+        "offset": 1835520,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -29,7 +29,7 @@
       "graphics: 313286 pixel-exact checks passed across 481 asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity",
       "style: 149175239 checks; 31 vehicles x5 poses x15 cosmetic cases, exact alpha/protected materials, visible hardware and source/palette cache invalidation pass",
       "Scenery draw items: 0..46, 21 slots remain with both pools full.\nRenderer geometry: 1745029 checks passed.",
-      "studio: 170 checks; repeat-install discounts, atomic payments, paid presets, 500B saves, class lists, owned showroom and all interface/room renders pass"
+      "studio: 290 checks; four interfaces, Fusion grid/page navigation, exact Midnight styling, repeat-install discounts, atomic payments, paid presets and 500B saves pass"
     ],
     "core": {
       "name": "DeSmuME",
@@ -37,8 +37,8 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 2872380,
-      "nonzero_batches": 3683
+      "samples": 2817990,
+      "nonzero_batches": 3609
     },
     "events": [
       {
@@ -53,7 +53,7 @@
         },
         "effects_on": {
           "samples_observed": 736,
-          "rms": 1381.6236652741773
+          "rms": 1429.5684269136127
         },
         "effects_off": {
           "samples_observed": 736,
@@ -61,17 +61,17 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 358.9070930606908
+          "rms": 363.11408431047903
         }
       },
       {
         "check": "gas/turbo/precision",
         "normal_q8": 44800,
         "turbo_q8": 55808,
-        "slow_q8": 28928,
+        "slow_q8": 28160,
         "charge_before_q8": 61440,
         "charge_after_boost_q8": 40960,
-        "charge_after_precision_q8": 41881
+        "charge_after_precision_q8": 41922
       },
       {
         "check": "actual cartridge update rate",
@@ -81,55 +81,55 @@
         "start": {
           "mode": "run",
           "health": 100,
-          "position_q8": 486972,
+          "position_q8": 485036,
           "frame": 960,
-          "run_seed": 297819580,
-          "run_ticks": 475,
-          "x_q8": -5712,
+          "run_seed": 145276207,
+          "run_ticks": 474,
+          "x_q8": -18074,
           "speed_q8": 44800
         },
         "end": {
           "mode": "run",
           "health": 100,
-          "position_q8": 570972,
+          "position_q8": 569036,
           "frame": 1020
         },
         "render_profile": [
-          15125,
+          12823,
           0,
-          15168,
-          4271,
-          10321
+          12867,
+          4198,
+          8085
         ],
         "scenery_profile": [
-          970,
-          4527,
-          2217,
+          896,
+          4131,
+          660,
           0,
-          1765,
-          176,
-          3259,
-          1193
+          1708,
+          165,
+          2954,
+          1120
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
-        "updates": 760,
-        "hardware_frames": 1600,
-        "hz": 28.5,
+        "updates": 740,
+        "hardware_frames": 1528,
+        "hz": 29.05759162303665,
         "requested_updates": 1200,
-        "actual_run_ticks": 759,
+        "actual_run_ticks": 740,
         "ended_early": true,
         "start": {
           "frame": 1020,
-          "run_ticks": 535,
-          "position_q8": 570972,
+          "run_ticks": 534,
+          "position_q8": 569036,
           "health": 100
         },
         "end": {
-          "frame": 1780,
-          "run_ticks": 1294,
-          "position_q8": 1613862,
+          "frame": 1760,
+          "run_ticks": 1274,
+          "position_q8": 1585006,
           "health": 0,
           "mode": "receipt"
         }
@@ -137,49 +137,49 @@
     ],
     "receipt": {
       "count": [
-        2101,
-        41,
-        1,
+        2063,
+        40,
+        0,
         27,
         0,
         0,
-        31
+        19
       ],
       "points": [
-        2101,
-        205,
-        100,
-        850,
+        2063,
+        200,
+        0,
+        870,
         0,
         0,
-        310
+        190
       ],
-      "points_total": 3566,
-      "cash": 214,
-      "distance_m": 2101,
+      "points_total": 3323,
+      "cash": 150,
+      "distance_m": 2063,
       "max_combo_q8": 640,
-      "mastery_xp": 515,
-      "career_xp": 515,
+      "mastery_xp": 499,
+      "career_xp": 499,
       "cash_bonus": 0,
       "end_reason": 2
     },
     "long_drive_cadence": {
-      "updates": 760,
-      "hardware_frames": 1600,
-      "hz": 28.5,
+      "updates": 740,
+      "hardware_frames": 1528,
+      "hz": 29.05759162303665,
       "requested_updates": 1200,
-      "actual_run_ticks": 759,
+      "actual_run_ticks": 740,
       "ended_early": true,
       "start": {
         "frame": 1020,
-        "run_ticks": 535,
-        "position_q8": 570972,
+        "run_ticks": 534,
+        "position_q8": 569036,
         "health": 100
       },
       "end": {
-        "frame": 1780,
-        "run_ticks": 1294,
-        "position_q8": 1613862,
+        "frame": 1760,
+        "run_ticks": 1274,
+        "position_q8": 1585006,
         "health": 0,
         "mode": "receipt"
       }
@@ -221,16 +221,16 @@
       "title": "COASTLINE",
       "game_code": "KCWE",
       "bytes": 1850880,
-      "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
+      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818256
+          "bytes": 1818672
         },
         "arm7": {
-          "offset": 1835008,
+          "offset": 1835520,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -240,7 +240,8 @@
     "interfaces": [
       "Apex",
       "Signal",
-      "Midnight"
+      "Midnight",
+      "Fusion"
     ],
     "garage_tabs": [
       "Showroom",
@@ -265,6 +266,7 @@
         "all_classes_reviewed": true,
         "vehicles_reviewed": 31,
         "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": false,
         "fresh_process_reload": true,
         "screenshots": [
           "ui-0-home.png",
@@ -309,6 +311,7 @@
         "all_classes_reviewed": true,
         "vehicles_reviewed": 31,
         "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": false,
         "fresh_process_reload": true,
         "screenshots": [
           "ui-1-home.png",
@@ -353,6 +356,7 @@
         "all_classes_reviewed": true,
         "vehicles_reviewed": 31,
         "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": false,
         "fresh_process_reload": true,
         "screenshots": [
           "ui-2-home.png",
@@ -406,6 +410,59 @@
         "serialized_save_bytes": 500,
         "physical_save_bytes": 512,
         "disk_checksum_valid": true
+      },
+      {
+        "skin": 3,
+        "name": "Fusion",
+        "checks": [
+          "four-direction tile navigation and bounded edges",
+          "L/R settings pages and wraparound",
+          "continuous Up/Down settings scrolling",
+          "page switching preserves preferences",
+          "Fusion selected through ordinary settings",
+          "owned-only showroom",
+          "all 31 cars in five class lists",
+          "dealer purchase",
+          "engine upgrade and top-speed build",
+          "full-price installation $490",
+          "factory restoration $81",
+          "returning finish $245",
+          "paid preset restores car/build/route/style"
+        ],
+        "all_classes_reviewed": true,
+        "vehicles_reviewed": 31,
+        "cosmetics_and_presets_passed": true,
+        "fusion_navigation_passed": true,
+        "fresh_process_reload": true,
+        "screenshots": [
+          "ui-3-home.png",
+          "ui-3-settings.png",
+          "ui-3-settings-display.png",
+          "ui-3-settings-guide.png",
+          "ui-3-settings.png",
+          "ui-3-interface-setting.png",
+          "ui-3-controls.png",
+          "ui-3-turbo-guide.png",
+          "ui-3-challenges.png",
+          "ui-3-career.png",
+          "ui-3-dispatch.png",
+          "ui-3-showroom.png",
+          "ui-3-dealer-0.png",
+          "ui-3-dealer-1.png",
+          "ui-3-dealer-2.png",
+          "ui-3-dealer-3.png",
+          "ui-3-dealer-4.png",
+          "ui-3-tuning.png",
+          "ui-3-style.png",
+          "ui-3-presets.png",
+          "ui-3-routes.png",
+          "ui-3-driving.png",
+          "ui-3-pause.png",
+          "ui-3-receipt.png"
+        ],
+        "serialized_save_bytes": 500,
+        "physical_save_bytes": 512,
+        "disk_checksum_valid": true
       }
     ],
     "fresh_process_reload": true,
@@ -419,16 +476,16 @@
       "title": "COASTLINE",
       "game_code": "KCWE",
       "bytes": 1850880,
-      "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
+      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818256
+          "bytes": 1818672
         },
         "arm7": {
-          "offset": 1835008,
+          "offset": 1835520,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -587,16 +644,16 @@
       "title": "COASTLINE",
       "game_code": "KCWE",
       "bytes": 1850880,
-      "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
+      "sha256": "5d0cefc037c2799ec0fed7c6ed478dff2430bbba5e788fce1c3e7673c530d15f",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 1818256
+          "bytes": 1818672
         },
         "arm7": {
-          "offset": 1835008,
+          "offset": 1835520,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -634,90 +691,6 @@
     "physical_save_bytes": 512,
     "disk_checksum_valid": true
   },
-  "dealer_and_style_regressions": [
-    {
-      "case": "gate-4",
-      "rom": {
-        "title": "COASTLINE",
-        "game_code": "KCWE",
-        "bytes": 1850880,
-        "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
-        "executables": {
-          "arm9": {
-            "offset": 16384,
-            "entry": "0x2000800",
-            "load": "0x2000000",
-            "bytes": 1818256
-          },
-          "arm7": {
-            "offset": 1835008,
-            "entry": "0x2380000",
-            "load": "0x2380000",
-            "bytes": 10136
-          }
-        }
-      },
-      "inputs": "joypad only; RAM read only",
-      "screenshots": [
-        "expansion-class-gate-4.png",
-        "expansion-class-gate.png",
-        "expansion-class-open-4.png"
-      ],
-      "serialized_save_bytes": 500,
-      "fixture_source": "documented native-generated boundary profile",
-      "passed": true,
-      "class_id": 4,
-      "owned_before": 9,
-      "prerequisite_purchase": 13,
-      "target_vehicle": 21,
-      "owned_after": 11,
-      "physical_save_bytes": 512,
-      "disk_checksum_valid": true,
-      "fresh_process_reload": true
-    },
-    {
-      "case": "style",
-      "rom": {
-        "title": "COASTLINE",
-        "game_code": "KCWE",
-        "bytes": 1850880,
-        "sha256": "184ab540726924982dbb8fc49937114ae5e084ce036d6ae981d8d1ab551112a6",
-        "executables": {
-          "arm9": {
-            "offset": 16384,
-            "entry": "0x2000800",
-            "load": "0x2000000",
-            "bytes": 1818256
-          },
-          "arm7": {
-            "offset": 1835008,
-            "entry": "0x2380000",
-            "load": "0x2380000",
-            "bytes": 10136
-          }
-        }
-      },
-      "inputs": "joypad only; RAM read only",
-      "screenshots": [
-        "expansion-style-preview.png",
-        "expansion-style.png",
-        "expansion-style-horse.png",
-        "expansion-recovery-part.png"
-      ],
-      "serialized_save_bytes": 500,
-      "fixture_source": "documented native-generated boundary profile",
-      "passed": true,
-      "preview_did_not_purchase": true,
-      "reapply_free": true,
-      "per_vehicle_isolation": true,
-      "last_vehicle_tail_preserved": true,
-      "livery_choices": 5,
-      "hardware_choices": 4,
-      "recovery_part_purchased": true,
-      "physical_save_bytes": 512,
-      "disk_checksum_valid": true,
-      "fresh_process_reload": true
-    }
-  ],
-  "scope": "Menu-focused release: exact-ROM stock run, three interface tours, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun."
+  "dealer_and_style_regressions": [],
+  "scope": "Menu-focused release: exact-ROM stock run, four interface tours including Fusion directional/page controls, thirteen garage interiors, eleven native suites and five previous-release migrations. Broader world tours were not rerun."
 }

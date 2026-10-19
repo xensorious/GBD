@@ -58,7 +58,9 @@ class DriveThrough:
         for _ in range(16):
             g=self.game()
             if g.cursor==target: return
-            self.press('down')
+            if g.mode==0 and g.save.skin==3:
+                self.press('down' if g.cursor//2<target//2 else 'up' if g.cursor//2>target//2 else 'right' if g.cursor%2<target%2 else 'left')
+            else:self.press('down')
         raise AssertionError(f'Menu cursor did not reach {target}')
     def steer(self,target):
         g=self.game(); x=g.x_q8/256;vx=g.vx_q8/256

@@ -47,16 +47,21 @@ python3 drive/tools/package.py
 
 `studio.c` checks atomic cosmetic payments, per-vehicle repeat-install discounts,
 paid preset loads, owned-only browsing, five Dealer class lists and all menu/room
-renders under ASan/UBSan. It can also produce native diagnostic PPM images by
-passing an output directory; those are not represented as emulator screenshots.
+renders under ASan/UBSan. Fusion additionally checks every tile's directional
+neighbors and boundaries, all nine settings rows, L/R page cycling, value
+editing, controls/pause return paths, battery persistence, and pixel-exact
+Midnight styling outside the two hybrid layouts. It can also produce native
+diagnostic PPM images by passing an output directory; those are not represented as emulator screenshots.
 
-`studio.py` creates explicitly funded review profiles for Apex, Signal and
-Midnight. Each actual-cartridge case visits all menus, browses all 31 models in
+`studio.py` creates explicitly funded review profiles for Apex, Signal,
+Midnight and Fusion. Each actual-cartridge case visits all menus, browses all 31 models in
 class lists, buys a car, applies parts/builds, installs all four cosmetic kinds,
 switches away and back at half price, saves and reloads a paid preset, drives,
 pauses, banks a run and reloads its real battery file in a fresh process. All
 13 departure interiors are captured through the route library. Touch input is
-verified passive. Fixture progress is never described as earned gameplay.
+verified passive. The Fusion case also exercises four-direction navigation,
+page wraparound, continuous list scrolling and selection through Settings.
+Fixture progress is never described as earned gameplay.
 
 `migration.py` verifies v1 and three published v2 cartridges accept their own
 fixtures first, then checks the new cartridge preserves them on the original
@@ -69,7 +74,7 @@ verified against published hashes, with reproducible setup via `setup_legacy.py`
 The current profile is 708 bytes in RAM and 500 bytes on disk.
 
 Packaging requires matching SHA-256 values for the final ROM, all eleven native
-suites, the stock playthrough, three interface tours and all five prior-release
+suites, the stock playthrough, four interface tours and all five prior-release
 migration cases. Images in the package come from this ROM's emulator output.
 The broader handling/scenery/expansion/transition tours remain supplemental;
 they are not claimed as rerun evidence for this menu-focused update.

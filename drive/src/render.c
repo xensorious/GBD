@@ -219,14 +219,14 @@ static int bridge_region(int biome)
 {return biome==CAUSEWAY || biome==WETLANDS;}
 
 typedef struct {uint16_t sky,sky_low,floor,floor_low,pane,ink,muted,accent,rim;} StudioTheme;
-static const StudioTheme studio_themes[SKIN_COUNT]={
+static const StudioTheme studio_themes[3]={
  {C(236,239,242),C(220,227,232),C(255,255,255),C(234,240,244),C(247,250,252),C(22,33,46),C(91,110,125),C(0,107,174),C(190,206,219)},
  {C(8,14,25),C(14,25,42),C(16,30,48),C(9,18,31),C(16,30,48),C(231,247,255),C(127,163,185),C(180,244,75),C(48,83,111)},
  {C(17,35,61),C(41,62,82),C(49,78,99),C(27,54,77),C(35,66,89),C(236,250,247),C(145,190,201),C(105,233,220),C(77,124,144)}
 };
 
 static const StudioTheme *theme_for(const Game *g)
-{return &studio_themes[clampi(g->save.skin,0,SKIN_COUNT-1)];}
+{int skin=clampi(g->save.skin,0,SKIN_COUNT-1);return &studio_themes[skin==SKIN_FUSION?SKIN_MIDNIGHT:skin];}
 
 typedef struct {uint16_t high,low,haze;uint8_t night;} SkyTheme;
 static const SkyTheme sky_themes[LOCATION_COUNT]={

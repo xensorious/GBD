@@ -975,6 +975,12 @@ static void career_tick(Game *g,const Input *in) {
 }
 static void settings_tick(Game *g,const Input *in) {
  if(in->pressed&K_B) {g->mode=g->menu_return==M_PAUSE?M_PAUSE:M_HOME;g->cursor=g->mode==M_PAUSE?3:4;return;}
+ if(g->save.skin==SKIN_FUSION && (in->pressed&(K_L|K_R))) {
+  int section=g->cursor<4?0:g->cursor<8?1:2;
+  int direction=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
+  if(direction)g->cursor=(uint8_t)(((section+3+direction)%3)*4);
+  return;
+ }
  g->cursor=(uint8_t)((g->cursor+9+vertical(in))%9);
  int dx=horizontal(in),confirm=(in->pressed&K_A)!=0;
  if(g->cursor==8) {if(confirm){g->mode=M_CONTROLS;g->paused_from=M_SETTINGS;g->controls_page=0;}return;}
@@ -1005,7 +1011,10 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;
   case M_HOME:
-   g->cursor=(uint8_t)((g->cursor+6+vertical(in))%6);
+   if(g->save.skin==SKIN_FUSION) {
+    int row=clampi(g->cursor/2+vertical(in),0,2),column=clampi(g->cursor%2+horizontal(in),0,1);
+    g->cursor=(uint8_t)(row*2+column);
+   } else g->cursor=(uint8_t)((g->cursor+6+vertical(in))%6);
    if(in->pressed&K_A) {
     switch(g->cursor) {
      case 0:game_begin_run(g);break;
