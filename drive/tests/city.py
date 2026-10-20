@@ -15,14 +15,19 @@ from fixtures import encode_profile,write_battery,assert_compact_battery
 from game_snapshot import Game,find_symbol,verify_layout,symbol_size
 from inspect_rom import inspect
 from playthrough import DriveThrough
+from city_pixels import RoadPixels
 class Car(C.LittleEndianStructure):
  _fields_=[('x',C.c_int16),('y',C.c_int16),('angle',C.c_uint16),('progress',C.c_uint32)]+[(n,C.c_uint8) for n in ('route','reverse','model','near')]
 class City(C.LittleEndianStructure):
  _fields_=[('active',C.c_int32)]+[(n,C.c_int32) for n in ('x','y','vx','vy','camera_x','camera_y')]+[('angle',C.c_uint16),('travelled',C.c_uint32),('cars',Car*64),('tokens',C.c_uint8*64)]
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,default=ROOT/'build'/'city-release');a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
-rom=ROOT/'build'/'Coastline.nds';elf=ROOT/'build'/'arm9.elf';verify_layout(ROOT)
-library=ROOT/'build'/'libcity-qa.so';subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,default=ROOT/'build'/'city-release')
+p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds');p.add_argument('--elf',type=Path,default=ROOT/'build'/'arm9.elf')
+p.add_argument('--baseline',action='store_true',help='Observe the pinned previous ROM without requiring the new visual fix.')
+a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
+rom=a.rom.resolve();elf=a.elf.resolve();verify_layout(ROOT)
+library=a.output/'libcity-qa.so';subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
 lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
+pixels=RoadPixels(lib,a.baseline);sway=False
 profile=Game();lib.game_init(C.byref(profile),0x43495459);profile.save.owned=0xffffffff;profile.save.owned_hi=0xffff;profile.save.selected_vehicle=46;profile.save.cash=1000000
 profile.save.mastery_xp[46]=10000;profile.save.engine[46]=2;profile.save.grip[46]=2;profile.save.armor[46]=2
 profile.save.paint[46]=11;profile.save.paint_seen[46]|=1<<11;profile.save.livery[46]=3;profile.save.livery_owned[46]|=1<<3
@@ -52,6 +57,15 @@ with Emulator(rom,directory) as e:
    if abs(error)>2:keys.append('right' if error>0 else 'left')
    if abs(error)>8 and g.speed_q8>45*256:keys.append('b')
    before=e.frames;frame=g.frame;d.ticks(2,tuple(keys))
+   pixels.sample(e,d.game(),state())
+   # Swing through the old +/-512px street-corner wrap at a real junction.
+   # The DS error flag stays clear for wrapped coordinates, so inspect pixels.
+   if index==3 and 1490<state().x/256<1525 and not sway:
+    sway=True
+    for direction in ('right','left'):
+     for step in range(10):
+      d.ticks(1,('r','down',direction));pixels.sample(e,d.game(),state())
+     d.shot('city-sway-'+direction,('r','down',direction))
    mesh=list((C.c_uint32*6).from_buffer_copy(e.read_ram(mesh_address,24)))
    assert 20<mesh[0]<900 and not mesh[4],('Geometry budget/overflow',mesh)
    assert abs((mesh[3]-state().angle+128)%256-128)<=8,('Camera heading detached from player',mesh,state().angle)
@@ -82,6 +96,7 @@ with Emulator(rom,directory) as e:
   mesh=list((C.c_uint32*6).from_buffer_copy(e.read_ram(mesh_address,24)))
   assert 20<mesh[0]<900 and not mesh[4],('Full-circle geometry budget',mesh)
   mesh_frames.append(mesh);headings.add(mesh[3])
+  pixels.sample(e,d.game(),state())
   for target in (48,112,176,240):
    if abs(current-target)<12 and target not in circle:
     circle.add(target);d.shot(f'city-circle-{target:03d}',('l','right'))
@@ -100,6 +115,7 @@ assert len(headings)>=32,('Insufficient turning coverage',len(headings))
 result={'rom':inspect(rom),'button_only_mode_selector':True,'touch_ignored':True,'actual_city_route_completed':True,'actual_bridge_crossing':True,'shared_owned_vehicle_and_cosmetics':True,'pause_freezes_city':True,'shared_banked_cash':True,'fresh_process_reload':True,'city_hz':hz,'city_updates':updates,'city_hardware_frames':hardware,
  'heading_locked_camera':True,'observed_headings':len(headings),'max_submitted_quads':max(m[0] for m in mesh_frames),
  'actual_full_circle_and_heading_wrap':True,
+ 'road_stability':pixels.result(a.output,strict=not a.baseline),'junction_sway_exercised':sway,
  'ds_geometry_overflow':False,'ds_color_underflow':False,'texture_banks_restored_on_reentry_and_highway':True,
  'profile_source':'labelled funded garage fixture; buttons only; RAM read only',**geometry}
 (a.output/'city-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

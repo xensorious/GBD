@@ -15,6 +15,34 @@ const int city_road_count=sizeof city_roads/sizeof city_roads[0];
 static const int16_t city_wave[65]={0,6,13,19,25,31,37,44,50,56,62,68,74,80,86,92,98,104,109,115,121,126,132,137,142,147,152,157,162,167,172,177,181,185,190,194,198,202,206,210,213,217,220,223,226,229,231,234,237,239,241,243,245,246,248,249,251,252,253,254,255,255,256,256,256};
 int city_sin(int angle){unsigned a=(unsigned)angle&255u,q=a>>6,p=a&63u;return q==0?city_wave[p]:q==1?city_wave[64-p]:q==2?-city_wave[p]:-city_wave[64-p];}
 int city_cos(int angle){return city_sin(angle+64);}
+CityShape city_vehicle_shape(int model){
+ if((unsigned)model>=VEHICLE_COUNT)model=0;
+ if(model==25)return (CityShape){3,6,6,9};
+ if(model==28)return (CityShape){4,7,7,10};
+ if(model==29)return (CityShape){3,7,6,10};
+ if(model==30)return (CityShape){5,11,8,15};
+ if(vehicles[model].bike)return (CityShape){3,10,7,13};
+ if(model==20||model==24||model==46)return (CityShape){8,15,12,19};
+ if(model==2||model==12||model==13||model==34||model==42)return (CityShape){7,14,11,18};
+ if(model==7||model==35||model==40||model==41)return (CityShape){7,13,11,17};
+ if(model==0||model==10||model==11)return (CityShape){6,12,9,15};
+ return (CityShape){7,13,10,16};
+}
+int city_vehicle_overlap(int ax,int ay,int angle,int model,int bx,int by,int bangle,int bmodel,int margin){
+ CityShape a=city_vehicle_shape(model),b=city_vehicle_shape(bmodel);
+ int ac=city_cos(angle),as=city_sin(angle),bc=city_cos(bangle),bs=city_sin(bangle);
+ int aw=a.half_width+margin,al=a.half_length+margin,bw=b.half_width+margin,bl=b.half_length+margin;
+ int dx=bx-ax,dy=by-ay;
+ int dot=absi(ac*bc+as*bs),cross=absi(ac*bs-as*bc);
+ int norm_a=ac*ac+as*as,norm_b=bc*bc+bs*bs;
+ /* Four separating axes of the two oriented chassis rectangles. Keep the
+  * support terms in Q16 until after comparison, including sine-table rounding. */
+ if(absi(dx*ac+dy*as)*256>=aw*norm_a+bw*dot+bl*cross)return 0;
+ if(absi(-dx*as+dy*ac)*256>=al*norm_a+bw*cross+bl*dot)return 0;
+ if(absi(dx*bc+dy*bs)*256>=bw*norm_b+aw*dot+al*cross)return 0;
+ if(absi(-dx*bs+dy*bc)*256>=bl*norm_b+aw*cross+al*dot)return 0;
+ return 1;
+}
 int city_on_road(int x,int y){
  for(int i=0;i<city_road_count;i++){const CityRoad*r=&city_roads[i];if(x>=r->x1-r->half&&x<=r->x2+r->half&&y>=r->y1-r->half&&y<=r->y2+r->half)return r->highway?2:1;}return 0;
 }
@@ -68,10 +96,12 @@ void city_begin(Game*g){
  for(int i=0;i<CITY_TRAFFIC;i++){CityCar*c=&city.cars[i];c->route=(uint8_t)(i<48?0:i<56?1:2);c->reverse=i&1;c->model=(uint8_t)((i*7+2)%VEHICLE_COUNT);
   int length=c->route==0?8576:c->route==1?1536:1664;c->progress=(unsigned)((i*length/(c->route==0?48:8)+319)%length)*Q;city_car_position(c);}
 }
-static int city_body_solid(int x,int y,int angle){
- int sx=city_sin(angle)*12/256,sy=city_cos(angle)*12/256;
- int rx=city_cos(angle)*6/256,ry=city_sin(angle)*6/256;
- return city_solid(x+sx+rx,y-sy+ry)||city_solid(x+sx-rx,y-sy-ry)||city_solid(x-sx+rx,y+sy+ry)||city_solid(x-sx-rx,y+sy-ry);
+static int city_body_solid(int x,int y,int angle,int model){
+ CityShape b=city_vehicle_shape(model);
+ int sx=city_sin(angle)*b.half_length/256,sy=city_cos(angle)*b.half_length/256;
+ int rx=city_cos(angle)*b.half_width/256,ry=city_sin(angle)*b.half_width/256;
+ return city_solid(x+sx+rx,y-sy+ry)||city_solid(x+sx-rx,y-sy-ry)||city_solid(x-sx+rx,y+sy+ry)||city_solid(x-sx-rx,y+sy-ry)||
+        city_solid(x+sx,y-sy)||city_solid(x-sx,y+sy)||city_solid(x+rx,y+ry)||city_solid(x-rx,y-ry)||city_solid(x,y);
 }
 static void city_tick(Game*g,const Input*in){
  if(in->pressed&K_START){g->mode=M_PAUSE;g->cursor=0;return;}
@@ -102,7 +132,7 @@ static void city_tick(Game*g,const Input*in){
  city.vx+=(target_x-city.vx)*gain/256;city.vy+=(target_y-city.vy)*gain/256;
  int steps=1+(absi(city.vx)+absi(city.vy))/(3*Q),moved=0;
  for(int s=0;s<steps;s++){int nx=city.x+city.vx/steps,ny=city.y+city.vy/steps;
-  if(city_body_solid(nx/Q,ny/Q,city.angle)){damage(g,17,1);g->speed_q8=g->speed_q8*55/100;city.vx=city.vy=0;break;}
+  if(city_body_solid(nx/Q,ny/Q,city.angle,g->vehicle)){damage(g,17,1);g->speed_q8=g->speed_q8*55/100;city.vx=city.vy=0;break;}
   city.x=nx;city.y=ny;moved+=absi(travel)/steps;
  }
  city.travelled+=(uint32_t)moved;
@@ -127,20 +157,26 @@ static void city_tick(Game*g,const Input*in){
  g->x_q8=city_on_road(city.x/Q,city.y/Q)?0:ROAD_HALF*Q;
  g->vx_q8=g->drifting&&moved?steer*Q:0;
  turbo_recharge(g);
+ CityShape traffic_body[CITY_TRAFFIC];
+ for(int i=0;i<CITY_TRAFFIC;i++)traffic_body[i]=city_vehicle_shape(city.cars[i].model);
  for(int i=0;i<CITY_TRAFFIC;i++){
-  CityCar*c=&city.cars[i];int stop=0;
+  CityCar*c=&city.cars[i];int stop=0,cs=city_cos(c->angle),sn=city_sin(c->angle);
+  CityShape body=traffic_body[i];
   for(int j=0;j<CITY_TRAFFIC;j++)if(j!=i){CityCar*d=&city.cars[j];int dx=d->x-c->x,dy=d->y-c->y;
    if(absi(dx)>90||absi(dy)>90)continue;
-   int forward=(dx*city_sin(c->angle)-dy*city_cos(c->angle))/256,side=(dx*city_cos(c->angle)+dy*city_sin(c->angle))/256;
-   if(absi(side)<12&&forward>0&&forward<55)stop=1;
+   int forward=(dx*sn-dy*cs)/256,side=(dx*cs+dy*sn)/256;
+   CityShape other=traffic_body[j];
+   if(absi(side)<body.half_width+other.half_width+2&&forward>0&&forward<body.half_length+other.half_length+22)stop=1;
   }
   if(!stop)c->progress+=(unsigned)(c->route?200:320+(i%3)*32);
   city_car_position(c);
   int dx=city.x/Q-c->x,dy=city.y/Q-c->y;
-  int front=(dx*city_sin(c->angle)-dy*city_cos(c->angle))/256,side=(dx*city_cos(c->angle)+dy*city_sin(c->angle))/256;
-  int half=13+absi(city_cos((int)city.angle-c->angle))*4/256;
-  if(absi(front)<half+13&&absi(side)<12){damage(g,27,0);city.vx=city.vx*3/5;city.vy=city.vy*3/5;}
-  else if(!c->near&&absi(front)<25&&absi(side)>=14&&absi(side)<28&&g->speed_q8>70*Q){points(g,B_NEAR,1,(unsigned)(100*g->combo_q8/Q));c->near=1;}
+  if(absi(dx)<52&&absi(dy)<52&&city_vehicle_overlap(city.x/Q,city.y/Q,city.angle,g->vehicle,c->x,c->y,c->angle,c->model,0)){
+   damage(g,27,0);city.vx=city.vx*3/5;city.vy=city.vy*3/5;
+  }else if(!c->near&&absi(dx)<62&&absi(dy)<62&&g->speed_q8>70*Q&&
+           city_vehicle_overlap(city.x/Q,city.y/Q,city.angle,g->vehicle,c->x,c->y,c->angle,c->model,5)){
+   points(g,B_NEAR,1,(unsigned)(100*g->combo_q8/Q));c->near=1;
+  }
   if(absi(dx)+absi(dy)>260)c->near=0;
  }
  for(int i=0;i<64;i++)if(!city.tokens[i]){

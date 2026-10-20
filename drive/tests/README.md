@@ -127,3 +127,12 @@ and latched underflow/overflow flags. It re-enters the same customized car,
 returns to the bitmap highway and reloads the resulting shared battery profile.
 The mesh asset test checks every texture region, source hashes, opaque straight
 wall/roof coverage, palette limits, texture-bank layout and DS main/ITCM bounds.
+
+The Free Roam refinement additionally checks 1,161,216 oriented contact cases
+against independent polygon clipping, lane gaps for cars/trucks/motorcycles,
+and smaller per-model drawing envelopes. The city_pixels.py helper inspects
+actual emulator output at successive camera poses: it erodes road boundaries,
+excludes raised objects and detects sidewalk/curb colors leaking into asphalt.
+The material classifier must also find those colors on the real sidewalks,
+so an empty or incorrectly calibrated classifier cannot silently pass.
+The tour includes a junction sway near a formerly wrapping street corner.

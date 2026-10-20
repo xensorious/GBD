@@ -15,6 +15,10 @@ static CityView city_view;
 volatile uint32_t city_mesh_stats[4]; /* submitted quads, culled, uploads, heading */
 volatile uint32_t city_mesh_last_stats[6]; /* complete frame for read-only QA */
 static int city_layer;
+/* Ground is a composed flat surface. It occupies a dedicated far-depth band;
+ * scenery keeps physical height/depth. Subpixel rounding of a tilted road
+ * must never make asphalt compete with its own curb or sidewalk. */
+static int city_ground_pass;
 #ifndef ARM9
 static int16_t city_depth[256*192];
 static uint16_t city_player_texture[48*72];
@@ -26,16 +30,16 @@ static Surface *city_target;
  * The fourth result is depth toward the camera, not screen Y ordering.
  */
 static CityVertex city_vertex(int x,int y,int height,int u,int v){
- int dx=x-city_view.cx,dy=y-city_view.cy;
- int right=dx*city_view.cs+dy*city_view.sn;
- int down=-dx*city_view.sn+dy*city_view.cs;
- CityVertex p={128*16+right/16,112*16+(down*222/256-height*128)/16,
+ int dx=x*Q-city_view.cx,dy=y*Q-city_view.cy;
+ int right=(dx*city_view.cs+dy*city_view.sn)/256;
+ int down=(-dx*city_view.sn+dy*city_view.cs)/256;
+ CityVertex p={128*16+right*CITY_ZOOM_NUM/(16*CITY_ZOOM_DEN),112*16+(down*222/256-height*128)*CITY_ZOOM_NUM/(16*CITY_ZOOM_DEN),
                (down*128/256+height*222)/16+city_layer,u,v};
  return p;
 }
 void city_project_point(int x,int y,int height,int camera_x,int camera_y,int angle,int*out){
  CityView saved=city_view;int layer=city_layer;city_layer=0;
- city_view=(CityView){camera_x,camera_y,city_sin(angle),city_cos(angle),0,0,0,0};
+ city_view=(CityView){camera_x*Q,camera_y*Q,city_sin(angle),city_cos(angle),0,0,0,0};
  CityVertex p=city_vertex(x,y,height,0,0);out[0]=p.x;out[1]=p.y;out[2]=p.z;
  city_view=saved;city_layer=layer;
 }
@@ -87,6 +91,7 @@ static void city_quad(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int te
   city_mesh_stats[1]++;return;
  }
  city_mesh_stats[0]++;
+ if(city_ground_pass)a.z=b.z=c.z=d.z=-7000+city_layer*32;
 #ifdef ARM9
  uint32_t format=0,palette=0;
  if(texture==0)format=(5u<<20)|(6u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
@@ -101,7 +106,10 @@ static void city_quad(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int te
  const CityVertex p[4]={a,b,c,d};
  for(int i=0;i<4;i++){
   glTexCoord2t16((t16)p[i].u,(t16)p[i].v);
-  glVertex3v16((v16)(p[i].x*4),(v16)(p[i].y*4),(v16)(p[i].z*4));
+  /* Keep Q4 coordinates directly in v16. Multiplying by four limited road
+   * corners to +/-512 pixels and could wrap a clipped, long street during
+   * rotation. The matching projection below preserves the same screen scale. */
+  glVertex3v16((v16)p[i].x,(v16)p[i].y,(v16)p[i].z);
  }
  glEnd();
 #else
@@ -135,6 +143,7 @@ static void city_box(int x,int y,int w,int d,int bottom,int top,uint16_t c){
  city_plane(x,y,w,d,top,0,0,0,0,c,31);
 }
 static void city_mesh_ground(void){
+ city_ground_pass=1;
  const int x0=city_floor(city_view.minx,64),y0=city_floor(city_view.miny,32);
  city_layer=0;
  for(int y=y0;y<city_view.maxy;y+=32)for(int x=x0;x<city_view.maxx;x+=64){
@@ -186,6 +195,7 @@ static void city_mesh_ground(void){
    }
    city_layer=28;
   }
+ city_ground_pass=0;
  /* Both bridge parapets are real raised rails. */
  city_layer=0;
  for(int i=0;i<city_road_count;i++){
@@ -203,7 +213,7 @@ static void city_mesh_ground(void){
 /* Test entry point: independent camera shifts can inspect the exact ground
  * mesh without vehicles, animated water, building shadows, or UI pixels. */
 void city_draw_rotated_ground(Surface*s,int cx,int cy,int angle){
- city_view=(CityView){cx,cy,city_sin(angle),city_cos(angle),cx-256,cy-300,cx+256,cy+300};
+ city_view=(CityView){cx*Q,cy*Q,city_sin(angle),city_cos(angle),cx-256,cy-300,cx+256,cy+300};
  city_target=s;city_mesh_stats[0]=city_mesh_stats[1]=0;
  for(int i=0;i<256*192;i++){city_depth[i]=-32768;s->pixels[i]=C(40,132,155);}
  city_mesh_ground();
@@ -264,11 +274,13 @@ static void city_mesh_lamp(int x,int y,int dx,int dy){
 static void city_mesh_car(int x,int y,int angle,int model,int player){
  int sn=city_sin(angle),cs=city_cos(angle),texture=player?1:model+2;
  int tw=player?48:32,th=player?72:64;
- CityVertex p[4];const int side[4]={-16,16,16,-16},fore[4]={-24,-24,24,24};
+ CityShape shape=city_vehicle_shape(model);
+ CityVertex p[4];const int side[4]={-shape.draw_half_width,shape.draw_half_width,shape.draw_half_width,-shape.draw_half_width};
+ const int fore[4]={-shape.draw_half_length,-shape.draw_half_length,shape.draw_half_length,shape.draw_half_length};
  for(int n=0;n<4;n++)p[n]=city_vertex(x+(side[n]*cs-fore[n]*sn)/256,y+(side[n]*sn+fore[n]*cs)/256,3,
     (n==1||n==2)?tw*16-1:0,n>=2?th*16-1:0);
  CityVertex shadow[4];
- for(int n=0;n<4;n++)shadow[n]=city_vertex(x+2+(side[n]*cs-fore[n]*sn)/256,y+3+(side[n]*sn+fore[n]*cs)/256,2,p[n].u,p[n].v);
+ for(int n=0;n<4;n++)shadow[n]=city_vertex(x+1+(side[n]*cs-fore[n]*sn)/256,y+2+(side[n]*sn+fore[n]*cs)/256,2,p[n].u,p[n].v);
  city_quad(shadow[0],shadow[1],shadow[2],shadow[3],texture,C(43,55,58),22);
  city_quad(p[0],p[1],p[2],p[3],texture,0xffff,31);
 }
@@ -298,7 +310,10 @@ static void city_mesh_textures(const Game*g){
  int full=epoch!=ds_world_epoch(),steer=g->steering<0?0:g->steering>0?2:1,v=g->vehicle;
  if(!full&&vehicle==v&&pose==steer&&paint==g->save.paint[v]&&livery==g->save.livery[v]&&color==g->save.livery_color[v]&&wheels==g->save.wheels[v])return;
  static uint16_t pixels[48*72];
- ds_world_upload_begin();
+ /* Prepare a normal pose while all scenery/NPC texture banks remain mapped.
+  * The short vblank window contains only the player texture row transfers. */
+ if(!full){city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);}
+ ds_world_upload_begin(full);
  if(full){
   DC_FlushRange(city_mesh_idx,256*512);dmaCopyWords(0,city_mesh_idx,VRAM_A,256*512);
   DC_FlushRange(city_mesh_palette,512);dmaCopyWords(0,city_mesh_palette,VRAM_E,512);
@@ -313,9 +328,9 @@ static void city_mesh_textures(const Game*g){
   DC_FlushRange(overhead_palette,VEHICLE_COUNT*512);dmaCopyWords(0,overhead_palette,(uint8_t*)VRAM_E+512,VEHICLE_COUNT*512);
   dmaFillHalfWords(0,(uint8_t*)VRAM_D+98304,64*128*2);
  }
- city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);
+ if(full){city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);}
  for(int y=0;y<72;y++)dmaCopyHalfWords(0,pixels+y*48,(uint8_t*)VRAM_D+98304+y*64*2,48*2);
- ds_world_upload_end();city_mesh_stats[2]++;
+ ds_world_upload_end(full);city_mesh_stats[2]++;
  epoch=ds_world_epoch();vehicle=v;pose=steer;paint=g->save.paint[v];livery=g->save.livery[v];color=g->save.livery_color[v];wheels=g->save.wheels[v];
 }
 #endif
@@ -324,11 +339,11 @@ static void city_scene(Surface*s,const Game*g){
  unsigned stage=profile_clock();
  city_mesh_stats[0]=city_mesh_stats[1]=0;city_mesh_stats[3]=city.angle;
  int cx=city.camera_x/Q,cy=city.camera_y/Q;
- city_view=(CityView){cx,cy,city_sin(city.angle),city_cos(city.angle),cx-256,cy-300,cx+256,cy+300};
+ city_view=(CityView){city.camera_x,city.camera_y,city_sin(city.angle),city_cos(city.angle),cx-256,cy-300,cx+256,cy+300};
 #ifdef ARM9
  city_mesh_textures(g);
  glMatrixMode(GL_PROJECTION);glLoadIdentity();
- glOrthof32(0,4<<12,3<<12,0,-(8<<12),8<<12);
+ glOrthof32(0,1<<12,3<<10,0,-(2<<12),2<<12);
  glMatrixMode(GL_MODELVIEW);glLoadIdentity();
  glMatrixMode(GL_TEXTURE);glLoadIdentity();
  (void)s; /* Hardware polygons fill the screen; no RAM framebuffer copy. */
@@ -409,7 +424,8 @@ static void city_scene(Surface*s,const Game*g){
  }
  if(g->drifting&&g->save.smoke[g->vehicle]){
   static const uint16_t smoke[5]={C(199,211,212),C(241,146,138),C(83,205,188),C(172,133,225),C(231,194,105)};
-  int x=city.x/Q-city_sin(city.angle)*22/256,y=city.y/Q+city_cos(city.angle)*22/256;
+  CityShape shape=city_vehicle_shape(g->vehicle);
+  int x=city.x/Q-city_sin(city.angle)*(shape.draw_half_length-2)/256,y=city.y/Q+city_cos(city.angle)*(shape.draw_half_length-2)/256;
   city_plane(x-5,y-5,10,10,3,0,0,0,0,smoke[g->save.smoke[g->vehicle]],18);
  }
  city_mesh_car(city.x/Q,city.y/Q,city.angle,g->vehicle,1);

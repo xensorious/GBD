@@ -78,11 +78,19 @@ assert city['heading_locked_camera'] and city['actual_full_circle_and_heading_wr
 assert city['observed_headings']>=32 and city['max_submitted_quads']<900
 assert not city['ds_geometry_overflow'] and not city['ds_color_underflow']
 assert city['texture_banks_restored_on_reentry_and_highway']
+assert city['junction_sway_exercised'] and city['road_stability']['passed']
+assert city['road_stability']['frames']>150 and city['road_stability']['interior_asphalt_pixels']>20000
+assert city['road_stability']['observed_material_pixels']>1000
+assert any('1161216 independent model-sized contact cases' in result for result in stock['native'])
 mesh=report('city-mesh-results.json')
 assert mesh['orthographic_facades']==16 and mesh['roof_materials']==16
 assert mesh['all_texture_regions_valid'] and mesh['source_hash_matches']
 assert mesh['native_rasterizer_excluded_from_rom'] and mesh['retired_flat_building_bank_excluded_from_rom']
 assert any('256 heading-locked projections, rotated ground invariance at 24 cardinal views' in result for result in stock['native'])
+refinement_report=report('free-roam-refinement-results.json')
+assert refinement_report['previous_rom_sha256']=='3d5ed697078702c74e9a37dffb832e2f07efb676e353ba46001062404df3d6c7'
+for name,expected in refinement_report['files'].items():
+    assert hashlib.sha256((validation/name).read_bytes()).hexdigest()==expected,('Stale refinement capture',name)
 
 masks=report('material-mask-results.json')
 assert masks['models_reviewed']==48 and masks['poses_reviewed']==240 and masks['fitted_liveries']==960
@@ -112,8 +120,8 @@ shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -143,6 +151,14 @@ contact('Rotating-Camera.png',[
     ('city-turn-east','DIAGONAL TURN / DS EMULATOR'),('city-turn-south','JUNCTION / DS EMULATOR'),
     ('city-circle-048','VIEW 1 / DS EMULATOR'),('city-circle-112','VIEW 2 / DS EMULATOR'),
     ('city-circle-176','VIEW 3 / DS EMULATOR'),('city-circle-240','VIEW 4 / DS EMULATOR')],columns=3,screen='top')
+refinement=Image.new('RGB',(1024,1224),'#18303c');refinement_draw=ImageDraw.Draw(refinement)
+for row,(name,title) in enumerate((('city-spawn','LANE CLEARANCE'),('city-turn-east','TURNING VIEW'),('city-crossing','HIGHWAY / CANAL'))):
+    for column,prefix in enumerate(('polish-before-','')):
+        x=column*512;y=row*408
+        refinement_draw.text((x+8,y+5),('PREVIOUS' if column==0 else 'REFINED')+' / '+title+' / DS EMULATOR',font=font,fill='#eaf6f4')
+        view=Image.open(validation/(prefix+name+'.png')).convert('RGB').crop((0,0,256,192))
+        refinement.paste(view.resize((512,384),Image.Resampling.NEAREST),(x,y+24))
+refinement.save(DIST/'Free-Roam-Refinement.png')
 gallery=Image.open(validation/'overhead-vehicles.ppm').convert('RGB')
 assert gallery.size==(512,384)
 gallery.resize((1024,768),Image.Resampling.NEAREST).save(DIST/'Overhead-Vehicles.png')
@@ -273,7 +289,7 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
+    'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Free-Roam-Refinement.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
     'Paint-Review-1.png','Paint-Review-2.png','Paint-Review-3.png','Paint-Review-4.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

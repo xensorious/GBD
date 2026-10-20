@@ -30,7 +30,62 @@ static void decode_overhead(int v,uint8_t*out){
  }
  CHECK(!memcmp(decoded,overhead_indexed+v*3*48*72,sizeof decoded));memcpy(out,decoded+48*72,48*72);
 }
+/* Independent contact oracle: clip one chassis polygon to the other and
+ * require positive intersection area. Production uses separating axes. */
+typedef struct {double x,y;} ContactPoint;
+static void chassis(ContactPoint*p,int x,int y,int angle,int model,int margin){
+ CityShape shape=city_vehicle_shape(model);double cs=city_cos(angle)/256.0,sn=city_sin(angle)/256.0;
+ int w=shape.half_width+margin,l=shape.half_length+margin;
+ const int side[4]={-1,1,1,-1},fore[4]={-1,-1,1,1};
+ for(int i=0;i<4;i++)p[i]=(ContactPoint){x+side[i]*w*cs-fore[i]*l*sn,y+side[i]*w*sn+fore[i]*l*cs};
+}
+static double contact_side(ContactPoint a,ContactPoint b,ContactPoint p){
+ return (b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x);
+}
+static int contact_oracle(int ax,int ay,int angle,int model,int bx,int by,int bangle,int bmodel,int margin){
+ ContactPoint input[16],output[16],clip[4];chassis(input,ax,ay,angle,model,margin);chassis(clip,bx,by,bangle,bmodel,margin);
+ int count=4;
+ for(int edge=0;edge<4&&count;edge++){
+  int n=0;ContactPoint previous=input[count-1];double before=contact_side(clip[edge],clip[(edge+1)%4],previous);
+  for(int i=0;i<count;i++){
+   ContactPoint current=input[i];double after=contact_side(clip[edge],clip[(edge+1)%4],current);
+   if((before<0)!=(after<0)){
+    double t=before/(before-after);
+    output[n++]=(ContactPoint){previous.x+(current.x-previous.x)*t,previous.y+(current.y-previous.y)*t};
+   }
+   if(after>=0)output[n++]=current;
+   previous=current;before=after;
+  }
+  count=n;memcpy(input,output,(unsigned)count*sizeof input[0]);
+ }
+ double area=0;for(int i=0;i<count;i++)area+=input[i].x*input[(i+1)%count].y-input[i].y*input[(i+1)%count].x;
+ return area>0.00001||area< -0.00001;
+}
+static void contact_checks(void){
+ for(int model=0;model<VEHICLE_COUNT;model++){
+  CityShape shape=city_vehicle_shape(model);
+  CHECK(shape.draw_half_width<16&&shape.draw_half_length<24);
+  CHECK(shape.half_width<shape.draw_half_width&&shape.half_length<shape.draw_half_length);
+  CHECK(!city_vehicle_overlap(640+13,1500,0,model,640-13,1500,128,model,0));
+ }
+ /* A standard car can just pass between adjacent highway lanes; large
+  * armored trucks leave a smaller gap that requires a narrower vehicle. */
+ CHECK(!city_vehicle_overlap(640+28,1500,0,1,640+14,1500,0,1,0));
+ CHECK(!city_vehicle_overlap(640+28,1500,0,1,640+42,1500,0,1,0));
+ CHECK(city_vehicle_overlap(640+28,1500,0,46,640+14,1500,0,46,0));
+ CHECK(!city_vehicle_overlap(640+28,1500,0,3,640+14,1500,0,46,0));
+ CHECK(city_vehicle_overlap(1000,1000,64,0,1000,1000,0,0,0));
+ for(int a=0;a<VEHICLE_COUNT;a++)for(int b=0;b<VEHICLE_COUNT;b++)
+  for(int angle=0;angle<256;angle+=32)for(int dy=-40;dy<=40;dy+=10)for(int dx=-30;dx<=30;dx+=10){
+   int other=(angle*7+b*13)&255,margin=(dx+dy)%3==0?5:0;
+   int actual=city_vehicle_overlap(2000,2000,angle,a,2000+dx,2000+dy,other,b,margin);
+   int expected=contact_oracle(2000,2000,angle,a,2000+dx,2000+dy,other,b,margin);
+   if(actual!=expected)fprintf(stderr,"contact %d/%d @%d/%d offset %d,%d margin %d\n",a,b,angle,other,dx,dy,margin);
+   CHECK(actual==expected);
+  }
+}
 int main(int argc,char**argv){
+ contact_checks();
  /* Vehicle heading is the view heading through the full wraparound. World
   * translations cancel exactly, height rises toward screen-up, and forward
   * motion always projects upward with no lateral component. */
@@ -41,8 +96,8 @@ int main(int argc,char**argv){
   city_project_point(2048,2048,24,2048,2048,a,raised);
   city_project_point(2048+901,2048-617,0,2048+901,2048-617,a,shift);
   CHECK(center[0]==128*16&&center[1]==112*16);
-  CHECK(front[0]==center[0]&&front[1]<center[1]-200*16);
-  CHECK(raised[0]==center[0]&&raised[1]==center[1]-12*16&&raised[2]>center[2]);
+  CHECK(front[0]==center[0]&&front[1]<center[1]-180*16);
+  CHECK(raised[0]==center[0]&&raised[1]==center[1]-12*16*CITY_ZOOM_NUM/CITY_ZOOM_DEN&&raised[2]>center[2]);
   CHECK(!memcmp(center,shift,sizeof center));
  }
  /* Real ground polygons remain fixed after scrolling with a rotated view.
@@ -53,7 +108,8 @@ int main(int argc,char**argv){
   Surface first={top,256,192},second={bottom,256,192};int cx=ground_sites[site][0],cy=ground_sites[site][1];
   city_draw_rotated_ground(&first,cx,cy,a);
   city_draw_rotated_ground(&second,cx+city_cos(a)/8,cy+city_sin(a)/8,a);
-  for(int y=0;y<192;y++)for(int x=0;x<224;x++)CHECK(top[y*256+x+32]==bottom[y*256+x]);
+  int shift=32*CITY_ZOOM_NUM/CITY_ZOOM_DEN;
+  for(int y=0;y<192;y++)for(int x=0;x<256-shift;x++)CHECK(top[y*256+x+shift]==bottom[y*256+x]);
  }
  const char*dir=argc>1?argv[1]:0;Game g;game_init(&g,123);press(&g,K_A);CHECK(g.mode==M_DRIVE&&!city.active);shot(dir,"mode-select",&g);
  press(&g,K_B);CHECK(g.mode==M_HOME);press(&g,K_A);press(&g,K_RIGHT);press(&g,K_A);CHECK(city.active&&g.mode==M_RUN&&g.vehicle==0);
@@ -197,5 +253,5 @@ int main(int argc,char**argv){
    char name[64];snprintf(name,sizeof name,"rotation-%03d-native",angle);shot(dir,name,&g);
   }
  }
- printf("city: %u checks; 256 heading-locked projections, rotated ground invariance at 24 cardinal views, world-fixed/clipped lane paint across 288 camera shifts, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
+ printf("city: %u checks; 256 heading-locked projections, rotated ground invariance at 24 cardinal views, world-fixed/clipped lane paint across 288 camera shifts, 1161216 independent model-sized contact cases, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
 }

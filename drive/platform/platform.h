@@ -22,8 +22,8 @@ uint16_t *ds_cinematic_buffer(void);
 /* Free Roam owns the 3D engine and texture banks A/D/E. */
 void ds_world_mode(int active);
 unsigned ds_world_epoch(void);
-void ds_world_upload_begin(void);
-void ds_world_upload_end(void);
+void ds_world_upload_begin(int all_banks);
+void ds_world_upload_end(int all_banks);
 void ds_present(const uint16_t *top, const uint16_t *bottom);
 int ds_save_read(void *data, unsigned size);
 int ds_save_write(const void *data, unsigned size);

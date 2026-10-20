@@ -64,7 +64,10 @@ Gardens and Palmetto Heights. Its wider highway loop has four lanes, with
 narrower two-lane local streets and multiple bridges over the canal. Buildings
 and water block the car; grass verges slow it. The camera rotates with your
 heading, keeping your car pointed toward the top of the screen, with a small
-look ahead. Textured 3D walls, pitched roofs, bridge rails and streetlights
+look ahead and a slightly wider view. Cars have room within their lanes;
+motorcycles and novelty vehicles are smaller, while utility vehicles keep
+their larger proportions. Turning contact follows each vehicle's oriented
+chassis rather than an axis-aligned traffic box. Textured 3D walls, pitched roofs, bridge rails and streetlights
 keep their shape as you turn. Vehicles use their existing detailed overhead
 paintings, including installed paint, fitted liveries and wheels. The lower
 street map stays north-up. Buildings can hide a vehicle behind their roofs.

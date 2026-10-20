@@ -89,14 +89,18 @@ uint16_t *ds_top_buffer(void) {
     return BG_BMP_RAM((top_front_bank^1u)*8);
 }
 unsigned ds_world_epoch(void) { return world_epoch; }
-void ds_world_upload_begin(void) {
-    wait_lcd_vblank();
-    vramSetBankA(VRAM_A_LCD);vramSetBankD(VRAM_D_LCD);vramSetBankE(VRAM_E_LCD);
+void ds_world_upload_begin(int all_banks) {
+    /* A prepared player pose takes only a small row transfer. Reuse the
+     * current blank if at least 43 blank scanlines remain; never wait an
+     * extra whole LCD frame just because input was sampled during vblank. */
+    if(REG_VCOUNT<192||REG_VCOUNT>=220)wait_lcd_vblank();
+    if(all_banks){vramSetBankA(VRAM_A_LCD);vramSetBankE(VRAM_E_LCD);}
+    vramSetBankD(VRAM_D_LCD);
 }
-void ds_world_upload_end(void) {
-    vramSetBankA(VRAM_A_TEXTURE_SLOT0);
+void ds_world_upload_end(int all_banks) {
+    if(all_banks)vramSetBankA(VRAM_A_TEXTURE_SLOT0);
     vramSetBankD(VRAM_D_TEXTURE_SLOT1);
-    vramSetBankE(VRAM_E_TEX_PALETTE);
+    if(all_banks)vramSetBankE(VRAM_E_TEX_PALETTE);
 }
 void ds_world_mode(int active) {
     active=!!active;if (active==world_active) return;
@@ -112,7 +116,7 @@ void ds_world_mode(int active) {
         GFX_TEX_FORMAT=0;GFX_POLY_FORMAT=0;
         glViewport(0,0,255,191);
         glFlush(0);
-        ds_world_upload_end();
+        ds_world_upload_end(1);
         dmaFillHalfWords(0,BG_BMP_RAM(8),256*256*2);
         REG_BG0CNT=BG_PRIORITY(0);
         videoSetMode(MODE_0_3D);
