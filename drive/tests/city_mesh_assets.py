@@ -23,16 +23,16 @@ for i in range(24):assert 20<sum(bool(c) for c in region(i%8*32,304+i//8*32,32,3
 # The NPC format consumes 2 KiB/model, player format 16 KiB. No overlap or
 # hidden larger framebuffer allocation is allowed to use the texture banks.
 assert 48*32*64==98304 and 98304+64*128*2<=128*1024
-assert 512+48*512<=64*1024
+assert 512+48*512+512<=64*1024 # one uniform silhouette palette, no extra textures
 nm=Path('/workspace/gba-tools/sysroot/usr/bin/arm-none-eabi-nm')
 symbols=subprocess.check_output([str(nm),str(ROOT/'build/arm9.elf')],text=True)
 def address(name):return int(next(line.split()[0] for line in symbols.splitlines() if line.endswith(' '+name)),16)
 assert address('__bss_end__')<0x02380000 and address('__itcm_end')<=0x01008000
-for name in ('city_depth','city_target','city_player_texture','city_sprites','city_building_idx','overhead_indexed'):
+for name in ('city_depth','city_shadow_stencil','city_unculled_diagnostic','city_target','city_player_texture','city_sprites','city_building_idx','overhead_indexed'):
  assert not any(line.endswith(' '+name) for line in symbols.splitlines()),('Native/retired asset linked into ROM',name)
 result={'sha256':hashlib.sha256((ROOT/'build/Coastline.nds').read_bytes()).hexdigest(),
  'orthographic_facades':16,'roof_materials':16,'all_texture_regions_valid':True,'source_hash_matches':True,
- 'texture_bank_a_bytes':len(data),'texture_bank_d_bytes':98304+64*128*2,'palette_bank_e_bytes':512+48*512,
+ 'texture_bank_a_bytes':len(data),'texture_bank_d_bytes':98304+64*128*2,'palette_bank_e_bytes':512+48*512+512,
  'native_rasterizer_excluded_from_rom':True,'retired_flat_building_bank_excluded_from_rom':True,
  'ds_main_ram_end':hex(address('__bss_end__')),'ds_itcm_end':hex(address('__itcm_end'))}
 (a.output/'city-mesh-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

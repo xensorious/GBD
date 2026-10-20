@@ -19,23 +19,42 @@ static int city_layer;
  * scenery keeps physical height/depth. Subpixel rounding of a tilted road
  * must never make asphalt compete with its own curb or sidewalk. */
 static int city_ground_pass;
+static int city_shadow_pass;
+enum {CITY_SHADOW_ATLAS=-2,CITY_SHADOW_CAR=100};
 #ifndef ARM9
 static int16_t city_depth[256*192];
 static uint16_t city_player_texture[48*72];
 static Surface *city_target;
+static uint8_t city_shadow_stencil[256*192];
 #endif
+#include "city_sun.inc"
 
 /* x/y and height are world units; results have four fractional bits.
  * A 60-degree depression gives real walls height without hiding the streets.
  * The fourth result is depth toward the camera, not screen Y ordering.
  */
-static CityVertex city_vertex(int x,int y,int height,int u,int v){
- int dx=x*Q-city_view.cx,dy=y*Q-city_view.cy;
+static CityVertex city_vertex_q8(int xq,int yq,int height,int u,int v){
+ int dx=xq-city_view.cx,dy=yq-city_view.cy;
  int right=(dx*city_view.cs+dy*city_view.sn)/256;
  int down=(-dx*city_view.sn+dy*city_view.cs)/256;
  CityVertex p={128*16+right*CITY_ZOOM_NUM/(16*CITY_ZOOM_DEN),112*16+(down*222/256-height*128)*CITY_ZOOM_NUM/(16*CITY_ZOOM_DEN),
                (down*128/256+height*222)/16+city_layer,u,v};
  return p;
+}
+static CityVertex city_vertex(int x,int y,int height,int u,int v){return city_vertex_q8(x*Q,y*Q,height,u,v);}
+/* Reject offscreen cells before footprint/planting tests. The bounds include
+ * every overhanging roof, canopy, raised prop and short decorative shadow. */
+#ifndef ARM9
+int city_unculled_diagnostic;
+#endif
+static int city_visible(int x,int y,int radius,int height){
+#ifndef ARM9
+ if(city_unculled_diagnostic)return 1;
+#endif
+ CityVertex p=city_vertex(x,y,0,0,0);
+ int rx=radius*(city_abs(city_view.sn)+city_abs(city_view.cs))*CITY_ZOOM_NUM/(16*CITY_ZOOM_DEN)+32;
+ int ry=rx*222/256+32,up=height*8*CITY_ZOOM_NUM/CITY_ZOOM_DEN;
+ return p.x+rx>=0&&p.x-rx<4096&&p.y+ry>=0&&p.y-ry-up<3072;
 }
 void city_project_point(int x,int y,int height,int camera_x,int camera_y,int angle,int*out){
  CityView saved=city_view;int layer=city_layer;city_layer=0;
@@ -48,6 +67,11 @@ static int64_t city_edge(CityVertex a,CityVertex b,int x,int y){
  return (int64_t)(x-a.x)*(b.y-a.y)-(int64_t)(y-a.y)*(b.x-a.x);
 }
 static uint16_t city_texel(int texture,int u,int v){
+ if(texture==CITY_SHADOW_ATLAS)return city_mesh_idx[clampi(v,0,511)*256+clampi(u,0,255)]?C(16,28,48):0;
+ if(texture>=CITY_SHADOW_CAR){
+  int model=texture-CITY_SHADOW_CAR;u=clampi(u,0,31)*48/32;v=clampi(v,0,63)*72/64;
+  return overhead_indexed[(model*3+1)*48*72+v*48+u]?C(16,28,48):0;
+ }
  if(texture<0)return 0xffff;
  if(texture==0)return city_mesh_palette[city_mesh_idx[clampi(v,0,511)*256+clampi(u,0,255)]];
  if(texture==1){
@@ -58,9 +82,9 @@ static uint16_t city_texel(int texture,int u,int v){
  u=clampi(u,0,31)*48/32;v=clampi(v,0,63)*72/64;
  return overhead_palette[model*256+overhead_indexed[(model*3+1)*48*72+v*48+u]];
 }
-static void city_triangle(CityVertex a,CityVertex b,CityVertex c,int texture,uint16_t tint,int alpha){
+static void city_triangle(CityVertex a,CityVertex b,CityVertex c,int texture,uint16_t ca,uint16_t cb,uint16_t cc,int alpha){
  int64_t area=city_edge(a,b,c.x,c.y);if(!area)return;
- if(area<0){CityVertex swap=b;b=c;c=swap;area=-area;}
+ if(area<0){CityVertex swap=b;b=c;c=swap;uint16_t color=cb;cb=cc;cc=color;area=-area;}
  int minx=clampi((a.x<b.x?(a.x<c.x?a.x:c.x):(b.x<c.x?b.x:c.x))/16,0,255);
  int miny=clampi((a.y<b.y?(a.y<c.y?a.y:c.y):(b.y<c.y?b.y:c.y))/16,0,191);
  int maxx=clampi((a.x>b.x?(a.x>c.x?a.x:c.x):(b.x>c.x?b.x:c.x))/16,0,255);
@@ -71,10 +95,14 @@ static void city_triangle(CityVertex a,CityVertex b,CityVertex c,int texture,uin
   if(wa<0||wb<0||wc<0)continue;
   int z=(int)((wa*a.z+wb*b.z+wc*c.z)/area),at=y*256+x;
   if(z<city_depth[at])continue;
+  if(city_shadow_pass&&city_shadow_stencil[at])continue;
   int u=(int)((wa*a.u+wb*b.u+wc*c.u)/area)/16;
   int v=(int)((wa*a.v+wb*b.v+wc*c.v)/area)/16;
   uint16_t texel=city_texel(texture,u,v);if(!texel)continue;
-  int r=(texel&31)*(tint&31)/31,g=(texel>>5&31)*(tint>>5&31)/31,bv=(texel>>10&31)*(tint>>10&31)/31;
+  int tr=(int)((wa*(ca&31)+wb*(cb&31)+wc*(cc&31))/area);
+  int tg=(int)((wa*(ca>>5&31)+wb*(cb>>5&31)+wc*(cc>>5&31))/area);
+  int tb=(int)((wa*(ca>>10&31)+wb*(cb>>10&31)+wc*(cc>>10&31))/area);
+  int r=(texel&31)*tr/31,g=(texel>>5&31)*tg/31,bv=(texel>>10&31)*tb/31;
   if(alpha<31){
    uint16_t under=city_target->pixels[at];
    r=(r*alpha+(under&31)*(31-alpha))/31;
@@ -82,29 +110,36 @@ static void city_triangle(CityVertex a,CityVertex b,CityVertex c,int texture,uin
    bv=(bv*alpha+(under>>10&31)*(31-alpha))/31;
   }else city_depth[at]=(int16_t)z;
   city_target->pixels[at]=(uint16_t)(0x8000|r|(g<<5)|(bv<<10));
+  if(city_shadow_pass)city_shadow_stencil[at]=1;
  }
 }
 #endif
-static void city_quad(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int texture,uint16_t tint,int alpha){
+static void city_quad_colors(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int texture,const uint16_t*tint,int alpha){
  if((a.x<0&&b.x<0&&c.x<0&&d.x<0)||(a.x>=4096&&b.x>=4096&&c.x>=4096&&d.x>=4096)||
     (a.y<0&&b.y<0&&c.y<0&&d.y<0)||(a.y>=3072&&b.y>=3072&&c.y>=3072&&d.y>=3072)){
   city_mesh_stats[1]++;return;
  }
  city_mesh_stats[0]++;
+ if(city_shadow_pass&&texture==0)texture=CITY_SHADOW_ATLAS;
  if(city_ground_pass)a.z=b.z=c.z=d.z=-7000+city_layer*32;
+ if(city_shadow_pass)a.z=b.z=c.z=d.z=-5600;
 #ifdef ARM9
  uint32_t format=0,palette=0;
- if(texture==0)format=(5u<<20)|(6u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
+ if(texture==0||texture==CITY_SHADOW_ATLAS)format=(5u<<20)|(6u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
  else if(texture==1)format=((0x20000u+98304u)>>3)|(3u<<20)|(4u<<23)|(GL_RGBA<<26);
- else if(texture>=2){unsigned model=(unsigned)texture-2;
+ else if(texture>=2){unsigned model=texture>=CITY_SHADOW_CAR?(unsigned)texture-CITY_SHADOW_CAR:(unsigned)texture-2;
   format=((0x20000u+model*2048u)>>3)|(2u<<20)|(3u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
   palette=(512u+model*512u)>>4;
  }
+ if(texture==CITY_SHADOW_ATLAS||texture>=CITY_SHADOW_CAR)palette=(512u+VEHICLE_COUNT*512u)>>4;
  GFX_TEX_FORMAT=format;GFX_PAL_FORMAT=palette;
- glPolyFmt(POLY_ALPHA(alpha)|POLY_CULL_NONE|POLY_ID(a.z>7000?62:texture>=1?40:1));
- glColor(tint&0x7fff);glBegin(GL_QUADS);
+ glPolyFmt(POLY_ALPHA(alpha)|POLY_CULL_NONE|POLY_ID(city_shadow_pass?50:a.z>7000?62:texture>=1?40:1));
+ int gouraud=tint[0]!=tint[1]||tint[0]!=tint[2]||tint[0]!=tint[3];
+ if(!gouraud)glColor(tint[0]&0x7fff);
+ glBegin(GL_QUADS);
  const CityVertex p[4]={a,b,c,d};
  for(int i=0;i<4;i++){
+  if(gouraud)glColor(tint[i]&0x7fff);
   glTexCoord2t16((t16)p[i].u,(t16)p[i].v);
   /* Keep Q4 coordinates directly in v16. Multiplying by four limited road
    * corners to +/-512 pixels and could wrap a clipped, long street during
@@ -113,8 +148,11 @@ static void city_quad(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int te
  }
  glEnd();
 #else
- city_triangle(a,b,c,texture,tint,alpha);city_triangle(a,c,d,texture,tint,alpha);
+ city_triangle(a,b,c,texture,tint[0],tint[1],tint[2],alpha);city_triangle(a,c,d,texture,tint[0],tint[2],tint[3],alpha);
 #endif
+}
+static void city_quad(CityVertex a,CityVertex b,CityVertex c,CityVertex d,int texture,uint16_t tint,int alpha){
+ uint16_t colors[4]={tint,tint,tint,tint};city_quad_colors(a,b,c,d,texture,colors,alpha);
 }
 static void city_plane(int x,int y,int w,int h,int height,int u,int v,int tw,int th,uint16_t tint,int alpha){
  if(w<=0||h<=0)return;
@@ -141,6 +179,31 @@ static void city_box(int x,int y,int w,int d,int bottom,int top,uint16_t c){
  city_wall(x+w,y+d,x,y+d,bottom,top,0,0,0,0,c);
  city_wall(x,y+d,x,y,bottom,top,0,0,0,0,c);
  city_plane(x,y,w,d,top,0,0,0,0,c,31);
+}
+static void city_sun_ground_pads(void){
+ city_ground_pass=1;city_layer=36;
+ for(unsigned i=0;i<city_caster_count;i++){
+  const CitySunShape*s=&city_casters[i].shape;
+  if(s->kind==SUN_BUILDING)city_plane(s->x-2,s->y-2,s->w+4,s->d+4,1,224,432,32,32,0xffff,31);
+  else if(s->kind==SUN_COURT)city_plane(s->x,s->y,s->w,s->d,0,224,432,32,32,0xffff,31);
+ }city_ground_pass=0;city_layer=0;
+}
+static void city_sun_cast(void){
+ city_shadow_pass=1;
+ for(unsigned i=0;i<city_caster_count;i++){
+  const CitySunCaster*c=&city_casters[i];const CitySunShape*s=&c->shape;
+  if(s->kind==SUN_TREE){
+   int xq=s->x*Q+s->height*CITY_SUN_X+(int)((city_sun_frame/30)&1u)*Q;
+   int yq=s->y*Q+s->height*CITY_SUN_Y,u=s->texture*48*16,v=256*16;
+   city_quad(city_vertex_q8(xq,yq,0,u,v),city_vertex_q8(xq+48*Q,yq,0,u+48*16-1,v),
+    city_vertex_q8(xq+48*Q,yq+48*Q,0,u+48*16-1,v+48*16-1),city_vertex_q8(xq,yq+48*Q,0,u,v+48*16-1),
+    CITY_SHADOW_ATLAS,0xffff,12);
+  }else if(s->kind==SUN_BUILDING||s->kind==SUN_LAMP){
+   CityVertex p[8];
+   for(int j=0;j<c->count;j++)p[j]=city_vertex_q8(s->x*Q+c->hull[j].x*16,s->y*Q+c->hull[j].y*16,0,0,0);
+   for(int j=1;j+1<c->count;j++)city_quad(p[0],p[j],p[j+1],p[j+1],-1,C(16,28,48),12);
+  }
+ }city_shadow_pass=0;
 }
 static void city_mesh_ground(void){
  city_ground_pass=1;
@@ -222,47 +285,46 @@ void city_draw_rotated_ground(Surface*s,int cx,int cy,int angle){
 static void city_mesh_building(int col,int row){
  CityLot l=city_lot_bounds(col,row);if(!l.kind)return;
  int style=city_building_style(col,row),x=l.x,y=l.y,w=l.w,d=l.h;
- int height=(style==9||style==10||style==11)?42:style==3||style==8?32:24;
- int pitched=style==0||style==1||style==2||style==7||style==11||style==12;
- city_layer=1;
- city_plane(x+6,y+7,w+3,d+3,0,0,0,0,0,C(46,67,60),22);
+ int height=sun_building_height(style),pitched=sun_pitched(style);
  city_layer=0;
- city_plane(x-2,y-2,w+4,d+4,1,224,432,32,32,0xffff,31);
- city_wall(x,y,x+w,y,1,height,style%4*64,style/4*32,64,32,C(204,218,224));
- city_wall(x+w,y,x+w,y+d,1,height,style%8*32,192+style/8*32,32,32,C(216,223,221));
- city_wall(x+w,y+d,x,y+d,1,height,style%4*64,style/4*32,64,32,0xffff);
- city_wall(x,y+d,x,y,1,height,style%8*32,192+style/8*32,32,32,C(178,199,206));
+ /* Wall normals stay in world space while the camera rotates. */
+ city_wall(x,y,x+w,y,1,height,style%4*64,style/4*32,64,32,C(255,247,230));
+ city_wall(x+w,y,x+w,y+d,1,height,style%8*32,192+style/8*32,32,32,C(174,193,213));
+ city_wall(x+w,y+d,x,y+d,1,height,style%4*64,style/4*32,64,32,C(191,207,222));
+ city_wall(x,y+d,x,y,1,height,style%8*32,192+style/8*32,32,32,C(255,247,230));
  int u=style%8*32,v=128+style/8*32;
  if(pitched){
   int ridge=height+12,mid=y+d/2;
   city_quad(city_vertex(x-2,y-2,height,u*16,v*16),city_vertex(x+w+2,y-2,height,(u+32)*16-1,v*16),
-    city_vertex(x+w+2,mid,ridge,(u+32)*16-1,(v+16)*16),city_vertex(x-2,mid,ridge,u*16,(v+16)*16),0,C(216,225,220),31);
+    city_vertex(x+w+2,mid,ridge,(u+32)*16-1,(v+16)*16),city_vertex(x-2,mid,ridge,u*16,(v+16)*16),0,0xffff,31);
   city_quad(city_vertex(x-2,mid,ridge,u*16,(v+16)*16),city_vertex(x+w+2,mid,ridge,(u+32)*16-1,(v+16)*16),
-    city_vertex(x+w+2,y+d+2,height,(u+32)*16-1,(v+32)*16-1),city_vertex(x-2,y+d+2,height,u*16,(v+32)*16-1),0,0xffff,31);
+    city_vertex(x+w+2,y+d+2,height,(u+32)*16-1,(v+32)*16-1),city_vertex(x-2,y+d+2,height,u*16,(v+32)*16-1),0,C(191,208,224),31);
   /* Triangular gables close the roof, rather than leaving floating tiles. */
   city_quad(city_vertex(x,y,height,0,0),city_vertex(x,mid,ridge,0,0),
-    city_vertex(x,y+d,height,0,0),city_vertex(x,y+d,height,0,0),-1,C(220,218,186),31);
+    city_vertex(x,y+d,height,0,0),city_vertex(x,y+d,height,0,0),-1,C(234,227,199),31);
   city_quad(city_vertex(x+w,y+d,height,0,0),city_vertex(x+w,mid,ridge,0,0),
-    city_vertex(x+w,y,height,0,0),city_vertex(x+w,y,height,0,0),-1,C(234,227,199),31);
+    city_vertex(x+w,y,height,0,0),city_vertex(x+w,y,height,0,0),-1,C(184,201,214),31);
  }else{
-  city_plane(x-2,y-2,w+4,d+4,height+1,u,v,32,32,0xffff,31);
+  city_plane(x-2,y-2,w+4,d+4,height+1,u,v,32,32,C(255,247,230),31);
   city_wall(x-2,y-2,x+w+2,y-2,height,height+3,0,0,0,0,C(220,226,210));
-  city_wall(x+w+2,y+d+2,x-2,y+d+2,height,height+3,0,0,0,0,C(220,226,210));
+  city_wall(x+w+2,y+d+2,x-2,y+d+2,height,height+3,0,0,0,0,C(184,201,214));
  }
 }
 static void city_mesh_garden(int x,int y,int prop,int w,int h,unsigned frame){
+ if(!city_visible(x,y,(w>h?w:h)/2+8,5))return;
  if(!city_garden_clear(x-w/2,y-h/2,w,h))return;
  if(prop<8&&((frame/24)&1u))prop+=16;
- city_layer=1;
- city_plane(x-w/2+2,y-h/2+3,w,h,0,prop%8*32,304+prop/8*32,32,32,C(68,83,64),22);
+ int height=prop<8||prop>=16?5:2;
+ city_shadow_pass=1;
+ city_plane(x-w/2+height*CITY_SUN_X/Q,y-h/2+height*CITY_SUN_Y/Q,w,h,0,prop%8*32,304+prop/8*32,32,32,0xffff,12);
+ city_shadow_pass=0;
  city_layer=0;
- city_plane(x-w/2,y-h/2,w,h,prop<8||prop>=16?5:2,prop%8*32,304+prop/8*32,32,32,0xffff,31);
+ city_plane(x-w/2,y-h/2,w,h,height,prop%8*32,304+prop/8*32,32,32,sun_tint(city_sun_occlusion(x*Q,y*Q,height)),31);
 }
 static void city_mesh_tree(int x,int y,int kind,unsigned frame){
  int drift=(int)((frame/30)&1u);
- city_plane(x-19+5,y-19+6,38,38,0,kind*48,256,48,48,C(63,81,60),20);
  city_box(x-1,y-1,2,2,0,17,C(111,94,61));
- city_plane(x-24+drift,y-24,48,48,18,kind*48,256,48,48,0xffff,31);
+ city_plane(x-24+drift,y-24,48,48,18,kind*48,256,48,48,sun_tint(city_sun_occlusion(x*Q,y*Q,18)),31);
 }
 static void city_mesh_lamp(int x,int y,int dx,int dy){
  city_box(x-2,y-2,4,4,0,2,C(106,130,126));
@@ -275,14 +337,38 @@ static void city_mesh_car(int x,int y,int angle,int model,int player){
  int sn=city_sin(angle),cs=city_cos(angle),texture=player?1:model+2;
  int tw=player?48:32,th=player?72:64;
  CityShape shape=city_vehicle_shape(model);
- CityVertex p[4];const int side[4]={-shape.draw_half_width,shape.draw_half_width,shape.draw_half_width,-shape.draw_half_width};
+ const int side[4]={-shape.draw_half_width,shape.draw_half_width,shape.draw_half_width,-shape.draw_half_width};
  const int fore[4]={-shape.draw_half_length,-shape.draw_half_length,shape.draw_half_length,shape.draw_half_length};
- for(int n=0;n<4;n++)p[n]=city_vertex(x+(side[n]*cs-fore[n]*sn)/256,y+(side[n]*sn+fore[n]*cs)/256,3,
-    (n==1||n==2)?tw*16-1:0,n>=2?th*16-1:0);
  CityVertex shadow[4];
- for(int n=0;n<4;n++)shadow[n]=city_vertex(x+1+(side[n]*cs-fore[n]*sn)/256,y+2+(side[n]*sn+fore[n]*cs)/256,2,p[n].u,p[n].v);
- city_quad(shadow[0],shadow[1],shadow[2],shadow[3],texture,C(43,55,58),22);
- city_quad(p[0],p[1],p[2],p[3],texture,0xffff,31);
+ for(int n=0;n<4;n++)shadow[n]=city_vertex_q8(x*Q+3*CITY_SUN_X+(side[n]*cs-fore[n]*sn),y*Q+3*CITY_SUN_Y+(side[n]*sn+fore[n]*cs),0,
+     (n==1||n==2)?32*16-1:0,n>=2?64*16-1:0);
+ city_shadow_pass=1;city_quad(shadow[0],shadow[1],shadow[2],shadow[3],CITY_SHADOW_CAR+model,0xffff,12);city_shadow_pass=0;
+ enum {NX=4,NY=6};
+ CityVertex grid[(NX+1)*(NY+1)];uint16_t colors[(NX+1)*(NY+1)];int low=256,high=0,total=0;
+ for(int yy=0;yy<=NY;yy++)for(int xx=0;xx<=NX;xx++){
+  int right=-shape.draw_half_width*Q+xx*shape.draw_half_width*2*Q/NX;
+  int forward=-shape.draw_half_length*Q+yy*shape.draw_half_length*2*Q/NY;
+  int xq=x*Q+(right*cs-forward*sn)/256,yq=y*Q+(right*sn+forward*cs)/256;
+  int shade=city_sun_occlusion(xq,yq,3),at=yy*(NX+1)+xx;
+  if(shade<low)low=shade;
+  if(shade>high)high=shade;
+  total+=shade;
+  grid[at]=(CityVertex){xq,yq,3,xx*(tw*16-1)/NX,yy*(th*16-1)/NY};colors[at]=sun_tint(shade);
+ }
+ if(player){city_sun_stats[4]=(uint32_t)low;city_sun_stats[5]=(uint32_t)high;city_sun_stats[8]=(uint32_t)total/((NX+1)*(NY+1));}
+ /* Keep the same fractional outline when entering/leaving a shadow. */
+ if(low==high){
+  const int corners[4]={0,NX,NY*(NX+1)+NX,NY*(NX+1)};CityVertex p[4];
+  for(int i=0;i<4;i++){CityVertex v=grid[corners[i]];p[i]=city_vertex_q8(v.x,v.y,3,v.u,v.v);}
+  city_quad(p[0],p[1],p[2],p[3],texture,sun_tint(low),31);return;
+ }
+ for(int i=0;i<(NX+1)*(NY+1);i++){CityVertex v=grid[i];grid[i]=city_vertex_q8(v.x,v.y,3,v.u,v.v);}
+ city_sun_stats[6]++;
+ for(int yy=0;yy<NY;yy++)for(int xx=0;xx<NX;xx++){
+  int a=yy*(NX+1)+xx,b=a+1,c=b+NX+1,d=a+NX+1;
+  uint16_t tint[4]={colors[a],colors[b],colors[c],colors[d]};
+  city_quad_colors(grid[a],grid[b],grid[c],grid[d],texture,tint,31);
+ }
 }
 static void city_screen_plane(int x,int y,int w,int h,int depth,int u,int v,int texture,uint16_t tint,int alpha){
  CityVertex a={x*16,y*16,depth,u*16,v*16},b={(x+w)*16,y*16,depth,(u+w)*16-1,v*16};
@@ -326,6 +412,7 @@ static void city_mesh_textures(const Game*g){
     *dest++=(uint16_t)(source[y*72/64*48+x*48/32]|(source[y*72/64*48+(x+1)*48/32]<<8));
   }
   DC_FlushRange(overhead_palette,VEHICLE_COUNT*512);dmaCopyWords(0,overhead_palette,(uint8_t*)VRAM_E+512,VEHICLE_COUNT*512);
+  dmaFillHalfWords(C(16,28,48),(uint8_t*)VRAM_E+512+VEHICLE_COUNT*512,512);
   dmaFillHalfWords(0,(uint8_t*)VRAM_D+98304,64*128*2);
  }
  if(full){city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);}
@@ -339,6 +426,8 @@ static void city_scene(Surface*s,const Game*g){
  unsigned stage=profile_clock();
  city_mesh_stats[0]=city_mesh_stats[1]=0;city_mesh_stats[3]=city.angle;
  int cx=city.camera_x/Q,cy=city.camera_y/Q;
+ city_sun_prepare(cx,cy,g->frame);
+ city_sun_stats[2]=city_sun_stats[3]=city_sun_stats[6]=0;city_sun_stats[7]=g->frame;
  city_view=(CityView){city.camera_x,city.camera_y,city_sin(city.angle),city_cos(city.angle),cx-256,cy-300,cx+256,cy+300};
 #ifdef ARM9
  city_mesh_textures(g);
@@ -349,9 +438,11 @@ static void city_scene(Surface*s,const Game*g){
  (void)s; /* Hardware polygons fill the screen; no RAM framebuffer copy. */
 #else
  city_target=s;city_pixels_pose(city_player_texture,g->vehicle,g->steering<0?0:g->steering>0?2:1,&g->save);
- for(int i=0;i<256*192;i++){city_depth[i]=-32768;s->pixels[i]=C(40,132,155);}
+ for(int i=0;i<256*192;i++){city_depth[i]=-32768;city_shadow_stencil[i]=0;s->pixels[i]=C(40,132,155);}
 #endif
  city_mesh_ground();
+ city_sun_ground_pads();
+ city_sun_cast();
  city_layer=0;
  for(int y=city_floor(city_view.miny,64);y<city_view.maxy;y+=64)
   for(int x=city_floor(city_view.minx,64);x<city_view.maxx;x+=64)
@@ -361,6 +452,7 @@ static void city_scene(Surface*s,const Game*g){
  city_profile[0]=(profile_clock()-stage)&65535;stage=profile_clock();
  for(int row=clampi(city_view.miny/128-1,0,31);row<=clampi(city_view.maxy/128+1,0,31);row++)
   for(int col=clampi(city_view.minx/128-1,0,31);col<=clampi(city_view.maxx/128+1,0,31);col++){
+   if(!city_visible(col*128+64,row*128+64,80,54))continue;
    CityLot lot=city_lot_bounds(col,row);int wx=col*128+64,wy=row*128+64;
    unsigned decor=road_hash(0x47415244u,(unsigned)(row*32+col));
    if(lot.kind){
@@ -371,10 +463,9 @@ static void city_scene(Surface*s,const Game*g){
     city_mesh_garden(lot.x-12,lot.y+lot.h/2,4+(decor&1),14,30,g->frame);
     city_mesh_garden(lot.x+lot.w+12,lot.y+12,(int)((decor>>4)%4),18,18,g->frame);
    }else if(city_garden_clear(wx-28,wy-26,56,52)){
-    city_plane(wx-28,wy-26,56,52,0,224,432,32,32,0xffff,31);
     int park=(int)(decor%4);
     if(park<2)city_mesh_garden(wx,wy,park?8:13,42,40,g->frame);
-    else{int prop=park==2?12:13,p=prop-8;city_plane(wx-22,wy-19,44,38,2,p%4*48,400+p/4*48,48,48,0xffff,31);}
+    else{int prop=park==2?12:13,p=prop-8;city_plane(wx-22,wy-19,44,38,2,p%4*48,400+p/4*48,48,48,sun_tint(city_sun_occlusion(wx*Q,wy*Q,2)),31);}
     city_mesh_garden(wx-24,wy+23,(int)((decor>>5)%4),20,16,g->frame);
     city_mesh_garden(wx+25,wy-22,7,22,20,g->frame);
    }
@@ -405,7 +496,8 @@ static void city_scene(Surface*s,const Game*g){
   city_plane(left,y-3,63,7,2,0,0,0,0,C(151,121,80),31);
   for(int p=0;p<63;p+=5)city_flat(left+p,y-3,1,7,2,C(198,169,111));
   city_box(left,y-3,3,7,0,4,C(108,87,63));city_box(left+60,y-3,3,7,0,4,C(108,87,63));
-  city_plane((side?x-42:x+42)-16,y+5,32,58,1,boat*48,400,48,48,0xffff,31);
+  int boatx=side?x-42:x+42;
+  city_plane(boatx-16,y+5,32,58,1,boat*48,400,48,48,sun_tint(city_sun_occlusion(boatx*Q,(y+34)*Q,1)),31);
  }
  city_profile[1]=(profile_clock()-stage)&65535;stage=profile_clock();
  city_layer=2;

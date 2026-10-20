@@ -84,7 +84,9 @@ static void contact_checks(void){
    CHECK(actual==expected);
   }
 }
+#include "city_sun.inc"
 int main(int argc,char**argv){
+ sunlight_checks();
  contact_checks();
  /* Vehicle heading is the view heading through the full wraparound. World
   * translations cancel exactly, height rises toward screen-up, and forward
@@ -251,6 +253,11 @@ int main(int argc,char**argv){
   for(int angle=0;angle<256;angle+=16){
    city_begin(&g);city.x=1280*Q;city.y=1408*Q;city.camera_x=city.x;city.camera_y=city.y;city.angle=(uint16_t)angle;g.frame=120;
    char name[64];snprintf(name,sizeof name,"rotation-%03d-native",angle);shot(dir,name,&g);
+   /* Visibility optimization must preserve every pixel, including roofs
+    * projecting into the screen from a cell beyond its ground edge. */
+   static uint16_t visible[256*192];memcpy(visible,top,sizeof visible);
+   extern int city_unculled_diagnostic;city_unculled_diagnostic=1;shot(0,"",&g);city_unculled_diagnostic=0;
+   for(int i=0;i<256*192;i++)CHECK(top[i]==visible[i]);
   }
  }
  printf("city: %u checks; 256 heading-locked projections, rotated ground invariance at 24 cardinal views, world-fixed/clipped lane paint across 288 camera shifts, 1161216 independent model-sized contact cases, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;

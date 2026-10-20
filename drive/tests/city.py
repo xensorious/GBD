@@ -38,6 +38,8 @@ if not template.exists():template=a.output/'save'/'Coastline.dsv'
 write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 address=find_symbol(elf,'city');assert symbol_size(elf,'city')==C.sizeof(City);game_address=find_symbol(elf,'game');images=[];waypoints=[]
 mesh_address=find_symbol(elf,'city_mesh_last_stats');mesh_frames=[];headings=set()
+sun_address=None if a.baseline else find_symbol(elf,'city_sun_stats');sun_frames=[];sun_captures=set()
+profile_address=find_symbol(elf,'city_last_profile');profile_frames=[]
 with Emulator(rom,directory) as e:
  e.run(180);d=DriveThrough(e,game_address,a.output)
  def state():return City.from_buffer_copy(e.read_ram(address,C.sizeof(City)))
@@ -70,6 +72,12 @@ with Emulator(rom,directory) as e:
    assert 20<mesh[0]<900 and not mesh[4],('Geometry budget/overflow',mesh)
    assert abs((mesh[3]-state().angle+128)%256-128)<=8,('Camera heading detached from player',mesh,state().angle)
    mesh_frames.append(mesh);headings.add(mesh[3])
+   profile_frames.append(list((C.c_uint32*8).from_buffer_copy(e.read_ram(profile_address,32))))
+   if sun_address is not None:
+    sun=list((C.c_uint32*9).from_buffer_copy(e.read_ram(sun_address,36)));sun_frames.append(sun)
+    kind='sunlit' if sun[5]==0 else 'shade' if sun[4]==256 else 'partial'
+    if kind not in sun_captures and (kind!='partial' or sun[4]==0 and sun[5]==256 and 64<=sun[8]<=192):
+     sun_captures.add(kind);d.shot('city-sun-'+kind,tuple(keys))
    if index==1 and 32<state().angle<55 and 'turn-east' not in d.shots:
     d.shot('city-turn-east',tuple(keys));d.shots.append('turn-east')
    if index==2 and 87<state().angle<111 and 'turn-south' not in d.shots:
@@ -109,7 +117,9 @@ with Emulator(rom,directory) as e:
  g=d.game();g.save.checksum=0;expected=a.output/'city-expected.bin';expected.write_bytes(bytes(g.save))
 geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(rom),'--elf',str(elf),'--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/'city-reloaded.png')],check=True)
-updates=sum(n for n,f in waypoints);hardware=sum(f for n,f in waypoints);hz=updates*60/hardware;assert hz>=25,('City cadence',hz)
+updates=sum(n for n,f in waypoints);hardware=sum(f for n,f in waypoints);hz=updates*60/hardware
+print('City cadence',hz,'stage average', [round(sum(p[i] for p in profile_frames)/len(profile_frames)) for i in range(4)],flush=True)
+assert hz>=25,('City cadence',hz)
 if images:images[0].save(a.output/'Free-Roam.gif',save_all=True,append_images=images[1:],duration=85,loop=0)
 assert len(headings)>=32,('Insufficient turning coverage',len(headings))
 result={'rom':inspect(rom),'button_only_mode_selector':True,'touch_ignored':True,'actual_city_route_completed':True,'actual_bridge_crossing':True,'shared_owned_vehicle_and_cosmetics':True,'pause_freezes_city':True,'shared_banked_cash':True,'fresh_process_reload':True,'city_hz':hz,'city_updates':updates,'city_hardware_frames':hardware,
@@ -118,4 +128,11 @@ result={'rom':inspect(rom),'button_only_mode_selector':True,'touch_ignored':True
  'road_stability':pixels.result(a.output,strict=not a.baseline),'junction_sway_exercised':sway,
  'ds_geometry_overflow':False,'ds_color_underflow':False,'texture_banks_restored_on_reentry_and_highway':True,
  'profile_source':'labelled funded garage fixture; buttons only; RAM read only',**geometry}
+if sun_frames:
+ result['sunlight']={'direction':'northwest sun / southeast shadows','world_space':True,
+  'actual_player_full_sun':any(s[5]==0 for s in sun_frames),'actual_player_full_shade':any(s[4]==256 for s in sun_frames),
+  'actual_player_partial_shade':any(s[4]<s[5] for s in sun_frames),
+  'partial_vehicle_frames':sum(s[4]<s[5] for s in sun_frames),'max_partial_cars':max(s[6] for s in sun_frames),
+  'max_cached_casters':max(s[0] for s in sun_frames),'max_receiver_queries':max(s[2] for s in sun_frames)}
+ assert all(result['sunlight'][key] for key in ('actual_player_full_sun','actual_player_full_shade','actual_player_partial_shade')),result['sunlight']
 (a.output/'city-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

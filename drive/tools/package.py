@@ -70,6 +70,14 @@ assert finishes['replacement_liveries']==['Velocity','Contour']
 assert finishes['independent_color_purchases'] and finishes['high_id_color_preset']
 assert finishes['three_controls_pages'] and finishes['fresh_process_reload']
 city=report('city-results.json');current=report('previous-v6-results.json')
+sunlight=city['sunlight']
+assert all(sunlight[key] for key in ('world_space','actual_player_full_sun','actual_player_partial_shade','actual_player_full_shade'))
+assert sunlight['max_cached_casters']<192 and sunlight['partial_vehicle_frames']>0
+assert any('145152 independent 3D ray/roof cases' in result and '9216 cache-boundary receiver checks pass' in result for result in stock['native'])
+sunlight_comparison=report('sunlight-comparison-results.json')
+assert sunlight_comparison['previous_rom_sha256']=='1e6eba60569504dd69ba270c60473fab60226ee6dcbee521b9d7cb5fe5bb7a1c'
+for name,expected in sunlight_comparison['files'].items():
+    assert hashlib.sha256((validation/name).read_bytes()).hexdigest()==expected,('Stale sunlight capture',name)
 assert city['actual_city_route_completed'] and city['actual_bridge_crossing'] and city['city_hz']>=25
 assert city['button_only_mode_selector'] and city['touch_ignored'] and city['shared_owned_vehicle_and_cosmetics']
 assert city['pause_freezes_city'] and city['shared_banked_cash'] and city['fresh_process_reload']
@@ -120,8 +128,9 @@ shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
+    'afternoon_sunlight':sunlight,'sunlight_comparison':sunlight_comparison,
     'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -151,6 +160,18 @@ contact('Rotating-Camera.png',[
     ('city-turn-east','DIAGONAL TURN / DS EMULATOR'),('city-turn-south','JUNCTION / DS EMULATOR'),
     ('city-circle-048','VIEW 1 / DS EMULATOR'),('city-circle-112','VIEW 2 / DS EMULATOR'),
     ('city-circle-176','VIEW 3 / DS EMULATOR'),('city-circle-240','VIEW 4 / DS EMULATOR')],columns=3,screen='top')
+contact('Sunlight.png',[
+    ('city-sun-sunlit','SUNLIGHT / DS EMULATOR'),('city-sun-partial','PARTIAL SHADE / DS EMULATOR'),
+    ('city-sun-shade','FULL SHADE / DS EMULATOR'),('city-turn-east','DIRECTIONAL BUILDING SHADOWS'),
+    ('city-route-1','SHADED NEIGHBORHOOD'),('city-crossing','AFTERNOON / CANAL CROSSING')],columns=3,screen='top')
+sun_comparison=Image.new('RGB',(1024,1224),'#18303c');sun_draw=ImageDraw.Draw(sun_comparison)
+for row,(name,title) in enumerate((('city-spawn','OCEAN BOULEVARD'),('city-turn-east','JUNCTION TURN'),('city-route-2','DOWNTOWN WEST'))):
+    for column,prefix in enumerate(('sun-before-','')):
+        x=column*512;y=row*408
+        sun_draw.text((x+8,y+5),('PREVIOUS' if column==0 else 'AFTERNOON SUN')+' / '+title+' / DS EMULATOR',font=font,fill='#eaf6f4')
+        view=Image.open(validation/(prefix+name+'.png')).convert('RGB').crop((0,0,256,192))
+        sun_comparison.paste(view.resize((512,384),Image.Resampling.NEAREST),(x,y+24))
+sun_comparison.save(DIST/'Sunlight-Comparison.png')
 refinement=Image.new('RGB',(1024,1224),'#18303c');refinement_draw=ImageDraw.Draw(refinement)
 for row,(name,title) in enumerate((('city-spawn','LANE CLEARANCE'),('city-turn-east','TURNING VIEW'),('city-crossing','HIGHWAY / CANAL'))):
     for column,prefix in enumerate(('polish-before-','')):
@@ -286,7 +307,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
+files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
     'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Free-Roam-Refinement.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',

@@ -21,7 +21,9 @@ Texture bank D holds 48 downsampled 32x64 indexed NPC vehicle paintings
 (98,304 bytes), plus a 64x128 direct-color player texture (16,384 bytes).
 The latter retains the reviewed 48x72 painted source and steered-axle poses,
 using the existing material-protected paint/livery/wheel renderer. Palette
-bank E uses 512 bytes for the environment and 24,576 bytes for NPC palettes.
+bank E uses 512 bytes for the environment, 24,576 bytes for NPC palettes, and
+512 bytes for a uniform shadow silhouette palette. Shadows reuse the existing
+alpha silhouettes without additional texture banks.
 Normal player poses are prepared before the transfer window; only bank D
 is temporarily mapped to LCDC for those row transfers. Scenery and palette
 banks stay mapped. The uploader can reuse an early current vblank instead of
@@ -62,3 +64,29 @@ bridge, turn a full reverse circle through the heading wrap, verify hardware
 geometry budgets/overflow flags, switch rendering modes and reload a battery
 save. Native review scenes are explicitly labelled separately from emulator
 screenshots. No commercial game art is used.
+
+Afternoon lighting
+------------------
+city_sun.inc fixes the sun northwest at roughly 34 degrees elevation. Roof
+silhouettes project 1.25 units east and 0.75 south per unit of height. Flat and
+pitched roofs use convex shadow hulls; trees reuse their canopy alpha and wind
+offset. All ground shadows share one translucent polygon ID so intersections
+do not accumulate opacity. The native reference uses a per-frame stencil for
+the same union, excluded from the DS binary. Ground foundations are composed
+before that pass; raised objects retain their physical depth.
+
+A bounded world-chunk cache and 32-unit spatial buckets serve receiver queries.
+Cars use a 4x6 vertex-lit mesh only at shadow boundaries and one quad in uniform
+light. UVs always span the original painting; shading never edits material
+masks or cached vehicle textures. Five small world-space taps soften silhouette
+edges, and sampling at vehicle height keeps the received boundary aligned with
+the ground projection. Buildings use warm northwest and cool southeast faces;
+foliage, courtyards and boats also receive scene shading. There is no day/night
+simulation, dynamic shadow map, screen-darkening overlay or save-format change.
+
+Native tests compare 145,152 receiver cases with independent 3D ray/roof-prism
+intersection, check tree alpha holes, visit every map chunk, compare cached and
+uncached unions, and cross cache boundaries without changing world shading.
+Conservative scenery visibility tests are compared pixel-for-pixel against the
+unculled renderer at sixteen headings. Actual cartridge tests capture the
+player in sunlight, partial shade and full shade and measure driving cadence.

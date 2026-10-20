@@ -7,6 +7,13 @@ int city_building_style(int column,int row);
 void city_draw_ground(Surface*,int camx,int camy);
 /* Q4 screen X/Y/depth; camera heading shares the simulation's 0..255 units. */
 void city_project_point(int x,int y,int height,int camera_x,int camera_y,int angle,int*out);
+/* Fixed afternoon sun: projected travel is 1.25 east / 0.75 south per
+ * unit of height. Queries use Q8 world positions, independent of camera. */
+typedef struct {int16_t x,y,w,d;uint8_t height,ridge,kind,texture;} CitySunShape;
+void city_sun_prepare(int camera_x,int camera_y,unsigned frame);
+int city_sun_occlusion(int x_q8,int y_q8,int receiver_height);
+int city_sun_shape_shadow(const CitySunShape*,int x_q8,int y_q8,int receiver_height,unsigned frame);
+unsigned city_sun_shapes(CitySunShape*out,unsigned capacity);
 #ifndef ARM9
 void city_draw_rotated_ground(Surface*,int camera_x,int camera_y,int angle);
 #endif

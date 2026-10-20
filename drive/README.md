@@ -71,6 +71,11 @@ chassis rather than an axis-aligned traffic box. Textured 3D walls, pitched roof
 keep their shape as you turn. Vehicles use their existing detailed overhead
 paintings, including installed paint, fitted liveries and wheels. The lower
 street map stays north-up. Buildings can hide a vehicle behind their roofs.
+Afternoon sunlight comes from the northwest. Buildings cast diagonal roof-shaped
+shadows, trees cast their moving canopy silhouettes, and streetlights and small
+plantings have shorter shadows. Shade stays attached to the town as the camera
+turns. Both your vehicle and traffic darken progressively across their bodies
+when passing underneath; installed paint, liveries and wheel detail remain visible.
 The lower screen has a live street map, speed, acceleration, health, turbo,
 distance, combo and pending earnings. Parking is safe in this mode and earns
 no idle rewards. Pause and choose Bank this run to return to the normal menus;
@@ -377,8 +382,9 @@ testing.
 
 ## Scope
 
-This is an endless arcade highway prototype with continuous steering and
-illustrated 2.5D scenery, not a simulation or an open-world street network.
+The original Endless Drive mode is an arcade highway prototype with continuous
+steering and illustrated 2.5D scenery. Free Roam adds the separate fixed city
+street network described above. Neither mode aims to simulate real-world driving.
 Roads curve and scenery changes, while four usable lanes remain continuous.
 Traffic and pickups reuse fixed-size pools; road geometry and roadside props
 are regenerated from a seed and distance without loading huge map files.
