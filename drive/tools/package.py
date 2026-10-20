@@ -91,12 +91,20 @@ world_comparison=report('openworld-comparison-results.json')
 for name,expected in world_comparison['files'].items():
     assert hashlib.sha256((validation/name).read_bytes()).hexdigest()==expected,('Stale city preview',name)
 
+environment=report('city-environment-results.json')
+assert environment['buildings']==16 and environment['garden_objects']==16 and environment['wind_poses']==8
+assert environment['lawn_seams_match'] and environment['sources_match'] and environment['building_silhouettes_unclipped']
+assert any('16 district-weighted buildings, rooted wind poses, pavement-safe gardens' in result for result in stock['native'])
+scenery_comparison=report('scenery-comparison-results.json')
+for name,expected in scenery_comparison['files'].items():
+    assert hashlib.sha256((validation/name).read_bytes()).hexdigest()==expected,('Stale scenery preview',name)
+
 shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Free Roam visual overhaul: 48 new plan-view paintings, 256-color per-model material palettes, three steered-axle source poses and filtered rotation; detailed overhead vegetation, marina craft and courtyards; static world-anchored road paint clipped to finite streets. Native city checks cover 144 material poses, all finish combinations, cache paths and 288 camera translations across endpoints/junctions. All fifteen native suites, both actual-cartridge driving modes, six interface tours, purchases, finishes, opening profiles and save migrations pass on this exact ROM. Native vehicle galleries are labelled separately from emulator captures. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Living coastal city: sixteen new architectural paintings, sixteen garden objects with eight rooted wind poses, seamless world-fixed grass, district-weighted planting and storefront mixes, proportionate buildings in enclosed properties, garden/cafe/pool/fountain courtyards, butterflies, gulls and water glints. Native checks validate 622 asset frames against an independent sampler, wide cold/warm caches and clipping, source hashes, lawn seams, stationary foliage roots and pavement-safe decorative footprints. Existing all-vehicle finishes, map-fixed lane paint, both actual-cartridge driving modes, six interfaces, purchases, profiles and save migrations pass on this exact ROM. Before/after scenery views use DS emulator screenshots; district/artwork review sheets are labelled native renderer captures. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -190,6 +198,41 @@ for page in range(4):
         sheet.paste(strip.resize((768,144),Image.Resampling.NEAREST),(0,yy+22))
     sheet.save(DIST/f'Overhead-Finishes-{page+1}.png')
 
+# Direct before/after pairs use real DS framebuffer captures at the same tour points.
+scenery_sheet=Image.new('RGB',(1024,1224),'#18303c');draw=ImageDraw.Draw(scenery_sheet)
+for row,(before,after,title) in enumerate((('scenery-before-spawn','city-spawn','DOWNTOWN STREET'),('scenery-before-junction','city-route-1','NEIGHBORHOOD JUNCTION'),('scenery-before-bridge','city-crossing','CANAL CROSSING'))):
+    for column,name in enumerate((before,after)):
+        x=column*512;y=row*408;draw.text((x+8,y+5),('BEFORE' if column==0 else 'UPDATED')+' / '+title+' / DS EMULATOR',font=font,fill='#eaf6f4')
+        view=Image.open(validation/(name+'.png')).convert('RGB').crop((0,0,256,192))
+        scenery_sheet.paste(view.resize((512,384),Image.Resampling.NEAREST),(x,y+24))
+scenery_sheet.save(DIST/'Living-City.png')
+districts=Image.new('RGB',(1536,816),'#18303c');draw=ImageDraw.Draw(districts)
+for index,title in enumerate(('OCEAN BOULEVARD','DOWNTOWN WEST','GLASS QUAY','CANAL GARDENS','PALMETTO HEIGHTS','MARINA BRIDGE')):
+    x=index%3*512;y=index//3*408
+    draw.text((x+8,y+5),title+' / NATIVE SCENE REVIEW',font=font,fill='#eaf6f4')
+    view=Image.open(validation/f'district-{index}-native.ppm').convert('RGB').crop((0,0,256,192))
+    districts.paste(view.resize((512,384),Image.Resampling.NEAREST),(x,y+24))
+districts.save(DIST/'Districts.png')
+# Show the actual indexed/RGB555 scenery bank, rather than source-image colors.
+def packed_sheet(stem,palette_stem,count,w,h,columns):
+    import array
+    data=(ROOT/'build'/f'{stem}.bin').read_bytes();palette=array.array('H',(ROOT/'build'/f'{palette_stem}.bin').read_bytes())
+    import sys
+    if sys.byteorder!='little':palette.byteswap()
+    sheet=Image.new('RGB',(columns*w,((count+columns-1)//columns)*h),'#1c3942')
+    for n in range(count):
+        tile=Image.new('RGBA',(w,h));tile.putdata([((palette[c]&31)*255//31,((palette[c]>>5)&31)*255//31,((palette[c]>>10)&31)*255//31,255) if c else (0,0,0,0) for c in data[n*w*h:(n+1)*w*h]])
+        sheet.paste(tile,(n%columns*w,n//columns*h),tile)
+    return sheet
+architecture=packed_sheet('city_building_idx','city_building_palette',16,64,80,4)
+gardens=packed_sheet('city_garden_idx','city_garden_palette',16,32,32,4)
+assets=Image.new('RGB',(1024,1872),'#18303c');draw=ImageDraw.Draw(assets)
+draw.text((10,8),'SIXTEEN COASTAL BUILDINGS / PACKED RGB555 ARTWORK',font=font,fill='#eaf6f4')
+assets.paste(architecture.resize((1024,1280),Image.Resampling.NEAREST),(0,32))
+draw.text((10,1320),'GARDEN OBJECTS / ROOTED FOLIAGE / CAFE FURNITURE',font=font,fill='#eaf6f4')
+assets.paste(gardens.resize((512,512),Image.Resampling.NEAREST),(256,1350))
+assets.save(DIST/'Coastal-Scenery.png')
+
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
     for mode in ('home','settings') for s,name in enumerate(studio['interfaces'],3)],columns=3)
 contact('Fusion.png',[(f'ui-3-{mode}',title) for mode,title in (
@@ -222,7 +265,7 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
+    'Free-Roam.png','Free-Roam.gif','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
     'Paint-Review-1.png','Paint-Review-2.png','Paint-Review-3.png','Paint-Review-4.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

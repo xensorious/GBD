@@ -19,6 +19,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 from vehicle_details import decal_mask, overhead_sprite
 from city_art import prop_sprites
+from city_environment import environment
 from overhead_assets import overhead_frames
 
 
@@ -397,6 +398,7 @@ def vehicle_sources():
 
 
 def artwork() -> None:
+    environment(ART,OUT,raw,rgb555)
     city_props=prop_sprites(Image.open(ART/"city-props-source.png"))
     city_sheet=Image.new("RGBA",(48*4,48*4))
     for i,prop in enumerate(city_props):city_sheet.paste(prop,(i%4*48,i//4*48))

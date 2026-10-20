@@ -22,7 +22,7 @@ build:
 	mkdir -p build
 
 assets: build/assets.c build/assets.h build/vehicle_geometry.h
-build/assets.c build/assets.h build/vehicle_geometry.h &: tools/build_assets.py tools/vehicle_details.py tools/city_art.py tools/overhead_assets.py tools/overhead_materials.py $(wildcard art/overhead/*.png) art/overhead/materials.json art/materials/vehicle-materials.png art/materials/vehicle-materials.json $(wildcard art/*.png) | build
+build/assets.c build/assets.h build/vehicle_geometry.h &: tools/build_assets.py tools/vehicle_details.py tools/city_art.py tools/city_environment.py $(wildcard art/city/*.png) tools/overhead_assets.py tools/overhead_materials.py $(wildcard art/overhead/*.png) art/overhead/materials.json art/materials/vehicle-materials.png art/materials/vehicle-materials.json $(wildcard art/*.png) | build
 	python3 tools/build_assets.py
 
 build/%.o: src/%.c build/assets.h build/vehicle_geometry.h $(wildcard src/*.h) platform/platform.h | build

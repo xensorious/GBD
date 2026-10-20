@@ -12,7 +12,7 @@ no commercial game art or ROM data are used. Checked-in source art permits rebui
 Free Roam's fixed street network, map, traffic and city renderer are original
 code. Its detailed overhead vehicle paintings and coastal scenery are original
 image-generated artwork, with reviewed material masks and steered axle poses.
-Its buildings reuse Coastline's original architectural textures. No GTA assets or commercial ROM data are used.
+Its coastal buildings, garden objects and lawn use new original generated artwork. No GTA assets or commercial ROM data are used.
 
 Text uses DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.
 Native platform: libnds, devkitARM startup/linker files, newlib and GCC runtime.

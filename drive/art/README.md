@@ -9,6 +9,12 @@ adds original overhead palms, leafy/flowering trees, shrubs, boats, a pool and
 fountain, cropped into sixteen 48x48 indexed scenery cells. The city also reuses
 the existing architectural wall/roof textures below.
 
+`city/` adds sixteen complete painted buildings, sixteen garden objects,
+eight rooted wind poses and seamless lawn art for Free Roam. See its README
+for palettes, source hashes, placement and scanline sampling details. These
+replace the former stretched roof/wall faces in the open-world mode; Endless
+Drive retains its one-point architecture and original texture library.
+
 All source sprites and architectural textures in this directory are original
 art generated for this project with OpenAI image generation. They contain no
 licensed vehicle badges or third-party game art. Source files retain their
@@ -91,7 +97,7 @@ The 64x96 base and filtered 48x72, 32x48 and 16x24 levels share each object's
 palette. All transparent palette entries remain index zero.
 
 The complete packed art, typography and original synthesized music total
-approximately 1.5 MiB. Source-only references such as `scenery-original.png` and the
+approximately 1.6 MiB. Source-only references such as `scenery-original.png` and the
 old `boat-profile.png` remain available without being linked into the game.
 
 Vehicle panels and overhead designs

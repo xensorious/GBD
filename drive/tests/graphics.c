@@ -27,7 +27,7 @@ typedef struct {
 static GuardedFrame actual,expected;
 static Asset assets[MAX_ASSETS];
 static unsigned asset_count,checks;
-static uint16_t uncached_source[65*97];
+static uint16_t uncached_source[97*97];
 static uint16_t *owned[MAX_ASSETS];
 static unsigned owned_count;
 static const uint16_t *vehicle_images[ASSET_VEHICLE_COUNT*5];
@@ -87,7 +87,7 @@ static void factory_case(Asset a,unsigned id,int w,int h,int x,int y)
  }
 }
 
-/* A width-65 identity sprite deliberately bypasses the <=64 cache. Its first
+/* A width-97 identity sprite deliberately bypasses the <=96 cache. Its first
  * w columns contain the exact source samples required by the cached sprite;
  * the rest are transparent. This compares cache paints against the uncached
  * path without duplicating the palette algorithm or altering visible scale. */
@@ -97,9 +97,9 @@ static void paint_case(Asset a,unsigned id,int paint,int w,int h,int x,int y)
  fill_frame(&expected,id+31u);
  memset(uncached_source,0,sizeof uncached_source);
  for(int row=0;row<h;row++)for(int col=0;col<w;col++)
-  uncached_source[row*65+col]=a.pixels[(row*a.height/h)*a.width+col*a.width/w];
+  uncached_source[row*97+col]=a.pixels[(row*a.height/h)*a.width+col*a.width/w];
  Surface reference={expected.pixels,WIDTH,HEIGHT};
- gfx_vehicle(&reference,x,y,uncached_source,65,h,65,h,paint);
+ gfx_vehicle(&reference,x,y,uncached_source,97,h,97,h,paint);
  for(int pass=0;pass<2;pass++) {
   fill_frame(&actual,id+31u);
   Surface target={actual.pixels,WIDTH,HEIGHT};
@@ -156,6 +156,9 @@ static void catalog(void)
  add_asset(dock_segment,ASSET_DOCK_SEGMENT_W,ASSET_DOCK_SEGMENT_H,1,-1,"modular dock");
  if(asset_count!=ASSET_VEHICLE_COUNT*5+6+ASSET_PROP_SPRITE_COUNT*4+ASSET_PROP_SIDE_COUNT*4+ASSET_BUILDING_COUNT*7+ASSET_BOAT_PROFILE_COUNT+1)
   fail("incomplete asset catalog",asset_count,0,0,0,0,0,0);
+ for(int style=0;style<16;style++)add_indexed(city_building_idx+style*64*80,city_building_palette,64,80,"coastal city architecture");
+ for(int prop=0;prop<24;prop++)add_indexed(city_garden_idx+prop*32*32,city_garden_palette,32,32,"living city garden");
+ for(int prop=0;prop<16;prop++)add_indexed(city_prop_idx+prop*48*48,city_prop_palette,48,48,"overhead coastal scenery");
  for(unsigned i=0;i<asset_count;i++) {
   unsigned visible=0;
   for(int n=0;n<assets[i].width*assets[i].height;n++) {
@@ -341,7 +344,7 @@ static void palette_contract(void)
   compare("palette contract",0,paint,7,1,7,8);
  }
 }
-/* Independent pre-optimization formula. A mutable width65 source bypasses
+/* Independent pre-optimization formula. A mutable width97 source bypasses
  * opaque sprite caching, so every RGB555 color tests the live paint path. */
 static uint16_t old_paint_formula(uint16_t c,int paint)
 {
@@ -360,18 +363,18 @@ static uint16_t old_paint_formula(uint16_t c,int paint)
 }
 static void all_rgb555_paints(void)
 {
- uint16_t source[65]={0},target[65]={0};Surface surface={target,65,1};
+ uint16_t source[97]={0},target[97]={0};Surface surface={target,97,1};
  for(int paint=0;paint<6;paint++){
   for(unsigned rgb=0;rgb<32768;rgb++){
    source[0]=(uint16_t)(0x8000u|rgb);target[0]=0;
-   gfx_vehicle(&surface,0,0,source,65,1,65,1,paint);
+   gfx_vehicle(&surface,0,0,source,97,1,97,1,paint);
    if(target[0]!=old_paint_formula(source[0],paint))
-    fail("all RGB555 paint formula",rgb,paint,65,1,0,0,target[0]);
+    fail("all RGB555 paint formula",rgb,paint,97,1,0,0,target[0]);
    checks++;
   }
   source[0]=0;target[0]=0xa571u;
-  gfx_vehicle(&surface,0,0,source,65,1,65,1,paint);
-  if(target[0]!=0xa571u)fail("transparent paint source",0,paint,65,1,0,0,target[0]);
+  gfx_vehicle(&surface,0,0,source,97,1,97,1,paint);
+  if(target[0]!=0xa571u)fail("transparent paint source",0,paint,97,1,0,0,target[0]);
   checks++;
  }
 }
@@ -421,6 +424,10 @@ int main(void)
  all_rgb555_paints();
  eviction_replay();
  capacity_and_empty_cases();
+ for(unsigned id=asset_count-56;id<asset_count;id++){
+  factory_case(assets[id],id,80,94,-9,4);factory_case(assets[id],id,96,96,2,-5);
+  factory_case(assets[id],id,97,97,-7,-4);
+ }
  for(unsigned i=0;i<owned_count;i++)free(owned[i]);
  printf("graphics: %u pixel-exact checks passed across %u asset frames; indexed/RGB555 cache/paint/LOD/clipping/capacity\n",checks,asset_count);
  return 0;

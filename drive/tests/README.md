@@ -103,3 +103,14 @@ The city suite checks all 144 overhead source poses and all existing finish
 combinations against native-only material/index oracles, and checks finished
 steering sprites on cold and warm cache paths. Review sheets show factory,
 Black, Graphite, White and all four liveries for all 48 painted plan views.
+
+
+The living-city scenery tests add all sixteen building and twenty-four garden
+frames to the independent graphics oracle, including 80x94/96x96 cold and warm
+cache draws, edge clipping and 97px fallback paths. Garden acceptance is
+compared against individual drivable/water/solid pixels. All architectural
+styles must be used, wind poses retain their roots, and the repeated lawn
+rows and opposite texture edges must match. Six native district scenes are
+explicit diagnostic views; cartridge screenshots still come from button-only
+DS emulator playthroughs. Source hashes and both DS memory budgets are checked
+in `city_environment.py`.

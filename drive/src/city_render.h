@@ -2,6 +2,8 @@
 #define COASTLINE_CITY_RENDER_H
 #include "city.h"
 #include "gfx.h"
+int city_garden_clear(int x,int y,int w,int h);
+int city_building_style(int column,int row);
 void city_draw_ground(Surface*,int camx,int camy);
 void city_draw_map(Surface*,int x,int y,int w,int h,const Game*);
 /* Output buffer holds the full 48x72 source painting. */

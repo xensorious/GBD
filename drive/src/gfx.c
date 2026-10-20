@@ -148,26 +148,26 @@ typedef struct {
  uint16_t *pixels;
  uint16_t run_capacity,pixel_capacity;
 } SpriteCache;
-#define SMALL_CACHE_COUNT 80
-#define LARGE_CACHE_COUNT 24
+#define SMALL_CACHE_COUNT 64
+#define LARGE_CACHE_COUNT 20
 #define CACHE_COUNT (SMALL_CACHE_COUNT+LARGE_CACHE_COUNT)
 static SpriteCache sprite_cache[CACHE_COUNT];
 static SpriteRun small_runs[SMALL_CACHE_COUNT][256],large_runs[LARGE_CACHE_COUNT][512];
 static uint16_t small_pixels[SMALL_CACHE_COUNT][2048] __attribute__((aligned(4)));
-static uint16_t large_pixels[LARGE_CACHE_COUNT][6144] __attribute__((aligned(4)));
+static uint16_t large_pixels[LARGE_CACHE_COUNT][7680] __attribute__((aligned(4)));
 static unsigned sprite_clock;
 static int sprite_cache_ready;
 static void forget_sprite(const void *source){
  for(int n=0;n<CACHE_COUNT;n++)if(sprite_cache[n].source==source)sprite_cache[n].source=0;
 }
 static SpriteCache * __attribute__((noinline)) scaled_cache(const void *source,const uint16_t *palette,int sw,int sh,int w,int h,int paint){
- if(w>64||h>96)return 0;
+ if(w>96||h>96)return 0;
  if(!sprite_cache_ready){
   for(int n=0;n<CACHE_COUNT;n++){
    SpriteCache*c=&sprite_cache[n];int small=n<SMALL_CACHE_COUNT,index=small?n:n-SMALL_CACHE_COUNT;
    c->runs=small?small_runs[index]:large_runs[index];
    c->pixels=small?small_pixels[index]:large_pixels[index];
-   c->run_capacity=small?256:512;c->pixel_capacity=small?2048:6144;
+   c->run_capacity=small?256:512;c->pixel_capacity=small?2048:7680;
   }
   sprite_cache_ready=1;
  }
@@ -181,9 +181,9 @@ static SpriteCache * __attribute__((noinline)) scaled_cache(const void *source,c
   if(c->used<entry->used)entry=c;
  }
  entry->source=0;entry->used=sprite_clock;entry->count=0;
- int columns[64];
+ int columns[96];
  /* Ceiling 16.16 steps retain exact nearest-neighbour samples for every
-    cached size (at most64x96), without a software divide per row/column. */
+    cached size (at most96x96), without a software divide per row/column. */
  unsigned step_x=((unsigned)sw*65536u+(unsigned)w-1)/(unsigned)w;
  unsigned step_y=((unsigned)sh*65536u+(unsigned)h-1)/(unsigned)h;
  for(int i=0;i<w;i++)columns[i]=(int)((i*step_x)>>16);

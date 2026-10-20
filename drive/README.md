@@ -84,10 +84,19 @@ finish and smoke choices carry over; riders' skin, protected gear and horse fur 
 separate from customizable equipment.
 
 Lane paint is fixed to the set map and ends at the actual street boundaries.
-Junctions clear crossing stripes. Coastal palms, leafy/flowering trees, marina
-boats, bank-attached piers, courtyard pools/fountains, sidewalk joints, drains
-and bridge parapets add detail around the textured streets. Background grain
-uses world coordinates so it remains still as the camera moves.
+Junctions clear crossing stripes. The city has sixteen painted architectural
+designs, including coastal homes, cafes, a florist, market, bakery, apartments,
+a hotel, marina, restaurant, greenhouse and workshop. Districts use different
+building and planting mixes. Narrow lots keep building proportions and add
+enclosed gardens instead of stretching the artwork.
+
+Seamless painted grass, flower bushes, hedges, planters, cafe terraces, benches
+and garden courts fill the spaces between streets. Beds and street furniture
+stay outside road lanes, water and solid buildings. Coastal palms, marina
+boats and bank-attached piers complement the planted streets. Rooted foliage
+sways in a gentle breeze, butterflies visit flowers, gulls cross the canal and
+small glints animate courtyard water. Terrain and planting use world
+coordinates, so camera movement cannot slide them across the map.
 
 All vehicles retain their owned status, performance upgrades and mastery.
 Near misses, driving, speed streaks, drifts, wheelies and finite road coins

@@ -109,6 +109,25 @@ int main(int argc,char**argv){
   memset(top,0,sizeof top);memset(bottom,0,sizeof bottom);Surface ta={top,256,192},tb={bottom,256,192};
   city_draw_vehicle_steering(&ta,128,96,37,pose-1,v,&g.save);city_draw_vehicle_steering(&tb,128,96,37,pose-1,v,&g.save);CHECK(!memcmp(top,bottom,sizeof top));
  }
+ /* New architecture has a complete, district-weighted style set. Garden
+  * placements are independently checked against individual terrain pixels. */
+ unsigned styles[16]={0},accepted=0;
+ for(int row=3;row<30;row++)for(int col=2;col<29;col++){
+  if(city_lot(col,row)){int style=city_building_style(col,row);CHECK(style>=0&&style<16);styles[style]++;}
+  int wx=col*128+10,wy=row*128+10;
+  if(city_garden_clear(wx,wy,20,16)){
+   accepted++;
+   for(int y=wy;y<=wy+16;y++)for(int x=wx;x<=wx+20;x++)CHECK(!city_on_road(x,y)&&!city_water(x,y)&&!city_solid(x,y));
+  }
+ }
+ CHECK(accepted>50);for(int style=0;style<16;style++)CHECK(styles[style]>0);
+ CHECK(!city_garden_clear(628,1600,24,24)&&!city_garden_clear(2010,2200,20,20));
+ for(int row=0;row<32;row++)for(int x=0;x<128;x++){
+  CHECK(city_lawn_rgb[row*384+x]==city_lawn_rgb[row*384+128+x]);CHECK(city_lawn_rgb[row*384+x]==city_lawn_rgb[row*384+256+x]);
+ }
+ for(int prop=0;prop<8;prop++)for(int y=0;y<32;y++)if(y<=4||y>=23)for(int x=0;x<32;x++){
+  unsigned a=city_garden_idx[prop*1024+y*32+x],b=city_garden_idx[(prop+16)*1024+y*32+x];CHECK(city_garden_palette[a]==city_garden_palette[b]);
+ }
  /* Every owned vehicle has an overhead silhouette; all skins render city UI. */
  for(int v=0;v<VEHICLE_COUNT;v++){memset(top,0,sizeof top);Surface s={top,256,192};city_draw_vehicle(&s,128,96,v*13,v,&g.save);unsigned occupied=0;for(int i=0;i<256*192;i++)occupied+=top[i]!=0;CHECK(occupied>100&&occupied<2200);}
  if(dir){
@@ -141,5 +160,12 @@ int main(int argc,char**argv){
   for(int i=0;i<480*4608;i++){unsigned c=finishes[i];fputc((c&31)*255/31,f);fputc((c>>5&31)*255/31,f);fputc((c>>10&31)*255/31,f);}fclose(f);
  }
  city_begin(&g);for(int skin=3;skin<9;skin++){g.save.skin=(uint8_t)skin;shot(0,"",&g);}
- printf("city: %u checks; world-fixed/clipped lane paint across 288 camera shifts, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
+ if(dir){
+  const int scenes[6][3]={{1280,640,0},{1280,1408,0},{2496,1900,0},{1280,2880,0},{2912,2880,0},{2080,2048,64}};
+  for(int scene=0;scene<6;scene++){
+   city_begin(&g);city.x=scenes[scene][0]*Q;city.y=scenes[scene][1]*Q;city.camera_x=city.x;city.camera_y=city.y;city.angle=(uint16_t)scenes[scene][2];g.frame=120;
+   char name[64];snprintf(name,sizeof name,"district-%d-native",scene);shot(dir,name,&g);
+  }
+ }
+ printf("city: %u checks; world-fixed/clipped lane paint across 288 camera shifts, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
 }
