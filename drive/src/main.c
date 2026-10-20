@@ -4,6 +4,7 @@
 #include "assets.h"
 #include "gfx.h"
 #include "opening.h"
+#include "city.h"
 
 Game game;
 Opening opening;
@@ -56,6 +57,7 @@ int main(void){
   }
   /* The platform already owns two VRAM pages for the upper screen. Draw
      directly into the hidden page instead of retaining a third RAM copy. */
+  ds_world_mode(opening.phase==OPEN_DONE&&city.active&&(game.mode==M_RUN||game.mode==M_PAUSE));
   uint16_t *top_buffer=ds_top_buffer();
   int changed=opening.phase==OPEN_DONE?render_game(&game,top_buffer,bottom_buffer):
       render_opening(&game,&opening,ds_cinematic_buffer(),top_buffer,bottom_buffer);

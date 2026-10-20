@@ -13,6 +13,8 @@ static unsigned top_front_bank;
 static volatile unsigned lcd_frames;
 static unsigned frame_deadline;
 static int paced_frames;
+static int world_active;
+static unsigned world_epoch;
 static void vblank_tick(void) { ++lcd_frames; }
 static void wait_lcd_vblank(void) {
     while (REG_VCOUNT >= 192) {}
@@ -83,7 +85,47 @@ int ds_touch(int *x, int *y) {
 }
 
 uint16_t *ds_top_buffer(void) {
+    if (world_active) return BG_BMP_RAM(8);
     return BG_BMP_RAM((top_front_bank^1u)*8);
+}
+unsigned ds_world_epoch(void) { return world_epoch; }
+void ds_world_upload_begin(void) {
+    wait_lcd_vblank();
+    vramSetBankA(VRAM_A_LCD);vramSetBankD(VRAM_D_LCD);vramSetBankE(VRAM_E_LCD);
+}
+void ds_world_upload_end(void) {
+    vramSetBankA(VRAM_A_TEXTURE_SLOT0);
+    vramSetBankD(VRAM_D_TEXTURE_SLOT1);
+    vramSetBankE(VRAM_E_TEX_PALETTE);
+}
+void ds_world_mode(int active) {
+    active=!!active;if (active==world_active) return;
+    wait_lcd_vblank();
+    if (active) {
+        powerOn(POWER_3D_CORE|POWER_MATRIX);
+        while(GFX_STATUS&(1<<27)) {}
+        GFX_STATUS|=1<<29;
+        glResetMatrixStack();
+        GFX_CONTROL=GL_TEXTURE_2D|GL_BLEND|GL_ANTIALIAS;
+        GFX_CLEAR_COLOR=RGB15(5,16,19)|(31u<<16)|(63u<<24);
+        GFX_CLEAR_DEPTH=0x7fff;
+        GFX_TEX_FORMAT=0;GFX_POLY_FORMAT=0;
+        glViewport(0,0,255,191);
+        glFlush(0);
+        ds_world_upload_end();
+        dmaFillHalfWords(0,BG_BMP_RAM(8),256*256*2);
+        REG_BG0CNT=BG_PRIORITY(0);
+        videoSetMode(MODE_0_3D);
+        ++world_epoch;
+    } else {
+        while(GFX_STATUS&(1<<27)) {}
+        videoSetMode(MODE_5_2D|DISPLAY_BG3_ACTIVE);
+        vramSetBankA(VRAM_A_MAIN_BG);
+        vramSetBankD(VRAM_D_LCD);vramSetBankE(VRAM_E_LCD);
+        top_front_bank=1;
+        REG_BG3CNT=BG_BMP16_256x256|BG_BMP_BASE(8);
+    }
+    world_active=active;
 }
 /* D (128 KiB) and E (64 KiB) are contiguous LCDC memory: one tall movie
  * frame without a second full-screen allocation in the DS's main RAM. */
@@ -91,7 +133,7 @@ uint16_t *ds_cinematic_buffer(void) { return (uint16_t*)0x06860000; }
 void ds_present(const uint16_t *top, const uint16_t *bottom) {
     unsigned next=top_front_bank^1u;
     uint16_t *back=BG_BMP_RAM(next*8);
-    if (top && top!=back) {
+    if (top && top!=back && !world_active) {
         /* RAM framebuffer fallback, used by simple platform test programs. */
         DC_FlushRange(top, 256*192*2);
         dmaCopyWords(0, top, back, 256*192*2);
@@ -101,7 +143,7 @@ void ds_present(const uint16_t *top, const uint16_t *bottom) {
         while ((int32_t)(lcd_frames-frame_deadline)<0) wait_lcd_vblank();
         if (REG_VCOUNT<192) wait_lcd_vblank();
     } else wait_lcd_vblank();
-    if (top) {
+    if (top && !world_active) {
         REG_BG3CNT=BG_BMP16_256x256 | BG_BMP_BASE(next*8);
         top_front_bank=next;
     }

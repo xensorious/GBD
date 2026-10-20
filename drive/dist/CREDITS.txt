@@ -13,6 +13,11 @@ Free Roam's fixed street network, map, traffic and city renderer are original
 code. Its detailed overhead vehicle paintings and coastal scenery are original
 image-generated artwork, with reviewed material masks and steered axle poses.
 Its coastal buildings, garden objects and lawn use new original generated artwork. No GTA assets or commercial ROM data are used.
+The rotating city camera uses original fixed-point projection, 3D building
+and street-furniture geometry, and DS hardware rasterization. Sixteen new
+orthographic facade paintings supply wall textures; roof materials and the
+indexed city atlas are authored by the local asset pipeline. No 3D models
+or textures from commercial games are used.
 
 Text uses DejaVu Sans/Serif. Font license: licenses/DejaVu.txt.
 Native platform: libnds, devkitARM startup/linker files, newlib and GCC runtime.

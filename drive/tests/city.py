@@ -32,6 +32,7 @@ template=ROOT/'build'/'finish-final'/'save'/'Coastline.dsv'
 if not template.exists():template=a.output/'save'/'Coastline.dsv'
 write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 address=find_symbol(elf,'city');assert symbol_size(elf,'city')==C.sizeof(City);game_address=find_symbol(elf,'game');images=[];waypoints=[]
+mesh_address=find_symbol(elf,'city_mesh_last_stats');mesh_frames=[];headings=set()
 with Emulator(rom,directory) as e:
  e.run(180);d=DriveThrough(e,game_address,a.output)
  def state():return City.from_buffer_copy(e.read_ram(address,C.sizeof(City)))
@@ -51,6 +52,14 @@ with Emulator(rom,directory) as e:
    if abs(error)>2:keys.append('right' if error>0 else 'left')
    if abs(error)>8 and g.speed_q8>45*256:keys.append('b')
    before=e.frames;frame=g.frame;d.ticks(2,tuple(keys))
+   mesh=list((C.c_uint32*6).from_buffer_copy(e.read_ram(mesh_address,24)))
+   assert 20<mesh[0]<900 and not mesh[4],('Geometry budget/overflow',mesh)
+   assert abs((mesh[3]-state().angle+128)%256-128)<=8,('Camera heading detached from player',mesh,state().angle)
+   mesh_frames.append(mesh);headings.add(mesh[3])
+   if index==1 and 32<state().angle<55 and 'turn-east' not in d.shots:
+    d.shot('city-turn-east',tuple(keys));d.shots.append('turn-east')
+   if index==2 and 87<state().angle<111 and 'turn-south' not in d.shots:
+    d.shot('city-turn-south',tuple(keys));d.shots.append('turn-south')
    if d.game().frame>frame:
     waypoints.append((d.game().frame-frame,e.frames-before))
    if attempt%10==0 and len(images)<100:images.append(e.image().resize((512,768)))
@@ -60,10 +69,37 @@ with Emulator(rom,directory) as e:
  d.press('start');frozen=bytes(state());d.ticks(30);assert bytes(state())==frozen;d.shot('city-paused')
  d.menu(1);d.press('a');assert d.game().mode==2 and d.game().run.banked
  assert d.game().save.cash==1000000+d.game().run.total_cash;d.shot('city-receipt');d.press('a');d.ticks(8)
+ # Exercise bank remapping both ways: reenter the same owned vehicle (with
+ # the same cosmetics/cache key), leave it, and drive the bitmap highway.
+ d.menu(0);d.press('a');d.press('right');d.press('a');d.ticks(5)
+ assert state().active and d.game().vehicle==46;d.shot('city-reentry')
+ # A small reverse circle fits inside the wide highway. It crosses the
+ # 255/0 heading seam and shows all four viewing directions using buttons.
+ circle=set();wrapped=False;previous=state().angle
+ for turn in range(48):
+  d.ticks(2,('l','right'))
+  current=state().angle;wrapped|=abs(current-previous)>128;previous=current
+  mesh=list((C.c_uint32*6).from_buffer_copy(e.read_ram(mesh_address,24)))
+  assert 20<mesh[0]<900 and not mesh[4],('Full-circle geometry budget',mesh)
+  mesh_frames.append(mesh);headings.add(mesh[3])
+  for target in (48,112,176,240):
+   if abs(current-target)<12 and target not in circle:
+    circle.add(target);d.shot(f'city-circle-{target:03d}',('l','right'))
+  assert d.game().mode==1 and d.game().health>0
+ assert wrapped and len(circle)==4,('Full camera turn',circle,wrapped)
+ d.press('start');d.menu(1);d.press('a');d.press('a');d.ticks(5)
+ d.menu(0);d.press('a');d.press('a');d.ticks(30,('r',))
+ assert not state().active and d.game().mode==1;d.shot('highway-after-city')
+ d.press('start');d.menu(1);d.press('a');d.press('a');d.ticks(8)
  g=d.game();g.save.checksum=0;expected=a.output/'city-expected.bin';expected.write_bytes(bytes(g.save))
 geometry=assert_compact_battery(directory/'Coastline.dsv')
 subprocess.run([sys.executable,str(ROOT/'tests'/'reload.py'),'--rom',str(rom),'--elf',str(elf),'--save-dir',str(directory),'--expected',str(expected),'--output',str(a.output/'city-reloaded.png')],check=True)
 updates=sum(n for n,f in waypoints);hardware=sum(f for n,f in waypoints);hz=updates*60/hardware;assert hz>=25,('City cadence',hz)
 if images:images[0].save(a.output/'Free-Roam.gif',save_all=True,append_images=images[1:],duration=85,loop=0)
-result={'rom':inspect(rom),'button_only_mode_selector':True,'touch_ignored':True,'actual_city_route_completed':True,'actual_bridge_crossing':True,'shared_owned_vehicle_and_cosmetics':True,'pause_freezes_city':True,'shared_banked_cash':True,'fresh_process_reload':True,'city_hz':hz,'city_updates':updates,'city_hardware_frames':hardware,'profile_source':'labelled funded garage fixture; buttons only; RAM read only',**geometry}
+assert len(headings)>=32,('Insufficient turning coverage',len(headings))
+result={'rom':inspect(rom),'button_only_mode_selector':True,'touch_ignored':True,'actual_city_route_completed':True,'actual_bridge_crossing':True,'shared_owned_vehicle_and_cosmetics':True,'pause_freezes_city':True,'shared_banked_cash':True,'fresh_process_reload':True,'city_hz':hz,'city_updates':updates,'city_hardware_frames':hardware,
+ 'heading_locked_camera':True,'observed_headings':len(headings),'max_submitted_quads':max(m[0] for m in mesh_frames),
+ 'actual_full_circle_and_heading_wrap':True,
+ 'ds_geometry_overflow':False,'ds_color_underflow':False,'texture_banks_restored_on_reentry_and_highway':True,
+ 'profile_source':'labelled funded garage fixture; buttons only; RAM read only',**geometry}
 (a.output/'city-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

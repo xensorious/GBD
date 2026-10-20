@@ -114,3 +114,16 @@ rows and opposite texture edges must match. Six native district scenes are
 explicit diagnostic views; cartridge screenshots still come from button-only
 DS emulator playthroughs. Source hashes and both DS memory budgets are checked
 in `city_environment.py`.
+
+
+Rotating Free Roam adds a shared fixed-point 3D mesh and a native depth-buffered
+reference backend (excluded from the ROM). The city suite verifies all 256
+heading projections, upward vehicle alignment, world-translation cancellation,
+vertical heights and pixel-exact ground overlap at 24 rotated cardinal views.
+Sixteen positioned native views show walls and pitched roofs around a full turn.
+The button-only cartridge tour additionally captures diagonal junction turns,
+a complete reverse circle including the 255/0 heading wrap, DS polygon budgets
+and latched underflow/overflow flags. It re-enters the same customized car,
+returns to the bitmap highway and reloads the resulting shared battery profile.
+The mesh asset test checks every texture region, source hashes, opaque straight
+wall/roof coverage, palette limits, texture-bank layout and DS main/ITCM bounds.

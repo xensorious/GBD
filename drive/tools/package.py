@@ -74,6 +74,15 @@ assert city['actual_city_route_completed'] and city['actual_bridge_crossing'] an
 assert city['button_only_mode_selector'] and city['touch_ignored'] and city['shared_owned_vehicle_and_cosmetics']
 assert city['pause_freezes_city'] and city['shared_banked_cash'] and city['fresh_process_reload']
 assert current['profile_preserved_byte_for_byte'] and current['fresh_process_reload']
+assert city['heading_locked_camera'] and city['actual_full_circle_and_heading_wrap']
+assert city['observed_headings']>=32 and city['max_submitted_quads']<900
+assert not city['ds_geometry_overflow'] and not city['ds_color_underflow']
+assert city['texture_banks_restored_on_reentry_and_highway']
+mesh=report('city-mesh-results.json')
+assert mesh['orthographic_facades']==16 and mesh['roof_materials']==16
+assert mesh['all_texture_regions_valid'] and mesh['source_hash_matches']
+assert mesh['native_rasterizer_excluded_from_rom'] and mesh['retired_flat_building_bank_excluded_from_rom']
+assert any('256 heading-locked projections, rotated ground invariance at 24 cardinal views' in result for result in stock['native'])
 
 masks=report('material-mask-results.json')
 assert masks['models_reviewed']==48 and masks['poses_reviewed']==240 and masks['fitted_liveries']==960
@@ -103,8 +112,8 @@ shutil.copyfile(rom,DIST/rom.name)
 (DIST/'PLAY.txt').write_text((ROOT/'README.md').read_text().split('## Build and test')[0].rstrip()+'\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 (DIST/'VALIDATION.json').write_text(json.dumps({'cartridge':stock,'interface_studio':studio,'opening':opening,
-    'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Living coastal city: sixteen new architectural paintings, sixteen garden objects with eight rooted wind poses, seamless world-fixed grass, district-weighted planting and storefront mixes, proportionate buildings in enclosed properties, garden/cafe/pool/fountain courtyards, butterflies, gulls and water glints. Native checks validate 622 asset frames against an independent sampler, wide cold/warm caches and clipping, source hashes, lawn seams, stationary foliage roots and pavement-safe decorative footprints. Existing all-vehicle finishes, map-fixed lane paint, both actual-cartridge driving modes, six interfaces, purchases, profiles and save migrations pass on this exact ROM. Before/after scenery views use DS emulator screenshots; district/artwork review sheets are labelled native renderer captures. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
+    'scope':'Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
 def contact(filename,items,columns=2,screen='bottom'):
@@ -130,6 +139,10 @@ contact('Free-Roam.png',[
     ('city-route-1','NEIGHBORHOOD JUNCTIONS'),('city-crossing','CONNECTED HIGHWAY BRIDGE'),
     ('city-route-4','GLASS QUAY / CONTINUE EXPLORING'),('city-receipt','SHARED EARNINGS / BANKED RUN')],columns=3,screen='dual')
 shutil.copyfile(validation/'Free-Roam.gif',DIST/'Free-Roam.gif')
+contact('Rotating-Camera.png',[
+    ('city-turn-east','DIAGONAL TURN / DS EMULATOR'),('city-turn-south','JUNCTION / DS EMULATOR'),
+    ('city-circle-048','VIEW 1 / DS EMULATOR'),('city-circle-112','VIEW 2 / DS EMULATOR'),
+    ('city-circle-176','VIEW 3 / DS EMULATOR'),('city-circle-240','VIEW 4 / DS EMULATOR')],columns=3,screen='top')
 gallery=Image.open(validation/'overhead-vehicles.ppm').convert('RGB')
 assert gallery.size==(512,384)
 gallery.resize((1024,768),Image.Resampling.NEAREST).save(DIST/'Overhead-Vehicles.png')
@@ -213,24 +226,19 @@ for index,title in enumerate(('OCEAN BOULEVARD','DOWNTOWN WEST','GLASS QUAY','CA
     view=Image.open(validation/f'district-{index}-native.ppm').convert('RGB').crop((0,0,256,192))
     districts.paste(view.resize((512,384),Image.Resampling.NEAREST),(x,y+24))
 districts.save(DIST/'Districts.png')
-# Show the actual indexed/RGB555 scenery bank, rather than source-image colors.
-def packed_sheet(stem,palette_stem,count,w,h,columns):
-    import array
-    data=(ROOT/'build'/f'{stem}.bin').read_bytes();palette=array.array('H',(ROOT/'build'/f'{palette_stem}.bin').read_bytes())
-    import sys
-    if sys.byteorder!='little':palette.byteswap()
-    sheet=Image.new('RGB',(columns*w,((count+columns-1)//columns)*h),'#1c3942')
-    for n in range(count):
-        tile=Image.new('RGBA',(w,h));tile.putdata([((palette[c]&31)*255//31,((palette[c]>>5)&31)*255//31,((palette[c]>>10)&31)*255//31,255) if c else (0,0,0,0) for c in data[n*w*h:(n+1)*w*h]])
-        sheet.paste(tile,(n%columns*w,n//columns*h),tile)
-    return sheet
-architecture=packed_sheet('city_building_idx','city_building_palette',16,64,80,4)
-gardens=packed_sheet('city_garden_idx','city_garden_palette',16,32,32,4)
-assets=Image.new('RGB',(1024,1872),'#18303c');draw=ImageDraw.Draw(assets)
-draw.text((10,8),'SIXTEEN COASTAL BUILDINGS / PACKED RGB555 ARTWORK',font=font,fill='#eaf6f4')
-assets.paste(architecture.resize((1024,1280),Image.Resampling.NEAREST),(0,32))
-draw.text((10,1320),'GARDEN OBJECTS / ROOTED FOLIAGE / CAFE FURNITURE',font=font,fill='#eaf6f4')
-assets.paste(gardens.resize((512,512),Image.Resampling.NEAREST),(256,1350))
+# Show the exact indexed RGB555 atlas used by the GPU, not unquantized art.
+import array
+import sys
+indices=(ROOT/'build/city_mesh_idx.bin').read_bytes()
+palette=array.array('H',(ROOT/'build/city_mesh_palette.bin').read_bytes())
+if sys.byteorder!='little':palette.byteswap()
+atlas=Image.new('RGBA',(256,512))
+atlas.putdata([((palette[c]&31)*255//31,((palette[c]>>5)&31)*255//31,((palette[c]>>10)&31)*255//31,255) if c else (0,0,0,0) for c in indices])
+assets=Image.new('RGB',(1024,2112),'#18303c');draw=ImageDraw.Draw(assets)
+draw.text((10,8),'ROTATING CITY / GPU WALLS, ROOFS, FOLIAGE AND GROUND / PACKED RGB555',font=font,fill='#eaf6f4')
+scaled=atlas.resize((1024,2048),Image.Resampling.NEAREST)
+assets.paste(scaled,(0,32),scaled)
+draw.text((10,2090),'Straight wall elevations and roof materials are applied to real 3D geometry.',font=font,fill='#eaf6f4')
 assets.save(DIST/'Coastal-Scenery.png')
 
 contact('Interface.png',[(f'ui-{s}-{mode}',f'{name.upper()} / {mode.upper()}')
@@ -265,7 +273,7 @@ for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/so
 files=['Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
-    'Free-Roam.png','Free-Roam.gif','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
+    'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
     'Paint-Review-1.png','Paint-Review-2.png','Paint-Review-3.png','Paint-Review-4.png','VALIDATION.json']+[f'licenses/{p.name}' for p in sorted(licenses.glob('*.txt'))]
 (DIST/'SHA256SUMS.txt').write_text(''.join(hashlib.sha256((DIST/name).read_bytes()).hexdigest()+'  '+name+'\n' for name in files))
 archive_path=DIST/'Coastline-DS.zip'

@@ -1,38 +1,52 @@
 Coastal city environment
 ========================
 
-These three original image-generated sources are separate from the existing
-Endless Drive architecture. The sixteen building designs include stucco and
-coastal homes, a cafe, florist, market, bakery, art-deco shop, apartment, office,
-hotel, marina clubhouse, restaurant, garden center and workshop. Full roofs,
-facades, glazing and awnings are painted into the artwork.
+Free Roam now uses the DS 3D engine with an orthographic, 60-degree-depression
+camera. Its heading matches the player's heading, so the car always points
+screen-up. The map, XY physics, collisions, traffic and progression are unchanged.
+The lower map stays north-up. World height is separate from world Y and depth;
+roofs, walls, streetlight poles and bridge rails are genuine geometry.
 
-`tools/city_environment.py` finds complete building silhouettes in each source
-column, removes disconnected generation specks and packs sixteen 64x80 indexed
-sprites. They share one 256-color RGB555 palette. Building size on the map keeps
-the sprite proportions; enclosed gardens fill surplus space in narrow lots.
-The collision footprint remains the existing raised/fenced property boundary.
+facades-source.png contains sixteen original orthographic wall elevations.
+Their windows, trim, doors and awnings carry no baked isometric perspective.
+tools/city_mesh_assets.py crops them to 64x32 facades and 32x32 return walls,
+adds straight roof materials and uppercase caption glyphs, then packs them
+alongside the existing overhead canopies, gardens, boats and ground materials.
+A shared 256-color RGB555 palette and a 256x512 indexed atlas occupy exactly
+128 KiB in texture bank A. Roof materials are mapped onto pitched or flat roofs;
+gables close the ends, while directional wall shades stay fixed in world space.
+Sixteen district-weighted styles retain the previous coastal building variety.
 
-The garden source adds sixteen distinct flower bushes, hedge strips, planters,
-parasols, benches, paths and water features. Eight extra 32x32 poses shear only
-foliage by one texel; the outer/base rows remain fixed. Their palette is shared.
-A smooth global breeze switches poses independently of camera movement.
+Texture bank D holds 48 downsampled 32x64 indexed NPC vehicle paintings
+(98,304 bytes), plus a 64x128 direct-color player texture (16,384 bytes).
+The latter retains the reviewed 48x72 painted source and steered-axle poses,
+using the existing material-protected paint/livery/wheel renderer. Palette
+bank E uses 512 bytes for the environment and 24,576 bytes for NPC palettes.
+Texture uploads occur with banks mapped to LCDC during a vblank transfer
+window. The platform restores normal bitmap/movie banks on leaving Free Roam;
+a generation counter forces full texture reloads on re-entry. No GL heap
+allocator or software rotating framebuffer is required on the cartridge.
 
-The grass source becomes a seamless 128x32 RGB555 lawn with matched opposing
-edges. Each packed row repeats three times, so an entire 256px scanline can be
-copied in one span. It is sampled by world coordinates. Lawn hidden beneath a
-complete street is skipped, then that exact region is filled by its sidewalk
-and asphalt. The existing camera-translation tests verify the resulting image
-is unchanged by the choice of clipped viewport.
+The original buildings-source.png silhouettes remain available as source and
+native asset diagnostics; they are no longer drawn as flat city buildings.
+The original garden and grass sources still supply flowers, hedges, planters,
+courtyards and world-fixed ground texture. Rooted wind poses move foliage;
+raised canopy planes sit on simple trunks. Overhead boats lie in the canal,
+attached docks have planking and raised end posts, and gulls have wingbeats.
+Decorative footprints still reject roads, water and solid properties.
 
-District tables choose appropriate building mixes. Beds, benches and lamps
-pass a road/water/solid-footprint test. Courtyards vary between garden, cafe,
-pool and fountain arrangements. Butterflies, canal gulls, foliage and small
-water glints provide animation without advancing gameplay randomness.
+GPU street layers use explicit depth separation, including canal paving,
+water, sidewalks, asphalt, lane paint and crosswalks. This avoids DS coplanar
+striping without moving the paint away from its world coordinates. Asset
+sections are individually garbage-collected, so unused diagnostic texture
+banks do not consume cartridge runtime RAM.
 
-Packed source hashes, counts, crop boxes and layout information are recorded in
-`build/city-environment-manifest.json`. Native city/graphics tests check every
-bank, protected wind roots, garden footprints, wide caches and lawn seams;
-actual cartridge tours measure both driving modes and verify saved profiles.
-Native district review scenes are explicitly labelled separately from DS
-emulator screenshots. No commercial game art is used.
+city_mesh.inc shares its fixed-point vertices with a native depth-buffered
+reference rasterizer, excluded from ARM9 builds. Native city tests cover all
+256 camera headings, translation cancellation, vertical height, rotated ground
+overlap at 24 cardinal views, map connectivity, material masks, gardens and
+saves. Actual button-only cartridge tests drive neighborhood turns, cross the
+bridge, turn a full reverse circle through the heading wrap, verify hardware
+geometry budgets/overflow flags, switch rendering modes and reload a battery
+save. Native review scenes are explicitly labelled separately from emulator
+screenshots. No commercial game art is used.

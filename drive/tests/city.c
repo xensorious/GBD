@@ -31,6 +31,30 @@ static void decode_overhead(int v,uint8_t*out){
  CHECK(!memcmp(decoded,overhead_indexed+v*3*48*72,sizeof decoded));memcpy(out,decoded+48*72,48*72);
 }
 int main(int argc,char**argv){
+ /* Vehicle heading is the view heading through the full wraparound. World
+  * translations cancel exactly, height rises toward screen-up, and forward
+  * motion always projects upward with no lateral component. */
+ for(int a=0;a<256;a++){
+  int center[3],front[3],raised[3],shift[3];
+  city_project_point(2048,2048,0,2048,2048,a,center);
+  city_project_point(2048+city_sin(a),2048-city_cos(a),0,2048,2048,a,front);
+  city_project_point(2048,2048,24,2048,2048,a,raised);
+  city_project_point(2048+901,2048-617,0,2048+901,2048-617,a,shift);
+  CHECK(center[0]==128*16&&center[1]==112*16);
+  CHECK(front[0]==center[0]&&front[1]<center[1]-200*16);
+  CHECK(raised[0]==center[0]&&raised[1]==center[1]-12*16&&raised[2]>center[2]);
+  CHECK(!memcmp(center,shift,sizeof center));
+ }
+ /* Real ground polygons remain fixed after scrolling with a rotated view.
+  * Compare common world pixels at all four cardinal headings, including
+  * highway dash periods, crosswalks, ends, canal banks and map borders. */
+ const int ground_sites[][2]={{654,1664},{1280,1408},{2080,2048},{2496,1900},{3600,600},{654,530}};
+ for(unsigned site=0;site<sizeof ground_sites/sizeof ground_sites[0];site++)for(int a=0;a<256;a+=64){
+  Surface first={top,256,192},second={bottom,256,192};int cx=ground_sites[site][0],cy=ground_sites[site][1];
+  city_draw_rotated_ground(&first,cx,cy,a);
+  city_draw_rotated_ground(&second,cx+city_cos(a)/8,cy+city_sin(a)/8,a);
+  for(int y=0;y<192;y++)for(int x=0;x<224;x++)CHECK(top[y*256+x+32]==bottom[y*256+x]);
+ }
  const char*dir=argc>1?argv[1]:0;Game g;game_init(&g,123);press(&g,K_A);CHECK(g.mode==M_DRIVE&&!city.active);shot(dir,"mode-select",&g);
  press(&g,K_B);CHECK(g.mode==M_HOME);press(&g,K_A);press(&g,K_RIGHT);press(&g,K_A);CHECK(city.active&&g.mode==M_RUN&&g.vehicle==0);
  CHECK(!city_solid(city.x/Q,city.y/Q));int initial_y=city.y;ticks(&g,60,K_R);CHECK(g.mode==M_RUN&&city.y<initial_y&&g.speed_q8>0&&g.run.distance_m>0);shot(dir,"city-highway",&g);
@@ -166,6 +190,12 @@ int main(int argc,char**argv){
    city_begin(&g);city.x=scenes[scene][0]*Q;city.y=scenes[scene][1]*Q;city.camera_x=city.x;city.camera_y=city.y;city.angle=(uint16_t)scenes[scene][2];g.frame=120;
    char name[64];snprintf(name,sizeof name,"district-%d-native",scene);shot(dir,name,&g);
   }
+  /* Deliberately positioned native diagnostics, clearly labelled as such.
+   * The gameplay cartridge tour below is separately controlled by buttons. */
+  for(int angle=0;angle<256;angle+=16){
+   city_begin(&g);city.x=1280*Q;city.y=1408*Q;city.camera_x=city.x;city.camera_y=city.y;city.angle=(uint16_t)angle;g.frame=120;
+   char name[64];snprintf(name,sizeof name,"rotation-%03d-native",angle);shot(dir,name,&g);
+  }
  }
- printf("city: %u checks; world-fixed/clipped lane paint across 288 camera shifts, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
+ printf("city: %u checks; 256 heading-locked projections, rotated ground invariance at 24 cardinal views, world-fixed/clipped lane paint across 288 camera shifts, 16 district-weighted buildings, rooted wind poses, pavement-safe gardens, fixed road connectivity, free steering, bridges, solid lots/water, pause/parking, all 48 painted overhead vehicles with steered axles, six dashboards, shared rewards, v6 saves and highway isolation pass\n",checks);return 0;
 }

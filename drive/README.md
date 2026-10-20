@@ -62,8 +62,12 @@ neighborhood turns easier. There is no touch input or on-foot mode.
 The fixed city connects Ocean Boulevard, Downtown West, Glass Quay, Canal
 Gardens and Palmetto Heights. Its wider highway loop has four lanes, with
 narrower two-lane local streets and multiple bridges over the canal. Buildings
-and water block the car; grass verges slow it. The camera follows both axes
-with a small look ahead, and projecting roofs can hide a vehicle behind them.
+and water block the car; grass verges slow it. The camera rotates with your
+heading, keeping your car pointed toward the top of the screen, with a small
+look ahead. Textured 3D walls, pitched roofs, bridge rails and streetlights
+keep their shape as you turn. Vehicles use their existing detailed overhead
+paintings, including installed paint, fitted liveries and wheels. The lower
+street map stays north-up. Buildings can hide a vehicle behind their roofs.
 The lower screen has a live street map, speed, acceleration, health, turbo,
 distance, combo and pending earnings. Parking is safe in this mode and earns
 no idle rewards. Pause and choose Bank this run to return to the normal menus;
@@ -78,24 +82,24 @@ at panel boundaries without squeezing around protected parts.
 Free Roam now has a separate set of detailed overhead paintings for all 48
 vehicles, packed at 48x72 with individual 256-color material palettes. Hoods,
 roofs, cabins, pickup beds, mirrors, tires and lamps retain their own detail.
-Three front-wheel poses and filtered continuous rotation show steering without
+Three front-wheel poses and camera-relative rotation show steering without
 tipping the car off the road. The existing paint, livery, livery color, wheel
 finish and smoke choices carry over; riders' skin, protected gear and horse fur stay
 separate from customizable equipment.
 
 Lane paint is fixed to the set map and ends at the actual street boundaries.
-Junctions clear crossing stripes. The city has sixteen painted architectural
+Junctions clear crossing stripes. The city has sixteen textured architectural
 designs, including coastal homes, cafes, a florist, market, bakery, apartments,
 a hotel, marina, restaurant, greenhouse and workshop. Districts use different
-building and planting mixes. Narrow lots keep building proportions and add
-enclosed gardens instead of stretching the artwork.
+building and planting mixes. Walls and roof geometry follow the existing
+property footprints, with planting and courts in the clear spaces around them.
 
 Seamless painted grass, flower bushes, hedges, planters, cafe terraces, benches
 and garden courts fill the spaces between streets. Beds and street furniture
 stay outside road lanes, water and solid buildings. Coastal palms, marina
 boats and bank-attached piers complement the planted streets. Rooted foliage
-sways in a gentle breeze, butterflies visit flowers, gulls cross the canal and
-small glints animate courtyard water. Terrain and planting use world
+sways in a gentle breeze, gulls cross the canal and
+small glints cross the canal water. Terrain and planting use world
 coordinates, so camera movement cannot slide them across the map.
 
 All vehicles retain their owned status, performance upgrades and mastery.
@@ -106,10 +110,10 @@ this first version does not persist your parking position or collectible state.
 Your garage and banked earnings remain in the existing version 6 battery save.
 
 The city is a first playable driving map. Its traffic follows street loops, with opposing lanes and headway
-checks. There are no pedestrians or missions yet. Overhead vehicles are drawn
-from new code-based sprite designs; buildings reuse Coastline's original roof
-and wall textures. The city uses fixed-size traffic and sprite caches and does
-not stream a large world from storage.
+checks. There are no pedestrians or missions yet. Vehicles use the reviewed
+overhead paintings; buildings use sixteen new wall elevations and dimensional
+roof geometry. A fixed traffic pool and bounded VRAM texture banks keep the
+city within DS memory; it does not stream a large world from storage.
 
 Slow takes priority if Up and Down are held together. Turbo and Slow are hold
 modifiers, not switches. Menus use Up/Down and A/B. In Garage, L/R switches
@@ -350,6 +354,7 @@ python3 drive/tests/premium.py --output drive/build/city-release
 python3 drive/tests/studio.py --output drive/build/city-release
 python3 drive/tests/finishes.py --output drive/build/city-release
 python3 drive/tests/city.py --output drive/build/city-release
+python3 drive/tests/city_mesh_assets.py --output drive/build/city-release
 python3 drive/tests/opening.py --output drive/build/city-release
 python3 drive/tests/migration.py --output drive/build/city-release
 python3 drive/tests/studio_migration.py --output drive/build/city-release
