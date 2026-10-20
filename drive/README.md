@@ -2,7 +2,10 @@
 
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
-**Drive** now opens two illustrated cards: **Endless Drive** and **Free Roam**.
+**Drive** now opens three illustrated cards: **Endless Drive**, **Free Roam** and **Career**.
+Career is a UI-only campaign draft: five class chapters, 125 event concepts,
+city-map progression, story journals, rival dossiers and proposed mechanics.
+Races are not playable yet; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
 Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
 an original overhead city with roads you can turn onto, a river and bridges,
 neighborhood shortcuts, waterfront boulevards and a shared garage.
@@ -36,6 +39,27 @@ battery files are accepted as **Save 1**. Saves 2 and 3 start empty. The complet
 three-profile bank uses an **8 KiB EEPROM**, with three independently checked
 1024-byte records, each containing a 1000-byte version 6 profile. Earlier
 500-byte profiles and all three slots migrate together before the first write.
+
+## Career preview
+
+Choose Career from Drive to browse **Rising Tide**. The upper display shows 25
+connected event markers per class chapter; the lower display has Route, Story,
+Rivals, Plans and Office tabs. D/C/B propose closed street circuits; A/S move
+to permanent road courses, with a mini boss at event 12 and a boss at 25.
+
+All modes use the same garage. No campaign race, reward or sporting unlock is
+implemented. Office's map-progress preview is temporary, clearly labelled and
+never changes your saved progression. The existing XP/perks page is now labelled
+**Driver** on the main menu to distinguish it from the story campaign.
+
+L/R changes Career tabs. Up/Down selects rows; Left/Right changes chapters,
+events or the temporary preview count. A opens a reader; A or directions cycles
+its three pages. B closes it or returns to Drive. The shared garage returns
+to Career with B. Details and editable system ideas are in CAREER-DRAFT.md.
+
+**Review-build limitation:** the extended Free Roam audit reports occasional
+67 ms frames and does not pass its strict timing gate. Functional and save
+checks pass. Measurements are documented in CAREER-DRAFT.md and VALIDATION.json.
 
 ## Controls
 
@@ -364,6 +388,7 @@ python3 drive/tests/finishes.py --output drive/build/city-release
 python3 drive/tests/city.py --output drive/build/city-release
 python3 drive/tests/city_mesh_assets.py --output drive/build/city-release
 python3 drive/tests/opening.py --output drive/build/city-release
+python3 drive/tests/campaign.py --output drive/build/city-release
 python3 drive/tests/migration.py --output drive/build/city-release
 python3 drive/tests/studio_migration.py --output drive/build/city-release
 # Requires captures from pinned release fa5d188, as documented in the script:

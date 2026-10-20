@@ -199,5 +199,5 @@ result['presentation_pacing']={'samples':len(presentation),'lcd_frame_gaps':dict
  'median_ms':float(np.median(presentation)*1000/60),'p95_ms':float(np.percentile(presentation,95)*1000/60),
  'worst_ms':float(max(presentation)*1000/60),'frames_over_50ms':sum(f>3 for f in presentation),
  'method':'Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded.'}
-assert len(presentation)>200 and result['presentation_pacing']['worst_ms']<=50 and sum(f==2 for f in presentation)>=len(presentation)*.90,('Visible frame pacing',result['presentation_pacing'])
 (out/'shadow-audit-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+assert len(presentation)>200 and result['presentation_pacing']['worst_ms']<=50 and sum(f==2 for f in presentation)>=len(presentation)*.90,('Visible frame pacing',result['presentation_pacing'])

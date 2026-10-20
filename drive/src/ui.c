@@ -1,6 +1,7 @@
 #include "ui.h"
 #include "city_render.h"
 #include "assets.h"
+#include "career.h"
 
 /* Small, original frosted-glass instruments and menus for the DS's native
  * resolution. Nothing in this file handles input or modifies game state. */
@@ -195,7 +196,7 @@ static void home_icon(Surface*s,int x,int y,int i,int selected){
  }
 }
 static void home(Surface*s,const Game*g){
- static const char*const labels[6]={"Drive","Garage","Challenges","Career","Settings","Dispatch"};
+ static const char*const labels[6]={"Drive","Garage","Challenges","Driver","Settings","Dispatch"};
  gfx_text(s,12,8,"C O A S T L I N E",t->ink);char cash[24]="";money(cash,g->save.cash,sizeof cash);right(s,244,8,cash,t->accent);
  glass(s,10,37,236,40,0);gfx_text_small(s,20,42,"READY IN YOUR BAY",t->muted);limited(s,20,55,120,vehicles[g->save.selected_vehicle].name,t->ink);right_small(s,238,56,locations[g->save.selected_location].name,t->accent);
  for(int i=0;i<6;i++){int x=10+(i%2)*120,y=84+(i/2)*30,sel=g->cursor==i;glass(s,x,y,116,26,sel);home_icon(s,x+12,y+13,i,sel);gfx_text(s,x+25,y+7,labels[i],sel?t->selected_ink:t->ink);}
@@ -311,7 +312,7 @@ static void controls(Surface*s,const Game*g){
   gfx_text_small(s,16,168,"5x combo = 2x skill recharge. No idle fill.",t->muted);
  }else{
   static const char*const keys[8]={"D-pad","A","B","L / R","Left / Right","Select","Any button","Up / Down"};
-  static const char*const actions[8]={"Choose tiles / list rows","Open / confirm / install","Return / profile selector","Garage tabs / settings pages","Change car / finish / value","Dealer vehicle class","Open profiles from title","Choose a save slot"};
+  static const char*const actions[8]={"Choose tiles / list rows","Open / confirm / install","Return / profile selector","Garage / Career / settings","Car / finish / chapter / event","Dealer vehicle class","Open profiles from title","Choose a save slot"};
   for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,16,0);center_small(s,12,y+5,75,keys[i],t->accent);gfx_text_small(s,94,y+5,actions[i],t->ink);}
  }
  footer(s,"L / R: Change page","B: Back");
@@ -566,23 +567,27 @@ static void receipt(Surface*s,const Game*g){
  gfx_text(s,18,156,"CASH AWARDED",ink);char cash[24]="+";money(cash,g->run.total_cash,sizeof cash);right(s,234,156,cash,ink);
  char xp[88]="MASTERY +";number(xp,g->run.mastery_xp,sizeof xp);append(xp,"  CAREER +",sizeof xp);number(xp,g->run.career_xp,sizeof xp);if(g->run.cash_bonus){append(xp,"  PERK +",sizeof xp);money(xp,g->run.cash_bonus,sizeof xp);}center_small(s,8,167,236,xp,muted);
 }
+#include "career_ui.inc"
 static void drive_select(Surface*s,const Game*g){
  header(s,"CHOOSE YOUR DRIVE",g);
  for(int i=0;i<2;i++){
-  int x=10+i*120,sel=g->cursor==i;glass(s,x,38,116,137,sel);
-  Surface image={s->pixels,s->w,s->h};
-  gfx_rect(&image,x+5,43,106,81,i?C(67,114,94):C(38,111,145));
+  int x=10+i*120,sel=g->cursor==i;glass(s,x,38,116,72,sel);
+  gfx_rect(s,x+5,43,106,42,i?C(67,114,94):C(38,111,145));
   if(i){
-   gfx_rect(&image,x+10,70,96,15,C(60,71,79));gfx_rect(&image,x+49,44,16,79,C(60,71,79));
-   for(int k=0;k<6;k++){int bx=x+11+(k%3)*33,by=47+(k/3)*45;gfx_rect(&image,bx+2,by+3,21,19,C(30,61,54));gfx_rect(&image,bx,by,21,19,k&1?C(194,159,117):C(109,143,164));gfx_rect(&image,bx+4,by+3,12,2,C(224,220,184));}
-   gfx_rect(&image,x+51,94,11,19,t->accent);
+   gfx_rect(s,x+10,60,96,10,C(60,71,79));gfx_rect(s,x+49,44,16,40,C(60,71,79));
+   for(int k=0;k<6;k++){int bx=x+11+(k%3)*33,by=47+(k/3)*24;gfx_rect(s,bx,by,20,10,k&1?C(194,159,117):C(109,143,164));}
+   gfx_rect(s,x+52,70,7,11,t->accent);
   }else{
-   for(int y=44;y<124;y++){int spread=(y-43)*35/80;gfx_rect(&image,x+58-spread,y,spread*2+1,1,C(60,71,79));if((y/8)&1)gfx_rect(&image,x+58,y,1,1,C(237,220,166));}
-   gfx_rect(&image,x+49,104,17,16,t->accent);
+   for(int y=44;y<85;y++){int spread=(y-43)*35/41;gfx_rect(s,x+58-spread,y,spread*2+1,1,C(60,71,79));if((y/8)&1)gfx_rect(s,x+58,y,1,1,C(237,220,166));}
+   gfx_rect(s,x+51,72,13,11,t->accent);
   }
-  center_small(s,x,134,116,i?"FREE ROAM":"ENDLESS DRIVE",sel?t->selected_ink:t->ink);
-  center_small(s,x,150,116,i?"A city. Your route.":"Chase the horizon.",sel?t->selected_detail:t->muted);
+  center_small(s,x,91,116,i?"FREE ROAM":"ENDLESS DRIVE",sel?t->selected_ink:t->ink);
  }
+ int sel=g->cursor==2;glass(s,10,119,236,62,sel);gfx_rect(s,16,125,64,48,mix(t->shadow,C(38,91,89),100));
+ for(int x=20;x<79;x+=12)gfx_rect(s,x,127,1,42,t->edge);
+ for(int y=130;y<170;y+=11)gfx_rect(s,18,y,59,1,t->edge);
+ for(int i=0;i<6;i++){int x=23+i*9,y=137+(i%3)*10;if(i)career_dots(s,x-9,137+((i-1)%3)*10,x,y,t->accent);disc(s,x,y,2,i==0?GOLD:t->muted);}
+ gfx_text(s,92,128,"CAREER",sel?t->selected_ink:t->ink);gfx_text_small(s,92,145,"RISING TIDE / 125 EVENTS",sel?t->selected_detail:t->accent);gfx_text_small(s,92,160,"Story & race planning preview",sel?t->selected_ink:t->muted);
 }
 static void city_dashboard(Surface*s,const Game*g){
  int key=-1000-g->vehicle-VEHICLE_COUNT*(interface+SKIN_STORAGE_LIMIT*g->save.units);
@@ -617,6 +622,6 @@ void ui_draw_bottom(Surface*s,const Game*g){
  dashboard_target=0;
  if(g->mode==M_RECEIPT){receipt(s,g);return;}
  backdrop(s,interface);
- switch(g->mode){case M_DRIVE:drive_select(s,g);break;case M_HOME:home(s,g);break;case M_GARAGE:garage(s,g);break;case M_DEPARTURES:departures(s,g);break;case M_CHALLENGES:challenges(s,g);break;case M_CONTROLS:controls(s,g);break;case M_PAUSE:pause_menu(s,g);break;case M_CAREER:career(s,g);break;case M_SETTINGS:settings(s,g);break;case M_CONTRACTS:contracts(s,g);break;default:home(s,g);break;}
+ switch(g->mode){case M_STORY:campaign_menu(s,g);break;case M_DRIVE:drive_select(s,g);break;case M_HOME:home(s,g);break;case M_GARAGE:garage(s,g);break;case M_DEPARTURES:departures(s,g);break;case M_CHALLENGES:challenges(s,g);break;case M_CONTROLS:controls(s,g);break;case M_PAUSE:pause_menu(s,g);break;case M_CAREER:career(s,g);break;case M_SETTINGS:settings(s,g);break;case M_CONTRACTS:contracts(s,g);break;default:home(s,g);break;}
  if(g->mode!=M_GARAGE && g->notice_timer&&g->notice[0]){glass(s,10,155,236,21,1);limited(s,18,160,220,g->notice,t->selected_ink);}
 }

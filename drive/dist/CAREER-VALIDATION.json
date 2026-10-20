@@ -1,0 +1,20 @@
+{
+  "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+  "chapters": 5,
+  "events": 125,
+  "tabs": [
+    "Route",
+    "Story",
+    "Rivals",
+    "Plans",
+    "Office"
+  ],
+  "button_only": true,
+  "touch_ignored": true,
+  "read_only_emulated_ram": true,
+  "preview_does_not_modify_save": true,
+  "shared_garage_return": true,
+  "existing_endless_launch": true,
+  "preview_resets_on_boot": true,
+  "race_gameplay": false
+}

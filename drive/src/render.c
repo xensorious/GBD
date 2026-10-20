@@ -1626,7 +1626,7 @@ static void draw_menu_decoration(Surface *s,const Game *g)
 #include "city_render.inc"
 static Game bottom_key;
 static int bottom_valid;
-int render_game(const Game *g,uint16_t *top,uint16_t *bottom)
+int render_core(const Game *g,uint16_t *top,uint16_t *bottom)
 {
  unsigned total_start=profile_clock();
  init_projection();
@@ -1706,3 +1706,6 @@ int render_opening(const Game*g,const Opening*o,uint16_t*scratch,uint16_t*top,ui
  }
  return 3;
 }
+
+/* A menu renderer may borrow the bottom LCD without changing the core key. */
+void render_invalidate_bottom(void){bottom_valid=0;}

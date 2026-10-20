@@ -1,18 +1,41 @@
 {
+  "known_issues": [
+    {
+      "mode": "Free Roam",
+      "model": 3,
+      "strict_timing_audit_passed": false,
+      "measurements": {
+        "samples": 4065,
+        "lcd_frame_gaps": {
+          "1": 17,
+          "2": 3480,
+          "3": 556,
+          "4": 12
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 50.0,
+        "worst_ms": 66.66666666666667,
+        "frames_over_50ms": 12,
+        "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
+      },
+      "note": "UI prototype only: rare frame delays remain in the extended city route. Functional, save, shadow-position and UI checks pass; the strict driving timing check fails."
+    }
+  ],
+  "strict_driving_timing_passed": false,
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 2129408,
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "bytes": 2162176,
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 2097032
+        "bytes": 2129960
       },
       "arm7": {
-        "offset": 2113536,
+        "offset": 2146816,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -41,8 +64,8 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 2274090,
-      "nonzero_batches": 2845
+      "samples": 3195780,
+      "nonzero_batches": 4097
     },
     "events": [
       {
@@ -57,7 +80,7 @@
         },
         "effects_on": {
           "samples_observed": 736,
-          "rms": 1379.2961165659508
+          "rms": 1430.5304703607103
         },
         "effects_off": {
           "samples_observed": 736,
@@ -65,7 +88,7 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 349.51073955633666
+          "rms": 348.71785811056105
         }
       },
       {
@@ -74,8 +97,8 @@
         "turbo_q8": 55808,
         "slow_q8": 28160,
         "charge_before_q8": 61440,
-        "charge_after_boost_q8": 40960,
-        "charge_after_precision_q8": 41922
+        "charge_after_boost_q8": 40704,
+        "charge_after_precision_q8": 41666
       },
       {
         "check": "actual cartridge update rate",
@@ -85,59 +108,59 @@
         "start": {
           "mode": "run",
           "health": 100,
-          "position_q8": 486436,
-          "frame": 935,
-          "run_seed": 1088565758,
-          "run_ticks": 475,
-          "x_q8": -5959,
+          "position_q8": 489580,
+          "frame": 936,
+          "run_seed": 452048028,
+          "run_ticks": 477,
+          "x_q8": -5899,
           "speed_q8": 44800
         },
         "end": {
           "mode": "run",
           "health": 100,
-          "position_q8": 570436,
-          "frame": 995
+          "position_q8": 573580,
+          "frame": 996
         },
         "render_profile": [
-          13500,
-          1350,
-          14982,
-          4100,
-          8916
+          13953,
+          0,
+          14009,
+          4106,
+          9301
         ],
         "scenery_profile": [
-          990,
-          4545,
-          1430,
+          944,
+          4917,
+          1230,
           0,
-          1198,
-          162,
-          3210,
-          1259
+          1352,
+          161,
+          3531,
+          1313
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
-        "updates": 323,
-        "hardware_frames": 654,
-        "hz": 29.63076923076923,
-        "active_updates": 321,
-        "active_hardware_frames": 650,
-        "including_receipt_hz": 29.63302752293578,
+        "updates": 915,
+        "hardware_frames": 1868,
+        "hz": 29.387755102040813,
+        "active_updates": 912,
+        "active_hardware_frames": 1862,
+        "including_receipt_hz": 29.389721627408996,
         "measurement": "driving intervals only; terminal receipt rendering is reported separately",
         "requested_updates": 1200,
-        "actual_run_ticks": 323,
+        "actual_run_ticks": 912,
         "ended_early": true,
         "start": {
-          "frame": 995,
-          "run_ticks": 535,
-          "position_q8": 570436,
+          "frame": 996,
+          "run_ticks": 537,
+          "position_q8": 573580,
           "health": 100
         },
         "end": {
-          "frame": 1318,
-          "run_ticks": 858,
-          "position_q8": 998763,
+          "frame": 1911,
+          "run_ticks": 1449,
+          "position_q8": 1833855,
           "health": 0,
           "mode": "receipt"
         }
@@ -145,53 +168,53 @@
     ],
     "receipt": {
       "count": [
-        1300,
-        26,
+        2387,
+        46,
         0,
-        14,
+        32,
         0,
         0,
-        12
+        21
       ],
       "points": [
-        1300,
-        130,
+        2387,
+        230,
         0,
-        390,
+        1070,
         0,
         0,
-        120
+        210
       ],
-      "points_total": 1940,
-      "cash": 92,
-      "distance_m": 1300,
-      "max_combo_q8": 512,
-      "mastery_xp": 299,
-      "career_xp": 299,
+      "points_total": 3897,
+      "cash": 169,
+      "distance_m": 2387,
+      "max_combo_q8": 704,
+      "mastery_xp": 584,
+      "career_xp": 584,
       "cash_bonus": 0,
       "end_reason": 2
     },
     "long_drive_cadence": {
-      "updates": 323,
-      "hardware_frames": 654,
-      "hz": 29.63076923076923,
-      "active_updates": 321,
-      "active_hardware_frames": 650,
-      "including_receipt_hz": 29.63302752293578,
+      "updates": 915,
+      "hardware_frames": 1868,
+      "hz": 29.387755102040813,
+      "active_updates": 912,
+      "active_hardware_frames": 1862,
+      "including_receipt_hz": 29.389721627408996,
       "measurement": "driving intervals only; terminal receipt rendering is reported separately",
       "requested_updates": 1200,
-      "actual_run_ticks": 323,
+      "actual_run_ticks": 912,
       "ended_early": true,
       "start": {
-        "frame": 995,
-        "run_ticks": 535,
-        "position_q8": 570436,
+        "frame": 996,
+        "run_ticks": 537,
+        "position_q8": 573580,
         "health": 100
       },
       "end": {
-        "frame": 1318,
-        "run_ticks": 858,
-        "position_q8": 998763,
+        "frame": 1911,
+        "run_ticks": 1449,
+        "position_q8": 1833855,
         "health": 0,
         "mode": "receipt"
       }
@@ -231,17 +254,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -618,17 +641,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -679,37 +702,37 @@
     "actual_player_full_sun": true,
     "actual_player_full_shade": true,
     "actual_player_partial_shade": true,
-    "partial_vehicle_frames": 57,
+    "partial_vehicle_frames": 58,
     "max_partial_cars": 2,
     "max_cached_casters": 112,
     "max_receiver_queries": 176
   },
   "sunlight_comparison": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "previous_rom_sha256": "1e6eba60569504dd69ba270c60473fab60226ee6dcbee521b9d7cb5fe5bb7a1c",
     "files": {
       "city-sun-sunlit.png": "11cc48bd91c7c7e1c1af98a3a582b017481ed9e9345372da6ea54c2133202571",
-      "city-sun-partial.png": "8f8f9cb36d20c9705ee846ce5f4c0d549c740ac701eed9852f21d6748990ba8a",
+      "city-sun-partial.png": "23c0ef56871ef24a2e9331771474a8ce9bbf46bb9a07a2a7a22fa9c86de3bad8",
       "city-sun-shade.png": "1f4ac72343dbc6cc11d36e3c29aba76ea57e526dcb1ba8e4825162faca68caba",
       "sun-before-city-spawn.png": "5f6a9b3f4629f8cea3a7f5116df204d510ba32a190def46a963bcb4b854896b3",
       "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "sun-before-city-turn-east.png": "aa9250d8e1b4d24f56ad5f78051d7d2f795c9abd4ad0c3c9a171d0e420c0d67e",
-      "city-turn-east.png": "f3740c376af3ac02fc4e3a65dce1c62faa1840f004a2167fee6599bfd997e6d4",
+      "city-turn-east.png": "18354b426163e168e8bf2e02f9595221b2e6efb5bcc82f177477608da27018b6",
       "sun-before-city-route-2.png": "35a7a87ea288eaa1142796c6a1f59edd5c837f1671a5d5b250d7e49e5dd29185",
       "city-route-2.png": "79c2251749325be36faf8597fcf7d84d76f8b6d2338b5bf66dee55c953d68b52"
     },
     "method": "Actual DS emulator captures of both versions with the same funded garage fixture and button-driven city route. Full-sun, partial-shade and full-shade frames are captured from the current ROM while observing world-space receiver coverage; no emulated RAM is modified."
   },
   "shadow_qa": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
-    "date_utc": "2026-10-20T08:53:35.559383+00:00",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+    "date_utc": "2026-10-20T16:27:01.782777+00:00",
     "scope": "Actual Nintendo DS emulator execution with controller input and read-only RAM. Test garage fixtures are labelled, not earned progression. Native reference renders are separately labelled. No physical Delta/iPhone/DS testing.",
     "native_views": {
       "scenarios": 192,
       "pixel_checks": 18874368,
       "visibility_loss": false,
       "static_light_flicker": false,
-      "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Native preprocessing is byte-identical after the ARM9-only presentation adjustment."
+      "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Recompiled native checks cover the current renderer. Career cache invalidation is confined to the menu path."
     },
     "previous_rom_sha256": "d467f22bbcaaef70940a4bc58f7f5fbf121fd9c10016455d7b6213e92dc2ba9f",
     "original_extended_audit": {
@@ -920,17 +943,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 2129408,
-          "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+          "bytes": 2162176,
+          "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2097032
+              "bytes": 2129960
             },
             "arm7": {
-              "offset": 2113536,
+              "offset": 2146816,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -940,9 +963,9 @@
         "model": 3,
         "button_only": true,
         "emulated_ram_read_only": true,
-        "city_updates": 4132,
-        "hardware_frames": 8478,
-        "city_hz": 29.24274593064402,
+        "city_updates": 4117,
+        "hardware_frames": 8818,
+        "city_hz": 28.013154910410524,
         "waypoints": 17,
         "districts": [
           "Canal Gardens",
@@ -952,10 +975,10 @@
           "Palmetto Heights"
         ],
         "headings": 107,
-        "camera_chunks": 95,
+        "camera_chunks": 101,
         "max_quads": 419,
         "max_casters": 117,
-        "partial_player_frames": 265,
+        "partial_player_frames": 294,
         "pause_freezes_world": true,
         "shadow_probes": [
           {
@@ -1031,12 +1054,12 @@
           {
             "label": "shadow-stop-08",
             "world": [
-              1290.53,
-              3103.5
+              1291.25,
+              3103.71
             ],
             "heading": 193,
-            "sunlit_asphalt": 5019,
-            "shaded_asphalt": 1015,
+            "sunlit_asphalt": 4970,
+            "shaded_asphalt": 1025,
             "missing_shadow": 0,
             "unexplained_shadow": 0,
             "overlap_single_shade": 0,
@@ -1045,12 +1068,12 @@
           {
             "label": "shadow-stop-11",
             "world": [
-              896.26,
-              2442.24
+              895.67,
+              2441.92
             ],
-            "heading": 1,
-            "sunlit_asphalt": 2921,
-            "shaded_asphalt": 1413,
+            "heading": 252,
+            "sunlit_asphalt": 2776,
+            "shaded_asphalt": 1396,
             "missing_shadow": 0,
             "unexplained_shadow": 0,
             "overlap_single_shade": 0,
@@ -1059,12 +1082,12 @@
           {
             "label": "shadow-stop-15",
             "world": [
-              639.52,
-              521.93
+              639.83,
+              523.91
             ],
-            "heading": 0,
-            "sunlit_asphalt": 11830,
-            "shaded_asphalt": 283,
+            "heading": 254,
+            "sunlit_asphalt": 11728,
+            "shaded_asphalt": 338,
             "missing_shadow": 0,
             "unexplained_shadow": 0,
             "overlap_single_shade": 0,
@@ -1072,28 +1095,30 @@
           }
         ],
         "render_pacing": {
-          "samples": 4237,
+          "samples": 4222,
           "lcd_frame_gaps": {
-            "1": 1005,
-            "2": 2018,
-            "3": 1214
+            "1": 667,
+            "2": 2320,
+            "3": 1226,
+            "4": 9
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
-          "worst_ms": 50.0,
-          "frames_over_50ms": 0
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 9
         },
         "presentation_pacing": {
-          "samples": 4079,
+          "samples": 4065,
           "lcd_frame_gaps": {
-            "1": 15,
-            "2": 3846,
-            "3": 218
+            "1": 17,
+            "2": 3480,
+            "3": 556,
+            "4": 12
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
-          "worst_ms": 50.0,
-          "frames_over_50ms": 0,
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 12,
           "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
         }
       },
@@ -1101,17 +1126,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 2129408,
-          "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+          "bytes": 2162176,
+          "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2097032
+              "bytes": 2129960
             },
             "arm7": {
-              "offset": 2113536,
+              "offset": 2146816,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -1122,8 +1147,8 @@
         "button_only": true,
         "emulated_ram_read_only": true,
         "city_updates": 952,
-        "hardware_frames": 1906,
-        "city_hz": 29.968520461699896,
+        "hardware_frames": 1904,
+        "city_hz": 30.0,
         "waypoints": 4,
         "districts": [
           "Downtown West",
@@ -1131,9 +1156,9 @@
         ],
         "headings": 19,
         "camera_chunks": 23,
-        "max_quads": 378,
+        "max_quads": 379,
         "max_casters": 112,
-        "partial_player_frames": 90,
+        "partial_player_frames": 89,
         "pause_freezes_world": true,
         "shadow_probes": [
           {
@@ -1182,9 +1207,9 @@
         "render_pacing": {
           "samples": 1049,
           "lcd_frame_gaps": {
-            "1": 143,
-            "2": 766,
-            "3": 140
+            "1": 121,
+            "2": 808,
+            "3": 120
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
@@ -1194,12 +1219,13 @@
         "presentation_pacing": {
           "samples": 923,
           "lcd_frame_gaps": {
-            "1": 3,
-            "2": 920
+            "1": 4,
+            "2": 917,
+            "3": 2
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 33.333333333333336,
-          "worst_ms": 33.333333333333336,
+          "worst_ms": 50.0,
           "frames_over_50ms": 0,
           "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
         }
@@ -1208,17 +1234,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 2129408,
-          "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+          "bytes": 2162176,
+          "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2097032
+              "bytes": 2129960
             },
             "arm7": {
-              "offset": 2113536,
+              "offset": 2146816,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -1229,8 +1255,8 @@
         "button_only": true,
         "emulated_ram_read_only": true,
         "city_updates": 1222,
-        "hardware_frames": 2466,
-        "city_hz": 29.7323600973236,
+        "hardware_frames": 2452,
+        "city_hz": 29.902120717781404,
         "waypoints": 4,
         "districts": [
           "Downtown West",
@@ -1240,7 +1266,7 @@
         "camera_chunks": 25,
         "max_quads": 378,
         "max_casters": 112,
-        "partial_player_frames": 109,
+        "partial_player_frames": 108,
         "pause_freezes_world": true,
         "shadow_probes": [
           {
@@ -1287,11 +1313,11 @@
           }
         ],
         "render_pacing": {
-          "samples": 1319,
+          "samples": 1320,
           "lcd_frame_gaps": {
-            "1": 309,
-            "2": 686,
-            "3": 324
+            "1": 289,
+            "2": 735,
+            "3": 296
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
@@ -1302,8 +1328,8 @@
           "samples": 1204,
           "lcd_frame_gaps": {
             "1": 1,
-            "2": 1187,
-            "3": 16
+            "2": 1196,
+            "3": 7
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 33.333333333333336,
@@ -1314,14 +1340,40 @@
       }
     ]
   },
+  "career_preview": {
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+    "chapters": 5,
+    "events": 125,
+    "tabs": [
+      "Route",
+      "Story",
+      "Rivals",
+      "Plans",
+      "Office"
+    ],
+    "button_only": true,
+    "touch_ignored": true,
+    "read_only_emulated_ram": true,
+    "preview_does_not_modify_save": true,
+    "shared_garage_return": true,
+    "existing_endless_launch": true,
+    "preview_resets_on_boot": true,
+    "race_gameplay": false
+  },
+  "career_native": {
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+    "checks": 10019,
+    "sanitizers_passed": true,
+    "result": "campaign: 10019 checks; 125 events, 5 chapters, 6 themes, button navigation and unchanged v6 save layout pass"
+  },
   "free_roam_refinement": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "previous_rom_sha256": "3d5ed697078702c74e9a37dffb832e2f07efb676e353ba46001062404df3d6c7",
     "files": {
       "polish-before-city-spawn.png": "f4fb40a8d24996e0d5d0770be47c63155c1f584906f4ab9f716c170018e2fc91",
       "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "polish-before-city-turn-east.png": "da1f47c10f77b664d504abfe1063903e24369fdfb062254ce11a8ba51de36018",
-      "city-turn-east.png": "f3740c376af3ac02fc4e3a65dce1c62faa1840f004a2167fee6599bfd997e6d4",
+      "city-turn-east.png": "18354b426163e168e8bf2e02f9595221b2e6efb5bcc82f177477608da27018b6",
       "polish-before-city-crossing.png": "6ffba4c089630a24707181e6108c0bee870ac2ebcf35da35647541c350fe3e61",
       "city-crossing.png": "73e5c48d6ce4c04e3be3df1090c9dd13a16ac59c3b05978d172108323c0b330f"
     },
@@ -1330,7 +1382,7 @@
     "native_collision_oracle_cases": 1161216
   },
   "rotating_city_mesh": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "orthographic_facades": 16,
     "roof_materials": 16,
     "all_texture_regions_valid": true,
@@ -1340,11 +1392,11 @@
     "palette_bank_e_bytes": 25600,
     "native_rasterizer_excluded_from_rom": true,
     "retired_flat_building_bank_excluded_from_rom": true,
-    "ds_main_ram_end": "0x236ce18",
+    "ds_main_ram_end": "0x2374f18",
     "ds_itcm_end": "0x1007e20"
   },
   "city_environment": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "buildings": 16,
     "garden_objects": 16,
     "wind_poses": 8,
@@ -1353,11 +1405,11 @@
     "building_silhouettes_unclipped": true,
     "lawn_seams_match": true,
     "lawn_colors": 159,
-    "ds_main_ram_end": "0x236ce18",
+    "ds_main_ram_end": "0x2374f18",
     "ds_itcm_end": "0x1007e20"
   },
   "scenery_comparison": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "previous_rom_sha256": "f6910f40b0ca6f1376b19dcccfe54bf4b32bbfe9c4efafa0cfd62ff7a55c7b0f",
     "files": {
       "scenery-before-spawn.png": "89769c3d71bd1add8b612701d3d7a8c7e840ca7dae3477de716042f630579785",
@@ -1376,18 +1428,18 @@
     "method": "Three before/after scene pairs use actual DS emulator output with the same funded vehicle and tour points. Six additional native-renderer district views are explicitly labelled and are not emulator screenshots."
   },
   "openworld_art": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "models": 48,
     "source_hashes_match": true,
     "minimum_palette_colors": 48,
     "material_landmarks": 21,
-    "ds_main_ram_end": "0x236ce18",
+    "ds_main_ram_end": "0x2374f18",
     "ds_itcm_end": "0x1007e20",
     "native_oracles_excluded_from_rom": true,
     "reviewed_body_and_protected_landmarks_pass": true
   },
   "openworld_comparison": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "previous_rom_sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
     "files": {
       "city-before.png": "cf4a6702acb61d7ad3ce762ed2ca5cfc842e57cb8a27ddf50179ad49095f69c3",
@@ -1401,7 +1453,7 @@
     "method": "Before/after city scenes are actual DS emulator captures; vehicle sheets and finish review use the same native renderer as the cartridge."
   },
   "pixel_material_masks": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "models_reviewed": 48,
     "poses_reviewed": 240,
     "fitted_liveries": 960,
@@ -1413,7 +1465,7 @@
     "decals_only_on_painted_pixels": true
   },
   "paint_comparison": {
-    "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+    "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
     "before_ppm_sha256": "c261aa7cb0f26ec04ce70e3a420b8c46ecef9b6b9d8ff0f90d5fa910885319af",
     "after_ppm_sha256": "a3336ba55579e65ed815e1f1ae7aca43fa5c5ebf4131106e74062c04f75c4778",
     "previous_rom_sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
@@ -1432,17 +1484,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1462,13 +1514,13 @@
     "city_hardware_frames": 1390,
     "heading_locked_camera": true,
     "observed_headings": 57,
-    "max_submitted_quads": 355,
+    "max_submitted_quads": 351,
     "actual_full_circle_and_heading_wrap": true,
     "road_stability": {
       "frames": 397,
-      "interior_asphalt_pixels": 2097824,
+      "interior_asphalt_pixels": 2096902,
       "sidewalk_curb_pixels": 0,
-      "observed_material_pixels": 809346,
+      "observed_material_pixels": 809358,
       "worst_frame_pixels": 0,
       "camera_zoom": 0.875,
       "passed": true
@@ -1487,7 +1539,7 @@
       "actual_player_full_sun": true,
       "actual_player_full_shade": true,
       "actual_player_partial_shade": true,
-      "partial_vehicle_frames": 57,
+      "partial_vehicle_frames": 58,
       "max_partial_cars": 2,
       "max_cached_casters": 112,
       "max_receiver_queries": 176
@@ -1497,17 +1549,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1523,17 +1575,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1590,17 +1642,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1725,17 +1777,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1754,17 +1806,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1922,17 +1974,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 2129408,
-      "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+      "bytes": 2162176,
+      "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2097032
+          "bytes": 2129960
         },
         "arm7": {
-          "offset": 2113536,
+          "offset": 2146816,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1972,5 +2024,5 @@
   },
   "previous_v4_profile": null,
   "dealer_and_style_regressions": [],
-  "scope": "Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Both driving modes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed."
+  "scope": "Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the UI-only Career preview, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed."
 }

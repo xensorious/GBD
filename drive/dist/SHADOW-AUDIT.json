@@ -1,13 +1,13 @@
 {
-  "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
-  "date_utc": "2026-10-20T08:53:35.559383+00:00",
+  "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+  "date_utc": "2026-10-20T16:27:01.782777+00:00",
   "scope": "Actual Nintendo DS emulator execution with controller input and read-only RAM. Test garage fixtures are labelled, not earned progression. Native reference renders are separately labelled. No physical Delta/iPhone/DS testing.",
   "native_views": {
     "scenarios": 192,
     "pixel_checks": 18874368,
     "visibility_loss": false,
     "static_light_flicker": false,
-    "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Native preprocessing is byte-identical after the ARM9-only presentation adjustment."
+    "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Recompiled native checks cover the current renderer. Career cache invalidation is confined to the menu path."
   },
   "previous_rom_sha256": "d467f22bbcaaef70940a4bc58f7f5fbf121fd9c10016455d7b6213e92dc2ba9f",
   "original_extended_audit": {
@@ -218,17 +218,17 @@
       "rom": {
         "title": "COASTLINE",
         "game_code": "KCWE",
-        "bytes": 2129408,
-        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "bytes": 2162176,
+        "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
         "executables": {
           "arm9": {
             "offset": 16384,
             "entry": "0x2000800",
             "load": "0x2000000",
-            "bytes": 2097032
+            "bytes": 2129960
           },
           "arm7": {
-            "offset": 2113536,
+            "offset": 2146816,
             "entry": "0x2380000",
             "load": "0x2380000",
             "bytes": 10136
@@ -238,9 +238,9 @@
       "model": 3,
       "button_only": true,
       "emulated_ram_read_only": true,
-      "city_updates": 4132,
-      "hardware_frames": 8478,
-      "city_hz": 29.24274593064402,
+      "city_updates": 4117,
+      "hardware_frames": 8818,
+      "city_hz": 28.013154910410524,
       "waypoints": 17,
       "districts": [
         "Canal Gardens",
@@ -250,10 +250,10 @@
         "Palmetto Heights"
       ],
       "headings": 107,
-      "camera_chunks": 95,
+      "camera_chunks": 101,
       "max_quads": 419,
       "max_casters": 117,
-      "partial_player_frames": 265,
+      "partial_player_frames": 294,
       "pause_freezes_world": true,
       "shadow_probes": [
         {
@@ -329,12 +329,12 @@
         {
           "label": "shadow-stop-08",
           "world": [
-            1290.53,
-            3103.5
+            1291.25,
+            3103.71
           ],
           "heading": 193,
-          "sunlit_asphalt": 5019,
-          "shaded_asphalt": 1015,
+          "sunlit_asphalt": 4970,
+          "shaded_asphalt": 1025,
           "missing_shadow": 0,
           "unexplained_shadow": 0,
           "overlap_single_shade": 0,
@@ -343,12 +343,12 @@
         {
           "label": "shadow-stop-11",
           "world": [
-            896.26,
-            2442.24
+            895.67,
+            2441.92
           ],
-          "heading": 1,
-          "sunlit_asphalt": 2921,
-          "shaded_asphalt": 1413,
+          "heading": 252,
+          "sunlit_asphalt": 2776,
+          "shaded_asphalt": 1396,
           "missing_shadow": 0,
           "unexplained_shadow": 0,
           "overlap_single_shade": 0,
@@ -357,12 +357,12 @@
         {
           "label": "shadow-stop-15",
           "world": [
-            639.52,
-            521.93
+            639.83,
+            523.91
           ],
-          "heading": 0,
-          "sunlit_asphalt": 11830,
-          "shaded_asphalt": 283,
+          "heading": 254,
+          "sunlit_asphalt": 11728,
+          "shaded_asphalt": 338,
           "missing_shadow": 0,
           "unexplained_shadow": 0,
           "overlap_single_shade": 0,
@@ -370,28 +370,30 @@
         }
       ],
       "render_pacing": {
-        "samples": 4237,
+        "samples": 4222,
         "lcd_frame_gaps": {
-          "1": 1005,
-          "2": 2018,
-          "3": 1214
+          "1": 667,
+          "2": 2320,
+          "3": 1226,
+          "4": 9
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 50.0,
-        "worst_ms": 50.0,
-        "frames_over_50ms": 0
+        "worst_ms": 66.66666666666667,
+        "frames_over_50ms": 9
       },
       "presentation_pacing": {
-        "samples": 4079,
+        "samples": 4065,
         "lcd_frame_gaps": {
-          "1": 15,
-          "2": 3846,
-          "3": 218
+          "1": 17,
+          "2": 3480,
+          "3": 556,
+          "4": 12
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 50.0,
-        "worst_ms": 50.0,
-        "frames_over_50ms": 0,
+        "worst_ms": 66.66666666666667,
+        "frames_over_50ms": 12,
         "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
       }
     },
@@ -399,17 +401,17 @@
       "rom": {
         "title": "COASTLINE",
         "game_code": "KCWE",
-        "bytes": 2129408,
-        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "bytes": 2162176,
+        "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
         "executables": {
           "arm9": {
             "offset": 16384,
             "entry": "0x2000800",
             "load": "0x2000000",
-            "bytes": 2097032
+            "bytes": 2129960
           },
           "arm7": {
-            "offset": 2113536,
+            "offset": 2146816,
             "entry": "0x2380000",
             "load": "0x2380000",
             "bytes": 10136
@@ -420,8 +422,8 @@
       "button_only": true,
       "emulated_ram_read_only": true,
       "city_updates": 952,
-      "hardware_frames": 1906,
-      "city_hz": 29.968520461699896,
+      "hardware_frames": 1904,
+      "city_hz": 30.0,
       "waypoints": 4,
       "districts": [
         "Downtown West",
@@ -429,9 +431,9 @@
       ],
       "headings": 19,
       "camera_chunks": 23,
-      "max_quads": 378,
+      "max_quads": 379,
       "max_casters": 112,
-      "partial_player_frames": 90,
+      "partial_player_frames": 89,
       "pause_freezes_world": true,
       "shadow_probes": [
         {
@@ -480,9 +482,9 @@
       "render_pacing": {
         "samples": 1049,
         "lcd_frame_gaps": {
-          "1": 143,
-          "2": 766,
-          "3": 140
+          "1": 121,
+          "2": 808,
+          "3": 120
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 50.0,
@@ -492,12 +494,13 @@
       "presentation_pacing": {
         "samples": 923,
         "lcd_frame_gaps": {
-          "1": 3,
-          "2": 920
+          "1": 4,
+          "2": 917,
+          "3": 2
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 33.333333333333336,
-        "worst_ms": 33.333333333333336,
+        "worst_ms": 50.0,
         "frames_over_50ms": 0,
         "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
       }
@@ -506,17 +509,17 @@
       "rom": {
         "title": "COASTLINE",
         "game_code": "KCWE",
-        "bytes": 2129408,
-        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "bytes": 2162176,
+        "sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
         "executables": {
           "arm9": {
             "offset": 16384,
             "entry": "0x2000800",
             "load": "0x2000000",
-            "bytes": 2097032
+            "bytes": 2129960
           },
           "arm7": {
-            "offset": 2113536,
+            "offset": 2146816,
             "entry": "0x2380000",
             "load": "0x2380000",
             "bytes": 10136
@@ -527,8 +530,8 @@
       "button_only": true,
       "emulated_ram_read_only": true,
       "city_updates": 1222,
-      "hardware_frames": 2466,
-      "city_hz": 29.7323600973236,
+      "hardware_frames": 2452,
+      "city_hz": 29.902120717781404,
       "waypoints": 4,
       "districts": [
         "Downtown West",
@@ -538,7 +541,7 @@
       "camera_chunks": 25,
       "max_quads": 378,
       "max_casters": 112,
-      "partial_player_frames": 109,
+      "partial_player_frames": 108,
       "pause_freezes_world": true,
       "shadow_probes": [
         {
@@ -585,11 +588,11 @@
         }
       ],
       "render_pacing": {
-        "samples": 1319,
+        "samples": 1320,
         "lcd_frame_gaps": {
-          "1": 309,
-          "2": 686,
-          "3": 324
+          "1": 289,
+          "2": 735,
+          "3": 296
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 50.0,
@@ -600,8 +603,8 @@
         "samples": 1204,
         "lcd_frame_gaps": {
           "1": 1,
-          "2": 1187,
-          "3": 16
+          "2": 1196,
+          "3": 7
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 33.333333333333336,

@@ -2,6 +2,7 @@
 #include "city.h"
 #include "road.h"
 #include "traffic.h"
+#include "career.h"
 #include <stddef.h>
 #include <string.h>
 
@@ -337,6 +338,7 @@ void game_save_result(Game *g,int okay) {
  else notice(g,"Save unavailable. Keep playing; retry after a run.");
 }
 void game_init(Game *g,uint32_t seed) {
+ career_reset();
  memset(&city,0,sizeof city);
  memset(g,0,sizeof(*g)); g->save.magic=SAVE_MAGIC; g->save.version=SAVE_VERSION;
  g->save.seed=seed?seed:0x73bda521u; g->save.owned=1; g->save.unlocked_locations=1;
@@ -943,7 +945,7 @@ static void browse_owned(Game *g,int dx){
  int id=g->selection;for(int i=0;i<VEHICLE_COUNT;i++){id=(id+VEHICLE_COUNT+dx)%VEHICLE_COUNT;if(save_owns(&g->save,id)){g->selection=(uint8_t)id;break;}}refresh_vehicle(g);
 }
 static void garage_tick(Game *g,const Input *in){
- if(in->pressed&K_B){g->mode=M_HOME;g->cursor=1;return;}
+ if(in->pressed&K_B){if(campaign.garage_return){campaign.garage_return=0;g->mode=M_STORY;g->cursor=0;campaign.revision++;}else{g->mode=M_HOME;g->cursor=1;}return;}
  int tab=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
  if(tab){g->garage_tab=(uint8_t)((g->garage_tab+4+tab)%4);g->cursor=0;g->notice_timer=0;
   if(g->garage_tab==3){g->garage_filter=vehicles[g->selection].class_id;g->selection=game_dealer_vehicle(g->garage_filter,0);}
@@ -1045,15 +1047,18 @@ static void settings_tick(Game *g,const Input *in) {
  g->muted=(uint8_t)!g->save.music_on;g->save_requested=1;
 }
 #include "city.inc"
+#include "career.inc"
 void game_update(Game *g,const Input *in) {
  ++g->frame;if(g->notice_timer) --g->notice_timer;
  switch(g->mode) {
   case M_RUN:if(city.active)city_tick(g,in);else run_tick(g,in);break;
   case M_DRIVE:
    if(in->pressed&K_B){g->mode=M_HOME;g->cursor=0;break;}
-   g->cursor=(uint8_t)clampi(g->cursor+horizontal(in),0,1);
-   if(in->pressed&K_A){if(g->cursor)city_begin(g);else game_begin_run(g);}
+   if(g->cursor<2){g->cursor=(uint8_t)clampi(g->cursor+horizontal(in),0,1);campaign.drive_column=g->cursor;if(vertical(in)>0)g->cursor=2;}
+   else if(vertical(in)<0)g->cursor=campaign.drive_column;
+   if(in->pressed&K_A){if(g->cursor==2)career_enter(g);else if(g->cursor==1)city_begin(g);else game_begin_run(g);}
    break;
+  case M_STORY:campaign_tick(g,in);break;
   case M_RECEIPT:
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;
