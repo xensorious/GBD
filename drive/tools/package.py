@@ -32,6 +32,8 @@ assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed']
 story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
 assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==628 and story_assets['portrait_alpha_masks_valid']
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
+assert story_assets['backgrounds']==18 and story_assets['authored_shots']==378
+assert all(story_assets[k] for k in ('compiled_directions_match_source','subjects_in_final_frame','shot_local_companions'))
 assert story_autosave['immediate_completion_save'] and story_autosave['fresh_process_reload']
 stock=report('results.json')
 if not stock['native']:
@@ -171,6 +173,7 @@ shutil.copyfile(validation/'shadow-qa-results.json',DIST/'SHADOW-AUDIT.json')
     'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
     'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the playable Career story scenes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 shutil.copyfile(ROOT/'CAREER-DRAFT.md',DIST/'CAREER-DRAFT.md')
+shutil.copyfile(ROOT/'STORY-REVIEW.md',DIST/'STORY-REVIEW.md')
 shutil.copyfile(ROOT/'story/rising_tide.txt',DIST/'STORY-SCRIPT.txt')
 shutil.copyfile(ROOT/'art/story/cast.png',DIST/'Story-Cast.png')
 shutil.copyfile(validation/'campaign-results.json',DIST/'CAREER-VALIDATION.json')
@@ -190,7 +193,7 @@ def contact(filename,items,columns=2,screen='bottom'):
 
 contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SCREEN OPENING'),('opening-slots-filled','THREE INDEPENDENT SAVE SLOTS'),('opening-slide-middle','SLIDE INTO THE MAIN MENU'),('opening-home','EXISTING MAIN MENU'))],screen='dual')
 contact('Career.png',[
- ('story-d01-0','Sunline / first-person character staging'),('story-d01-6','Car-meet panorama / slow camera pan'),
+ ('story-d01-0','D.01 / the jack behind the first joke'),('story-d01-6','D.01 / conversation at the club meet'),
  ('story-d05-0','Crew radio / portrait and waveform'),('story-d06-4','Exhibition setback / narrated montage'),
  ('story-b15-0','The offer / a visiting Voss at Sunline'),('story-a14-0','Crew meeting / people with different priorities'),
  ('story-s25-12','The final chapter / a door left open'),('story-six-events-earned','Six scenes earned / saved map progression')],screen='dual')
@@ -198,6 +201,13 @@ contact('Story-Progress.png',[
  ('story-d01-clear','First scene completed / autosaved'),('story-d06-clear','Training block unlocked'),
  ('story-profile-1-reload','Fresh process / original profile continues'),('story-profile-2-reload','Second profile / independent story record'),
  ('story-shared-garage','Existing shared garage'),('story-return-city','Back to driving / released art scratch memory')],screen='dual')
+contact('Story-Direction.png',[
+ ('story-d04-0','D.04 / the actual lease envelope'),('story-d04-3','D.04 / what the next heat must pay'),
+ ('story-d19-0','D.19 / reference marker'),('story-d19-2','D.19 / pan to the corner exit'),
+ ('story-c07-0','C.07 / rain on the waterfront'),('story-c07-3','C.07 / shelter under the borrowed awning'),
+ ('story-b15-0','B.15 / Voss makes the offer in person'),('story-b15-1','B.15 / the lease behind the decision'),
+ ('story-a21-1','A.21 / commercial contract'),('story-a21-4','A.21 / independent sporting application'),
+ ('story-s20-0','S.20 / readable Cup terms'),('story-s25-12','S.25 / another chair by the door')],screen='dual')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
@@ -363,7 +373,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Story-Progress.png','Story-Cast.png','STORY-SCRIPT.txt','Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
+files=['Story-Direction.png','STORY-REVIEW.md','Story-Progress.png','Story-Cast.png','STORY-SCRIPT.txt','Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
     'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Free-Roam-Refinement.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',

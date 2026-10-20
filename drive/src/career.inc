@@ -5,23 +5,23 @@
 CareerUI campaign;
 const CareerChapter career_chapters[5]={
  {"Saltblock Quarter","D / THE FIRST SET OF KEYS","CLOSED STREET CIRCUITS",
-  "Nia's neighborhood garage is losing its lease. You enter local club nights to keep the lights on. The Coastline Cup offers a way out, but its promoter owns the ladder.",
+  "Sunline's lease renewal is approaching. Nia offers a garage bay and a place in Calder's club. Ordinary race nights can keep the lights on while the crew decides what to build.",
   "Jules / The Courier","Calder / Block Captain","Late braking, short routes. Learn clean exits.","Defends the inside. Patience beats contact.",C(102,230,202)},
  {"Lantern Mile","C / A NAME AFTER DARK","CLOSED STREET CIRCUITS",
   "Your crew reaches the waterfront invitationals. Marisol offers a sponsor introduction, but only if you can prove the garage is more than one lucky driver.",
   "Imani / Night Shift","Marisol / Harbor Queen","Strong launches. Keep the first sector tidy.","Smooth in the wet. Save grip for the last lap.",C(255,180,106)},
  {"Foundry Ring","B / THE PRICE OF ENTRY","CLOSED STREET CIRCUITS",
-  "Kade's exhibition win exposes a gap in your racecraft. Work the industrial clubs, study the lines, and discover why Voss keeps independent crews off the official grid.",
+  "Kade's exhibition exposes a gap in your racecraft. Study the industrial circuits while Rook helps the crew understand the costs and guarantees behind a Meridian license.",
   "Kade / The Benchmark","Rook / Iron Crown","Fast exits. A clean rematch, no tricks.","Relentless pace. Build a plan, not a miracle.",C(239,139,170)},
  {"Meridian Park","A / THROUGH THE GATES","PERMANENT ROAD COURSES",
   "A club license opens permanent circuits. Ren helps the crew learn qualifying and strategy. Aster guards the final invitation while Voss tries to buy your team name.",
   "Ren / Sector Ghost","Aster / The Gatekeeper","Precise sectors. Consistency wins respect.","Controls race pace. Think beyond one fast lap.",C(153,198,255)},
  {"Pelican Grand Prix","S / A PLACE ON THE GRID","PERMANENT ROAD COURSES",
-  "The Coastline Cup reaches its final road courses. Sable wants a fair fight. Voss wants ownership. Win on your own terms and return the garage to the people who built it.",
-  "Sable / Silver Apex","Voss / The Promoter","Complete driver. Every sector matters.","The final contract. Keep the crew independent.",C(231,210,144)}
+  "A sporting invitation opens the Cup paddock. Sable wants a fair contest; Voss offers a commercial route through the larger season costs. The crew must agree on a workable alternative.",
+  "Sable / Silver Apex","Voss / The Promoter","Complete driver. Every sector matters.","Patient exits. The same marshals for both drivers.",C(231,210,144)}
 };
 static const char*const career_names[5][25]={
- {"First Light","Block Party","Corner Store","Borrowed Time","After Hours","Wrong League","Back to Basics","A Clean Exit","Rent Money","Night Deposit","Courier's Call","Special Delivery","The Long Way","Open Shutters","Small Victories","Dockside Double","Two Good Laps","Crew Business","Lamp Post Run","Local Favorite","The Last Envelope","Home Advantage","One More Night","Before the Captain","Our Block"},
+ {"First Light","Block Party","Corner Store","Borrowed Time","After Hours","Wrong League","Back to Basics","A Clean Exit","Rent Money","Night Deposit","Courier's Call","Special Delivery","The Long Way","Open Shutters","Small Victories","Dockside Double","Two Good Laps","Crew Business","Moving Markers","Local Favorite","The Last Envelope","Home Advantage","One More Night","Before the Captain","Our Block"},
  {"Lantern Welcome","Harbor Lights","First Impression","Window Shopping","The Invitation","No Shortcuts","Rain Check","Neon Receipt","Quiet Confidence","A Better Line","Night Shift Call","Change of Shift","Sponsor's Table","Earn Your Seat","Bridge Club","Pocket Change","Clean Credentials","Coast After Dark","Closing the Gap","The Harbor List","A Place to Belong","Last Ferry","Queen's Invitation","One Calm Lap","Harbor Crown"},
  {"Industrial Action","The Benchmark","A Heavy Lesson","Work the Line","Cold Workshop","Training Nights","Brake Markers","Factory Reset","Steel and Patience","Honest Pace","Kade Calls Back","No Excuses","A Handshake","Closed Doors","The Buyout","Independent Work","The Long Shift","Proof of Pace","Crew Before Cash","Paper Trail","Iron Invitation","Hold the Line","Last Practice","No More Favors","Break the Ring"},
  {"New Credentials","First Session","Sector School","Out Lap","The Grid","A Different Rhythm","Late Apex","Clean Sectors","Practice Pays","Paddock Pass","Ren's Reference","Sector Ghost","The Offer","Crew Meeting","Decline to Sign","Strategy School","Tire Window","Long Game","Race Engineer","Private Test","Aster's List","One Clear Lap","The Gate Opens","Final Inspection","Through the Gates"},
@@ -37,7 +37,7 @@ static const char*const career_beats[5][5]={
   "The next club appearances are ordinary preparation: repeatable laps, rent money, and introductions. A sponsor conversation has to be earned before it can become a promise.",
   "Imani noticed the room you left her in the shift-change duel. Respect earned a conversation at the supplier's table, not a shortcut around the work.",
   "Reliable appearances matter to the harbor crews. Small heats and small favors keep Sunline ready for the final, without turning every evening into a crisis.",
-  "Marisol signed the Foundry recommendation. The licensing application asks who controls Sunline's identity. Nia plans to read that part carefully."},
+  "Marisol signed the Foundry recommendation. Voss's separate commercial offer asks for control of Sunline's identity. Nia plans to read it carefully."},
  {"Foundry Ring is a step beyond the harbor clubs. Kade invited a benchmark exhibition, and Rook asked Sunline to learn how her clubs work.",
   "Kade's second exhibition made the problem clear: a fast start was being wasted by an untidy next corner. Regular practice sessions make improvement repeatable.",
   "The clean rematch earned Kade's respect and a copy of the licensing rules. The next gate requires a financial guarantee, not just a fast lap.",
@@ -47,7 +47,7 @@ static const char*const career_beats[5][5]={
   "Practice and qualifying sessions are teaching repeatable sectors. Mina's paid photography work is her own; being part of Sunline doesn't make anyone its property.",
   "Ren's sector duel earned a sporting recommendation. The crew now has someone on the pit wall who can turn a driver's observations into a useful plan.",
   "The crew declined the team-name agreement after reading the budget together. Longer sessions now prepare them for Aster's final and the real costs of a Cup entry.",
-  "Aster signed the independent Cup entry. A sporting license and a commercial contract are separate documents. Sunline will arrive under its own name."},
+  "Aster signed the sporting invitation. Sunline can enter the Cup paddock under its own name, but the larger season-cost guarantee still needs approval."},
  {"Sunline has a place in the Cup paddock. Sable wants a proper contest and a more interesting weekend. Nia wants the crew to remember the ordinary work that brought them here.",
   "Longer sessions ask the crew to plan for changing conditions. The answer is preparation and rest, not a new crisis every night.",
   "Sable backed a statement asking for fair independent terms after the duel. The request concerns real guarantees and working crews, not an exemption from the costs.",

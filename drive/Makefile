@@ -46,7 +46,7 @@ build/arm9.elf: $(ARM9_OBJECTS)
 	$(NDS_CC) -mthumb -mcpu=arm946e-s $(LINK) -T $(NDS_CRT)/ds_arm9.mem -T $(NDS_CRT)/ds_arm9.ld -Wl,-Map,build/arm9.map -o $@ $^ -Wl,--start-group $(NDS_TOOLS_ROOT)/lib/libnds9.a -lc -lm -lgcc -Wl,--end-group
 build/arm7.elf: build/start7.o build/runtime7.o build/arm7.o
 	$(NDS_CC) -mthumb -mcpu=arm7tdmi $(LINK) -T $(NDS_CRT)/ds_arm7.ld -Wl,-Map,build/arm7.map -o $@ $^ -Wl,--start-group $(NDS_TOOLS_ROOT)/lib/libnds7.a -lc -lgcc -Wl,--end-group
-build/nitro/story.bin: tools/build_story_assets.py story/rising_tide.txt art/story/backgrounds.png art/story/cast.png | build
+build/nitro/story.bin: tools/build_story_assets.py tools/story_script.py story/rising_tide.txt story/staging.json $(wildcard art/story/*.png) | build
 	python3 tools/build_story_assets.py
 
 build/Coastline.nds: build/arm9.elf build/arm7.elf platform/finalize_rom.py build/nitro/story.bin

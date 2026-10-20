@@ -1,0 +1,22 @@
+{
+  "backgrounds": [
+    {"name":"GARAGE","sheet":"backgrounds.png","grid":[2,3],"tile":0,"subjects":{"DOOR":[258,"Open garage door"],"CAR":[123,"Nia's loaner"],"JACK":[425,"Workshop jack"]}},
+    {"name":"MARINA","sheet":"backgrounds.png","grid":[2,3],"tile":1,"subjects":{"HARBOR":[254,"Harbor lights"],"CARS":[125,"Waterfront grid"],"FOOD":[399,"Food van"]}},
+    {"name":"MEET","sheet":"backgrounds.png","grid":[2,3],"tile":2,"subjects":{"CREW":[165,"Club gathering"],"GRID":[373,"Club cars"]}},
+    {"name":"FOUNDRY","sheet":"backgrounds.png","grid":[2,3],"tile":3,"subjects":{"CLUB":[400,"Foundry workshop"],"CIRCUIT":[140,"Industrial waterfront"]}},
+    {"name":"PADDOCK","sheet":"backgrounds.png","grid":[2,3],"tile":4,"subjects":{"PITS":[130,"Meridian pit garages"],"LANE":[337,"Pit lane and marked apron"]}},
+    {"name":"FINALE","sheet":"backgrounds.png","grid":[2,3],"tile":5,"subjects":{"CIRCUIT":[294,"Cup circuit"],"PADDOCK":[127,"Cup paddock"]}},
+    {"name":"BENCH","sheet":"inserts.png","grid":[3,4],"tile":0,"subjects":{"KEYS":[85,"The small keys"],"JACK":[235,"The wandering jack"]}},
+    {"name":"NOTES","sheet":"inserts.png","grid":[3,4],"tile":1,"subjects":{"MAP":[142,"Notebook and course map"],"FILM":[333,"Onboard corner study"]}},
+    {"name":"PAPERS","sheet":"inserts.png","grid":[3,4],"tile":2,"subjects":{"LEASE":[166,"Lease renewal / application papers"],"BUDGET":[396,"Invoices and budget"]}},
+    {"name":"PITWALL","sheet":"inserts.png","grid":[3,4],"tile":3,"subjects":{"RADIO":[128,"Crew radio and weather"],"TIMES":[384,"Sector timing sheet"]}},
+    {"name":"OFFICE","sheet":"inserts.png","grid":[3,4],"tile":4,"subjects":{"CONTRACT":[192,"Commercial contract"],"LICENSE":[414,"Independent application"]}},
+    {"name":"START","sheet":"inserts.png","grid":[3,4],"tile":5,"subjects":{"BARRIER":[128,"Marshal's entrance"],"GRID":[384,"Club starting grid"]}},
+    {"name":"CORNER","sheet":"inserts.png","grid":[3,4],"tile":6,"subjects":{"MARKER":[128,"Corner reference marker"],"EXIT":[384,"The next corner exit"]}},
+    {"name":"AWNING","sheet":"inserts.png","grid":[3,4],"tile":7,"subjects":{"AWNING":[128,"Borrowed club awning"],"FOOD":[384,"Harbor food van"]}},
+    {"name":"MEMORIES","sheet":"inserts.png","grid":[3,4],"tile":8,"subjects":{"SIGN":[115,"Sunline's sign and family photo"],"CHAIRS":[322,"Chairs by the open door"]}},
+    {"name":"NIGHTGARAGE","sheet":"inserts.png","grid":[3,4],"tile":9,"subjects":{"CAR":[128,"Sunline after hours"],"KETTLE":[384,"The crew's kettle"]}},
+    {"name":"NIGHTFINAL","sheet":"inserts.png","grid":[3,4],"tile":10,"subjects":{"CORNER":[128,"Floodlit final corner"],"FLAG":[384,"Finish line"]}},
+    {"name":"RAIN","sheet":"inserts.png","grid":[3,4],"tile":11,"subjects":{"WATER":[128,"Rain on the waterfront"],"AWNING":[384,"Shelter under the awning"]}}
+  ]
+}

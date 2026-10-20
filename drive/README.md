@@ -53,9 +53,12 @@ montages are fiction, not simulated races or cash rewards. All modes retain
 the same cars, upgrades, finishes and economy.
 
 Scenes mix painted first-person conversations, transparent character sprites,
-wide car-meet pans, radio exchanges and letterboxed montages. Soft scene cuts,
-eased camera movement and typewriter text suit the retro presentation. The
+directed object inserts, radio exchanges and letterboxed montages. Eighteen
+paintings and 378 authored shot cues put the camera on the relevant people,
+paperwork, notebook, corner markers and other subjects. Pans settle on their
+target instead of looping sideways. Soft cuts and typewriter text suit the retro presentation. The
 ROM streams its artwork internally; it needs no external asset files.
+The complete continuity and staging review is in [STORY-REVIEW.md](STORY-REVIEW.md).
 
 A reveals and advances dialogue. B or Start pauses a scene; Up/Down selects
 Resume, Restart, or Return to map. Aborting and replaying do not grant extra
@@ -65,8 +68,9 @@ The Office records saved progress and offers Continue. The old unsaved map
 preview has been removed. The XP/perks tile on Home remains labelled Driver.
 
 Version 7 preserves the 8 KiB, three-profile save bank and migrates versions
-1–6. Each profile has its own story record. Previous ROMs cannot read new v7
-records; keep a backup when switching back to an earlier build.
+1–6. Each profile has its own story record. The previous story build also uses
+v7 and retains its progress in this update. Pre-story ROMs cannot read v7
+records; keep a backup when switching back to those builds.
 
 Existing Free Roam frame-time spikes remain a separate limitation. Current
 measurements and any explicit review-build exception are in VALIDATION.json.

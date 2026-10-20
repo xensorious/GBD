@@ -39,7 +39,7 @@ def play(d,e,label,expected,shots):
   if s.phase!=1:d.ticks(2);continue
   if s.revealed<s.current.length:d.press('a');continue
   if s.line not in captured and (s.line in shots or (s.current.stage==3 and label in ('D06','B02'))):
-   d.ticks(8);d.shot('story-'+label.lower()+'-'+str(s.line));captured.add(s.line)
+   d.ticks(40);d.shot('story-'+label.lower()+'-'+str(s.line));captured.add(s.line)
   d.press('a')
  raise AssertionError(('Story did not finish',label,view(e).phase))
 
@@ -58,7 +58,7 @@ if a.case:
  with Emulator(rom,directory) as e:
   e.run(180);d=DriveThrough(e,addr,out);enter_career(d);assert d.game().save.reserved[0]==ch*25+ev
   d.press('down');d.press('a');assert d.game().mode==13
-  play(d,e,a.case,ch*25+ev+1,{0,2,5,8,12});d.shot('story-'+a.case.lower()+'-map')
+  play(d,e,a.case,ch*25+ev+1,set(range(16)));d.shot('story-'+a.case.lower()+'-map')
  print('Later-chapter visual fixture reviewed:',a.case,flush=True);raise SystemExit(0)
 
 if not a.emulator_only:
@@ -100,7 +100,7 @@ lib=C.CDLL(str(libpath));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 from concurrent.futures import ThreadPoolExecutor
 import threading
 fixture_lock=threading.Lock()
-cases=['D12','C12','B02','B15','B25','A14','A25','S12','S25']
+cases=['D04','D12','D19','D24','C07','C12','B02','B15','B25','A14','A21','A25','S12','S20','S23','S25']
 def later(case):
  with fixture_lock:
   profile=Game();lib.game_init(C.byref(profile),123);profile.save.reserved[0]='DCBAS'.index(case[0])*25+int(case[1:])-1

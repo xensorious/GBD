@@ -57,16 +57,28 @@ Not every event creates another conspiracy or another named enemy.
 - **Face-to-face staging:** original, camera-facing character sprites over a
   painted location. The speaker comes forward; the other person recedes. The
   player is treated as a first-person viewpoint rather than a stock avatar.
-- **Wide scene pans:** the camera eases across a wider car-meet illustration.
-  A small speaker portrait sits beside the dialogue, leaving the scene visible.
+- **Directed inserts and pans:** the camera moves to an authored subject, such
+  as the garage keys, a corner exit, a lease envelope or a timing sheet, then
+  holds. A small speaker portrait leaves the subject visible. It never sweeps
+  back and forth just because someone is talking.
 - **Crew radio:** scenic views, caller portrait and a restrained animated radio
   waveform handle quick preparation conversations without another formal meeting.
 - **Story montages:** letterboxed establishing shots and narration bridge the
   fictional exhibitions, duels and chapter finals while races are still absent.
 
-There are six original backgrounds and twelve distinct transparent character
-portraits. Soft cuts separate locations; camera motion eases between speakers;
+There are eighteen original backgrounds and twelve distinct transparent character
+portraits. Soft cuts separate locations; camera motion follows named subjects;
 portraits fade and subtly breathe; text types into a textured, retro teal panel.
+The 378 shot directions specify physical cast locally, so somebody speaking on
+the radio or appearing later at another location cannot become a companion in
+the current shot. See [STORY-REVIEW.md](STORY-REVIEW.md) for the continuity pass.
+
+The editable direction format is `@ EVENT BACKGROUND METHOD SUBJECT CAST POLICY`,
+with `>` introducing subsequent shots. Subject coordinates refer to the actual
+paintings in `story/staging.json`; `MOVE` eases once to the target and `HOLD`
+frames it as a still. A dash indicates an insert without physical actors.
+For example, D.01 moves from `BENCH / JACK` to `BENCH / KEYS`, and D.19 from
+`CORNER / MARKER` to `CORNER / EXIT`. Speaker IDs never affect camera position.
 Messages fit the screen without scrolling off the edge. Dialogue uses physical
 buttons only. There are no touch targets.
 
@@ -103,8 +115,9 @@ The shared garage returns to Career with B.
 Version 7 adds one compact story frontier (0–125 completed events) to each
 1000-byte profile. The three-profile bank remains an **8 KiB EEPROM**. Versions
 1–6 import with their existing cars, money, parts, high-ID colors, histories and
-presets preserved. Earlier builds cannot read version 7 records; keep a backup
-when switching back to an older ROM.
+presets preserved. The preceding story release already uses version 7, so its
+story record carries over unchanged. Pre-story builds cannot read version 7
+records; keep a backup when switching back to one of those ROMs.
 
 The art and dialogue reside in an immutable NitroFS cartridge archive. Artwork
 streams only when a shot or character needs it. The renderer leases the existing

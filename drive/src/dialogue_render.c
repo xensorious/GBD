@@ -8,7 +8,7 @@
 static uint8_t *back[2],*people[2];
 static uint16_t *back_palette[2],*people_palette[2];
 static int leased,back_id[2]={-1,-1},people_id[2]={-1,-1},background_slot;
-static int camera_q8,last_background=-1;
+static int camera_q8,last_background=-1,camera_line=-1;
 volatile uint32_t story_visual_stats[5]; /* archive failures, bg loads, portraits, camera, stage */
 static int limit(int n,int lo,int hi){return n<lo?lo:n>hi?hi:n;}
 static uint16_t mix_color(uint16_t a,uint16_t b,int alpha){
@@ -17,7 +17,7 @@ static uint16_t mix_color(uint16_t a,uint16_t b,int alpha){
 }
 void story_render_release(void){
  if(leased)gfx_story_release();
- leased=0;last_background=-1;back_id[0]=back_id[1]=people_id[0]=people_id[1]=-1;
+ leased=0;last_background=-1;camera_line=-1;back_id[0]=back_id[1]=people_id[0]=people_id[1]=-1;
 }
 static int lease(void){
  if(leased)return 1;
@@ -36,7 +36,7 @@ static int person(int id,int protect){
  if(id<0||id>=12)return -1;
  for(int i=0;i<2;i++)if(people_id[i]==id)return i;
  int slot=people_id[0]==protect?1:0,w,h;
- if(!story_asset(6+id,people[slot],people_palette[slot],128*128,&w,&h)||w!=128||h!=128){story_visual_stats[0]++;return -1;}
+ if(!story_asset(STORY_BACKGROUNDS+id,people[slot],people_palette[slot],128*128,&w,&h)||w!=128||h!=128){story_visual_stats[0]++;return -1;}
  people_id[slot]=id;story_visual_stats[2]++;return slot;
 }
 static void actor(Surface*s,int slot,int x,int y,int width,int height,int opacity,int light){
@@ -69,6 +69,19 @@ int story_text_lines(const char*text,int width){
   if(*p=='\n'){rows++;line=0;p++;}else if(*p==' '){line+=gfx_text_width(" ");p++;}
  }return rows;
 }
+/* Subject captions identify an insert, rather than labelling unrelated scenery.
+ * Source coordinates and the shot-by-shot cast are authored in staging.json. */
+static const char*subject_name(int bg,int right){
+ static const char*const inserts[12][2]={
+  {"The small keys","The wandering jack"},{"Notebook / course map","Onboard corner study"},
+  {"Lease / application papers","Invoices and budget"},{"Crew radio / weather","Sector timing sheet"},
+  {"Commercial agreement","Independent application"},{"Marshal's entrance","Club starting grid"},
+  {"Corner reference marker","The next corner exit"},{"Borrowed club awning","Harbor food van"},
+  {"Sunline / family photograph","Chairs by the open door"},{"Sunline after hours","The crew's kettle"},
+  {"Floodlit final corner","Finish line"},{"Rain on the waterfront","Shelter under the awning"}
+ };
+ return bg>=6&&bg<STORY_BACKGROUNDS?inserts[bg-6][right]:NULL;
+}
 void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  Surface image={top,256,192},dialog={bottom,256,192};
  const StoryLine*line=&story.current;
@@ -84,11 +97,15 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  else if(okay&&line->speaker<12)lead=person(line->speaker,255);
  if(okay){
   background_slot=bg;
-  if(last_background!=line->background){camera_q8=line->focus*256;last_background=line->background;}
-  if(!story.pause){int difference=(int)line->focus*256-camera_q8;camera_q8+=difference/10;if(difference<10&&difference>-10)camera_q8=line->focus*256;}
-  int drift=line->stage==ST_PAN?(int)(story.age%360)/12:0;if(drift>15)drift=30-drift;
+  int target=(int)(line->focus&STORY_FOCUS_X)*256;
+  if(last_background!=line->background){camera_q8=target;last_background=line->background;camera_line=-1;}
+  int camera_shot=(int)story.line*2+(line==&story.previous);
+  if(camera_line!=camera_shot){if(!(line->focus&STORY_FOCUS_MOVE))camera_q8=target;camera_line=camera_shot;}
+  /* A one-way move to the named subject, then a hold. No idle oscillation and
+   * no speaker-derived offsets that can move the subject out of frame. */
+  if(!story.pause){int difference=target-camera_q8;camera_q8+=difference/10;if(difference<10&&difference>-10)camera_q8=target;}
   int view_width=line->stage==ST_MONTAGE?276:256,view_height=view_width*3/4;
-  int cx=limit(camera_q8/256+drift-5,0,512-view_width),cy=(216-view_height)/2;
+  int cx=limit(camera_q8/256,0,512-view_width),cy=(216-view_height)/2;
   uint16_t palette[256];for(int i=0;i<256;i++)palette[i]=mix_color(back_palette[bg][i],C(0,0,0),brightness);
   int cols[256];for(int x=0;x<256;x++)cols[x]=cx+x*view_width/256;
   for(int y=0;y<192;y++){const uint8_t*p=back[bg]+(cy+y*view_height/192)*512;uint16_t*d=top+y*256;for(int x=0;x<256;x++)d[x]=palette[p[cols[x]]];}
@@ -108,6 +125,9 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  overlay(&image,5,5,246,16,C(3,10,20),150);gfx_text_small(&image,11,9,title,C(231,238,225));
  if(line->stage==ST_MONTAGE)gfx_text_small(&image,82,181,"STORY MONTAGE",C(232,210,161));
  if(line->stage==ST_RADIO)gfx_text_small(&image,11,181,"SUNLINE / CREW RADIO",C(154,214,209));
+ const char*subject=subject_name(line->background,(line->focus&STORY_FOCUS_SUBJECT)!=0);
+ if(subject&&line->stage!=ST_FACE){int y=(line->stage==ST_MONTAGE||line->stage==ST_RADIO)?161:176;
+  overlay(&image,5,y-3,limit(gfx_text_width(subject)+10,0,246),13,C(3,10,20),150);gfx_text_small(&image,10,y,subject,C(220,220,195));}
  gfx_rect(&dialog,0,0,256,192,C(5,14,26));
  for(int y=0;y<192;y+=4)gfx_rect(&dialog,0,y,256,1,C(8,20,31));
  panel(&dialog,5,12,246,148);

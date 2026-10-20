@@ -1,5 +1,5 @@
 {
-  "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+  "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
   "chapters": 5,
   "events": 125,
   "dialogue_lines": 628,
@@ -17,38 +17,38 @@
     {
       "scene": "D01",
       "dialogue_lines": 8,
-      "updates": 120,
-      "lcd_frames": 796
+      "updates": 201,
+      "lcd_frames": 1292
     },
     {
       "scene": "D02",
       "dialogue_lines": 5,
-      "updates": 71,
-      "lcd_frames": 446
+      "updates": 86,
+      "lcd_frames": 592
     },
     {
       "scene": "D03",
       "dialogue_lines": 6,
-      "updates": 74,
-      "lcd_frames": 562
+      "updates": 90,
+      "lcd_frames": 618
     },
     {
       "scene": "D04",
       "dialogue_lines": 6,
-      "updates": 74,
-      "lcd_frames": 508
+      "updates": 123,
+      "lcd_frames": 758
     },
     {
       "scene": "D05",
       "dialogue_lines": 6,
-      "updates": 84,
-      "lcd_frames": 538
+      "updates": 132,
+      "lcd_frames": 828
     },
     {
       "scene": "D06",
       "dialogue_lines": 10,
-      "updates": 180,
-      "lcd_frames": 1150
+      "updates": 325,
+      "lcd_frames": 2166
     }
   ],
   "saved_progress": 6,
@@ -69,14 +69,21 @@
     "montage"
   ],
   "later_visual_fixtures": [
+    "D04",
     "D12",
+    "D19",
+    "D24",
+    "C07",
     "C12",
     "B02",
     "B15",
     "B25",
     "A14",
+    "A21",
     "A25",
     "S12",
+    "S20",
+    "S23",
     "S25"
   ],
   "fixture_note": "Later chapter batteries are explicitly manufactured visual-review fixtures, not evidence of emulator-earned progression. Native tests complete all 125 scenes through actual game logic. First six events are earned through joypad input on the ROM.",

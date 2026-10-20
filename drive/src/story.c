@@ -11,7 +11,8 @@ static int read_line(int n,StoryLine*out){
  uint8_t h[8];if(n<0||n>=story.count||!story_read(story.offsets[n],h,sizeof h))return 0;
  memset(out,0,sizeof *out);out->speaker=h[0];out->companion=h[1];out->stage=h[2];out->background=h[3];
  out->focus=(uint16_t)(h[4]|h[5]<<8);out->length=(uint16_t)(h[6]|h[7]<<8);
- if(out->speaker>=14||(out->companion>=12&&out->companion!=255)||out->stage>3||out->background>=6||out->focus>256||out->length>=STORY_TEXT_MAX)return 0;
+ if(out->speaker>=14||(out->companion>=12&&out->companion!=255)||out->stage>3||out->background>=STORY_BACKGROUNDS||
+    (out->focus&STORY_FOCUS_X)>256||(out->focus&~(STORY_FOCUS_MOVE|STORY_FOCUS_SUBJECT|STORY_FOCUS_X))||out->length>=STORY_TEXT_MAX)return 0;
  return story_read(story.offsets[n]+8,out->text,out->length);
 }
 int story_open(Game*g,int ch,int ev){
@@ -32,7 +33,9 @@ static void return_map(Game*g,int next){
 static void advance_line(void){
  StoryLine next;if(!read_line(story.line+1,&next)){story.failed=1;story.pause=1;story.cursor=2;return;}
  story.previous=story.current;story.current=next;story.line++;story.revealed=0;story.age=0;
- if(story.current.background!=story.previous.background||story.current.stage!=story.previous.stage){story.phase=ST_SHOT;story.phase_tick=0;}
+ int jump=(int)(story.current.focus&STORY_FOCUS_X)-(int)(story.previous.focus&STORY_FOCUS_X);
+ if(story.current.background!=story.previous.background||story.current.stage!=story.previous.stage||
+    (!(story.current.focus&STORY_FOCUS_MOVE)&&(jump>64||jump< -64))){story.phase=ST_SHOT;story.phase_tick=0;}
  story.revision++;
 }
 void story_tick(Game*g,const Input*in){

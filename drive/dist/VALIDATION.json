@@ -7,15 +7,35 @@
       "measurements": {
         "samples": 4071,
         "lcd_frame_gaps": {
-          "1": 19,
-          "2": 3478,
-          "3": 563,
-          "4": 11
+          "1": 22,
+          "2": 3697,
+          "3": 345,
+          "4": 7
         },
         "median_ms": 33.333333333333336,
         "p95_ms": 50.0,
         "worst_ms": 66.66666666666667,
-        "frames_over_50ms": 11,
+        "frames_over_50ms": 7,
+        "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
+      },
+      "note": "Story review build: rare frame delays remain in the extended city route. Functional, save, shadow-position and UI checks pass; the strict driving timing check fails."
+    },
+    {
+      "mode": "Free Roam",
+      "model": 0,
+      "strict_timing_audit_passed": false,
+      "measurements": {
+        "samples": 1204,
+        "lcd_frame_gaps": {
+          "1": 1,
+          "2": 1183,
+          "3": 19,
+          "4": 1
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 33.333333333333336,
+        "worst_ms": 66.66666666666667,
+        "frames_over_50ms": 1,
         "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
       },
       "note": "Story review build: rare frame delays remain in the extended city route. Functional, save, shadow-position and UI checks pass; the strict driving timing check fails."
@@ -25,17 +45,17 @@
   "cartridge": {
     "title": "COASTLINE",
     "game_code": "KCWE",
-    "bytes": 3092992,
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "bytes": 4428288,
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "executables": {
       "arm9": {
         "offset": 16384,
         "entry": "0x2000800",
         "load": "0x2000000",
-        "bytes": 2143992
+        "bytes": 2145184
       },
       "arm7": {
-        "offset": 2160640,
+        "offset": 2161664,
         "entry": "0x2380000",
         "load": "0x2380000",
         "bytes": 10136
@@ -64,15 +84,15 @@
       "fps": 60.0
     },
     "audio": {
-      "samples": 3192840,
-      "nonzero_batches": 4094
+      "samples": 3191370,
+      "nonzero_batches": 4092
     },
     "events": [
       {
         "check": "independent audio settings",
         "music": {
           "samples_observed": 5520,
-          "rms": 363.7113137453615
+          "rms": 364.54693491184804
         },
         "muted_music": {
           "samples_observed": 5520,
@@ -88,7 +108,7 @@
         },
         "restored_music": {
           "samples_observed": 5520,
-          "rms": 351.0750810012012
+          "rms": 348.52864748244446
         }
       },
       {
@@ -122,31 +142,31 @@
           "frame": 996
         },
         "render_profile": [
-          13919,
-          1,
-          13974,
-          4106,
-          9265
+          13913,
+          0,
+          13968,
+          4108,
+          9262
         ],
         "scenery_profile": [
-          942,
-          4916,
-          1221,
+          944,
+          4911,
+          1203,
           0,
-          1340,
-          151,
-          3532,
-          1311
+          1341,
+          160,
+          3528,
+          1314
         ]
       },
       {
         "check": "actual cadence across existing stock drive",
         "updates": 915,
-        "hardware_frames": 1866,
-        "hz": 29.419354838709676,
+        "hardware_frames": 1864,
+        "hz": 29.45102260495156,
         "active_updates": 912,
-        "active_hardware_frames": 1860,
-        "including_receipt_hz": 29.421221864951768,
+        "active_hardware_frames": 1858,
+        "including_receipt_hz": 29.452789699570815,
         "measurement": "driving intervals only; terminal receipt rendering is reported separately",
         "requested_updates": 1200,
         "actual_run_ticks": 912,
@@ -196,11 +216,11 @@
     },
     "long_drive_cadence": {
       "updates": 915,
-      "hardware_frames": 1866,
-      "hz": 29.419354838709676,
+      "hardware_frames": 1864,
+      "hz": 29.45102260495156,
       "active_updates": 912,
-      "active_hardware_frames": 1860,
-      "including_receipt_hz": 29.421221864951768,
+      "active_hardware_frames": 1858,
+      "including_receipt_hz": 29.452789699570815,
       "measurement": "driving intervals only; terminal receipt rendering is reported separately",
       "requested_updates": 1200,
       "actual_run_ticks": 912,
@@ -254,17 +274,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -641,17 +661,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -708,14 +728,14 @@
     "max_receiver_queries": 175
   },
   "sunlight_comparison": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "previous_rom_sha256": "1e6eba60569504dd69ba270c60473fab60226ee6dcbee521b9d7cb5fe5bb7a1c",
     "files": {
       "city-sun-sunlit.png": "5c2ccb3b64e09e8258cacee4afab830c9154b859762f01afaa5ea17f6f6bcabf",
       "city-sun-partial.png": "23c0ef56871ef24a2e9331771474a8ce9bbf46bb9a07a2a7a22fa9c86de3bad8",
       "city-sun-shade.png": "a4feb83f231fa18d7181fab5924f81c489ffc8ae91426fefe509989f7fa29405",
       "sun-before-city-spawn.png": "5f6a9b3f4629f8cea3a7f5116df204d510ba32a190def46a963bcb4b854896b3",
-      "city-spawn.png": "e694e831246c6c5ee2437e0f2c5b50f5656d8ba42601d2135c00e9cabf870d1d",
+      "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "sun-before-city-turn-east.png": "aa9250d8e1b4d24f56ad5f78051d7d2f795c9abd4ad0c3c9a171d0e420c0d67e",
       "city-turn-east.png": "18354b426163e168e8bf2e02f9595221b2e6efb5bcc82f177477608da27018b6",
       "sun-before-city-route-2.png": "35a7a87ea288eaa1142796c6a1f59edd5c837f1671a5d5b250d7e49e5dd29185",
@@ -724,8 +744,8 @@
     "method": "Actual DS emulator captures of both versions with the same funded garage fixture and button-driven city route. Full-sun, partial-shade and full-shade frames are captured from the current ROM while observing world-space receiver coverage; no emulated RAM is modified."
   },
   "shadow_qa": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
-    "date_utc": "2026-10-20T18:39:48.518387+00:00",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
+    "date_utc": "2026-10-20T19:14:53.181113+00:00",
     "scope": "Actual Nintendo DS emulator execution with controller input and read-only RAM. Test garage fixtures are labelled, not earned progression. Native reference renders are separately labelled. No physical Delta/iPhone/DS testing.",
     "native_views": {
       "scenarios": 192,
@@ -734,7 +754,7 @@
       "static_light_flicker": false,
       "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Recompiled native checks cover the current renderer. Career cache invalidation is confined to the menu path."
     },
-    "previous_story_build_sha256": "d0364d50fb1bf685d187dc95ed9056da912943d529b7f3489c17657cc6d9f1f6",
+    "previous_story_build_sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
     "previous_rom_sha256": "d467f22bbcaaef70940a4bc58f7f5fbf121fd9c10016455d7b6213e92dc2ba9f",
     "original_extended_audit": {
       "rom": {
@@ -944,17 +964,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 3092992,
-          "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+          "bytes": 4428288,
+          "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2143992
+              "bytes": 2145184
             },
             "arm7": {
-              "offset": 2160640,
+              "offset": 2161664,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -965,8 +985,8 @@
         "button_only": true,
         "emulated_ram_read_only": true,
         "city_updates": 4119,
-        "hardware_frames": 8820,
-        "city_hz": 28.020408163265305,
+        "hardware_frames": 8586,
+        "city_hz": 28.78406708595388,
         "waypoints": 17,
         "districts": [
           "Canal Gardens",
@@ -979,7 +999,7 @@
         "camera_chunks": 100,
         "max_quads": 419,
         "max_casters": 117,
-        "partial_player_frames": 292,
+        "partial_player_frames": 295,
         "pause_freezes_world": true,
         "shadow_probes": [
           {
@@ -1096,30 +1116,30 @@
           }
         ],
         "render_pacing": {
-          "samples": 4223,
+          "samples": 4225,
           "lcd_frame_gaps": {
-            "1": 674,
-            "2": 2304,
-            "3": 1237,
-            "4": 8
-          },
-          "median_ms": 33.333333333333336,
-          "p95_ms": 50.0,
-          "worst_ms": 66.66666666666667,
-          "frames_over_50ms": 8
-        },
-        "presentation_pacing": {
-          "samples": 4071,
-          "lcd_frame_gaps": {
-            "1": 19,
-            "2": 3478,
-            "3": 563,
+            "1": 896,
+            "2": 2098,
+            "3": 1220,
             "4": 11
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
           "worst_ms": 66.66666666666667,
-          "frames_over_50ms": 11,
+          "frames_over_50ms": 11
+        },
+        "presentation_pacing": {
+          "samples": 4071,
+          "lcd_frame_gaps": {
+            "1": 22,
+            "2": 3697,
+            "3": 345,
+            "4": 7
+          },
+          "median_ms": 33.333333333333336,
+          "p95_ms": 50.0,
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 7,
           "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
         }
       },
@@ -1127,17 +1147,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 3092992,
-          "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+          "bytes": 4428288,
+          "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2143992
+              "bytes": 2145184
             },
             "arm7": {
-              "offset": 2160640,
+              "offset": 2161664,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -1148,8 +1168,8 @@
         "button_only": true,
         "emulated_ram_read_only": true,
         "city_updates": 952,
-        "hardware_frames": 1906,
-        "city_hz": 29.968520461699896,
+        "hardware_frames": 1904,
+        "city_hz": 30.0,
         "waypoints": 4,
         "districts": [
           "Downtown West",
@@ -1159,7 +1179,7 @@
         "camera_chunks": 23,
         "max_quads": 379,
         "max_casters": 112,
-        "partial_player_frames": 92,
+        "partial_player_frames": 89,
         "pause_freezes_world": true,
         "shadow_probes": [
           {
@@ -1208,20 +1228,21 @@
         "render_pacing": {
           "samples": 1049,
           "lcd_frame_gaps": {
-            "1": 153,
-            "2": 744,
-            "3": 152
+            "1": 146,
+            "2": 759,
+            "3": 143,
+            "4": 1
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
-          "worst_ms": 50.0,
-          "frames_over_50ms": 0
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 1
         },
         "presentation_pacing": {
           "samples": 923,
           "lcd_frame_gaps": {
-            "1": 4,
-            "2": 918,
+            "1": 3,
+            "2": 919,
             "3": 1
           },
           "median_ms": 33.333333333333336,
@@ -1235,17 +1256,17 @@
         "rom": {
           "title": "COASTLINE",
           "game_code": "KCWE",
-          "bytes": 3092992,
-          "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+          "bytes": 4428288,
+          "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
           "executables": {
             "arm9": {
               "offset": 16384,
               "entry": "0x2000800",
               "load": "0x2000000",
-              "bytes": 2143992
+              "bytes": 2145184
             },
             "arm7": {
-              "offset": 2160640,
+              "offset": 2161664,
               "entry": "0x2380000",
               "load": "0x2380000",
               "bytes": 10136
@@ -1314,35 +1335,37 @@
           }
         ],
         "render_pacing": {
-          "samples": 1319,
+          "samples": 1320,
           "lcd_frame_gaps": {
-            "1": 306,
-            "2": 685,
-            "3": 328
+            "1": 307,
+            "2": 686,
+            "3": 326,
+            "4": 1
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 50.0,
-          "worst_ms": 50.0,
-          "frames_over_50ms": 0
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 1
         },
         "presentation_pacing": {
           "samples": 1204,
           "lcd_frame_gaps": {
             "1": 1,
-            "2": 1182,
-            "3": 21
+            "2": 1183,
+            "3": 19,
+            "4": 1
           },
           "median_ms": 33.333333333333336,
           "p95_ms": 33.333333333333336,
-          "worst_ms": 50.0,
-          "frames_over_50ms": 0,
+          "worst_ms": 66.66666666666667,
+          "frames_over_50ms": 1,
           "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
         }
       }
     ]
   },
   "career_preview": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "chapters": 5,
     "events": 125,
     "dialogue_lines": 628,
@@ -1360,38 +1383,38 @@
       {
         "scene": "D01",
         "dialogue_lines": 8,
-        "updates": 120,
-        "lcd_frames": 796
+        "updates": 201,
+        "lcd_frames": 1292
       },
       {
         "scene": "D02",
         "dialogue_lines": 5,
-        "updates": 71,
-        "lcd_frames": 446
+        "updates": 86,
+        "lcd_frames": 592
       },
       {
         "scene": "D03",
         "dialogue_lines": 6,
-        "updates": 74,
-        "lcd_frames": 562
+        "updates": 90,
+        "lcd_frames": 618
       },
       {
         "scene": "D04",
         "dialogue_lines": 6,
-        "updates": 74,
-        "lcd_frames": 508
+        "updates": 123,
+        "lcd_frames": 758
       },
       {
         "scene": "D05",
         "dialogue_lines": 6,
-        "updates": 84,
-        "lcd_frames": 538
+        "updates": 132,
+        "lcd_frames": 828
       },
       {
         "scene": "D06",
         "dialogue_lines": 10,
-        "updates": 180,
-        "lcd_frames": 1150
+        "updates": 325,
+        "lcd_frames": 2166
       }
     ],
     "saved_progress": 6,
@@ -1412,14 +1435,21 @@
       "montage"
     ],
     "later_visual_fixtures": [
+      "D04",
       "D12",
+      "D19",
+      "D24",
+      "C07",
       "C12",
       "B02",
       "B15",
       "B25",
       "A14",
+      "A21",
       "A25",
       "S12",
+      "S20",
+      "S23",
       "S25"
     ],
     "fixture_note": "Later chapter batteries are explicitly manufactured visual-review fixtures, not evidence of emulator-earned progression. Native tests complete all 125 scenes through actual game logic. First six events are earned through joypad input on the ROM.",
@@ -1430,28 +1460,28 @@
     "disk_checksum_valid": true
   },
   "career_native": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
-    "checks": 12303,
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
+    "checks": 16535,
     "sanitizers_passed": true,
     "all_scenes": 125,
     "dialogue_lines": 628,
-    "result": "story: 12303 checks; all 125 scenes / 628 lines, four staging methods, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
+    "result": "story: 16535 checks; all 125 scenes / 628 lines, four staging methods, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
   },
   "story_assets": {
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1459,9 +1489,14 @@
       }
     },
     "archive_matches_nitrofs": true,
-    "archive_bytes": 916480,
+    "archive_bytes": 2250240,
     "scenes": 125,
     "lines": 628,
+    "backgrounds": 18,
+    "authored_shots": 378,
+    "compiled_directions_match_source": true,
+    "subjects_in_final_frame": true,
+    "shot_local_companions": true,
     "longest_line": 129,
     "methods": [
       0,
@@ -1471,8 +1506,8 @@
     ],
     "all_12_character_sprites": true,
     "portrait_alpha_masks_valid": true,
-    "resident_end": "0x2378a38",
-    "resident_headroom_bytes": 30152,
+    "resident_end": "0x2378ed8",
+    "resident_headroom_bytes": 28968,
     "itcm_headroom_bytes": 480,
     "shared_scratch_bytes": 256000,
     "art": [
@@ -1520,83 +1555,167 @@
       },
       {
         "id": 6,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "936415f5d5144010feb6d54cda0f229551bc5face4afcaff96683a80226569a6"
+      },
+      {
+        "id": 7,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "06542c5fd0faba51804df8af402b995ecd44692b01ff1f0fa70ad271fa00aad3"
+      },
+      {
+        "id": 8,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "2369cfe613f103ecf9b889446141157d61cce8ef4f247ac9aa200e30e016fb88"
+      },
+      {
+        "id": 9,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "bf2641107c458a1f66e9ff3d7b07d5a3686cdba5e027f11938729c1ca3b380af"
+      },
+      {
+        "id": 10,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "a18922f0e8cd3eeb68afd33f02c46115231f2796e81a52080904a4a2dc27dbcc"
+      },
+      {
+        "id": 11,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "824a2896a235d186f26fa46e9b411bc659db2ac5f368cd1e33953ebd851af93a"
+      },
+      {
+        "id": 12,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "57be065ffd7c9bb017e09c35487cb9882cd6133da9d4f664d31598cbe2021f3b"
+      },
+      {
+        "id": 13,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "b3f4a72cd1304710b42f945bd398c3db1ef313bf998df0dd08325d5ea4d95d77"
+      },
+      {
+        "id": 14,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "d75921ef562899fe177093802582a9506d3d7495db8f835e9ff7ac141f863060"
+      },
+      {
+        "id": 15,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "d5a8efce359cf1d1a5ac245c52365fd246a2427d63bba22cb4ade442cad39748"
+      },
+      {
+        "id": 16,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "01745e094c5583cf69e71d223ac37934b5e917c90716d731edd90bf6247ddbeb"
+      },
+      {
+        "id": 17,
+        "width": 512,
+        "height": 216,
+        "transparent": false,
+        "sha256": "16f9fd25ddab01ee4d1ac8c3f398b0d378b0c91e91d81208da0aed61d7c6f313"
+      },
+      {
+        "id": 18,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "f0a1a781ce755c762981cbbbe77dccef8a16deb5b625f42a66a12596e197f893"
       },
       {
-        "id": 7,
+        "id": 19,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "5bb37f317e244fc0e036686ba63d210a8ff0f806b062469f99f00c7ca3d1bbaf"
       },
       {
-        "id": 8,
+        "id": 20,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "91126c307ee1d9e11b82d7c6fc7978bf24d73ab879c6dbc7dce70807e1777a7b"
       },
       {
-        "id": 9,
+        "id": 21,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "711e023962e8c0b3ce8fc462bf9c7c9d58de261689ae798092ffb721dab7d2f7"
       },
       {
-        "id": 10,
+        "id": 22,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "e0290edf1e80207ffabefadf101a545cf5a433521c7838d7ea3e049254f43384"
       },
       {
-        "id": 11,
+        "id": 23,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "3270396c268d95491f6f9cc87824997c947246c59f962e32ab33e2056cc26910"
       },
       {
-        "id": 12,
+        "id": 24,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "c657758b5f13d7a3aaf03762f2d3192152d0d280079e087df8bf8143cb519427"
       },
       {
-        "id": 13,
+        "id": 25,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "53a21d9951d222d16b7f334eee505d6d11e5f3e42860f0fbf49a3381ed19494e"
       },
       {
-        "id": 14,
+        "id": 26,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "8832fcb7db5f7707f74bd204d59f6acb0ff9c7a4713c7d6e027b4e25495de569"
       },
       {
-        "id": 15,
+        "id": 27,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "2c0198299d96181cea42fd0af1d3895ea9e9c39d1e2fb9d7d3a2802ecefb8e0c"
       },
       {
-        "id": 16,
+        "id": 28,
         "width": 128,
         "height": 128,
         "transparent": true,
         "sha256": "91e71f63bddf59f8e4432bc2a724fb8eaf28aaf7117d9590e0567c8bb773e3fe"
       },
       {
-        "id": 17,
+        "id": 29,
         "width": 128,
         "height": 128,
         "transparent": true,
@@ -1605,7 +1724,7 @@
     ]
   },
   "story_autosave": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "immediate_completion_save": true,
     "fresh_process_reload": true,
     "events": 1,
@@ -1614,11 +1733,11 @@
     "emulated_ram_read_only": true
   },
   "free_roam_refinement": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "previous_rom_sha256": "3d5ed697078702c74e9a37dffb832e2f07efb676e353ba46001062404df3d6c7",
     "files": {
       "polish-before-city-spawn.png": "f4fb40a8d24996e0d5d0770be47c63155c1f584906f4ab9f716c170018e2fc91",
-      "city-spawn.png": "e694e831246c6c5ee2437e0f2c5b50f5656d8ba42601d2135c00e9cabf870d1d",
+      "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "polish-before-city-turn-east.png": "da1f47c10f77b664d504abfe1063903e24369fdfb062254ce11a8ba51de36018",
       "city-turn-east.png": "18354b426163e168e8bf2e02f9595221b2e6efb5bcc82f177477608da27018b6",
       "polish-before-city-crossing.png": "6ffba4c089630a24707181e6108c0bee870ac2ebcf35da35647541c350fe3e61",
@@ -1629,7 +1748,7 @@
     "native_collision_oracle_cases": 1161216
   },
   "rotating_city_mesh": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "orthographic_facades": 16,
     "roof_materials": 16,
     "all_texture_regions_valid": true,
@@ -1639,11 +1758,11 @@
     "palette_bank_e_bytes": 25600,
     "native_rasterizer_excluded_from_rom": true,
     "retired_flat_building_bank_excluded_from_rom": true,
-    "ds_main_ram_end": "0x2378a38",
+    "ds_main_ram_end": "0x2378ed8",
     "ds_itcm_end": "0x1007e20"
   },
   "city_environment": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "buildings": 16,
     "garden_objects": 16,
     "wind_poses": 8,
@@ -1652,17 +1771,17 @@
     "building_silhouettes_unclipped": true,
     "lawn_seams_match": true,
     "lawn_colors": 159,
-    "ds_main_ram_end": "0x2378a38",
+    "ds_main_ram_end": "0x2378ed8",
     "ds_itcm_end": "0x1007e20"
   },
   "scenery_comparison": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "previous_rom_sha256": "f6910f40b0ca6f1376b19dcccfe54bf4b32bbfe9c4efafa0cfd62ff7a55c7b0f",
     "files": {
       "scenery-before-spawn.png": "89769c3d71bd1add8b612701d3d7a8c7e840ca7dae3477de716042f630579785",
       "scenery-before-junction.png": "7c96976fd7f47423257bb2b52ba7062cfa39f786e2c584c9f5271a8658e4bbbc",
       "scenery-before-bridge.png": "9dee55bf7db8582bd0579bb0c34d8d85b75e1143042e3637d22dbee6245a87c9",
-      "city-spawn.png": "e694e831246c6c5ee2437e0f2c5b50f5656d8ba42601d2135c00e9cabf870d1d",
+      "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "city-route-1.png": "66d8b36b4149fa8d493ca3f9f5ab94ec11b54382261591131df05e45282bd2c0",
       "city-crossing.png": "73e5c48d6ce4c04e3be3df1090c9dd13a16ac59c3b05978d172108323c0b330f",
       "district-0-native.ppm": "5886ec60da0296f3ae9b2f42eaae915899f6d90d5eefea2e9f69d503a95fc400",
@@ -1675,22 +1794,22 @@
     "method": "Three before/after scene pairs use actual DS emulator output with the same funded vehicle and tour points. Six additional native-renderer district views are explicitly labelled and are not emulator screenshots."
   },
   "openworld_art": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "models": 48,
     "source_hashes_match": true,
     "minimum_palette_colors": 48,
     "material_landmarks": 21,
-    "ds_main_ram_end": "0x2378a38",
+    "ds_main_ram_end": "0x2378ed8",
     "ds_itcm_end": "0x1007e20",
     "native_oracles_excluded_from_rom": true,
     "reviewed_body_and_protected_landmarks_pass": true
   },
   "openworld_comparison": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "previous_rom_sha256": "aa83f842e38bdaf036b6f728bb82a97ea642d915650dcdfd8494ef549c569548",
     "files": {
       "city-before.png": "cf4a6702acb61d7ad3ce762ed2ca5cfc842e57cb8a27ddf50179ad49095f69c3",
-      "city-spawn.png": "e694e831246c6c5ee2437e0f2c5b50f5656d8ba42601d2135c00e9cabf870d1d",
+      "city-spawn.png": "68b153d61bdad2629f91411982113466d7e8731fef18ad66107a6714dee5dd82",
       "city-route-1.png": "66d8b36b4149fa8d493ca3f9f5ab94ec11b54382261591131df05e45282bd2c0",
       "city-crossing.png": "73e5c48d6ce4c04e3be3df1090c9dd13a16ac59c3b05978d172108323c0b330f",
       "overhead-before.ppm": "c0a121be1a546ec979f347d66752f5c217e891c03ca8f2b1dd971881f6563ff0",
@@ -1700,7 +1819,7 @@
     "method": "Before/after city scenes are actual DS emulator captures; vehicle sheets and finish review use the same native renderer as the cartridge."
   },
   "pixel_material_masks": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "models_reviewed": 48,
     "poses_reviewed": 240,
     "fitted_liveries": 960,
@@ -1712,7 +1831,7 @@
     "decals_only_on_painted_pixels": true
   },
   "paint_comparison": {
-    "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+    "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
     "before_ppm_sha256": "c261aa7cb0f26ec04ce70e3a420b8c46ecef9b6b9d8ff0f90d5fa910885319af",
     "after_ppm_sha256": "a3336ba55579e65ed815e1f1ae7aca43fa5c5ebf4131106e74062c04f75c4778",
     "previous_rom_sha256": "6b9beea88cf2b210c58e4257bfb62bbb01cacd0ae4bf6474175a801255f5ef65",
@@ -1731,17 +1850,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1756,18 +1875,18 @@
     "pause_freezes_city": true,
     "shared_banked_cash": true,
     "fresh_process_reload": true,
-    "city_hz": 29.82758620689655,
+    "city_hz": 29.784791965566715,
     "city_updates": 692,
-    "city_hardware_frames": 1392,
+    "city_hardware_frames": 1394,
     "heading_locked_camera": true,
-    "observed_headings": 61,
+    "observed_headings": 54,
     "max_submitted_quads": 351,
     "actual_full_circle_and_heading_wrap": true,
     "road_stability": {
       "frames": 397,
       "interior_asphalt_pixels": 2096826,
       "sidewalk_curb_pixels": 0,
-      "observed_material_pixels": 808820,
+      "observed_material_pixels": 808940,
       "worst_frame_pixels": 0,
       "camera_zoom": 0.875,
       "passed": true
@@ -1796,17 +1915,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1823,17 +1942,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -1890,17 +2009,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -2025,17 +2144,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -2054,17 +2173,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136
@@ -2222,17 +2341,17 @@
     "rom": {
       "title": "COASTLINE",
       "game_code": "KCWE",
-      "bytes": 3092992,
-      "sha256": "70ea4e25ceb43f6610a70ab2d0e1a4bc340d3a21b04d7ceaee065ede7a79b544",
+      "bytes": 4428288,
+      "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
       "executables": {
         "arm9": {
           "offset": 16384,
           "entry": "0x2000800",
           "load": "0x2000000",
-          "bytes": 2143992
+          "bytes": 2145184
         },
         "arm7": {
-          "offset": 2160640,
+          "offset": 2161664,
           "entry": "0x2380000",
           "load": "0x2380000",
           "bytes": 10136

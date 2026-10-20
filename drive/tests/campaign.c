@@ -23,7 +23,7 @@ static void finish(Game*g,int render){
   if(story.phase==ST_READING){
    if(story.line!=observed){
     observed=story.line;lines_seen++;stages[story.current.stage]++;
-    CHECK(story.current.speaker<14&&story.current.background<6&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
+    CHECK(story.current.speaker<14&&story.current.background<STORY_BACKGROUNDS&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
     CHECK(story.current.text[story.current.length]==0);
     CHECK(story_text_lines(story.current.text,226)<=8);
     CHECK(!strstr(story.current.text,"Proposed objective")&&!strstr(story.current.text,"IDEA:"));
@@ -54,16 +54,35 @@ static void compatibility(void){
  Input down={K_DOWN,K_DOWN};opening_update(&reloaded,&loaded,&down);CHECK(story_completed(&loaded)==26);opening_update(&reloaded,&loaded,&down);CHECK(story_completed(&loaded)==125);
  CHECK(!memcmp(bank,reloaded.records,sizeof bank));
 }
+static unsigned image_hash(void){unsigned h=2166136261u;for(unsigned i=0;i<256*192;i++)h=(h^screen.top[i])*16777619u;return h;}
+static void directed_camera(void){
+ Game g;game_init(&g,123);CHECK(story_open(&g,0,0));
+ for(int t=0;t<20;t++)tick(&g);
+ draw(&g);
+ /* The actual jack is at source X235, not the empty doorway at X384. */
+ CHECK(story.line==0&&story.current.background==6&&story_visual_stats[3]==107);
+ press(&g,K_A);press(&g,K_A);CHECK(story.line==1&&story.current.speaker==SC_YOU);
+ unsigned x=107;
+ for(int t=0;t<200;t++){tick(&g);draw(&g);unsigned now=story_visual_stats[3];CHECK(now<=x);x=now;}
+ CHECK(x==0);unsigned held=image_hash();
+ for(int t=0;t<400;t++){tick(&g);draw(&g);CHECK(story_visual_stats[3]==0&&image_hash()==held);}
+ /* Pausing partway through a directed move freezes the camera. */
+ press(&g,K_B);press(&g,K_DOWN);press(&g,K_A);for(int t=0;t<18;t++)tick(&g);draw(&g);
+ press(&g,K_A);press(&g,K_A);tick(&g);draw(&g);press(&g,K_B);draw(&g);x=story_visual_stats[3];
+ for(int t=0;t<20;t++){tick(&g);draw(&g);CHECK(story_visual_stats[3]==x);}
+ press(&g,K_DOWN);press(&g,K_DOWN);press(&g,K_A);CHECK(g.mode==M_STORY&&!story_completed(&g));draw(&g);
+}
 int main(void){
  screen.before=screen.middle=screen.after=0xabc12345u;
  uint8_t pixels[512*216];uint16_t palette[256];int w,h;
- for(int asset=0;asset<18;asset++){
-  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<6?512:128)&&h==(asset<6?216:128));
+ for(int asset=0;asset<STORY_ASSETS;asset++){
+  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<STORY_BACKGROUNDS?512:128)&&h==(asset<STORY_BACKGROUNDS?216:128));
   unsigned filled=0,empty=0;for(int i=0;i<w*h;i++){filled+=pixels[i]!=0;empty+=pixels[i]==0;}
-  if(asset>=6)CHECK(filled>1000&&empty>100&&palette[0]==0);
+  if(asset>=STORY_BACKGROUNDS)CHECK(filled>1000&&empty>100&&palette[0]==0);
  }
- CHECK(!story_asset(18,pixels,palette,sizeof pixels,&w,&h));CHECK(!story_asset(0,pixels,palette,10,&w,&h));
+ CHECK(!story_asset(STORY_ASSETS,pixels,palette,sizeof pixels,&w,&h));CHECK(!story_asset(0,pixels,palette,10,&w,&h));
  compatibility();
+ directed_camera();
  Game g;game_init(&g,123);CHECK(!story_open(&g,0,1));CHECK(story_completed(&g)==0&&g.mode==M_HOME);
  CHECK(story_open(&g,0,0));draw(&g);
  for(int t=0;t<70;t++){Input held={K_A,0};game_update(&g,&held);}CHECK(!story.line&&!story_completed(&g));

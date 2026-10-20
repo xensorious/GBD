@@ -32,5 +32,5 @@ DS emulator. No physical iPhone or DS testing is claimed.
 Rising Tide story edition
 Original screenplay, cutscene staging, cartridge archive and portrait/background
 asset adaptation for Coastline. Original source artwork generated with OpenAI's
-image tool: art/story/backgrounds.png and art/story/cast.png. User references
+image tool: art/story/backgrounds.png, art/story/inserts.png and art/story/cast.png. User references
 informed the retro presentation; no reference-game artwork was embedded.
