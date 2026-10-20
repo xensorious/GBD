@@ -337,3 +337,11 @@ void FAST gfx_scaled_sprite(Surface*s,int x,int y,const uint16_t*p,int sw,int sh
     entry point remains available for decoded vehicles and small UI art. */
  gfx_vehicle(s,x,y,p,sw,sh,dw,dh,0);
 }
+
+/* Cutscenes lease the existing 256 KiB small-sprite store. No cache capacity
+ * is removed from either driving mode, and no extra framebuffer is allocated. */
+void *gfx_story_scratch(unsigned*size){
+ sprite_cache_ready=0;memset(sprite_cache,0,sizeof sprite_cache);sprite_clock=0;
+ *size=sizeof small_pixels;return small_pixels;
+}
+void gfx_story_release(void){sprite_cache_ready=0;memset(sprite_cache,0,sizeof sprite_cache);sprite_clock=0;}

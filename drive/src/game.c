@@ -3,11 +3,12 @@
 #include "road.h"
 #include "traffic.h"
 #include "career.h"
+#include "story.h"
 #include <stddef.h>
 #include <string.h>
 
 #define SAVE_MAGIC 0x434c4452u
-#define SAVE_VERSION 6u
+#define SAVE_VERSION 7u
 #define MONEY_LIMIT 9999999u
 #define STAT_LIMIT 999999999u
 #define WORLD_LIMIT (7000000*Q)
@@ -133,7 +134,7 @@ void game_make_save(const Game *g,Save *out) {
  *out=g->save; out->magic=SAVE_MAGIC; out->version=SAVE_VERSION;
  memset((uint8_t *)out+offsetof(Save,armor)+sizeof(out->armor),0,
         offsetof(Save,mastery_xp)-offsetof(Save,armor)-sizeof(out->armor));
- memset(out->reserved,0,sizeof(out->reserved));
+ memset(out->reserved+1,0,sizeof(out->reserved)-1);
  memset((uint8_t *)out+offsetof(Save,smoke_seen)+sizeof(out->smoke_seen),0,
         offsetof(Save,presets)-offsetof(Save,smoke_seen)-sizeof(out->smoke_seen));
  memset((uint8_t *)out+offsetof(Save,preset_mask)+sizeof(out->preset_mask),0,
@@ -190,6 +191,7 @@ static int read_legacy(const Save *raw,LegacySave *old,Save *converted) {
 }
 static int valid_expanded(const Save *s) {
  if(!valid_common(s,VEHICLE_COUNT,UPGRADE_MAX,LOCATION_COUNT))return 0;
+ if(s->reserved[0]>125||s->reserved[1]||s->reserved[2]||s->reserved[3])return 0;
  if(s->career_xp>STAT_LIMIT || s->contracts_completed>STAT_LIMIT || s->dispatch_choice>CONTRACT_OFFERS ||
     s->music_on>1 || s->sfx_on>1 || s->music_volume>100 || s->sfx_volume>100 ||
     s->skin>=SKIN_STORAGE_LIMIT || s->motion>2 || s->shake>1 || s->units>1)return 0;
@@ -230,7 +232,7 @@ int game_save_valid(const Save *s) {
  if(header[0]!=SAVE_MAGIC)return 0;
  if(header[1]==1u) {LegacySave old;Save converted;return read_legacy(s,&old,&converted);}
  if(header[1]==2u) {SaveV2 old;Save converted;return read_v2(s,&old,&converted);}
- return header[1]==SAVE_VERSION && s->checksum==checksum_bytes(s,sizeof(*s)) && valid_expanded(s);
+ return (header[1]==SAVE_VERSION || (header[1]==6u&&!s->reserved[0])) && s->checksum==checksum_bytes(s,sizeof(*s)) && valid_expanded(s);
 }
 int game_load(Game *g,const Save *save) {
  if(!game_save_valid(save))return 0;
@@ -245,7 +247,7 @@ int game_load(Game *g,const Save *save) {
  } else if(version==2u) {
   SaveV2 old;Save converted;if(!read_v2(save,&old,&converted))return 0;
   g->save=converted;g->save_requested=1;
- } else {g->save=*save;g->save_requested=0;}
+ } else {g->save=*save;g->save_requested=(uint8_t)(version!=SAVE_VERSION);g->save.version=SAVE_VERSION;g->save.checksum=0;g->save.checksum=checksum_bytes(&g->save,sizeof g->save);}
  if(g->save.skin<SKIN_FUSION){g->save.skin=SKIN_FUSION;g->save_requested=1;}
  g->has_save=1;g->save_ok=1;g->mode=M_HOME;g->cursor=0;
  g->selection=g->save.selected_vehicle;g->vehicle=g->save.selected_vehicle;
@@ -289,6 +291,7 @@ int game_encode_save(const Game*g,void*out,unsigned size){
  memcpy(d+274,&e.music_on,8);memcpy(d+282,e.perks,3);d[285]=e.dispatch_choice;d[286]=e.preset_mask;
  memcpy(d+287,e.presets,12);memcpy(d+299,&e.owned_hi,4);unsigned at=303*8;
  for(int i=0;i<VEHICLE_COUNT;i++)pack_vehicle(d,&at,&e,i);
+ bit_write(d,&at,e.reserved[0],7);
  uint32_t check=checksum_bytes(d,sizeof d);memcpy(d+8,&check,4);memcpy(out,d,sizeof d);return 1;
 }
 int game_load_bytes(Game*g,const void*raw,unsigned size){
@@ -296,7 +299,7 @@ int game_load_bytes(Game*g,const void*raw,unsigned size){
  uint32_t header[3];memcpy(header,raw,8);if(header[0]!=SAVE_MAGIC)return 0;
  if(header[1]==1u){if(size<sizeof(LegacySave))return 0;LegacySave old;memcpy(&old,raw,sizeof old);return game_load(g,(const Save*)(const void*)&old);}
  if(header[1]==2u){if(size<sizeof(SaveV2))return 0;SaveV2 old;memcpy(&old,raw,sizeof old);return game_load(g,(const Save*)(const void*)&old);}
- if(header[1]!=3u && header[1]!=4u && header[1]!=5u && header[1]!=SAVE_VERSION)return 0;
+ if(header[1]!=3u && header[1]!=4u && header[1]!=5u && header[1]!=6u && header[1]!=SAVE_VERSION)return 0;
  unsigned bytes=header[1]>=5u?SAVE_DISK_SIZE:500;
  if(size<bytes)return 0;
  const uint8_t*d=raw;memcpy(header,d,12);if(header[2]!=checksum_bytes(d,bytes))return 0;
@@ -319,11 +322,12 @@ int game_load_bytes(Game*g,const void*raw,unsigned size){
   memcpy(&e.music_on,d+206+extra,8);memcpy(e.perks,d+214+extra,3);e.dispatch_choice=d[217+extra];e.preset_mask=d[218+extra];
   memcpy(e.presets,d+219+extra,12);unsigned at=(231+extra)*8;
   if(header[1]>=5u){memcpy(&e.owned_hi,d+299,4);at=303*8;}
-  for(int i=0;i<count;i++)unpack_vehicle(d,&at,&e,i,header[1]==SAVE_VERSION);
+  for(int i=0;i<count;i++)unpack_vehicle(d,&at,&e,i,header[1]>=6u);
+  if(header[1]>=7u)e.reserved[0]=(uint8_t)bit_read(d,&at,7);
   for(unsigned k=at;k<bytes*8;k++)if(d[k/8]&(1u<<(k%8)))return 0;
  }
  if(header[1]<5u && ((e.owned&0x80000000u)||e.selected_vehicle>=31))return 0;
- if(header[1]!=SAVE_VERSION){
+ if(header[1]<6u){
   if(e.paints&~63u)return 0;
   for(int i=0;i<VEHICLE_COUNT;i++){if(e.paint[i]>=6)return 0;e.livery_color[i]=e.livery[i]==2?1:0;e.livery_color_seen[i]=(uint16_t)(1u|(1u<<e.livery_color[i]));}
   for(int i=0;i<PRESET_COUNT;i++)if(e.preset_mask&(1u<<i)){if((e.presets[i]>>27)||((e.presets[i]>>9)&7u)>=6)return 0;if(((e.presets[i]>>12)&7u)==2)e.presets[i]|=1u<<28;}
@@ -338,7 +342,7 @@ void game_save_result(Game *g,int okay) {
  else notice(g,"Save unavailable. Keep playing; retry after a run.");
 }
 void game_init(Game *g,uint32_t seed) {
- career_reset();
+ career_reset();story_reset();
  memset(&city,0,sizeof city);
  memset(g,0,sizeof(*g)); g->save.magic=SAVE_MAGIC; g->save.version=SAVE_VERSION;
  g->save.seed=seed?seed:0x73bda521u; g->save.owned=1; g->save.unlocked_locations=1;
@@ -1059,6 +1063,7 @@ void game_update(Game *g,const Input *in) {
    if(in->pressed&K_A){if(g->cursor==2)career_enter(g);else if(g->cursor==1)city_begin(g);else game_begin_run(g);}
    break;
   case M_STORY:campaign_tick(g,in);break;
+  case M_DIALOG:story_tick(g,in);break;
   case M_RECEIPT:
    if(in->pressed&K_A) {g->mode=M_HOME;g->cursor=0;}
    break;

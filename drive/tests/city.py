@@ -25,7 +25,7 @@ p.add_argument('--rom',type=Path,default=ROOT/'build'/'Coastline.nds');p.add_arg
 p.add_argument('--baseline',action='store_true',help='Observe the pinned previous ROM without requiring the new visual fix.')
 a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
 rom=a.rom.resolve();elf=a.elf.resolve();verify_layout(ROOT)
-library=a.output/'libcity-qa.so';subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+library=a.output/'libcity-qa.so';subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
 lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 pixels=RoadPixels(lib,a.baseline);sway=False
 profile=Game();lib.game_init(C.byref(profile),0x43495459);profile.save.owned=0xffffffff;profile.save.owned_hi=0xffff;profile.save.selected_vehicle=46;profile.save.cash=1000000

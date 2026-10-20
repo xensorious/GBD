@@ -39,7 +39,7 @@
 enum DriveKey { K_UP=1u, K_DOWN=2u, K_LEFT=4u, K_RIGHT=8u,
  K_A=16u,K_B=32u,K_L=64u,K_R=128u,K_START=256u,K_SELECT=512u,K_X=1024u,K_Y=2048u };
 typedef struct { uint32_t held,pressed; } Input;
-enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS,M_CONTRACTS,M_DRIVE,M_STORY };
+enum GameMode { M_HOME,M_RUN,M_RECEIPT,M_GARAGE,M_DEPARTURES,M_CHALLENGES,M_CONTROLS,M_PAUSE,M_CAREER,M_SETTINGS,M_CONTRACTS,M_DRIVE,M_STORY,M_DIALOG };
 /* IDs 0..2 belong to retired interfaces; preserve battery compatibility. */
 enum InterfaceSkin { SKIN_FUSION=3,SKIN_PEARL,SKIN_VOLTAGE,SKIN_ALLOY,SKIN_GLACIER,SKIN_BLOOM };
 enum VehicleStat { STAT_TOP,STAT_ACCEL,STAT_GRIP,STAT_ARMOR };
@@ -76,7 +76,7 @@ typedef struct {
  uint8_t recovery[VEHICLE_COUNT],livery[VEHICLE_COUNT],wheels[VEHICLE_COUNT];
  uint8_t livery_owned[VEHICLE_COUNT],wheels_owned[VEHICLE_COUNT],dispatch_choice;
  uint32_t contracts_completed;
- uint8_t reserved[4];
+ uint8_t reserved[4]; /* v7: byte 0 = completed story events (0..125); 1..3 zero. */
  uint16_t paint_seen[VEHICLE_COUNT];
  uint8_t smoke[VEHICLE_COUNT],smoke_seen[VEHICLE_COUNT];
  uint32_t presets[PRESET_COUNT];

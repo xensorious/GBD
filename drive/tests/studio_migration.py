@@ -94,7 +94,7 @@ else:
     old=V3Save.from_buffer_copy((a.output/'source-v3-save.bin').read_bytes())
     with Emulator(rom,directory) as e:
         e.run(180);enter_opening(e,elf);g=read_game(e,find_symbol(elf,'game'))
-        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==6
+        assert g.mode==0 and g.has_save and g.save_ok and g.save.version==7
         for name,kind in V3Save._fields_:
             if name in ('version','checksum','skin','reserved'):continue
             actual,expected=getattr(g.save,name),getattr(old,name)

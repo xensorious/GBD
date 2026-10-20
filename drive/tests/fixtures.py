@@ -63,7 +63,7 @@ def encode_profile(library,game):
     data=(C.c_uint8*SAVE_DISK_SIZE)()
     assert library.game_encode_save(C.byref(game),data,len(data))
     payload=bytes(data)
-    assert len(payload)==SAVE_DISK_SIZE and struct.unpack_from('<I',payload,4)[0]==6
+    assert len(payload)==SAVE_DISK_SIZE and struct.unpack_from('<I',payload,4)[0]==7
     loaded=Game();library.game_init(C.byref(loaded),123)
     library.game_load_bytes.argtypes=[C.POINTER(Game),C.c_void_p,C.c_uint]
     assert library.game_load_bytes(C.byref(loaded),data,SAVE_DISK_SIZE)
@@ -84,11 +84,11 @@ def assert_compact_battery(path:Path):
     """Independently validate the 1000-byte first profile in the 8 KiB bank."""
     assert battery_size(path)==8192,'Three profiles require the 8 KiB save bank'
     payload=bytearray(path.read_bytes()[:1000])
-    assert struct.unpack_from('<II',payload)==(0x434c4452,6)
+    assert struct.unpack_from('<II',payload)==(0x434c4452,7)
     stored=struct.unpack_from('<I',payload,8)[0];payload[8:12]=b'\0'*4
     value=2166136261
     for byte in payload:value=((value^byte)*16777619)&0xffffffff
-    assert value==stored,'The serialized v6 checksum does not cover the full 1000-byte profile'
+    assert value==stored,'The serialized v7 checksum does not cover the full 1000-byte profile'
     assert payload[204:]!=b'\xff'*796,'No profile tail was written beyond the old payload'
     return {'serialized_save_bytes':1000,'physical_save_bytes':8192,'disk_checksum_valid':True}
 
@@ -118,7 +118,7 @@ def assert_imported_fields(current,old):
     else:
         assert current.music_on and current.sfx_on
     assert current.skin==3
-    assert current.version==6
+    assert current.version==7
     for name in ('recovery','livery','wheels'):
         assert not any(getattr(current,name)),name
     for name in ('livery_owned','wheels_owned'):

@@ -142,7 +142,7 @@ int main(void) {
  CHECK(game_load(&g,(const Save*)(const void*)&old));
  uint8_t unaligned_v1[sizeof(old)+1];memcpy(unaligned_v1+1,&old,sizeof(old));
  CHECK(game_load_bytes(&g,unaligned_v1+1,sizeof(old)));
- CHECK(g.mode==M_HOME && g.has_save && g.save_requested && g.save.version==6);
+ CHECK(g.mode==M_HOME && g.has_save && g.save_requested && g.save.version==7);
  CHECK(!memcmp((const uint8_t*)&g.save+12,(const uint8_t*)&old+12,12));
  CHECK(!memcmp((const uint8_t*)&g.save+28,(const uint8_t*)&old+28,44));CHECK((g.save.paints&63u)==old.paints);
  CHECK(g.save.selected_vehicle==old.selected_vehicle && g.save.selected_location==old.selected_location);
@@ -160,7 +160,7 @@ int main(void) {
   CHECK(g.save.handling_tune[i]==defaults.save.handling_tune[i]);
   CHECK(g.save.chassis_tune[i]==defaults.save.chassis_tune[i]);
  }
- game_make_save(&g,&migrated);CHECK(migrated.version==6 && game_save_valid(&migrated));
+ game_make_save(&g,&migrated);CHECK(migrated.version==7 && game_save_valid(&migrated));
  check_new_defaults(&g.save,6);
  game_init(&reloaded,77);CHECK(game_load(&reloaded,&migrated));
  CHECK(!reloaded.save_requested && reloaded.save.cash==old.cash && reloaded.save.selected_vehicle==3);

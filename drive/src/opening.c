@@ -17,7 +17,7 @@ void opening_init(Opening*o,Game*g,const void*raw,unsigned size){
  memset(o,0,sizeof *o);memset(o->records,0xff,sizeof o->records);o->active_slot=255;
  if(raw){
   const uint8_t*data=raw;int current=0;
-  for(int i=0;i<SAVE_SLOT_COUNT;i++)if(size>=(unsigned)i*SAVE_RECORD_SIZE+8){uint32_t h[2];memcpy(h,data+i*SAVE_RECORD_SIZE,8);if(h[0]==0x434c4452u && (h[1]==5u || h[1]==6u))current=1;}
+  for(int i=0;i<SAVE_SLOT_COUNT;i++)if(size>=(unsigned)i*SAVE_RECORD_SIZE+8){uint32_t h[2];memcpy(h,data+i*SAVE_RECORD_SIZE,8);if(h[0]==0x434c4452u && (h[1]==5u || h[1]==6u || h[1]==7u))current=1;}
   if(current){if(size>sizeof o->records)size=sizeof o->records;memcpy(o->records,raw,size);}
   else for(int i=0;i<SAVE_SLOT_COUNT;i++){
    unsigned offset=i*512;if(size<offset+8)continue;

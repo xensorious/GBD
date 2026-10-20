@@ -1,6 +1,6 @@
-/* Rising Tide: a browsable campaign proposal, not a second vehicle economy.
- * Race launch, payouts, unlocks and scripted outcomes are deliberately absent. */
+/* Rising Tide: shared-garage story progression. Racing remains a future step. */
 #include "career.h"
+#include "story.h"
 #include "gfx.h"
 CareerUI campaign;
 const CareerChapter career_chapters[5]={
@@ -28,31 +28,31 @@ static const char*const career_names[5][25]={
  {"Grand Arrival","First Qualifying","Full Commitment","A Clean Start","Silver Standard","Pressure Test","Long Stint","Changing Skies","Under Review","Crew Radio","Sable's Challenge","Silver Apex","Terms and Conditions","No Sale","The Final Series","Fuel for Thought","Track Position","Late Safety Car","Every Sector","The Open Contract","The Last Invitation","Cup Qualifying","Our Own Name","Before the Flag","Rising Tide"}
 };
 static const char*const career_beats[5][5]={
- {"Nia lends you a bay, not a fortune. Small club circuits introduce the crew and the bills waiting at home.",
-  "An exhibition against a much faster visitor ends in a story defeat. No money is taken. Events 7-11 are a proposed practice-and-cash block, not five separate crises.",
-  "Jules tests whether you can finish a clean race under pressure. A courier who knows every corner becomes the crew's first ally.",
-  "Regular club nights build a cushion for the captain's entry fee. The garage becomes a meeting place, not just a repair bill.",
-  "Calder grants the neighborhood its own club spot. A waterfront invitation arrives with Voss's name at the bottom."},
- {"Marisol opens the harbor series to your garage. Imani notices that your first result was no accident.",
-  "A string of night circuits is ordinary work: entry money, practice and introductions. The crew can breathe between bigger moments.",
-  "Imani runs the shift-change duel. Her respect earns a seat at the sponsor's table, not a free new car.",
-  "The sponsor wants clean results. Club appearances fund the harbor final while Nia investigates the Cup's exclusive contracts.",
-  "Marisol backs your independent entry into Foundry Ring. A fast driver named Kade asks to see what you can really do."},
- {"Kade wins the benchmark exhibition in a story scene. The gap is racecraft, not a stolen engine or a surprise cash penalty.",
-  "Practice nights revisit braking points and exits. A training block gives the crew time to earn money without pretending every race changes the city.",
-  "The event-12 rematch is a fair test. Kade becomes a sparring partner and reveals how Rook's club feeds Voss's recruitment list.",
-  "Voss offers to buy the garage name. The crew refuses. Ordinary industrial races now finance an independent circuit license.",
-  "Rook yields the regional berth. The victory earns a sporting invitation; the same garage, cars and upgrades travel with you."},
- {"Meridian is a permanent racing facility, with runoff, pit buildings and proper curbs. The crew learns a new environment, not a new inventory.",
-  "Sessions focus on qualifying and repeatable sectors. Planned strategy ideas live in the Plans tab for you to revise before gameplay exists.",
-  "Ren's sector duel earns a recommendation. The fastest lap matters, but the story is about earning a crew's trust.",
-  "Aster's invitation is conditional on keeping your operation independent. Preparation races pay the costs of the final meeting.",
-  "Aster opens the Cup gate. Voss makes one final offer: a guaranteed seat in exchange for the garage's identity."},
- {"The permanent road-course series begins. Nia manages the crew while you decide what kind of champion the garage will become.",
-  "Longer events propose weather and pit-window decisions. Practice sessions keep the story grounded between headline races.",
-  "Sable asks for a fair duel before the business gets ugly. Mutual respect turns a rival into a witness to Voss's terms.",
-  "The final series is work, pressure and preparation. Your shared vehicles remain the tools; no exclusive career paint or upgrade shop appears.",
-  "The final against Voss is about independence. The proposed ending returns to Saltblock, where the crew opens its doors to the next unknown driver."}
+ {"Sunline Garage needs steady work and another driver. Nia lends you the small keys; Calder's club offers a first evening on the grid.",
+  "Kade's exhibition exposed the way one untidy corner spoiled the next. Five short club heats give the crew time to practice and pay the ordinary bills.",
+  "Jules became the crew's first racing ally. His courier circuit taught you to join the corners instead of treating each one as a separate argument.",
+  "People are gathering at Sunline after the heats. The garage is becoming somewhere to belong, as well as somewhere that needs its bills paid.",
+  "Calder recommended Sunline to Lantern Mile. Nia chose to keep the garage open. The waterfront invitation starts the next part of the journey."},
+ {"Marisol's waterfront clubs run on work, favors, and people who return borrowed equipment. Imani expects a little common sense before she offers her respect.",
+  "The next club appearances are ordinary preparation: repeatable laps, rent money, and introductions. A sponsor conversation has to be earned before it can become a promise.",
+  "Imani noticed the room you left her in the shift-change duel. Respect earned a conversation at the supplier's table, not a shortcut around the work.",
+  "Reliable appearances matter to the harbor crews. Small heats and small favors keep Sunline ready for the final, without turning every evening into a crisis.",
+  "Marisol signed the Foundry recommendation. The licensing application asks who controls Sunline's identity. Nia plans to read that part carefully."},
+ {"Foundry Ring is a step beyond the harbor clubs. Kade invited a benchmark exhibition, and Rook asked Sunline to learn how her clubs work.",
+  "Kade's second exhibition made the problem clear: a fast start was being wasted by an untidy next corner. Regular practice sessions make improvement repeatable.",
+  "The clean rematch earned Kade's respect and a copy of the licensing rules. The next gate requires a financial guarantee, not just a fast lap.",
+  "Voss offered security in exchange for control of the team name. The crew is weighing the actual budget while ordinary club work pays for tomorrow.",
+  "Rook's club joined Calder and Marisol in guaranteeing an independent application. Sunline earned a Meridian invitation while keeping its door open."},
+ {"Meridian has pit lanes, marked procedures, and a very practical mentor named Ren. The crew has a different environment to learn, not a different garage to buy.",
+  "Practice and qualifying sessions are teaching repeatable sectors. Mina's paid photography work is her own; being part of Sunline doesn't make anyone its property.",
+  "Ren's sector duel earned a sporting recommendation. The crew now has someone on the pit wall who can turn a driver's observations into a useful plan.",
+  "The crew declined the team-name agreement after reading the budget together. Longer sessions now prepare them for Aster's final and the real costs of a Cup entry.",
+  "Aster signed the independent Cup entry. A sporting license and a commercial contract are separate documents. Sunline will arrive under its own name."},
+ {"Sunline has a place in the Cup paddock. Sable wants a proper contest and a more interesting weekend. Nia wants the crew to remember the ordinary work that brought them here.",
+  "Longer sessions ask the crew to plan for changing conditions. The answer is preparation and rest, not a new crisis every night.",
+  "Sable backed a statement asking for fair independent terms after the duel. The request concerns real guarantees and working crews, not an exemption from the costs.",
+  "The final series is demanding, ordinary work: sessions, notes, paid jobs, and enough sleep to make the next decision properly.",
+  "Sunline finished the Cup under its own name. The guarantee became a readable independent agreement. Back at the garage, another unknown driver is waiting by the open door."}
 };
 static const char*const plan_names[5]={"Race licenses","Sponsor offers","Practice / ghosts","Race-day choices","Crew reputation"};
 const char*career_plan_name(int row){return plan_names[row%5];}
@@ -80,10 +80,15 @@ void career_point(int chapter,int event,int*x,int*y){
  int row=event/5,col=event%5;if(row&1)col=4-col;
  *x=25+col*49+(int)(h%15)-7;*y=39+row*26+(int)((h>>8)%9)-4;
 }
-int career_status(int chapter,int event){int done=campaign.preview_done[chapter%5];return event<done?2:event==done?1:0;}
+int career_status(const Game*g,int chapter,int event){return story_status(g,chapter,event);}
+int career_journal_open(const Game*g,int chapter,int row){static const uint8_t limits[5]={0,6,12,18,25};int done=story_completed(g)-chapter*25;return row>=0&&row<5&&done>=limits[row];}
 int career_rows(int tab){return tab==0?4:tab==2?3:tab==4?4:5;}
 void career_reset(void){memset(&campaign,0,sizeof campaign);campaign.revision=1;}
-void career_enter(Game*g){g->mode=M_STORY;g->cursor=0;campaign.modal=0;campaign.garage_return=0;g->notice_timer=0;campaign.revision++;}
+void career_enter(Game*g){
+ int done=story_completed(g);g->mode=M_STORY;g->cursor=0;campaign.tab=0;campaign.chapter=(uint8_t)(done<125?done/25:4);campaign.event=(uint8_t)(done<125?done%25:24);
+ campaign.modal=0;campaign.garage_return=0;g->notice_timer=0;campaign.revision++;
+}
+static void career_message(Game*g,const char*text){size_t n=strlen(text);if(n>=sizeof g->notice)n=sizeof g->notice-1;memcpy(g->notice,text,n);g->notice[n]=0;g->notice_timer=120;campaign.revision++;}
 void campaign_tick(Game*g,const Input*in){
  if(!in->pressed)return;
  if(in->pressed&K_B){if(campaign.modal)campaign.modal=0;else{g->mode=M_DRIVE;g->cursor=2;}campaign.revision++;return;}
@@ -97,16 +102,22 @@ void campaign_tick(Game*g,const Input*in){
  int dy=vertical(in),dx=horizontal(in),rows=career_rows(campaign.tab);
  g->cursor=(uint8_t)((g->cursor+rows+dy)%rows);
  if(campaign.tab==0){
-  if(g->cursor==0&&(dx||(in->pressed&K_A))){campaign.chapter=(uint8_t)((campaign.chapter+5+(dx?dx:1))%5);campaign.event=campaign.preview_done[campaign.chapter]<25?campaign.preview_done[campaign.chapter]:24;}
+  if(g->cursor==0&&(dx||(in->pressed&K_A))){campaign.chapter=(uint8_t)((campaign.chapter+5+(dx?dx:1))%5);int n=story_completed(g)-campaign.chapter*25;campaign.event=(uint8_t)(n<0?0:n>24?24:n);}
   if(g->cursor==1&&dx)campaign.event=(uint8_t)((campaign.event+25+dx)%25);
-  if((in->pressed&K_A)&&(g->cursor==1||g->cursor==2)){campaign.modal=1;campaign.page=0;}
+  if((in->pressed&K_A)&&(g->cursor==1||g->cursor==2)){
+   if(!story_status(g,campaign.chapter,campaign.event)){career_message(g,"Complete the preceding story event first.");return;}
+   if(!story_open(g,campaign.chapter,campaign.event))career_message(g,"Scene archive unavailable. Return and retry.");
+   return;
+  }
  }
- if(campaign.tab==4&&g->cursor==1&&(dx||(in->pressed&K_A))){int n=campaign.preview_done[campaign.chapter];n=(n+26+(dx?dx:1))%26;campaign.preview_done[campaign.chapter]=(uint8_t)n;campaign.event=(uint8_t)(n<25?n:24);}
- if(campaign.tab==4&&g->cursor==2&&(in->pressed&K_A)){memset(campaign.preview_done,0,5);campaign.event=0;}
  if(in->pressed&K_A){
   if((campaign.tab==0&&g->cursor==3)||(campaign.tab==4&&g->cursor==0)){
    campaign.garage_return=1;g->mode=M_GARAGE;g->garage_tab=0;g->cursor=0;g->selection=g->save.selected_vehicle;refresh_vehicle(g);
-  }else if(campaign.tab==1||campaign.tab==2||campaign.tab==3||(campaign.tab==4&&g->cursor==3)){campaign.modal=(uint8_t)(campaign.tab+1);campaign.page=0;}
+  }else if(campaign.tab==4&&g->cursor==2){career_enter(g);g->cursor=1;}
+  else if(campaign.tab==1){
+   if(!career_journal_open(g,campaign.chapter,g->cursor)){career_message(g,"This journal entry opens later in the story.");return;}
+   campaign.modal=2;campaign.page=0;
+  }else if(campaign.tab==2||campaign.tab==3||(campaign.tab==4&&(g->cursor==1||g->cursor==3))){campaign.modal=(uint8_t)(campaign.tab==4?5:campaign.tab+1);campaign.page=0;}
  }
  campaign.revision++;
 }

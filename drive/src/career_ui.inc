@@ -26,9 +26,9 @@ void ui_draw_career_map(Surface*s,const Game*g){
   for(int i=0;i<11;i++){for(int k=-3;k<=3;k++)gfx_line(s,p[i][0],p[i][1]+k,p[i+1][0],p[i+1][1]+k,mix(land,t->edge,80));gfx_line(s,p[i][0],p[i][1],p[i+1][0],p[i+1][1],street);}
   gfx_rect(s,77,51,66,4,C(193,193,174));gfx_rect(s,83,56,52,5,mix(block,t->ink,60));
  }
- for(int i=0;i<24;i++){int x,y,xx,yy;career_point(chapter,i,&x,&y);career_point(chapter,i+1,&xx,&yy);career_dots(s,x,y,xx,yy,i<campaign.preview_done[chapter]?C(97,209,171):mix(t->muted,land,80));}
+ for(int i=0;i<24;i++){int x,y,xx,yy;career_point(chapter,i,&x,&y);career_point(chapter,i+1,&xx,&yy);career_dots(s,x,y,xx,yy,i<story_completed(g)-chapter*25?C(97,209,171):mix(t->muted,land,80));}
  for(int i=0;i<25;i++){
-  int x,y,state=career_status(chapter,i),kind=career_event_kind(i);career_point(chapter,i,&x,&y);
+  int x,y,state=career_status(g,chapter,i),kind=career_event_kind(i);career_point(chapter,i,&x,&y);
   int r=kind==2?7:kind?6:5;uint16_t color=state==2?C(81,184,148):state==1?GOLD:C(100,126,139);
   if(i==campaign.event){gfx_circle(s,x,y,r+2,t->ink);gfx_circle(s,x,y,r+3,mix(c->accent,land,100));}
   disc(s,x,y,r+1,t->shadow);
@@ -38,7 +38,7 @@ void ui_draw_career_map(Surface*s,const Game*g){
   if(n>9){career_digit(s,tx,y-2,n/10,ink);tx+=4;}career_digit(s,tx,y-2,n%10,ink);
  }
  gfx_rect(s,0,0,256,27,t->shadow);gfx_text(s,9,3,c->name,t->ink);
- char title[40]="CLASS ";append(title,game_class_name(chapter),sizeof title);append(title," / 25 EVENTS",sizeof title);gfx_text_small(s,10,16,title,c->accent);right_small(s,247,16,campaign.preview_done[chapter]?"PREVIEW RECORD":"UI DRAFT",t->muted);
+ char title[40]="CLASS ";append(title,game_class_name(chapter),sizeof title);append(title," / 25 EVENTS",sizeof title);gfx_text_small(s,10,16,title,c->accent);right_small(s,247,16,story_completed(g)<chapter*25?"LOCKED":"STORY",t->muted);
  gfx_rect(s,0,159,256,33,t->shadow);
  disc(s,11,165,2,C(81,184,148));gfx_text_small(s,18,159,"CLEARED",t->muted);disc(s,84,165,2,GOLD);gfx_text_small(s,91,159,"CURRENT",t->muted);gfx_circle(s,167,165,2,C(100,126,139));gfx_text_small(s,174,159,"LOCKED",t->muted);
  char label[18]="";number(label,campaign.event+1,sizeof label);append(label," / ",sizeof label);gfx_text_small(s,9,176,label,c->accent);limited_small(s,38,176,209,career_event_name(chapter,campaign.event),t->ink);
@@ -60,26 +60,26 @@ static void campaign_modal(Surface*s,const Game*g){
  const char*title="DESIGN NOTES",*text="";char meta[64]="";
  if(campaign.modal==1){
   title=page==0?"RACE BRIEFING":page==1?"STORY CONTEXT":"ENTRY PLAN";
-  text=page==0?(event==11?"Proposed objective: beat the chapter's first named rival on a closed circuit. A scouting report introduces their driving style.":event==24?"Proposed objective: win the chapter final to earn the next sporting invitation. This is a race concept; no boss gameplay runs yet.":"Proposed objective: finish the club event cleanly. Time trials, practice and cash-building races give the crew room to prepare between major story beats."):
+  text=page==0?(event==11?"Proposed objective: beat the chapter's first named rival on a closed circuit. A scouting report introduces their driving style.":event==24?"The chapter final closes the story arc and opens the next chapter. This build plays its dialogue and story montage; the driving race is not implemented.":"Proposed objective: finish the club event cleanly. Time trials, practice and cash-building races give the crew room to prepare between major story beats."):
    page==1?(ch==0&&event==5?"Proposed story-only setback: a faster visitor wins an exhibition. No money is removed. The following practice nights set up a fair return to racing.":career_story(ch,event==11?2:event==24?4:event/5)):
-   "All events use your existing collection, installed parts and finishes. Eligibility and rewards are proposals. This interface cannot spend entry fees, award cash or launch a race.";
+   "Your garage is shared across every mode. Story scenes unlock the next event; they do not award racing cash or change your vehicles. Full races are the next development step.";
   number(meta,event+1,sizeof meta);append(meta," / ",sizeof meta);append(meta,career_event_name(ch,event),sizeof meta);
  }else if(campaign.modal==2){
-  title=page==0?"CREW JOURNAL":page==1?"NIA / GARAGE RADIO":"STORY WORKSHOP";
-  text=page==0?career_story(ch,g->cursor):page==1?"We do not need every night to be a legend. Put in clean laps, pay the bills, and come home with a better plan. The name on this garage stays ours.":"Five story blocks support each chapter. Event 12 is the mini boss; event 25 closes the arc. Training and cash-building blocks connect the headline races without inventing a crisis every night.";
+  title=page==0?"CREW JOURNAL":page==1?"NIA / GARAGE RADIO":"CREW NOTES";
+  text=page==0?career_story(ch,g->cursor):page==1?"We do not need every night to be a legend. Put in clean laps, pay the bills, and come home with a better plan. The name on this garage stays ours.":"Write down what went well, not just what went wrong. Bring the car home, pay people on time, and leave a chair for whoever comes through the door next.";
   append(meta,c->name,sizeof meta);
  }else if(campaign.modal==3){
   int boss=g->cursor==1;title=page==0?"RIVAL DOSSIER":page==1?"CHALLENGE PROPOSAL":"FAIR RACE RULES";
-  text=page==0?(boss?c->boss_style:c->mini_style):page==1?(boss?"The chapter boss is event 25. Proposed stakes: a sporting invitation and a crew milestone. Cash and vehicle purchases still belong to the shared garage economy.":"The mini boss is event 12. Proposed stakes: a new ally, a scouting lesson and preparation for the area's final. No rival race is playable in this draft."):"IDEA: rivals use readable strengths and the same vehicle rules as the player. Avoid hidden catch-up boosts or taking money away after an unavoidable story scene.";
+  text=page==0?(boss?c->boss_style:c->mini_style):page==1?(boss?"The chapter boss is event 25. Proposed stakes: a sporting invitation and a crew milestone. Cash and vehicle purchases still belong to the shared garage economy.":"The mini boss is event 12. Proposed stakes: a new ally, a scouting lesson and preparation for the area's final. No rival race is playable in this draft."):"Named rival encounters are part of the story. Exhibition setbacks explain practice blocks without taking cash, cars or upgrades. Future races will use fair, readable strengths.";
   append(meta,boss?c->boss:c->mini,sizeof meta);
  }else if(campaign.modal==4){
   title=page==0?"MECHANIC PROPOSAL":page==1?"WHERE IT FITS":"SHARED GARAGE";
   text=page==0?career_plan(ch,g->cursor):page==1?(ch<3?"D, C and B chapters stay on closed street circuits. Club races and free practice provide preparation before the two named rivals.":"A and S move onto permanent road courses. Qualifying, longer stints and pit decisions could add depth without replacing the core driving system."):"There is one fleet and one set of installed upgrades and cosmetics across every mode. Career adds event structure, story and sporting goals, not a duplicate customization shop.";
   append(meta,career_plan_name(g->cursor),sizeof meta);
  }else{
-  title=page==0?"INTERFACE FOUNDATION":page==1?"PREVIEW RECORD":"NEXT BUILD";
-  text=page==0?"This is an editable campaign outline: five class chapters, 125 event names, story blocks, rival dossiers and mechanic proposals. The racing itself has not been built.":page==1?"The Office progress preview only changes the map illustration. It never completes a real race, unlocks a class, grants rewards or writes campaign progress to a save.":"Next decisions: circuit handling, race length, AI behavior, payouts, difficulty and which planning cards deserve full mechanics. Existing driving modes remain available.";
-  append(meta,"RISING TIDE / DESIGN DRAFT",sizeof meta);
+  title=page==0?"STORY RECORD":page==1?"SHARED PROGRESSION":"NEXT BUILD";
+  text=page==0?"Rising Tide has 125 playable dialogue scenes. Finishing each scene unlocks the next event. Chapter finals open the following class chapter. Racing is not implemented yet.":page==1?"Story progress saves independently in each of your three profiles. Replaying a completed scene never grants more progress or money. Cars, installed parts and finishes remain shared across modes.":"Next decisions: circuit handling, race length, AI behavior, payouts, difficulty and which planning cards deserve full mechanics. Existing driving modes remain available.";
+  append(meta,"RISING TIDE / STORY EDITION",sizeof meta);
  }
  glass(s,5,37,246,148,0);gfx_text_small(s,14,44,title,t->accent);limited(s,14,60,226,meta,t->ink);
  if(campaign.modal==3&&page==0){campaign_portrait(s,14,82,g->cursor==1);gfx_wrap(s,71,84,text,169,14,5,t->ink);}
@@ -90,17 +90,17 @@ static void campaign_modal(Surface*s,const Game*g){
 static __attribute__((noinline)) void campaign_menu(Surface*s,const Game*g){
  static const char*const tabs[5]={"Route","Story","Rivals","Plans","Office"};
  for(int i=0;i<5;i++){glass(s,i*51,0,50,20,campaign.tab==i);center_small(s,i*51,6,50,tabs[i],campaign.tab==i?t->selected_ink:t->ink);}
- char money_text[24]="";money(money_text,g->save.cash,sizeof money_text);gfx_text_small(s,8,25,"RISING TIDE / UI DRAFT",t->muted);right_small(s,247,25,money_text,t->accent);
+ char money_text[24]="";money(money_text,g->save.cash,sizeof money_text);gfx_text_small(s,8,25,"RISING TIDE / STORY",t->muted);right_small(s,247,25,money_text,t->accent);
  if(campaign.modal){campaign_modal(s,g);return;}
  const CareerChapter*c=&career_chapters[campaign.chapter];
  if(campaign.tab==0){
   char level[20]="";number(level,campaign.event+1,sizeof level);append(level," / 25",sizeof level);
   campaign_row(s,g,0,c->name,game_class_name(campaign.chapter));campaign_row(s,g,1,career_event_name(campaign.chapter,campaign.event),level);
-  campaign_row(s,g,2,"Race briefing",career_event_kind(campaign.event)==2?"BOSS":career_event_kind(campaign.event)?"MINI BOSS":"PREVIEW");campaign_row(s,g,3,"Shared garage","OPEN");
-  glass(s,5,135,246,50,0);gfx_text_small(s,13,140,c->surface,t->accent);limited_small(s,13,153,222,vehicles[g->save.selected_vehicle].name,t->ink);gfx_text_small(s,13,169,"Races are not playable in this draft.",t->muted);
+  campaign_row(s,g,2,"Play story scene",story_status(g,campaign.chapter,campaign.event)==2?"REPLAY":story_status(g,campaign.chapter,campaign.event)==1?"CONTINUE":"LOCKED");campaign_row(s,g,3,"Shared garage","OPEN");
+  glass(s,5,135,246,50,0);gfx_text_small(s,13,140,c->surface,t->accent);limited_small(s,13,153,222,vehicles[g->save.selected_vehicle].name,t->ink);gfx_text_small(s,13,169,"Story scenes playable. Racing comes later.",t->muted);
  }else if(campaign.tab==1){
   static const char*const beats[5]={"Opening nights","Training / cash block","Event 12 / turning point","Preparing the final","Event 25 / next chapter"};
-  for(int i=0;i<5;i++)campaign_row(s,g,i,beats[i],i==2?"12":i==4?"25":"READ");
+  for(int i=0;i<5;i++)campaign_row(s,g,i,beats[i],!career_journal_open(g,campaign.chapter,i)?"LOCKED":i==2?"12":i==4?"25":"READ");
   limited_small(s,12,163,232,c->premise,t->muted);
  }else if(campaign.tab==2){
   campaign_row(s,g,0,c->mini,"12");campaign_row(s,g,1,c->boss,"25");campaign_row(s,g,2,"Scouting / fair-race rules","IDEA");campaign_portrait(s,16,115,g->cursor==1);gfx_wrap(s,76,120,g->cursor==1?c->boss_style:c->mini_style,165,14,4,t->muted);
@@ -108,8 +108,8 @@ static __attribute__((noinline)) void campaign_menu(Surface*s,const Game*g){
   for(int i=0;i<5;i++)campaign_row(s,g,i,career_plan_name(i),"IDEA");
   gfx_text_small(s,12,164,"Proposals to shape the racing later.",t->muted);
  }else{
-  char done[24]="";number(done,campaign.preview_done[campaign.chapter],sizeof done);append(done," / 25",sizeof done);
-  campaign_row(s,g,0,"Shared garage","OPEN");campaign_row(s,g,1,"Map progress preview",done);campaign_row(s,g,2,"Reset preview record","RESET");campaign_row(s,g,3,"What this build includes","READ");
-  glass(s,5,135,246,50,0);gfx_text_small(s,13,140,"PREVIEW ONLY / NOT SAVED",t->accent);gfx_wrap(s,13,153,"Map preview only. No race rewards or saved progress.",226,12,2,t->muted);
+  char done[24]="";number(done,story_completed(g),sizeof done);append(done," / 125",sizeof done);
+  campaign_row(s,g,0,"Shared garage","OPEN");campaign_row(s,g,1,"Campaign record",done);campaign_row(s,g,2,"Continue the story","OPEN");campaign_row(s,g,3,"What this build includes","READ");
+  glass(s,5,135,246,50,0);gfx_text_small(s,13,140,"SAVED STORY PROGRESS",t->accent);gfx_wrap(s,13,153,"Finished scenes open the next event. Replays keep your record intact.",226,12,2,t->muted);
  }
 }

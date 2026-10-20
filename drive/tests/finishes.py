@@ -24,7 +24,7 @@ a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_o
 rom=ROOT/'build'/'Coastline.nds';elf=ROOT/'build'/'arm9.elf';verify_layout(ROOT)
 library=ROOT/'build'/'libfinishes-qa.so'
 subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
-    'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+    'src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
 lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 lib.game_cosmetic_cost.argtypes=[C.POINTER(Game),C.c_int,C.c_int]
 profile=Game();lib.game_init(C.byref(profile),0x46494e49)

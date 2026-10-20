@@ -3,9 +3,9 @@
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 **Drive** now opens three illustrated cards: **Endless Drive**, **Free Roam** and **Career**.
-Career is a UI-only campaign draft: five class chapters, 125 event concepts,
-city-map progression, story journals, rival dossiers and proposed mechanics.
-Races are not playable yet; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
+Career now plays **125 story scenes with 628 dialogue messages**, original
+backgrounds and characters, varied cinematic staging, and saved level unlocks.
+Racing in Career is still a future step; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
 Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
 an original overhead city with roads you can turn onto, a river and bridges,
 neighborhood shortcuts, waterfront boulevards and a shared garage.
@@ -37,29 +37,39 @@ starts a new profile. Existing slots continue their saved progress.
 Press B on the main menu to return to the save selector. Earlier single-profile
 battery files are accepted as **Save 1**. Saves 2 and 3 start empty. The complete
 three-profile bank uses an **8 KiB EEPROM**, with three independently checked
-1024-byte records, each containing a 1000-byte version 6 profile. Earlier
+1024-byte records, each containing a 1000-byte version 7 profile. Earlier
 500-byte profiles and all three slots migrate together before the first write.
 
-## Career preview
+## Rising Tide / story mode
 
-Choose Career from Drive to browse **Rising Tide**. The upper display shows 25
-connected event markers per class chapter; the lower display has Route, Story,
-Rivals, Plans and Office tabs. D/C/B propose closed street circuits; A/S move
-to permanent road courses, with a mini boss at event 12 and a boss at 25.
+Career opens **Rising Tide**, a connected 125-event story across five class
+chapters. Nia's Sunline Garage grows from neighborhood club nights to the
+Coastline Cup. Rival exhibitions provide reasons for focused training blocks;
+ordinary races can be work and preparation rather than another crisis.
 
-All modes use the same garage. No campaign race, reward or sporting unlock is
-implemented. Office's map-progress preview is temporary, clearly labelled and
-never changes your saved progression. The existing XP/perks page is now labelled
-**Driver** on the main menu to distinguish it from the story campaign.
+Each event currently plays a dialogue scene, then saves its completion and
+opens the next node. There is no Career racing gameplay yet. Narrated race
+montages are fiction, not simulated races or cash rewards. All modes retain
+the same cars, upgrades, finishes and economy.
 
-L/R changes Career tabs. Up/Down selects rows; Left/Right changes chapters,
-events or the temporary preview count. A opens a reader; A or directions cycles
-its three pages. B closes it or returns to Drive. The shared garage returns
-to Career with B. Details and editable system ideas are in CAREER-DRAFT.md.
+Scenes mix painted first-person conversations, transparent character sprites,
+wide car-meet pans, radio exchanges and letterboxed montages. Soft scene cuts,
+eased camera movement and typewriter text suit the retro presentation. The
+ROM streams its artwork internally; it needs no external asset files.
 
-**Review-build limitation:** the extended Free Roam audit reports occasional
-67 ms frames and does not pass its strict timing gate. Functional and save
-checks pass. Measurements are documented in CAREER-DRAFT.md and VALIDATION.json.
+A reveals and advances dialogue. B or Start pauses a scene; Up/Down selects
+Resume, Restart, or Return to map. Aborting and replaying do not grant extra
+progress. L/R changes Career tabs; Left/Right changes the chapter or event.
+Future journal entries stay locked until the corresponding story progress.
+The Office records saved progress and offers Continue. The old unsaved map
+preview has been removed. The XP/perks tile on Home remains labelled Driver.
+
+Version 7 preserves the 8 KiB, three-profile save bank and migrates versions
+1–6. Each profile has its own story record. Previous ROMs cannot read new v7
+records; keep a backup when switching back to an earlier build.
+
+Existing Free Roam frame-time spikes remain a separate limitation. Current
+measurements and any explicit review-build exception are in VALIDATION.json.
 
 ## Controls
 
@@ -139,7 +149,7 @@ Near misses, driving, speed streaks, drifts, wheelies and finite road coins
 feed the existing points, cash and progression systems. Highway Dispatch
 contracts are not applied to city visits. A visit restarts at the city entrance;
 this first version does not persist your parking position or collectible state.
-Your garage and banked earnings remain in the existing version 6 battery save.
+Your garage and banked earnings remain in the existing version 7 battery save.
 
 The city is a first playable driving map. Its traffic follows street loops, with opposing lanes and headway
 checks. There are no pedestrians or missions yet. Vehicles use the reviewed

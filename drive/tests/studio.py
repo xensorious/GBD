@@ -29,7 +29,7 @@ library=ROOT/'build'/'libstudio-qa.so'
 if a.skin is None:
     verify_layout(ROOT)
     subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild',
-        'src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+        'src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
     from concurrent.futures import ThreadPoolExecutor
     def review(skin):
         subprocess.run([sys.executable,__file__,'--output',str(a.output),'--rom',str(a.rom),
@@ -63,7 +63,7 @@ write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 events=[]
 with Emulator(a.rom,directory) as e:
     e.run(180);d=DriveThrough(e,find_symbol(a.elf,'game'),a.output)
-    assert d.game().has_save and d.game().save.version==6 and d.game().save.cash==1000000
+    assert d.game().has_save and d.game().save.version==7 and d.game().save.cash==1000000
     def shot(name):d.shot(f'ui-{skin}-{name}')
     def tab(n):
         while d.game().garage_tab!=n:d.press('r')

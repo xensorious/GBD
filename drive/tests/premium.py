@@ -21,7 +21,7 @@ p.add_argument('--output',type=Path,default=ROOT/'build'/'premium-final')
 a=p.parse_args();a.output=a.output.resolve();a.output.mkdir(parents=True,exist_ok=True)
 rom=ROOT/'build'/'Coastline.nds';elf=ROOT/'build'/'arm9.elf';verify_layout(ROOT)
 library=ROOT/'build'/'libpremium-qa.so'
-subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
 lib=C.CDLL(str(library));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 lib.game_dealer_count.argtypes=[C.c_int];lib.game_dealer_vehicle.argtypes=[C.c_int,C.c_int]
 vehicles,_=catalogue(lib);profile=Game();lib.game_init(C.byref(profile),0x5045524d)

@@ -367,3 +367,38 @@ void ds_drive_audio(int speed,int accelerating,int drift,int horn,int active) {
     if(horn_channel>=0&&hv!=old_horn)soundSetVolume(horn_channel,(uint8_t)hv);
     old_rate=rate;old_engine=ev;old_road=rv;old_horn=hv;
 }
+
+/* The single NitroFS file is an immutable scene archive. Read ordinary game-card
+ * blocks directly; EEPROM saves remain a separate SPI transaction. */
+static uint32_t story_card_block[128] __attribute__((aligned(32)));
+static unsigned story_card_base,story_card_size,story_card_cached=~0u;
+static int story_block(unsigned address){
+ address&=~511u;if(story_card_cached==address)return 1;
+ sysSetCartOwner(BUS_OWNER_ARM9);
+ REG_AUXSPICNT=0; /* End any preceding backup-chip transaction before ROM I/O. */
+ uint8_t command[8]={0,0,0,(uint8_t)address,(uint8_t)(address>>8),(uint8_t)(address>>16),(uint8_t)(address>>24),CARD_CMD_DATA_READ};
+ cardWriteCommand(command);
+ REG_ROMCTRL=(__NDSHeader->cardControl13&0x00ffffffu)|CARD_ACTIVATE|CARD_nRESET|CARD_BLK_SIZE(1);
+ unsigned words=0,budget=2000000;uint16_t start=TIMER0_DATA;
+ do{
+  if(REG_ROMCTRL&CARD_DATA_READY){uint32_t value=REG_CARD_DATA_RD;if(words<128)story_card_block[words++]=value;}
+  if(!budget--||(uint16_t)(TIMER0_DATA-start)>25000u){story_card_cached=~0u;REG_AUXSPICNT=0;return 0;}
+ }while(REG_ROMCTRL&CARD_BUSY);
+ REG_AUXSPICNT=0; /* Release the cartridge bus before EEPROM autosaves. */
+ if(words!=128)return 0;
+ story_card_cached=address;return 1;
+}
+int ds_story_read(unsigned offset,void*data,unsigned size){
+ if(!story_card_base){
+  unsigned fat=__NDSHeader->fatOffset;if(!fat||(fat&511u)>504u||!story_block(fat))return 0;
+  unsigned at=(fat&511u)/4;story_card_base=story_card_block[at];unsigned end=story_card_block[at+1];
+  if(story_card_base<0x8000||end<=story_card_base){story_card_base=0;return 0;}story_card_size=end-story_card_base;
+ }
+ if(offset>story_card_size||size>story_card_size-offset)return 0;
+ uint8_t*out=data;
+ while(size){unsigned address=story_card_base+offset,n=512-(address&511u);if(n>size)n=size;
+  if(!story_block(address))return 0;
+  memcpy(out,(uint8_t*)story_card_block+(address&511u),n);offset+=n;out+=n;size-=n;
+ }
+ return 1;
+}

@@ -69,7 +69,7 @@ a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 rom=a.rom.resolve();elf=a.elf.resolve();initial_sha=hashlib.sha256(rom.read_bytes()).hexdigest()
 verify_layout(ROOT)
 library=out/'libshadow-audit.so'
-subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
+subprocess.run(['gcc','-std=c11','-O2','-shared','-fPIC','-Isrc','-Ibuild','src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','-o',str(library)],cwd=ROOT,check=True)
 lib=C.CDLL(str(library))
 lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 profile=Game();lib.game_init(C.byref(profile),0x53484144)

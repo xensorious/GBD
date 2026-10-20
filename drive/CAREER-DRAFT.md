@@ -1,73 +1,141 @@
-# Rising Tide — Career interface draft
+# Rising Tide — playable story edition
 
-This build adds a browsable campaign proposal, **not playable races**. Drive has a third illustrated Career card. All cars, installed parts, paint, liveries and departure choices belong to the existing shared garage. The Home tile previously called Career is now called **Driver**, retaining its existing XP and perks.
+Career now contains **125 playable dialogue scenes**, one per event in its five
+class chapters. Finishing a scene records its completion and opens the next
+node. Event 12 is the named rival encounter; event 25 closes the chapter and
+opens the following class chapter. The final scene returns to Sunline Garage.
 
-## Campaign spine
+**There is still no racing gameplay in Career.** A race described by narration
+is a story montage. Watching it does not simulate a driven race, award racing
+cash, remove money, change vehicle statistics, or grant a separate set of parts.
+Cars, installed upgrades, finishes, presets and cash remain the shared garage.
 
-You and Nia run an independent neighborhood garage. Club nights pay the bills; the Coastline Cup offers a ladder out. Promoter Voss wants to buy the garage's name and control its entry. The crew moves from street clubs to licensed road courses while keeping its independence. Rivals can become allies; bosses represent sporting milestones rather than five unrelated villains.
+## Story and character arcs
 
-| Class | Chapter | Venue | Event 12 | Event 25 |
-| --- | --- | --- | --- | --- |
-| D | Saltblock Quarter | Closed neighborhood street circuits | Jules / The Courier | Calder / Block Captain |
-| C | Lantern Mile | Closed waterfront and night circuits | Imani / Night Shift | Marisol / Harbor Queen |
-| B | Foundry Ring | Closed industrial street circuits | Kade / The Benchmark | Rook / Iron Crown |
-| A | Meridian Park | Permanent road courses | Ren / Sector Ghost | Aster / The Gatekeeper |
-| S | Pelican Grand Prix | Permanent Grand Prix road courses | Sable / Silver Apex | Voss / The Promoter |
+You arrive at Nia's independent Sunline Garage when an ordinary lease renewal
+has become difficult to answer. The club ladder offers paid work and racing
+experience. As the crew progresses, a commercial team-name agreement becomes
+an attractive but uncomfortable way to secure a place in the Coastline Cup.
+The question is what the crew owes one another, not whether every businessman
+is secretly a cheat.
 
-There are 25 titled events per chapter, 125 total. Each chapter has five journal blocks: opening, practice/cash-building, the event-12 duel, preparation for the final, and event 25. Regular races can simply be the crew working and training; not every race must advance a conspiracy.
+Voss once lost his own garage and believes stable commercial backing protects
+working people. His offer has real benefits and a real cost. Nia has to learn
+that keeping Sunline independent does not mean making other people's choices
+for them. Mina's paid photography and Jules's concern about reliable wages
+make the crew's discussion more than a unanimous speech against sponsorship.
+The solution is a readable independent guarantee supported by real club work.
 
-D event 6 proposes a clearly signposted story exhibition against a much faster visitor, followed by a practice block. B opens with Kade exposing a racecraft gap before the event-12 rematch. These are written concepts only. Neither scene runs, charges money nor forces a gameplay loss in this build. When implemented, avoid invalidating an unexpectedly successful player drive: use a separate scene or acknowledge the player's result.
+| Class / chapter | Opening and ordinary work | Event 12 | Chapter final |
+| --- | --- | --- | --- |
+| D / Saltblock Quarter | Nia lends the small keys; Jules's banter becomes practical help; small heats pay actual workshop bills. | Jules's courier circuit turns a local rival into an ally. | Calder recommends Sunline to Lantern Mile. Nia chooses to keep the door open. |
+| C / Lantern Mile | Marisol's harbor clubs reward reliability; Imani expects common sense; sponsorship begins as a conversation. | The shift-change duel earns Imani's respect and a place at the supplier's table. | Marisol backs the Foundry application and points out its team-identity clause. |
+| B / Foundry Ring | Kade exposes a repeatable driving weakness; Rook explains the costs of a sporting application. | The clean rematch earns Kade's respect and the actual licensing rules. | Rook's club joins Calder and Marisol in guaranteeing an independent application. |
+| A / Meridian Park | Ren teaches permanent-circuit procedures, sectors and longer sessions; the crew discusses Voss's offer honestly. | Ren's sector duel earns a sporting recommendation and an ongoing crew relationship. | Aster signs the independent Cup entry and distinguishes a license from a business contract. |
+| S / Pelican Grand Prix | Sable asks for a real contest; ordinary sessions and paid work support the final series; Voss agrees to discuss actual terms. | Sable backs a fair independent-entry statement after the duel. | The final is a fair race in the story. Back at Sunline, the small-keys joke becomes a welcome for the next unknown driver. |
 
-## Screens
+The complete screenplay is [story/rising_tide.txt](story/rising_tide.txt):
+**628 authored messages**, including dialogue for twelve named characters,
+the player and a narrator. It is also supplied as `STORY-SCRIPT.txt` in the ZIP.
 
-The top display contains a compact illustrated city atlas with a stable, irregularly scattered 25-node route. Dotted connections show event order. Gold indicates the current event, green indicates a cleared event, and hollow gray indicates locked events. A white ring indicates the event being inspected. Event 12 has a larger marker and event 25 a diamond. A/S chapters add a circuit footprint and paddock to the atlas. This is a campaign illustration, not a traversable map or finalized race geometry.
+### Setbacks that explain training
 
-The lower screen retains the established interface layout and all six palette options:
+D.06 is a spontaneous, agreed exhibition with Kade. A narrated cutaway shows
+the gap; Nia identifies untidy corner exits rather than blaming a magically
+bad engine. D.07–D.11 become a short practice-and-income block before Jules.
 
-- **Route:** chapter, event, race briefing and shared garage. Briefings have objective, story-context and entry-plan pages. Cash figures are explicitly proposed, not balanced or awarded. Higher-class chapters and locked events are browsable for design review.
-- **Story:** five journal blocks, Nia's garage-radio commentary and workshop notes.
-- **Rivals:** miniboss and boss dossiers, driving strengths and fair-race ideas. Portraits are original placeholder art.
-- **Plans:** proposed systems listed below, each with fit and shared-garage notes.
-- **Office:** shared garage shortcut, a temporary map-state preview, reset and scope notes.
+B.02 is the benchmark exhibition. Kade wins through the way he links corners;
+B.03–B.11 revisit approaches, exits, repeatability and patience before a fair
+rematch at B.12. No scene steals parts, removes cash or penalizes the save.
 
-The Office preview cycles zero through 25 completed nodes for the selected chapter. It exists to inspect the three map states. It is labelled **PREVIEW ONLY / NOT SAVED**, never awards money, changes unlocks or records victories, and resets on a fresh boot. It is not an implemented progression or debug cheat for racing.
+Later preparation blocks have equally ordinary reasons: meeting a supplier,
+funding entry costs, learning sectors, longer stints, and keeping the crew rested.
+Not every event creates another conspiracy or another named enemy.
 
-## Proposed systems to edit next
+## Scene presentation
 
-1. **Race licenses:** sporting invitations for event entry, separate from the existing vehicle-purchase fleet-count requirements. Do not charge twice to use an already purchased car.
-2. **Sponsor offers:** optional clean-finish or podium clauses for bonus cash. No sponsor-exclusive parts or cosmetics and no separate currency.
-3. **Practice and ghosts:** free track practice, personal-best ghosts and suggested target laps. Training should remain available when the player is short of cash.
-4. **Race-day choices:** short club events versus longer cash-building circuits for D–B. Qualifying, a weather forecast and a simple pit window for A/S. Road courses can feel more strategic without replacing the steering system.
-5. **Crew reputation:** dialogue and invitations acknowledge helping rivals and finishing cleanly. Reputation is not a duplicate upgrade tree or customization shop.
+- **Face-to-face staging:** original, camera-facing character sprites over a
+  painted location. The speaker comes forward; the other person recedes. The
+  player is treated as a first-person viewpoint rather than a stock avatar.
+- **Wide scene pans:** the camera eases across a wider car-meet illustration.
+  A small speaker portrait sits beside the dialogue, leaving the scene visible.
+- **Crew radio:** scenic views, caller portrait and a restrained animated radio
+  waveform handle quick preparation conversations without another formal meeting.
+- **Story montages:** letterboxed establishing shots and narration bridge the
+  fictional exhibitions, duels and chapter finals while races are still absent.
 
-Possible later mission variations include time trials, sector targets, clean races, endurance races and optional sponsor clauses. Traffic stays outside closed racing routes. Rivals should have readable strengths, use understandable vehicle rules, and avoid invisible catch-up advantages.
+There are six original backgrounds and twelve distinct transparent character
+portraits. Soft cuts separate locations; camera motion eases between speakers;
+portraits fade and subtly breathe; text types into a textured, retro teal panel.
+Messages fit the screen without scrolling off the edge. Dialogue uses physical
+buttons only. There are no touch targets.
 
-## What remains unbuilt
+## Progress, journal and replay
 
-Race tracks, start grids, opponents, laps, qualifying, event eligibility, rewards, persistent campaign progression, boss gameplay, weather and pit mechanics are not implemented. The preview deliberately cannot launch a race. Race lengths, payouts, balancing, repeatable income and difficulty need a later design pass. The existing Endless Drive and Free Roam modes remain playable.
+The map shows cleared, current and locked nodes. The next chapter opens only
+after the preceding chapter's final scene. Earlier scenes can be replayed in any
+order; a replay does not increase the saved frontier. Locked nodes can be inspected
+on the map but cannot launch a scene. Returning to the map during a scene or
+restarting it grants no completion. Holding A cannot cascade through messages.
 
-Save schema remains version 6. Career browsing adds only transient UI state; existing profiles and their three-slot bank retain their format.
+Journal entries open as the relevant events are completed. Future chapter
+outcomes are not exposed through an unlocked journal page. The Office now shows
+the saved campaign record and a Continue shortcut. The old temporary progress
+preview and its reset control have been removed.
 
-## Navigation
+The selected vehicle and its upgrades and cosmetics are not changed by scenes.
+Story completion opens story events, not vehicle-purchase class gates. The
+existing fleet-count requirements and shared economy remain in place.
 
-No touchscreen input is used. From Drive, Down selects Career; A opens it. L/R changes tabs, Up/Down changes rows, Left/Right changes the selected chapter/event or preview count. A opens a reading page; A or directional buttons cycles its three pages. B closes a page, then returns to Drive. Opening the shared garage from Career returns to Career with B. In-game control explanations stay in the Controls page.
+## Controls
 
-## Validation
+From Career's Route tab, choose the current or a cleared event and confirm.
+A first reveals the remaining text, then advances to the next message.
+B or Start opens a scene pause menu: Resume, Restart scene, or Return to map.
+Up/Down selects a pause option. The completion card returns to the map.
+In-game control explanations remain in the Controls page.
 
-`tests/campaign.c` checks all 125 event names and coordinates, all marker states, navigation and wraparound, six themes, screen bounds and unchanged save layout under AddressSanitizer/UndefinedBehaviorSanitizer. `tests/campaign.py` performs an actual cartridge tour with joypad input and read-only RAM observations, including ignored touch input, all chapters, story/rival/mechanic pages, temporary map progression, shared-garage return, existing-mode launch and a fresh-process reload. Funded fixtures used by other regression tests are not evidence of earned Career progression.
+L/R still changes Career tabs. Left/Right changes the chapter or selected event.
+The shared garage returns to Career with B.
 
-### Known performance issue in this review build
+## Saves and hardware
 
-Functional, save, UI and shadow-position checks pass. The extended Free Roam
-audit **does not pass its strict timing gate**: 12 of 4,065 measured display
-intervals lasted 66.7 ms (median 33.3 ms, 95th percentile 50 ms; approximately
-28 updates/second over that route). The two shorter vehicle routes pass.
-This is retained as a known regression from the previous release, rather than
-claiming the performance audit passed. The separate Career renderer preserves
-the driving renderer's code, but the larger binary still changes timing.
-Further engine optimization is deferred from this UI foundation task.
+Version 7 adds one compact story frontier (0–125 completed events) to each
+1000-byte profile. The three-profile bank remains an **8 KiB EEPROM**. Versions
+1–6 import with their existing cars, money, parts, high-ID colors, histories and
+presets preserved. Earlier builds cannot read version 7 records; keep a backup
+when switching back to an older ROM.
 
-The package explicitly records this review-build exception in VALIDATION.json
-and PLAY.txt. `tests/shadow_audit.py` retains its original strict assertion;
-ordinary packaging still refuses timing failures. The review bundle uses the
-explicit `--allow-ui-preview-timing-regression` packaging flag.
+The art and dialogue reside in an immutable NitroFS cartridge archive. Artwork
+streams only when a shot or character needs it. The renderer leases the existing
+small-sprite cache for its two background and two portrait buffers, then
+invalidates the lease on return to ordinary rendering. No cache capacity is
+removed from either driving mode, and the main executable stays below the ARM7
+memory boundary. The ROM contains the archive; no separate files or SD setup are
+needed in Delta.
+
+ROM reads and EEPROM writes explicitly release the shared cartridge controller
+between transactions. The immediate-scene autosave test closes the emulator,
+starts a new process, and checks the first unlock before any driving takes place.
+
+## Validation and remaining scope
+
+Native sanitizer checks complete all 125 scenes through the actual state machine,
+render all 628 messages, check sprite masks and screen guards, and verify locked,
+replayed, held-input, aborted and chapter-boundary behavior. Codec tests round-trip
+every frontier 0–125, reject invalid frontiers, import rich v6 records and preserve
+three independent profiles.
+
+The cartridge tour earns the first six events with button input, replays and
+aborts scenes, checks ignored touch input, verifies fresh-process reloads, and
+returns to both driving modes after the artwork lease. Later-chapter screenshots
+use explicitly labelled native-codec fixtures; they are visual coverage, not a
+claim of emulator-earned progression through those later chapters. Actual DS
+emulator captures are distinguished from the original art atlases.
+
+Career races, opponents, circuits, qualifying, weather, pits, entry fees and
+race rewards are still future work. The narrative now supplies a concrete reason
+and a staging point for each of those 125 future levels. Existing Free Roam
+frame-time spikes remain a separately reported limitation; the story update does
+not claim to resolve that engine issue. See `VALIDATION.json` for the measurements
+on the packaged cartridge. Physical iPhone/Delta testing was not performed here.

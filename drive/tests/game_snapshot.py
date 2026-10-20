@@ -106,7 +106,7 @@ def verify_layout(root:Path):
     assert C.sizeof(DiskSave3)==500
     assert C.sizeof(V4Save)==708
 
-MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings','contracts','drive selection','career preview')
+MODES=('home','run','receipt','garage','departures','challenges','controls','pause','career','settings','contracts','drive selection','career preview','story dialogue')
 END_REASONS=('none','stopped by patrol','crash impound','banked voluntarily','route limit')
 BONUSES=('distance','survival','near miss','speed hold','drift','wheelie','coins')
 def symbol(elf:Path,name:str):

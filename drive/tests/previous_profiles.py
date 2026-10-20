@@ -58,7 +58,7 @@ for v in range(48):
 for i in range(3):
  if expected.preset_mask&(1<<i) and (expected.presets[i]>>12)&7==2:expected.presets[i]|=1<<28
 expected.paints|=0xffc0
-expected.version=6;expected.checksum=0;expected.skin=max(3,expected.skin)
+expected.version=7;expected.checksum=0;expected.skin=max(3,expected.skin)
 
 with Emulator(rom,a.output/('previous-rich-save' if a.rich else 'previous-three-save')) as e:
  e.run(150);enter_opening(e,elf,a.slot);g=read_game(e,find_symbol(elf,'game'));g.save.checksum=0

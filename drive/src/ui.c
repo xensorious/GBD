@@ -2,6 +2,7 @@
 #include "city_render.h"
 #include "assets.h"
 #include "career.h"
+#include "story.h"
 
 /* Small, original frosted-glass instruments and menus for the DS's native
  * resolution. Nothing in this file handles input or modifies game state. */
@@ -312,7 +313,7 @@ static void controls(Surface*s,const Game*g){
   gfx_text_small(s,16,168,"5x combo = 2x skill recharge. No idle fill.",t->muted);
  }else{
   static const char*const keys[8]={"D-pad","A","B","L / R","Left / Right","Select","Any button","Up / Down"};
-  static const char*const actions[8]={"Choose tiles / list rows","Open / confirm / install","Return / profile selector","Garage / Career / settings","Car / finish / chapter / event","Dealer vehicle class","Open profiles from title","Choose a save slot"};
+  static const char*const actions[8]={"Choose tiles / list rows","Confirm / advance dialogue","Back / pause story scene","Garage / Career / settings","Car / finish / chapter / event","Dealer vehicle class","Open profiles from title","Choose a save slot"};
   for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,16,0);center_small(s,12,y+5,75,keys[i],t->accent);gfx_text_small(s,94,y+5,actions[i],t->ink);}
  }
  footer(s,"L / R: Change page","B: Back");
@@ -587,7 +588,7 @@ static void drive_select(Surface*s,const Game*g){
  for(int x=20;x<79;x+=12)gfx_rect(s,x,127,1,42,t->edge);
  for(int y=130;y<170;y+=11)gfx_rect(s,18,y,59,1,t->edge);
  for(int i=0;i<6;i++){int x=23+i*9,y=137+(i%3)*10;if(i)career_dots(s,x-9,137+((i-1)%3)*10,x,y,t->accent);disc(s,x,y,2,i==0?GOLD:t->muted);}
- gfx_text(s,92,128,"CAREER",sel?t->selected_ink:t->ink);gfx_text_small(s,92,145,"RISING TIDE / 125 EVENTS",sel?t->selected_detail:t->accent);gfx_text_small(s,92,160,"Story & race planning preview",sel?t->selected_ink:t->muted);
+ gfx_text(s,92,128,"CAREER",sel?t->selected_ink:t->ink);gfx_text_small(s,92,145,"RISING TIDE / 125 EVENTS",sel?t->selected_detail:t->accent);gfx_text_small(s,92,160,"A story told across 125 events",sel?t->selected_ink:t->muted);
 }
 static void city_dashboard(Surface*s,const Game*g){
  int key=-1000-g->vehicle-VEHICLE_COUNT*(interface+SKIN_STORAGE_LIMIT*g->save.units);

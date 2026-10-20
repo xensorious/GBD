@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT=Path(__file__).resolve().parents[1]
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--validation',type=Path,default=ROOT/'build'/'studio-validation')
-p.add_argument('--allow-ui-preview-timing-regression',action='store_true',help='Package a UI prototype with explicitly documented, bounded Free Roam timing failures; never mark the strict audit as passed.')
+p.add_argument('--allow-ui-preview-timing-regression','--allow-documented-timing-regression',dest='allow_ui_preview_timing_regression',action='store_true',help='Package a story review build with explicitly documented, bounded Free Roam timing failures; never mark the strict audit as passed.')
 a=p.parse_args();validation=a.validation
 DIST=ROOT/'dist';DIST.mkdir(exist_ok=True)
 rom=ROOT/'build'/'Coastline.nds';digest=hashlib.sha256(rom.read_bytes()).hexdigest()
@@ -24,9 +24,15 @@ def report(name):
 campaign=report('campaign-results.json')
 assert campaign['chapters']==5 and campaign['events']==125 and not campaign['race_gameplay']
 assert campaign['tabs']==['Route','Story','Rivals','Plans','Office']
-assert all(campaign[k] for k in ('button_only','touch_ignored','read_only_emulated_ram','preview_does_not_modify_save','shared_garage_return','existing_endless_launch','preview_resets_on_boot'))
+assert campaign['dialogue_lines']==628 and campaign['save_version']==7 and campaign['saved_progress']==6
+assert len(campaign['earned_story_events'])==6 and campaign['fresh_process_reloads']==4
+assert all(campaign[k] for k in ('button_only','touch_ignored','read_only_emulated_ram','three_profiles_isolated','replay_does_not_advance','abort_does_not_advance','locked_events_blocked','no_racing_cash_awarded','scene_autosaves_verified','shared_garage_return','existing_endless_launch','existing_city_launch'))
 campaign_native=report('campaign-native-results.json')
-assert campaign_native['checks']>=10000 and campaign_native['sanitizers_passed']
+assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed'] and campaign_native['all_scenes']==125
+story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
+assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==628 and story_assets['portrait_alpha_masks_valid']
+assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
+assert story_autosave['immediate_completion_save'] and story_autosave['fresh_process_reload']
 stock=report('results.json')
 if not stock['native']:
     stock['native']=report('native-results.json')['native']
@@ -94,7 +100,7 @@ for case in shadow_qa['cases']:
         assert pace['worst_ms']<=67 and pace['median_ms']<=34 and pace['p95_ms']<=50
         assert pace['frames_over_50ms']<pace['samples']*.005 and pace['lcd_frame_gaps'].get('2',0)>=pace['samples']*.85
         known_issues.append({'mode':'Free Roam','model':case['model'],'strict_timing_audit_passed':False,'measurements':pace,
-            'note':'UI prototype only: rare frame delays remain in the extended city route. Functional, save, shadow-position and UI checks pass; the strict driving timing check fails.'})
+            'note':'Story review build: rare frame delays remain in the extended city route. Functional, save, shadow-position and UI checks pass; the strict driving timing check fails.'})
     assert all(probe['missing_shadow']<=8 and probe['unexplained_shadow']<=8 for probe in case['shadow_probes'])
 assert all(sunlight[key] for key in ('world_space','actual_player_full_sun','actual_player_partial_shade','actual_player_full_shade'))
 assert sunlight['max_cached_casters']<192 and sunlight['partial_vehicle_frames']>0
@@ -106,7 +112,7 @@ for name,expected in sunlight_comparison['files'].items():
 assert city['actual_city_route_completed'] and city['actual_bridge_crossing'] and city['city_hz']>=25
 assert city['button_only_mode_selector'] and city['touch_ignored'] and city['shared_owned_vehicle_and_cosmetics']
 assert city['pause_freezes_city'] and city['shared_banked_cash'] and city['fresh_process_reload']
-assert current['profile_preserved_byte_for_byte'] and current['fresh_process_reload']
+assert current['profile_fields_preserved'] and current['version_migrated']==7 and current['fresh_process_reload']
 assert city['heading_locked_camera'] and city['actual_full_circle_and_heading_wrap']
 assert city['observed_headings']>=32 and city['max_submitted_quads']<900
 assert not city['ds_geometry_overflow'] and not city['ds_color_underflow']
@@ -156,15 +162,17 @@ if known_issues:
         f.write('\nKNOWN VALIDATION ISSUE\nThe extended Free Roam route fails the strict driving timing limit.\n')
         for issue in known_issues:
             m=issue['measurements'];f.write(f"Model {issue['model']}: {m['frames_over_50ms']} of {m['samples']} measured frame intervals exceed 50 ms; worst {m['worst_ms']:.1f} ms, median {m['median_ms']:.1f} ms.\n")
-        f.write('Career is a UI draft; race gameplay is not implemented.\n')
+        f.write('Career has playable story scenes; race gameplay is not implemented.\n')
 shutil.copyfile(ROOT/'CREDITS.txt',DIST/'CREDITS.txt')
 shutil.copyfile(validation/'shadow-qa-results.json',DIST/'SHADOW-AUDIT.json')
 (DIST/'VALIDATION.json').write_text(json.dumps({'known_issues':known_issues,'strict_driving_timing_passed':not known_issues,'cartridge':stock,'interface_studio':studio,'opening':opening,
     'afternoon_sunlight':sunlight,'sunlight_comparison':sunlight_comparison,
-    'shadow_qa':shadow_qa,'career_preview':campaign,'career_native':campaign_native,
+    'shadow_qa':shadow_qa,'career_preview':campaign,'career_native':campaign_native,'story_assets':story_assets,'story_autosave':story_autosave,
     'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
-    'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the UI-only Career preview, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
+    'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the playable Career story scenes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 shutil.copyfile(ROOT/'CAREER-DRAFT.md',DIST/'CAREER-DRAFT.md')
+shutil.copyfile(ROOT/'story/rising_tide.txt',DIST/'STORY-SCRIPT.txt')
+shutil.copyfile(ROOT/'art/story/cast.png',DIST/'Story-Cast.png')
 shutil.copyfile(validation/'campaign-results.json',DIST/'CAREER-VALIDATION.json')
 font=ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',13)
 
@@ -182,10 +190,14 @@ def contact(filename,items,columns=2,screen='bottom'):
 
 contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SCREEN OPENING'),('opening-slots-filled','THREE INDEPENDENT SAVE SLOTS'),('opening-slide-middle','SLIDE INTO THE MAIN MENU'),('opening-home','EXISTING MAIN MENU'))],screen='dual')
 contact('Career.png',[
- ('career-drive-selector','Drive / third mode'),('career-route-d','D / Saltblock Quarter'),
- ('career-route-4','S / permanent road courses'),('career-progress-12','Map-state illustration / temporary preview'),
- ('career-reader-1-0','Story journal / proposed narrative'),('career-tab-2','Rivals / mini boss and chapter boss'),
- ('career-tab-3','Plans / proposed mechanics'),('career-tab-4','Office / interface scope')],screen='dual')
+ ('story-d01-0','Sunline / first-person character staging'),('story-d01-6','Car-meet panorama / slow camera pan'),
+ ('story-d05-0','Crew radio / portrait and waveform'),('story-d06-4','Exhibition setback / narrated montage'),
+ ('story-b15-0','The offer / a visiting Voss at Sunline'),('story-a14-0','Crew meeting / people with different priorities'),
+ ('story-s25-12','The final chapter / a door left open'),('story-six-events-earned','Six scenes earned / saved map progression')],screen='dual')
+contact('Story-Progress.png',[
+ ('story-d01-clear','First scene completed / autosaved'),('story-d06-clear','Training block unlocked'),
+ ('story-profile-1-reload','Fresh process / original profile continues'),('story-profile-2-reload','Second profile / independent story record'),
+ ('story-shared-garage','Existing shared garage'),('story-return-city','Back to driving / released art scratch memory')],screen='dual')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
@@ -351,7 +363,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
+files=['Story-Progress.png','Story-Cast.png','STORY-SCRIPT.txt','Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
     'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Free-Roam-Refinement.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',
@@ -365,4 +377,4 @@ with zipfile.ZipFile(archive_path,'w',zipfile.ZIP_DEFLATED) as archive:
 with zipfile.ZipFile(archive_path) as archive:
     assert archive.testzip() is None
     assert archive.read('Coastline-DS/Coastline.nds')==rom.read_bytes()
-print('Packaged UI review cartridge with documented timing failure:' if known_issues else 'Packaged validated cartridge:',rom.stat().st_size,'bytes;',digest)
+print('Packaged story review cartridge with documented timing failure:' if known_issues else 'Packaged validated cartridge:',rom.stat().st_size,'bytes;',digest)
