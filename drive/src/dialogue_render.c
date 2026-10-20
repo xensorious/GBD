@@ -5,6 +5,7 @@
 #include "career.h"
 #include <stdio.h>
 #include <string.h>
+#include "story_visuals.h"
 static uint8_t *back[2],*people[2];
 static uint16_t *back_palette[2],*people_palette[2];
 static int leased,back_id[2]={-1,-1},people_id[2]={-1,-1},background_slot;
@@ -33,9 +34,9 @@ static int background(int id){
  back_id[slot]=id;story_visual_stats[1]++;return slot;
 }
 static int person(int id,int protect){
- if(id<0||id>=12)return -1;
+ if(id<0||id>=STORY_PORTRAITS)return -1;
  for(int i=0;i<2;i++)if(people_id[i]==id)return i;
- int slot=people_id[0]==protect?1:0,w,h;
+ int slot=protect>=0&&people_id[0]==protect?1:0,w,h;
  if(!story_asset(STORY_BACKGROUNDS+id,people[slot],people_palette[slot],128*128,&w,&h)||w!=128||h!=128){story_visual_stats[0]++;return -1;}
  people_id[slot]=id;story_visual_stats[2]++;return slot;
 }
@@ -72,16 +73,9 @@ int story_text_lines(const char*text,int width){
 /* Subject captions identify an insert, rather than labelling unrelated scenery.
  * Source coordinates and the shot-by-shot cast are authored in staging.json. */
 static const char*subject_name(int bg,int right){
- static const char*const inserts[12][2]={
-  {"The small keys","The wandering jack"},{"Notebook / course map","Onboard corner study"},
-  {"Lease / application papers","Invoices and budget"},{"Crew radio / weather","Sector timing sheet"},
-  {"Commercial agreement","Independent application"},{"Marshal's entrance","Club starting grid"},
-  {"Corner reference marker","The next corner exit"},{"Borrowed club awning","Harbor food van"},
-  {"Sunline / family photograph","Chairs by the open door"},{"Sunline after hours","The crew's kettle"},
-  {"Floodlit final corner","Finish line"},{"Rain on the waterfront","Shelter under the awning"}
- };
- return bg>=6&&bg<STORY_BACKGROUNDS?inserts[bg-6][right]:NULL;
+ return bg>=6&&bg<STORY_BACKGROUNDS?story_subjects[bg][right]:NULL;
 }
+static int portrait_id(int actor_id,int pose){return actor_id>=0&&actor_id<STORY_PEOPLE?story_portraits[pose][actor_id]:-1;}
 void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  Surface image={top,256,192},dialog={bottom,256,192};
  const StoryLine*line=&story.current;
@@ -91,10 +85,13 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  else if(story.phase==ST_ENDING)brightness=(16-story.phase_tick)*16;
  else if(story.phase==ST_CLEAR)brightness=story.phase_tick<16?story.phase_tick*16:256;
  int okay=lease();int bg=okay?background(line->background):-1;okay=bg>=0;
- int face=line->speaker<12?line->speaker:line->companion,other=line->speaker<12?line->companion:255;
+ int speaking=line->speaker<STORY_PEOPLE;
+ int face=speaking?line->speaker:line->companion,other=speaking?line->companion:255;
+ int face_pose=(line->focus>>(speaking?9:11))&3,other_pose=(line->focus>>11)&3;
+ int face_id=portrait_id(face,face_pose),other_id=portrait_id(other,other_pose);
  int lead=-1,companion=-1;
- if(okay&&line->stage==ST_FACE){lead=person(face,other);if(other<12&&other!=face)companion=person(other,face);}
- else if(okay&&line->speaker<12)lead=person(line->speaker,255);
+ if(okay&&line->stage==ST_FACE){lead=person(face_id,other_id);if(other<STORY_PEOPLE&&other!=face)companion=person(other_id,face_id);}
+ else if(okay&&speaking)lead=person(face_id,-1);
  if(okay){
   background_slot=bg;
   int target=(int)(line->focus&STORY_FOCUS_X)*256;
@@ -111,8 +108,8 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   for(int y=0;y<192;y++){const uint8_t*p=back[bg]+(cy+y*view_height/192)*512;uint16_t*d=top+y*256;for(int x=0;x<256;x++)d[x]=palette[p[cols[x]]];}
   if(line->stage==ST_FACE){
    int light=brightness,breath=(story.ticks/35)%2;
-   if(line->speaker<12){
-    int left=other>=12||line->speaker<other;
+   if(speaking){
+    int left=other>=STORY_PEOPLE||line->speaker<other;
     actor(&image,companion,left?137:-2,72,121,121,210,light*160/256);
     int opacity=story.age<7?160+(int)story.age*96/7:256;
     actor(&image,lead,left?0:104,40+breath,152,152,opacity,light);
@@ -128,10 +125,14 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  const char*subject=subject_name(line->background,(line->focus&STORY_FOCUS_SUBJECT)!=0);
  if(subject&&line->stage!=ST_FACE){int y=(line->stage==ST_MONTAGE||line->stage==ST_RADIO)?161:176;
   overlay(&image,5,y-3,limit(gfx_text_width(subject)+10,0,246),13,C(3,10,20),150);gfx_text_small(&image,10,y,subject,C(220,220,195));}
+ if(line->stage==ST_FACE&&story_locations[line->background][0]){
+  const char*place=story_locations[line->background];overlay(&image,5,173,limit(gfx_text_width(place)+10,0,246),14,C(3,10,20),145);
+  gfx_text_small(&image,10,177,place,C(220,220,195));
+ }
  gfx_rect(&dialog,0,0,256,192,C(5,14,26));
  for(int y=0;y<192;y+=4)gfx_rect(&dialog,0,y,256,1,C(8,20,31));
  panel(&dialog,5,12,246,148);
- int portrait=line->stage!=ST_FACE&&line->speaker<12&&lead>=0&&story_text_lines(line->text,163)<=8;
+ int portrait=line->stage!=ST_FACE&&speaking&&lead>=0&&story_text_lines(line->text,163)<=8;
  int tx=portrait?79:15,tw=portrait?163:226;
  gfx_rect(&dialog,11,18,234,19,C(9,30,39));gfx_text(&dialog,15,21,story_cast_names[line->speaker],C(245,217,151));
  char pages[24];snprintf(pages,sizeof pages,"%d / %d",story.line+1,story.count);gfx_text_small(&dialog,204,25,pages,C(141,187,185));

@@ -1,8 +1,10 @@
 {
-  "sha256": "43f81c10ed2ad507054c46e9d2a91f77d5760d80006a0d46361eee22513e7dac",
+  "sha256": "f1399316bd8518e57b6140e98bb8b4418fb418afe2270f3e43c415fb7bd788f9",
   "chapters": 5,
   "events": 125,
-  "dialogue_lines": 628,
+  "dialogue_lines": 923,
+  "backgrounds": 54,
+  "portrait_variants": 50,
   "tabs": [
     "Route",
     "Story",
@@ -17,38 +19,38 @@
     {
       "scene": "D01",
       "dialogue_lines": 8,
-      "updates": 201,
-      "lcd_frames": 1292
+      "updates": 200,
+      "lcd_frames": 1288
     },
     {
       "scene": "D02",
       "dialogue_lines": 5,
-      "updates": 86,
-      "lcd_frames": 592
+      "updates": 87,
+      "lcd_frames": 594
     },
     {
       "scene": "D03",
-      "dialogue_lines": 6,
-      "updates": 90,
-      "lcd_frames": 618
+      "dialogue_lines": 12,
+      "updates": 130,
+      "lcd_frames": 878
     },
     {
       "scene": "D04",
-      "dialogue_lines": 6,
-      "updates": 123,
-      "lcd_frames": 758
+      "dialogue_lines": 10,
+      "updates": 138,
+      "lcd_frames": 862
     },
     {
       "scene": "D05",
-      "dialogue_lines": 6,
-      "updates": 132,
-      "lcd_frames": 828
+      "dialogue_lines": 10,
+      "updates": 164,
+      "lcd_frames": 1156
     },
     {
       "scene": "D06",
       "dialogue_lines": 10,
-      "updates": 325,
-      "lcd_frames": 2166
+      "updates": 324,
+      "lcd_frames": 2164
     }
   ],
   "saved_progress": 6,
@@ -69,18 +71,31 @@
     "montage"
   ],
   "later_visual_fixtures": [
-    "D04",
+    "D09",
+    "D10",
     "D12",
+    "D17",
     "D19",
     "D24",
     "C07",
+    "C10",
+    "C11",
     "C12",
+    "C19",
     "B02",
+    "B07",
     "B15",
+    "B19",
+    "B20",
     "B25",
+    "A06",
+    "A10",
+    "A13",
     "A14",
     "A21",
     "A25",
+    "S04",
+    "S09",
     "S12",
     "S20",
     "S23",

@@ -7,8 +7,17 @@ an insert without actors. Radio callers are never placed in the scenery.
 from pathlib import Path
 import json
 
-CAST = ['NIA','JULES','CALDER','IMANI','MARISOL','KADE','ROOK','REN','ASTER','SABLE','VOSS','MINA','YOU','NARRATOR']
+CATALOG = json.loads((Path(__file__).resolve().parents[1]/'story/cast.json').read_text())
+PEOPLE = [p[0] for p in CATALOG['people']]
+CAST = PEOPLE + ['YOU','NARRATOR']
+POSES = CATALOG['poses']
 STAGES = ['FACE','PAN','RADIO','MONTAGE']
+
+def character(token):
+    name, _, pose = token.partition('.')
+    assert name in CAST and (not pose or pose in POSES), token
+    assert name in PEOPLE or not pose, token
+    return name, POSES.index(pose) if pose else 0
 
 def load_story(root):
     root = Path(root)
@@ -25,12 +34,13 @@ def load_story(root):
         assert subject in b['subjects'], (lineno, bg, subject)
         x, label = b['subjects'][subject]
         assert 0 <= x <= 512
-        actors = [] if present == '-' else present.split(',')
-        assert len(actors) == len(set(actors)) and all(a in CAST[:12] for a in actors), (lineno, actors)
+        people = [] if present == '-' else [character(a) for a in present.split(',')]
+        actors = [a[0] for a in people]
+        assert len(actors) == len(set(actors)) and all(a in PEOPLE for a in actors), (lineno, actors)
         assert stage == 'FACE' or not actors, (lineno, 'Only a conversation shot stages physical actors')
         return {'background':names.index(bg), 'stage':STAGES.index(stage),
                 'subject':subject, 'subject_label':label, 'subject_x':x,
-                'focus':max(0,min(256,x-128)), 'present':actors,
+                'focus':max(0,min(256,x-128)), 'present':actors, 'poses':dict(people),
                 'caption_right':bg in names[6:] and list(b['subjects']).index(subject) == 1,
                 'move':policy == 'MOVE', 'source_line':lineno, 'lines':[]}
 
@@ -50,18 +60,21 @@ def load_story(root):
             shot = direction(text[1:].split(), lineno)
             current['shots'].append(shot)
         else:
-            who, message = text.split(':', 1)
+            token, message = text.split(':', 1)
+            who, override = character(token)
             message = message.strip()
             assert current and shot and who in CAST, (lineno,who)
             assert message.isascii() and 0 < len(message) < 192, (lineno,len(message),message)
             speaker = CAST.index(who)
-            assert shot['stage'] != 0 or speaker >= 12 or who in shot['present'], (lineno, 'Speaker absent from physical shot', who)
+            assert shot['stage'] != 0 or speaker >= len(PEOPLE) or who in shot['present'], (lineno, 'Speaker absent from physical shot', who)
             # Actor changes never introduce someone from another location or a radio.
-            last = next((l['speaker'] for l in reversed(shot['lines']) if l['speaker'] < 12), None)
+            last = next((l['speaker'] for l in reversed(shot['lines']) if l['speaker'] < len(PEOPLE)), None)
             others = [CAST.index(a) for a in shot['present'] if a != who]
             companion = last if last in others else next(iter(others),255)
             line = {'speaker':speaker,'companion':companion,'text':message,
-                    'background':shot['background'],'stage':3 if speaker == 13 else shot['stage'],
+                    'background':shot['background'],'stage':3 if who == 'NARRATOR' else shot['stage'],
+                    'pose':override if '.' in token else shot['poses'].get(who,0),
+                    'companion_pose':shot['poses'].get(CAST[companion],0) if companion != 255 else 0,
                     'focus':shot['focus'], 'move':shot['move'], 'caption_right':shot['caption_right'], 'shot':len(current['shots'])-1}
             shot['lines'].append(line)
             current['lines'].append(line)

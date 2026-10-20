@@ -2,7 +2,7 @@
 #include "career.h"
 #include <string.h>
 StoryState story;
-const char*const story_cast_names[14]={"Nia","Jules","Calder","Imani","Marisol","Kade","Rook","Ren","Aster","Sable","Voss","Mina","You","Later..."};
+const char*const story_cast_names[STORY_SPEAKERS]={"Nia","Jules","Calder","Imani","Marisol","Kade","Rook","Ren","Aster","Sable","Voss","Mina","Eli","Mrs. Vale","You","Later..."};
 static int index_of(int ch,int ev){return ch*25+ev;}
 int story_completed(const Game*g){return g->save.reserved[0]<=125?g->save.reserved[0]:0;}
 int story_status(const Game*g,int ch,int ev){int i=index_of(ch,ev),done=story_completed(g);return i<done?2:i==done?1:0;}
@@ -11,8 +11,8 @@ static int read_line(int n,StoryLine*out){
  uint8_t h[8];if(n<0||n>=story.count||!story_read(story.offsets[n],h,sizeof h))return 0;
  memset(out,0,sizeof *out);out->speaker=h[0];out->companion=h[1];out->stage=h[2];out->background=h[3];
  out->focus=(uint16_t)(h[4]|h[5]<<8);out->length=(uint16_t)(h[6]|h[7]<<8);
- if(out->speaker>=14||(out->companion>=12&&out->companion!=255)||out->stage>3||out->background>=STORY_BACKGROUNDS||
-    (out->focus&STORY_FOCUS_X)>256||(out->focus&~(STORY_FOCUS_MOVE|STORY_FOCUS_SUBJECT|STORY_FOCUS_X))||out->length>=STORY_TEXT_MAX)return 0;
+ if(out->speaker>=STORY_SPEAKERS||(out->companion>=STORY_PEOPLE&&out->companion!=255)||out->stage>3||out->background>=STORY_BACKGROUNDS||
+    (out->focus&STORY_FOCUS_X)>256||(out->focus&~(STORY_FOCUS_MOVE|STORY_FOCUS_SUBJECT|STORY_FOCUS_X|STORY_FOCUS_POSE|STORY_FOCUS_COMPANION_POSE))||out->length>=STORY_TEXT_MAX)return 0;
  return story_read(story.offsets[n]+8,out->text,out->length);
 }
 int story_open(Game*g,int ch,int ev){

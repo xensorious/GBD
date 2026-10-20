@@ -5,14 +5,15 @@
 #define STORY_TOTAL 125
 #define STORY_TEXT_MAX 192
 #define STORY_MAX_LINES 16
-#define STORY_BACKGROUNDS 18
-#define STORY_ASSETS (STORY_BACKGROUNDS+12)
+#include "story_limits.h"
 #define STORY_FOCUS_MOVE 0x8000u
 #define STORY_FOCUS_SUBJECT 0x4000u
 #define STORY_FOCUS_X 0x01ffu
+#define STORY_FOCUS_POSE (3u<<9)
+#define STORY_FOCUS_COMPANION_POSE (3u<<11)
 enum StoryPhase {ST_FADEIN,ST_READING,ST_SHOT,ST_ENDING,ST_CLEAR};
 enum StoryStage {ST_FACE,ST_PAN,ST_RADIO,ST_MONTAGE};
-enum StoryCast {SC_NIA,SC_JULES,SC_CALDER,SC_IMANI,SC_MARISOL,SC_KADE,SC_ROOK,SC_REN,SC_ASTER,SC_SABLE,SC_VOSS,SC_MINA,SC_YOU,SC_NARRATOR,SC_NONE=255};
+enum StoryCast {SC_NIA,SC_JULES,SC_CALDER,SC_IMANI,SC_MARISOL,SC_KADE,SC_ROOK,SC_REN,SC_ASTER,SC_SABLE,SC_VOSS,SC_MINA,SC_ELI,SC_VALE,SC_YOU,SC_NARRATOR,SC_NONE=255};
 typedef struct {uint8_t speaker,companion,stage,background;uint16_t focus,length;char text[STORY_TEXT_MAX];} StoryLine;
 typedef struct {
  uint32_t offsets[STORY_MAX_LINES],revision;
@@ -21,7 +22,7 @@ typedef struct {
  uint8_t active,chapter,event,line,count,phase,phase_tick,replay,pause,cursor,failed;
 } StoryState;
 extern StoryState story;
-extern const char*const story_cast_names[14];
+extern const char*const story_cast_names[STORY_SPEAKERS];
 void story_reset(void);
 int story_completed(const Game*);
 int story_status(const Game*,int chapter,int event);

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import re
+import struct
 import shutil
 import zipfile
 from PIL import Image, ImageDraw, ImageFont
@@ -15,6 +16,7 @@ p.add_argument('--allow-ui-preview-timing-regression','--allow-documented-timing
 a=p.parse_args();validation=a.validation
 DIST=ROOT/'dist';DIST.mkdir(exist_ok=True)
 rom=ROOT/'build'/'Coastline.nds';digest=hashlib.sha256(rom.read_bytes()).hexdigest()
+manifest=json.loads((ROOT/'build/story-manifest.json').read_text())
 
 def report(name):
     result=json.loads((validation/name).read_text())
@@ -24,15 +26,18 @@ def report(name):
 campaign=report('campaign-results.json')
 assert campaign['chapters']==5 and campaign['events']==125 and not campaign['race_gameplay']
 assert campaign['tabs']==['Route','Story','Rivals','Plans','Office']
-assert campaign['dialogue_lines']==628 and campaign['save_version']==7 and campaign['saved_progress']==6
+assert campaign['dialogue_lines']==manifest['dialogue_lines'] and campaign['save_version']==7 and campaign['saved_progress']==6
 assert len(campaign['earned_story_events'])==6 and campaign['fresh_process_reloads']==4
 assert all(campaign[k] for k in ('button_only','touch_ignored','read_only_emulated_ram','three_profiles_isolated','replay_does_not_advance','abort_does_not_advance','locked_events_blocked','no_racing_cash_awarded','scene_autosaves_verified','shared_garage_return','existing_endless_launch','existing_city_launch'))
 campaign_native=report('campaign-native-results.json')
 assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed'] and campaign_native['all_scenes']==125
 story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
-assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==628 and story_assets['portrait_alpha_masks_valid']
+assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==manifest['dialogue_lines'] and story_assets['portrait_alpha_masks_valid']
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
-assert story_assets['backgrounds']==18 and story_assets['authored_shots']==378
+assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==50
+assert story_assets['one_event_new_backgrounds']>=19 and story_assets['new_place_events']>=62 and story_assets['all_portraits_used']
+assert story_assets['no_large_atlas_fragments']
+assert story_assets['authored_shots']==sum(len(e['shots']) for e in manifest['events'])
 assert all(story_assets[k] for k in ('compiled_directions_match_source','subjects_in_final_frame','shot_local_companions'))
 assert story_autosave['immediate_completion_save'] and story_autosave['fresh_process_reload']
 stock=report('results.json')
@@ -194,7 +199,7 @@ def contact(filename,items,columns=2,screen='bottom'):
 contact('Opening.png',[(name,title) for name,title in (('opening-title','DUAL-SCREEN OPENING'),('opening-slots-filled','THREE INDEPENDENT SAVE SLOTS'),('opening-slide-middle','SLIDE INTO THE MAIN MENU'),('opening-home','EXISTING MAIN MENU'))],screen='dual')
 contact('Career.png',[
  ('story-d01-0','D.01 / the jack behind the first joke'),('story-d01-6','D.01 / conversation at the club meet'),
- ('story-d05-0','Crew radio / portrait and waveform'),('story-d06-4','Exhibition setback / narrated montage'),
+ ('story-d05-0','D.05 / a meal at Eli\'s diner'),('story-d06-4','Exhibition setback / narrated montage'),
  ('story-b15-0','The offer / a visiting Voss at Sunline'),('story-a14-0','Crew meeting / people with different priorities'),
  ('story-s25-12','The final chapter / a door left open'),('story-six-events-earned','Six scenes earned / saved map progression')],screen='dual')
 contact('Story-Progress.png',[
@@ -202,12 +207,45 @@ contact('Story-Progress.png',[
  ('story-profile-1-reload','Fresh process / original profile continues'),('story-profile-2-reload','Second profile / independent story record'),
  ('story-shared-garage','Existing shared garage'),('story-return-city','Back to driving / released art scratch memory')],screen='dual')
 contact('Story-Direction.png',[
- ('story-d04-0','D.04 / the actual lease envelope'),('story-d04-3','D.04 / what the next heat must pay'),
+ ('story-d09-3','D.09 / the kitchen table'),('story-d24-3','D.24 / the family photograph'),
  ('story-d19-0','D.19 / reference marker'),('story-d19-2','D.19 / pan to the corner exit'),
  ('story-c07-0','C.07 / rain on the waterfront'),('story-c07-3','C.07 / shelter under the borrowed awning'),
- ('story-b15-0','B.15 / Voss makes the offer in person'),('story-b15-1','B.15 / the lease behind the decision'),
+ ('story-b20-3','B.20 / the workshop Voss lost'),('story-b20-6','B.20 / a less guarded answer'),
  ('story-a21-1','A.21 / commercial contract'),('story-a21-4','A.21 / independent sporting application'),
  ('story-s20-0','S.20 / readable Cup terms'),('story-s25-12','S.25 / another chair by the door')],screen='dual')
+contact('Story-Life.png',[
+ ('story-d09-6','Nia / a kitchen two streets from Sunline'),('story-d10-3','Mina / notes in her bedroom'),
+ ('story-d17-6','Jules / the invoices behind the jokes'),('story-d24-6','Calder and Nia / the lighthouse walk'),
+ ('story-c10-0','Imani / washing the shift away'),('story-c19-7','Imani / an ordinary Thursday'),
+ ('story-b19-0','Mina / work with her own name'),('story-b20-6','Voss / the old workshop'),
+ ('story-a06-0','A washroom mirror / rehearsing belonging'),('story-a13-0','The sky lounge / another kind of security'),
+ ('story-s04-0','Mina / her own small exhibition'),('story-s25-13','Eli and Vale / one more person to welcome')],screen='dual')
+
+# These two sheets show encoded assets, not simulated scenes or emulator output.
+catalog=json.loads((ROOT/'story/cast.json').read_text())
+places=json.loads((ROOT/'story/staging.json').read_text())['backgrounds']
+archive=(ROOT/'build/nitro/story.bin').read_bytes();table=struct.unpack_from('<I',archive,16)[0]
+def indexed_art(asset):
+    offset,w,h,_,kind=struct.unpack_from('<IHHII',archive,table+asset*16)
+    palette=struct.unpack_from('<256H',archive,offset);pixels=archive[offset+512:offset+512+w*h]
+    image=Image.new('RGBA',(w,h))
+    image.putdata([((palette[v]&31)*255//31,(palette[v]>>5&31)*255//31,(palette[v]>>10&31)*255//31,0 if kind and not v else 255) for v in pixels])
+    return image
+sheet=Image.new('RGB',(1536,24+((len(places)+5)//6)*126),'#142b36');draw=ImageDraw.Draw(sheet)
+draw.text((8,5),'INDEXED BACKGROUND ART / full panoramic assets / not emulator screenshots',font=font,fill='white')
+for i,place in enumerate(places):
+    x=i%6*256;y=24+i//6*126;sheet.paste(indexed_art(i).resize((256,108),Image.Resampling.NEAREST),(x,y))
+    draw.text((x+4,y+110),place.get('location',place['name']),font=font,fill='#d7e7e4')
+sheet.save(DIST/'Story-Locations.png')
+sheet=Image.new('RGB',(1024,24+((manifest['portraits']+7)//8)*154),'#142b36');draw=ImageDraw.Draw(sheet)
+draw.text((8,5),'INDEXED CHARACTER ART / 50 transparent portraits / not emulator screenshots',font=font,fill='white');seen=set()
+for pose,row in enumerate(manifest['portrait_map']):
+    for person,portrait in enumerate(row):
+        if portrait in seen:continue
+        seen.add(portrait);x=portrait%8*128;y=24+portrait//8*154;im=indexed_art(manifest['backgrounds']+portrait)
+        sheet.paste(im,(x,y),im);draw.text((x+3,y+127),catalog['people'][person][1],font=font,fill='white')
+        draw.text((x+3,y+140),catalog['poses'][pose].title(),font=font,fill='#9cbcb9')
+sheet.save(DIST/'Story-Wardrobes.png')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
 contact('Preview.png',[
@@ -373,7 +411,7 @@ for name in ('Vehicles.png','Dashboards.png','Turbo.png','Grounding.png','Pursui
     (DIST/name).unlink(missing_ok=True)
 licenses=DIST/'licenses';licenses.mkdir(exist_ok=True)
 for source in (ROOT/'licenses').glob('*.txt'):shutil.copyfile(source,licenses/source.name)
-files=['Story-Direction.png','STORY-REVIEW.md','Story-Progress.png','Story-Cast.png','STORY-SCRIPT.txt','Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
+files=['Story-Life.png','Story-Locations.png','Story-Wardrobes.png','Story-Direction.png','STORY-REVIEW.md','Story-Progress.png','Story-Cast.png','STORY-SCRIPT.txt','Career.png','CAREER-DRAFT.md','CAREER-VALIDATION.json','Coastline.nds','PLAY.txt','CREDITS.txt','Preview.png','Sunlight.png','Sunlight-Comparison.png','Shadow-Audit.png','SHADOW-AUDIT.json','Opening.png','Opening.gif','Interface.png','Fusion.png','Garage.png',
     'Garage-Interiors.png','Locations.png','Progression.png','Premium-Vehicles.png','Premium-Driving.png',
     'New-Interfaces.png','Finishes.png','Body-Paints.png','Livery-Colors.png',
     'Free-Roam.png','Free-Roam.gif','Rotating-Camera.png','Free-Roam-Refinement.png','Living-City.png','Districts.png','Coastal-Scenery.png','Open-World-Upgrade.png','Overhead-Finishes.png','Overhead-Finishes-1.png','Overhead-Finishes-2.png','Overhead-Finishes-3.png','Overhead-Finishes-4.png','Overhead-Vehicles.png','Vehicle-Finishes.png','Vehicle-Details.png','Paint-Fix-Comparison.png','Paint-Review.png',

@@ -3,7 +3,7 @@
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 **Drive** now opens three illustrated cards: **Endless Drive**, **Free Roam** and **Career**.
-Career now plays **125 story scenes with 628 dialogue messages**, original
+Career now plays **125 story scenes with 923 dialogue messages**, original
 backgrounds and characters, varied cinematic staging, and saved level unlocks.
 Racing in Career is still a future step; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
 Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
@@ -53,11 +53,18 @@ montages are fiction, not simulated races or cash rewards. All modes retain
 the same cars, upgrades, finishes and economy.
 
 Scenes mix painted first-person conversations, transparent character sprites,
-directed object inserts, radio exchanges and letterboxed montages. Eighteen
-paintings and 378 authored shot cues put the camera on the relevant people,
+directed object inserts, radio exchanges and letterboxed montages. Fifty-four
+paintings and 393 authored shot cues put the camera on the relevant people,
 paperwork, notebook, corner markers and other subjects. Pans settle on their
 target instead of looping sideways. Soft cuts and typewriter text suit the retro presentation. The
 ROM streams its artwork internally; it needs no external asset files.
+The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
+motel, washrooms, gallery and other places away from the grid. Nineteen new
+locations appear in only one event. Fifty portraits cover fourteen people,
+with casual clothes, work gear and quieter expressions for the main cast.
+Eli and Mrs. Vale make the neighborhood part of the story. The crew has private
+choices, paid work and relationships beyond the next race. These are illustrated
+cutscene settings; they do not add free-roaming interiors or Career races.
 The complete continuity and staging review is in [STORY-REVIEW.md](STORY-REVIEW.md).
 
 A reveals and advances dialogue. B or Start pauses a scene; Up/Down selects

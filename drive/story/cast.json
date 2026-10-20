@@ -1,0 +1,158 @@
+{
+  "people": [
+    [
+      "NIA",
+      "Nia"
+    ],
+    [
+      "JULES",
+      "Jules"
+    ],
+    [
+      "CALDER",
+      "Calder"
+    ],
+    [
+      "IMANI",
+      "Imani"
+    ],
+    [
+      "MARISOL",
+      "Marisol"
+    ],
+    [
+      "KADE",
+      "Kade"
+    ],
+    [
+      "ROOK",
+      "Rook"
+    ],
+    [
+      "REN",
+      "Ren"
+    ],
+    [
+      "ASTER",
+      "Aster"
+    ],
+    [
+      "SABLE",
+      "Sable"
+    ],
+    [
+      "VOSS",
+      "Voss"
+    ],
+    [
+      "MINA",
+      "Mina"
+    ],
+    [
+      "ELI",
+      "Eli"
+    ],
+    [
+      "VALE",
+      "Mrs. Vale"
+    ]
+  ],
+  "poses": [
+    "DEFAULT",
+    "CASUAL",
+    "GEAR",
+    "QUIET"
+  ],
+  "sheets": [
+    {
+      "file": "cast.png",
+      "grid": [
+        4,
+        3
+      ],
+      "people": 12,
+      "first": 0,
+      "pose": "DEFAULT"
+    },
+    {
+      "file": "neighbors.png",
+      "grid": [
+        2,
+        1
+      ],
+      "people": 2,
+      "first": 12,
+      "pose": "DEFAULT"
+    },
+    {
+      "file": "casual.png",
+      "grid": [
+        4,
+        3
+      ],
+      "people": 12,
+      "first": 0,
+      "pose": "CASUAL"
+    },
+    {
+      "file": "gear_0.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 0,
+      "pose": "GEAR"
+    },
+    {
+      "file": "gear_1.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 4,
+      "pose": "GEAR"
+    },
+    {
+      "file": "gear_2.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 8,
+      "pose": "GEAR"
+    },
+    {
+      "file": "quiet_0.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 0,
+      "pose": "QUIET"
+    },
+    {
+      "file": "quiet_1.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 4,
+      "pose": "QUIET"
+    },
+    {
+      "file": "quiet_2.png",
+      "grid": [
+        4,
+        1
+      ],
+      "people": 4,
+      "first": 8,
+      "pose": "QUIET"
+    }
+  ]
+}

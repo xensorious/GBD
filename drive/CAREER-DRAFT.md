@@ -35,7 +35,7 @@ The solution is a readable independent guarantee supported by real club work.
 | S / Pelican Grand Prix | Sable asks for a real contest; ordinary sessions and paid work support the final series; Voss agrees to discuss actual terms. | Sable backs a fair independent-entry statement after the duel. | The final is a fair race in the story. Back at Sunline, the small-keys joke becomes a welcome for the next unknown driver. |
 
 The complete screenplay is [story/rising_tide.txt](story/rising_tide.txt):
-**628 authored messages**, including dialogue for twelve named characters,
+**923 authored messages**, including dialogue for fourteen named characters,
 the player and a narrator. It is also supplied as `STORY-SCRIPT.txt` in the ZIP.
 
 ### Setbacks that explain training
@@ -66,17 +66,28 @@ Not every event creates another conspiracy or another named enemy.
 - **Story montages:** letterboxed establishing shots and narration bridge the
   fictional exhibitions, duels and chapter finals while races are still absent.
 
-There are eighteen original backgrounds and twelve distinct transparent character
-portraits. Soft cuts separate locations; camera motion follows named subjects;
+There are fifty-four original backgrounds and fifty transparent character
+portraits, including casual, work and quiet variants for the twelve principal
+characters, plus Eli and Mrs. Vale. Soft cuts separate locations; camera motion follows named subjects;
 portraits fade and subtly breathe; text types into a textured, retro teal panel.
-The 378 shot directions specify physical cast locally, so somebody speaking on
+The 393 shot directions specify physical cast locally, so somebody speaking on
 the radio or appearing later at another location cannot become a companion in
 the current shot. See [STORY-REVIEW.md](STORY-REVIEW.md) for the continuity pass.
+
+Thirty-six additional paintings give the story homes, neighborhood businesses,
+travel stops and quiet back rooms. Nineteen appear in just one event, including
+Voss's old workshop, the lighthouse walk and the new epilogue. Sixty-two events
+visit at least one of these new places; sixty-one scenes have expanded writing,
+with an additional epilogue extension. The chapter journal follows the revised
+character arcs.
 
 The editable direction format is `@ EVENT BACKGROUND METHOD SUBJECT CAST POLICY`,
 with `>` introducing subsequent shots. Subject coordinates refer to the actual
 paintings in `story/staging.json`; `MOVE` eases once to the target and `HOLD`
-frames it as a still. A dash indicates an insert without physical actors.
+frames it as a still. A dash indicates an insert without physical actors. Character tokens can name
+an outfit, such as `NIA.CASUAL` or `VOSS.GEAR`; `QUIET` supplies a more reflective
+expression in the casual outfit. Speaker and companion variants use existing
+shot-record bits, keeping the runtime story state the same size.
 For example, D.01 moves from `BENCH / JACK` to `BENCH / KEYS`, and D.19 from
 `CORNER / MARKER` to `CORNER / EXIT`. Speaker IDs never affect camera position.
 Messages fit the screen without scrolling off the edge. Dialogue uses physical
@@ -134,7 +145,7 @@ starts a new process, and checks the first unlock before any driving takes place
 ## Validation and remaining scope
 
 Native sanitizer checks complete all 125 scenes through the actual state machine,
-render all 628 messages, check sprite masks and screen guards, and verify locked,
+render all 923 messages, check sprite masks and screen guards, and verify locked,
 replayed, held-input, aborted and chapter-boundary behavior. Codec tests round-trip
 every frontier 0–125, reject invalid frontiers, import rich v6 records and preserve
 three independent profiles.

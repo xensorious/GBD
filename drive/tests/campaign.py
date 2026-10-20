@@ -19,6 +19,7 @@ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Pa
 rom=ROOT/'build/Coastline.nds';elf=ROOT/'build/arm9.elf';addr=find_symbol(elf,'game');sa=find_symbol(elf,'story');ca=find_symbol(elf,'campaign');va=find_symbol(elf,'story_visual_stats')
 assert symbol_size(elf,'story')==C.sizeof(Story)==488 and symbol_size(elf,'campaign')==C.sizeof(Campaign)==12
 sha=hashlib.sha256(rom.read_bytes()).hexdigest()
+manifest=json.loads((ROOT/'build/story-manifest.json').read_text());line_count=manifest['dialogue_lines']
 def view(e):return Story.from_buffer_copy(e.read_ram(sa,C.sizeof(Story)))
 def menu_state(e):return Campaign.from_buffer_copy(e.read_ram(ca,C.sizeof(Campaign)))
 def enter_career(d):
@@ -58,13 +59,19 @@ if a.case:
  with Emulator(rom,directory) as e:
   e.run(180);d=DriveThrough(e,addr,out);enter_career(d);assert d.game().save.reserved[0]==ch*25+ev
   d.press('down');d.press('a');assert d.game().mode==13
-  play(d,e,a.case,ch*25+ev+1,set(range(16)));d.shot('story-'+a.case.lower()+'-map')
+  scene=manifest['events'][ch*25+ev];shots=set();at=0
+  for shot in scene['shots']:
+   shots.add(at)
+   for n,line in enumerate(shot['lines']):
+    if line['pose']==3 and (not n or shot['lines'][n-1]['pose']!=3):shots.add(at+n)
+   at+=len(shot['lines'])
+  play(d,e,a.case,ch*25+ev+1,shots);d.shot('story-'+a.case.lower()+'-map')
  print('Later-chapter visual fixture reviewed:',a.case,flush=True);raise SystemExit(0)
 
 if not a.emulator_only:
  cmd=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic','-fsanitize=address,undefined','-Isrc','-Ibuild','tests/campaign.c','src/game.c','src/story.c','src/story_io.c','src/road.c','src/traffic.c','src/gfx.c','build/assets.c','src/ui.c','src/render.c','src/story_render.c','src/dialogue_render.c','src/opening.c','-o','build/test-campaign']
  subprocess.run(cmd,cwd=ROOT,check=True);run=subprocess.run([str(ROOT/'build/test-campaign')],cwd=ROOT,check=True,capture_output=True,text=True);print(run.stdout,end='',flush=True)
- (out/'campaign-native-results.json').write_text(json.dumps({'sha256':sha,'checks':int(re.search(r'(\d+) checks',run.stdout)[1]),'sanitizers_passed':True,'all_scenes':125,'dialogue_lines':628,'result':run.stdout.strip()},indent=2)+'\n')
+ (out/'campaign-native-results.json').write_text(json.dumps({'sha256':sha,'checks':int(re.search(r'(\d+) checks',run.stdout)[1]),'sanitizers_passed':True,'all_scenes':125,'dialogue_lines':line_count,'result':run.stdout.strip()},indent=2)+'\n')
 if a.native_only:raise SystemExit(0)
 
 save=out/'story-earned-save';shutil.rmtree(save,ignore_errors=True);earned=[]
@@ -100,7 +107,7 @@ lib=C.CDLL(str(libpath));lib.game_init.argtypes=[C.POINTER(Game),C.c_uint32]
 from concurrent.futures import ThreadPoolExecutor
 import threading
 fixture_lock=threading.Lock()
-cases=['D04','D12','D19','D24','C07','C12','B02','B15','B25','A14','A21','A25','S12','S20','S23','S25']
+cases=['D09','D10','D12','D17','D19','D24','C07','C10','C11','C12','C19','B02','B07','B15','B19','B20','B25','A06','A10','A13','A14','A21','A25','S04','S09','S12','S20','S23','S25']
 def later(case):
  with fixture_lock:
   profile=Game();lib.game_init(C.byref(profile),123);profile.save.reserved[0]='DCBAS'.index(case[0])*25+int(case[1:])-1
@@ -109,5 +116,5 @@ def later(case):
   subprocess.run([sys.executable,__file__,'--output',str(out),'--save-dir',str(directory),'--case',case],cwd=ROOT,check=True,stdout=log,stderr=subprocess.STDOUT)
 with ThreadPoolExecutor(max_workers=2) as pool:list(pool.map(later,cases))
 assert hashlib.sha256(rom.read_bytes()).hexdigest()==sha
-result={'sha256':sha,'chapters':5,'events':125,'dialogue_lines':628,'tabs':['Route','Story','Rivals','Plans','Office'],'button_only':True,'touch_ignored':True,'read_only_emulated_ram':True,'earned_story_events':earned,'saved_progress':6,'scene_autosaves_verified':True,'fresh_process_reloads':4,'three_profiles_isolated':True,'replay_does_not_advance':True,'abort_does_not_advance':True,'locked_events_blocked':True,'no_racing_cash_awarded':True,'shared_garage_return':True,'existing_endless_launch':True,'existing_city_launch':True,'staging':['portrait','panorama','radio','montage'],'later_visual_fixtures':cases,'fixture_note':'Later chapter batteries are explicitly manufactured visual-review fixtures, not evidence of emulator-earned progression. Native tests complete all 125 scenes through actual game logic. First six events are earned through joypad input on the ROM.','race_gameplay':False,'save_version':7,**compact}
+result={'sha256':sha,'chapters':5,'events':125,'dialogue_lines':line_count,'backgrounds':manifest['backgrounds'],'portrait_variants':manifest['portraits'],'tabs':['Route','Story','Rivals','Plans','Office'],'button_only':True,'touch_ignored':True,'read_only_emulated_ram':True,'earned_story_events':earned,'saved_progress':6,'scene_autosaves_verified':True,'fresh_process_reloads':4,'three_profiles_isolated':True,'replay_does_not_advance':True,'abort_does_not_advance':True,'locked_events_blocked':True,'no_racing_cash_awarded':True,'shared_garage_return':True,'existing_endless_launch':True,'existing_city_launch':True,'staging':['portrait','panorama','radio','montage'],'later_visual_fixtures':cases,'fixture_note':'Later chapter batteries are explicitly manufactured visual-review fixtures, not evidence of emulator-earned progression. Native tests complete all 125 scenes through actual game logic. First six events are earned through joypad input on the ROM.','race_gameplay':False,'save_version':7,**compact}
 (out/'campaign-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

@@ -23,7 +23,7 @@ static void finish(Game*g,int render){
   if(story.phase==ST_READING){
    if(story.line!=observed){
     observed=story.line;lines_seen++;stages[story.current.stage]++;
-    CHECK(story.current.speaker<14&&story.current.background<STORY_BACKGROUNDS&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
+    CHECK(story.current.speaker<STORY_SPEAKERS&&story.current.background<STORY_BACKGROUNDS&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
     CHECK(story.current.text[story.current.length]==0);
     CHECK(story_text_lines(story.current.text,226)<=8);
     CHECK(!strstr(story.current.text,"Proposed objective")&&!strstr(story.current.text,"IDEA:"));
@@ -100,7 +100,7 @@ int main(void){
   CHECK(campaign.chapter==(index+1<125?(index+1)/25:4));CHECK(campaign.event==(index+1<125?(index+1)%25:24));
   CHECK(career_journal_open(&g,index/25,0));
  }
- CHECK(lines_seen==628);for(int method=0;method<4;method++)CHECK(stages[method]>0);
+ CHECK(lines_seen==STORY_LINES);for(int method=0;method<4;method++)CHECK(stages[method]>0);
  for(int ch=0;ch<5;ch++)for(int ev=0;ev<25;ev++)CHECK(story_status(&g,ch,ev)==2);
  Save completed=g.save;CHECK(story_open(&g,0,5)&&story.replay);finish(&g,1);CHECK(!memcmp(&completed,&g.save,sizeof completed));press(&g,K_B);CHECK(campaign.chapter==0&&campaign.event==5);
  for(int skin=SKIN_FUSION;skin<SKIN_STORAGE_LIMIT;skin++){
@@ -109,6 +109,6 @@ int main(void){
   CHECK(story_open(&g,4,24));for(int t=0;t<18;t++)tick(&g);press(&g,K_A);draw(&g);press(&g,K_B);draw(&g);press(&g,K_DOWN);press(&g,K_DOWN);press(&g,K_A);draw(&g);
  }
  CHECK(!story_visual_stats[0]);g.mode=M_GARAGE;g.cursor=0;draw(&g);g.mode=M_DRIVE;g.cursor=0;press(&g,K_A);draw(&g);CHECK(g.mode==M_RUN);
- printf("story: %u checks; all 125 scenes / 628 lines, four staging methods, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks);
+ printf("story: %u checks; all 125 scenes / %u lines, four staging methods, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks,(unsigned)STORY_LINES);
  return 0;
 }

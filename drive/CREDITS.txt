@@ -34,3 +34,12 @@ Original screenplay, cutscene staging, cartridge archive and portrait/background
 asset adaptation for Coastline. Original source artwork generated with OpenAI's
 image tool: art/story/backgrounds.png, art/story/inserts.png and art/story/cast.png. User references
 informed the retro presentation; no reference-game artwork was embedded.
+
+Life between races expansion: original neighborhood, home, travel and back-room
+paintings in art/story/{homes,harbor_life,neighborhood,travel,backrooms,specials}.png.
+Original casual, work and reflective cast variants and supporting neighbors in
+art/story/{casual,gear,quiet,neighbors}.png, created with OpenAI image generation
+using the existing original cast as a likeness/style reference. Atlas extraction
+keeps the main transparent figure and removes unrelated neighboring fragments.
+Final work and reflective portraits use clean one-row exports gear_0–2.png and
+quiet_0–2.png; the dense twelve-person atlases are retained as art references.

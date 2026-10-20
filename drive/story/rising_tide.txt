@@ -6,18 +6,18 @@
 # Narration is fiction, not evidence of racing gameplay.
 
 @ D01 BENCH PAN JACK - MOVE
-NIA: Mind the jack. It rolls toward anything expensive.
+NIA.GEAR: Mind the jack. It rolls toward anything expensive.
 > BENCH PAN KEYS - MOVE
 YOU: Is that why you parked my car beside it?
-> GARAGE FACE DOOR NIA HOLD
-NIA: Your car? These are the garage keys. The car keys are the small, disappointing ones.
+> GARAGE FACE DOOR NIA.GEAR HOLD
+NIA.GEAR: Your car? These are the garage keys. The car keys are the small, disappointing ones.
 YOU: You said there was work.
-NIA: There is. Sunline needs another pair of hands, and tonight the club needs another driver.
-> MEET FACE CREW MINA,NIA HOLD
+NIA.GEAR: There is. Sunline needs another pair of hands, and tonight the club needs another driver.
+> MEET FACE CREW MINA,NIA.GEAR HOLD
 MINA: First night, first photograph. Try to look as if you meant to come here.
 YOU: What do I owe you?
-> MEET FACE CREW NIA,MINA HOLD
-NIA: Bring the car home straight. We can work out the rest over breakfast.
+> MEET FACE CREW NIA.GEAR,MINA HOLD
+NIA.GEAR: Bring the car home straight. We can work out the rest over breakfast.
 
 @ D02 MEET FACE CREW JULES,MINA HOLD
 JULES: That's Nia's loaner. Does she know you've taken it outside?
@@ -27,35 +27,53 @@ MINA: Jules delivers everything except a straight answer. You're in the next clu
 > START PAN GRID - MOVE
 JULES: Start beside me. Finish wherever your dignity permits.
 
-@ D03 GARAGE FACE CAR NIA HOLD
-NIA: Mrs. Vale paid for her repair in oranges. Again.
+@ D03 GREENHOUSE FACE SEEDLINGS NIA.CASUAL,VALE.CASUAL HOLD
+VALE.CASUAL: You fixed the watering can as well as the car.
+NIA.CASUAL: The handle needed one screw. You didn't have to pay for both in oranges.
+VALE.CASUAL: They were ripe. An invoice wasn't going to make them wait.
 YOU: Can oranges pay the rent?
-NIA: Not yet. Tonight's corner-store meet can cover the electricity, though.
-> START FACE BARRIER CALDER HOLD
-CALDER: Store closes at nine. Barriers go up after. Nobody moves until my marshal gives the all-clear.
+VALE.CASUAL: They can feed the people who have to earn it. Take the whole bag.
+> GREENHOUSE PAN ORANGES - MOVE
+NIA.CASUAL: Mrs. Vale was our first customer. She still checks whether we've eaten before asking about the repair.
+VALE.CASUAL: Retired nurse. Occupational habit.
+YOU: I'm the new driver. Apparently I come with a jack warning.
+VALE.CASUAL: Then you've had the important briefing.
+> START FACE BARRIER CALDER.CASUAL HOLD
+CALDER.CASUAL: Corner store closes at nine. Barriers go up after. I could use another pair of hands before your heat.
 YOU: You're Calder?
-CALDER: Depends who's asking. If you scratch that loaner, I'm the one Nia phones.
+CALDER.CASUAL: Depends who's asking. If you scratch that loaner, I'm the one Nia phones.
 
-@ D04 PAPERS PAN LEASE - MOVE
-YOU: This envelope was under the till.
-NIA: Leave it. It's the lease renewal.
-> GARAGE FACE DOOR NIA HOLD
-YOU: Another rent rise?
-> PAPERS PAN BUDGET - MOVE
-NIA: Another month to decide whether this place is worth keeping. I'd rather spend it working than worrying.
-> GARAGE FACE DOOR NIA HOLD
-YOU: Put me down for tonight's heat, then.
-NIA: Good. And put that envelope somewhere I don't have to look at it while I eat.
 
-@ D05 MARINA RADIO FOOD - MOVE
-MINA: The last heat is short. Everyone else has gone home for dinner.
-YOU: You stayed.
-> MARINA RADIO FOOD - MOVE
-MINA: Someone has to take a photograph that isn't Jules pointing at himself.
-> NIGHTGARAGE RADIO KETTLE - MOVE
-NIA: One clean run, then home. I saved you a plate.
-YOU: You cook here too?
-NIA: I heat things here. Manage your expectations.
+@ D04 NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
+YOU: Two streets from the garage, and you're still repairing a toaster over dinner.
+NIA.CASUAL: It was making a noise I understood. The envelope wasn't.
+YOU: The one under the till?
+> PAPERS PAN LEASE - MOVE
+NIA.CASUAL: Lease renewal. Another month to decide whether that door is worth keeping open.
+YOU: I thought the garage was yours.
+> NIA_KITCHEN FACE TABLE NIA.QUIET HOLD
+NIA.QUIET: The tools are. The sign was Dad's. The building belongs to somebody who doesn't eat dinner with a screwdriver.
+YOU: Do you want to stay?
+NIA.QUIET: I want to answer that without a bill answering for me.
+> NIA_KITCHEN PAN ORANGES - MOVE
+YOU: Then put me down for tonight's heat. And give me the toaster before the oranges taste of solder.
+NIA.CASUAL: No heroics. Finish, come home, eat something. It's a better plan than we've had all week.
+
+
+@ D05 DINER FACE BOOTH ELI.CASUAL,MINA.CASUAL,NIA.CASUAL HOLD
+ELI.CASUAL: Kitchen's closed. Yours is under the warmer.
+YOU: I didn't order anything.
+NIA.CASUAL: I did. You missed dinner while helping Calder with the barriers.
+MINA.CASUAL: He keeps doing that. Someone should photograph it before he learns to charge.
+> DINER PAN COUNTER - MOVE
+YOU: Is this going on a tab?
+ELI.CASUAL: Already paid. Nia doesn't get to decide you're part of a crew and then forget you need feeding.
+NIA.CASUAL: I'm sitting right here.
+> DINER FACE BOOTH NIA.CASUAL,ELI.CASUAL HOLD
+ELI.CASUAL: Good. Your soup's getting cold too.
+YOU: Is every person in Saltblock allowed to tell you what to do?
+NIA.CASUAL: Only the ones who remember me shorter than the counter. That leaves you several years to practice.
+
 
 @ D06 MEET FACE GRID KADE,JULES HOLD
 KADE: You kept a tidy line in that last heat. Want to try the longer loop before they take the barriers down?
@@ -89,24 +107,38 @@ JULES: Good. Tonight, pick one line and finish it. Don't improve it halfway thro
 YOU: Is that driving advice or advice about your deliveries?
 JULES: Both. The second version costs extra.
 
-@ D09 GARAGE FACE DOOR NIA HOLD
-NIA: Two practice heats, two decent finishes. That's a start.
-> PAPERS PAN LEASE - MOVE
-YOU: Does it cover the envelope?
-> PAPERS PAN BUDGET - MOVE
-NIA: It covers this week. Don't make tonight carry the whole month.
-> GARAGE FACE DOOR NIA HOLD
-YOU: Short course again?
-NIA: Short course, ordinary entry, ordinary money. Boring can keep a garage open.
+@ D09 NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
+NIA.CASUAL: Two practice heats, two decent finishes. I brought the result sheets home and forgot the bread.
+YOU: I passed the shop. It's by the door.
+NIA.CASUAL: You're getting dangerously useful.
+> NIA_KITCHEN PAN TABLE - MOVE
+YOU: Does the money cover the envelope?
+NIA.CASUAL: This week. Don't make tonight carry the whole month.
+YOU: You keep saying that as if I might try anyway.
+> NIA_KITCHEN FACE TABLE NIA.QUIET HOLD
+NIA.QUIET: I did. When Dad stopped working, I thought one enormous day could make everything normal again.
+YOU: Did it?
+NIA.QUIET: It made me tired. The ordinary days did the useful part.
+YOU: Short course, ordinary entry, then bread with dinner.
+NIA.CASUAL: Now that's a result I can plan around.
 
-@ D10 NOTES RADIO MAP - MOVE
-MINA: I've got our results written on the back of a takeaway menu.
-YOU: Very professional.
-> NOTES RADIO MAP - MOVE
-MINA: We can afford a notebook after tonight. For now, your personal best shares a page with noodles.
-NIA: Bank a clean result. Tomorrow we sleep in.
-> NIGHTGARAGE RADIO KETTLE - MOVE
-JULES: Nobody told me about sleeping in.
+
+@ D10 MINA_BEDROOM FACE PHOTOS MINA.CASUAL HOLD
+MINA.CASUAL: Don't touch the line over the bed. Those prints are still drying.
+YOU: You invited us over to look at lap times. This is mostly people eating noodles.
+MINA.CASUAL: The lap times are on the back of the noodle menu. The photographs are the important bit.
+> MINA_BEDROOM PAN NOTES - MOVE
+YOU: That's our results book?
+MINA.CASUAL: Until tonight pays for actual paper. For now, your personal best comes with a side dish.
+> MINA_BEDROOM PAN PHOTOS - MOVE
+YOU: Why keep this one? The car's barely in it.
+MINA.CASUAL: Nia was laughing. I hadn't caught her doing that in weeks.
+YOU: Are you sending it to the club page?
+> MINA_BEDROOM FACE PHOTOS MINA.CASUAL HOLD
+MINA.CASUAL: If she says yes. People aren't scenery just because I own a camera.
+YOU: I'll remember that when you get famous.
+MINA.CASUAL: Remember it when you get faster. Much more likely to happen first.
+
 
 @ D11 MEET FACE CREW JULES HOLD
 JULES: Calder let me choose tomorrow's courier circuit. I'm inviting you.
@@ -118,44 +150,61 @@ YOU: And if I finish ahead?
 JULES: I'll stop calling it Nia's loaner. For a week.
 
 @ D12 START PAN BARRIER - MOVE
-JULES: Everyone gets the same start. No shortcuts through the loading bay. I know that trick because I invented it.
-> START FACE GRID CALDER,JULES HOLD
+JULES.GEAR: Everyone gets the same start. No shortcuts through the loading bay. I know that trick because I invented it.
+> START FACE GRID CALDER,JULES.GEAR HOLD
 CALDER: Then you can help me put a barrier there. Get your cars to the line.
 YOU: Ready when you are.
 > CORNER MONTAGE EXIT - MOVE
 NARRATOR: COURIER CIRCUIT. The last corner opens, and this time Jules has to chase your exit.
-> CORNER FACE EXIT JULES HOLD
-JULES: All right. That's your car tonight.
+> CORNER FACE EXIT JULES.GEAR HOLD
+JULES.GEAR: All right. That's your car tonight.
 YOU: Just tonight?
 > NOTES PAN MAP - MOVE
-JULES: Don't get greedy. I've also got a club map and a few people you should meet.
-> MEMORIES FACE CHAIRS NIA,JULES HOLD
+JULES.GEAR: Don't get greedy. I've also got a club map and a few people you should meet.
+> MEMORIES FACE CHAIRS NIA,JULES.GEAR HOLD
 NIA: You can bring those people here. The spare chairs are doing nothing useful.
-JULES: I was hoping you'd say that.
+JULES.GEAR: I was hoping you'd say that.
 
-@ D13 MARINA RADIO CARS - MOVE
-JULES: Take the long way to the meet. There's a club using the dock loop after sundown.
-YOU: More training?
-> NIGHTGARAGE RADIO KETTLE - MOVE
-JULES: Some. Mostly they pay promptly, and Sunline needs that more than another dramatic showdown.
-NIA: He's learning. Put him on the invoice.
+@ D13 BUSSTOP FACE BENCH JULES.CASUAL HOLD
+JULES.CASUAL: First delivery's too awkward for the bike. The bus driver knows the box by now.
+YOU: A courier who takes the bus?
+JULES.CASUAL: I deliver things. I don't have to make every journey into a statement.
+> BUSSTOP PAN ROAD - MOVE
+YOU: Is that how you found all those club routes?
+JULES.CASUAL: Waiting. You notice streets when you aren't trying to win them.
+YOU: Then why send me the long way tonight?
+> BUSSTOP FACE BENCH JULES.CASUAL HOLD
+JULES.CASUAL: Dock loop pays promptly, and the long way gives you another look at its exits. Practice and groceries in one trip.
+YOU: Another dramatic step toward a loaf of bread.
+JULES.CASUAL: You're learning the local championship.
 
-@ D14 MEMORIES PAN CHAIRS - MOVE
-MINA: There are four people outside asking whether the garage is open.
-> GARAGE FACE DOOR NIA,MINA HOLD
-NIA: It's been open since six.
-MINA: I meant for sitting around and talking about cars.
-> MEMORIES PAN CHAIRS - MOVE
-YOU: Open the shutters. We can move the chairs after tonight's heat.
-> GARAGE FACE DOOR NIA HOLD
-NIA: Fine. Nobody puts a drink on a customer's roof.
 
-@ D15 NOTES PAN MAP - MOVE
-YOU: A notebook. With actual paper.
-MINA: Bought with our last result. Your lap times no longer smell of soy sauce.
-> NIGHTGARAGE FACE KETTLE JULES,NIA HOLD
-JULES: Mine still do. I brought dinner.
-NIA: Tonight's entry is paid. Eat first. Small victories count too.
+@ D14 ROOFTOP FACE CHAIRS NIA.CASUAL,MINA.CASUAL HOLD
+MINA.CASUAL: Four people downstairs asking whether Sunline is open for sitting around.
+NIA.CASUAL: It's a repair shop. We don't have a sitting-around license.
+YOU: We have chairs.
+> ROOFTOP PAN CHAIRS - MOVE
+NIA.CASUAL: We have two chairs and a third one that requires supervision.
+MINA.CASUAL: Mrs. Vale says we can have hers if someone brings it back before Sunday.
+YOU: Let them stay after tonight's heat. We can sit here while the floor dries.
+> ROOFTOP FACE RADIO NIA.CASUAL,MINA.CASUAL HOLD
+NIA.CASUAL: Nobody goes near that edge. And this ladder doesn't make the garage a hotel.
+MINA.CASUAL: You could just say you like the company.
+NIA.CASUAL: I could. Then you might stop bringing the chairs.
+
+
+@ D15 PRINTSHOP FACE PHOTOS MINA.CASUAL,NIA.CASUAL,JULES.CASUAL HOLD
+MINA.CASUAL: A notebook. With actual paper. Our results have been promoted out of the takeaway menu.
+YOU: Does that mean I can finally throw it away?
+MINA.CASUAL: Absolutely not. It's our first archive. Also, Jules still owes me for the noodles.
+> PRINTSHOP PAN PHOTOS - MOVE
+NIA.CASUAL: Pick a photograph for the front. We can afford one proper print.
+YOU: Not the car?
+MINA.CASUAL: The three of you trying to unfold that chair. It's the first one everyone agreed I could keep.
+> NOTES PAN MAP - MOVE
+JULES.CASUAL: Put the bad laps in too. Otherwise future historians will think we arrived knowing things.
+NIA.CASUAL: Tonight's entry is paid. Eat first, write the result afterward. Small victories count too.
+
 
 @ D16 MARINA FACE CARS CALDER HOLD
 CALDER: Two dockside heats tonight. Same course, different starting order.
@@ -166,21 +215,36 @@ CALDER: So you learn to race the people around you, not the story you told yours
 JULES: He means don't get sulky if I start in front.
 YOU: You could have led with that.
 
-@ D17 NIGHTGARAGE RADIO KETTLE - MOVE
-NIA: I don't need one heroic lap tonight. Give me two you could repeat after a bad night's sleep.
-YOU: That's oddly specific.
-> NIGHTGARAGE RADIO KETTLE - MOVE
-NIA: Jules found the kettle and told stories until two. We're all testing that theory.
-JULES: Nobody asked me to stop.
-MINA: The kettle did.
+@ D17 JULES_ROOM FACE HELMET JULES.CASUAL HOLD
+JULES.CASUAL: Ignore the wheel. It isn't supposed to be beside the bed. It just got there before I bought a table.
+YOU: You're fixing the delivery bike between heats?
+JULES.CASUAL: Between deliveries. The heats are the bit I look forward to.
+> JULES_ROOM PAN BILLS - MOVE
+YOU: I can wait downstairs if you're busy with those.
+JULES.QUIET: They aren't interesting. Late invoice, rent, a very optimistic reminder from the electricity people.
+YOU: You never said.
+> JULES_ROOM FACE HELMET JULES.QUIET HOLD
+JULES.QUIET: Jokes arrive faster. People know what to do with them.
+YOU: What would help?
+JULES.QUIET: Don't make it a rescue. Just don't let the crew forget a promised payment matters to somebody.
+YOU: I won't. And Nia wants two laps we can repeat tonight, not one miracle.
+JULES.CASUAL: Sensible. I have to deliver myself back here afterward.
 
-@ D18 MEMORIES PAN SIGN - MOVE
-MINA: The printer's jammed. I was making a little Sunline sign for the meets.
-> MEMORIES PAN SIGN - MOVE
-YOU: What does it say?
-MINA: 'Independent garage. Reasonable people. Unreasonable hours.'
-> GARAGE FACE DOOR NIA,MINA HOLD
-NIA: Leave the last bit off. We need tonight's heat to pay for the ink, not encourage more visitors at midnight.
+
+@ D18 PRINTSHOP FACE PRINTER MINA.CASUAL,NIA.CASUAL HOLD
+MINA.CASUAL: The garage printer ate the last sign. This one belongs to a professional who said we could watch from over here.
+YOU: What's it going to say?
+MINA.CASUAL: Independent garage. Reasonable people. Unreasonable hours.
+NIA.CASUAL: Leave the last bit off. I want people to book repairs, not bring us visitors at midnight.
+> PRINTSHOP PAN PRINTER - MOVE
+YOU: Why does that little sign matter so much?
+MINA.QUIET: I want someone walking past to know they can come in. The car photographs don't say that.
+NIA.CASUAL: Put the opening hours in properly, then. Being welcoming doesn't mean pretending we never go home.
+> PRINTSHOP PAN PHOTOS - MOVE
+MINA.CASUAL: There's room for one picture. The shutter open, chairs outside?
+YOU: The boring bit between races.
+MINA.CASUAL: The bit where people are.
+
 
 @ D19 CORNER PAN MARKER - MOVE
 JULES: See that marker post? I used to turn in when it disappeared behind the mirror.
@@ -190,23 +254,34 @@ JULES: Then they replaced it. Nearly taught the barrier a lesson.
 > MEET FACE GRID NIA,JULES HOLD
 NIA: Find the corner, not the furniture. Tonight's course is a good place to practice that.
 
-@ D20 MEET FACE CREW CALDER HOLD
-CALDER: People have started asking when you're racing again.
-> MEMORIES PAN SIGN - MOVE
-YOU: I should put that on Mina's sign.
-> MEET FACE CREW CALDER,MINA HOLD
-CALDER: Put it in your head instead. They're neighbors, not a crowd you need to impress.
-MINA: Too late. Mrs. Vale brought a bag of oranges with your number on it.
-YOU: Now there's pressure.
+@ D20 GREENHOUSE FACE SEEDLINGS VALE.CASUAL,CALDER.CASUAL HOLD
+VALE.CASUAL: Hold that pot level. The tree hasn't learned to lean because you prefer turning left.
+YOU: I thought you invited me here to collect oranges.
+VALE.CASUAL: I invited you to help. Collecting is how I persuaded you.
+> GREENHOUSE PAN ORANGES - MOVE
+CALDER.CASUAL: People keep asking when you're racing again. Don't let that turn the neighbors into an audience you owe a performance.
+YOU: Doesn't winning help the garage?
+VALE.CASUAL: Repairing my wheel bearing helped me. I needed it on Tuesday, not after a final.
+> GREENHOUSE FACE SEEDLINGS VALE.CASUAL,CALDER.CASUAL HOLD
+YOU: Point taken.
+VALE.CASUAL: Good. Nia's done both kinds of work this week. Make sure she notices.
+CALDER.CASUAL: Then come to tonight's heat. There's room to enjoy the other kind too.
 
-@ D21 PAPERS PAN BUDGET - MOVE
-NIA: That's the last overdue bill.
-> PAPERS PAN LEASE - MOVE
+
+@ D21 DINER FACE COUNTER NIA.CASUAL,ELI.CASUAL HOLD
+NIA.CASUAL: Last overdue bill. Paid. I brought the receipt because I didn't quite believe the screen.
+ELI.CASUAL: Want it framed, or will you settle for something hot?
 YOU: We did it?
-> GARAGE FACE DOOR NIA HOLD
-NIA: We bought time. The owner still wants an answer about the lease, but now it can be an answer we choose.
-YOU: Calder's final is still ahead.
-NIA: Then tonight is another ordinary club night. Not everything needs to be the final.
+NIA.CASUAL: We bought time. The lease still needs an answer, but now it can be one we choose.
+> DINER PAN BOOTH - MOVE
+YOU: Are you going to tell the others?
+NIA.QUIET: I was trying to work out how to make it sound less frightening than it was.
+ELI.CASUAL: Tell them the true version. They stayed through the frightening bit already.
+> DINER FACE BOOTH NIA.CASUAL,ELI.CASUAL HOLD
+NIA.CASUAL: After tonight's club heat, then. No speech about a final. Just the receipt and dinner.
+YOU: Jules will insist dinner was his idea.
+ELI.CASUAL: It usually is. He starts planning it over breakfast.
+
 
 @ D22 MEET FACE CREW CALDER HOLD
 CALDER: Home course tonight. Does that make it easier?
@@ -217,31 +292,45 @@ CALDER: So does everyone else here. Familiarity isn't a free lap.
 JULES: He's been saying that since I was tall enough to see over a wheel.
 CALDER: And eventually you'll listen.
 
-@ D23 GARAGE RADIO DOOR - MOVE
-MINA: One more little meet before Calder's final. Shall I bring the camera?
-YOU: You ever leave it behind?
-> MEMORIES RADIO SIGN - MOVE
-MINA: Once. Everyone did something interesting. Never again.
-NIA: Bring it. I want a picture of a normal night before this starts feeling bigger than us.
+@ D23 RECORD_SHOP FACE NOTICES MINA.CASUAL HOLD
+MINA.CASUAL: The owner said we could put the club notice here, beside the guitar lessons.
+YOU: A musician saw our cars and decided they needed louder neighbors?
+MINA.CASUAL: They saw our sign. People notice things other than cars occasionally.
+> RECORD_SHOP PAN RECORDS - MOVE
+YOU: Is this what you meant by a picture of a normal night?
+MINA.CASUAL: Jules arguing over a record nobody can afford. Nia pretending she doesn't know the song. That sort of thing.
+YOU: No heroic angle of the driver?
+MINA.CASUAL: We can get one of those tomorrow. I'd like this part before everyone forgets to stand still.
+> RECORD_SHOP FACE NOTICES MINA.CASUAL HOLD
+YOU: Then bring the camera to the last little meet tonight.
+MINA.CASUAL: Already packed. Once I left it home and everybody became interesting on purpose.
 
-@ D24 MEMORIES PAN SIGN - MOVE
-CALDER: Your dad used to leave that door open after closing.
-> GARAGE FACE DOOR NIA,CALDER HOLD
-NIA: People needed somewhere to go.
-> MEMORIES PAN CHAIRS - MOVE
-CALDER: He needed them too. Don't forget that part.
-> GARAGE FACE DOOR CALDER,NIA HOLD
+
+@ D24 LIGHTHOUSE FACE PHOTO NIA.CASUAL,CALDER.CASUAL HOLD
+CALDER.CASUAL: Your dad brought me up here whenever the workshop stopped being somewhere he could think.
+NIA.CASUAL: I thought he came to check the weather.
+CALDER.CASUAL: He did. Usually because he'd left the laundry outside.
+> LIGHTHOUSE PAN PHOTO - MOVE
+YOU: Is that him in the photograph?
+NIA.QUIET: He kept it by the till. Back when I could sit on the counter without knocking anything expensive off.
+CALDER.QUIET: He didn't leave that door open because he never got tired. He needed the people who came through it.
+> LIGHTHOUSE FACE SEA NIA.QUIET,CALDER.QUIET HOLD
+NIA.QUIET: Sometimes keeping it open feels like the last thing he asked me to do.
+CALDER.QUIET: He asked you to bring the shutters down when it rained. He didn't ask you to become the building.
 YOU: What do you want from tomorrow's final?
-CALDER: A driver who can bring the whole evening home. Start, finish, handshake. In that order.
+CALDER.CASUAL: A start, a finish, a handshake. Let it be a good evening before you ask it to be your whole future.
+> LIGHTHOUSE PAN SEA - MOVE
+NIA.CASUAL: We should go. I left the laundry outside.
 
-@ D25 MEET FACE CREW CALDER,NIA HOLD
-CALDER: Last club final of the season. No speeches at the line. Nia's father tried one once; we left without him.
+
+@ D25 MEET FACE CREW CALDER.GEAR,NIA HOLD
+CALDER.GEAR: Last club final of the season. No speeches at the line. Nia's father tried one once; we left without him.
 NIA: He told that story differently.
 YOU: I'll save mine for the finish.
 > START MONTAGE GRID - MOVE
 NARRATOR: SALTBLOCK FINAL. The flag falls over a clean last lap. Calder is waiting at the finish with his hand out.
-> MEET FACE CREW CALDER,JULES HOLD
-CALDER: The waterfront clubs asked for a recommendation. They can have mine.
+> MEET FACE CREW CALDER.GEAR,JULES HOLD
+CALDER.GEAR: The waterfront clubs asked for a recommendation. They can have mine.
 JULES: Lantern Mile. Later nights, better food, worse parking.
 > PAPERS PAN LEASE - MOVE
 NIA: The garage still needs an answer about the lease.
@@ -288,12 +377,19 @@ YOU: Is that a sponsorship offer?
 MARISOL: It's a conversation. Don't spend it before you've had it.
 NIA: Good. We're very experienced at not spending things.
 
-@ C06 START PAN GRID - MOVE
-JULES: Harbor loop again tonight. I know a quicker way to the start.
-> START FACE BARRIER JULES,IMANI HOLD
-IMANI: Is it through the loading bay?
-JULES: Not since Calder put that barrier there.
-YOU: We'll take the long way. We need the practice more than the shortcut.
+@ C06 BAR FACE COUNTER JULES.CASUAL,IMANI.CASUAL HOLD
+JULES.CASUAL: The music stopped an hour ago. Why are there still six people arguing about a road?
+IMANI.CASUAL: Because nobody remembers who borrowed the barriers. This is the glamorous part of a club.
+YOU: I thought you came here to unwind after work.
+> BAR PAN DOOR - MOVE
+IMANI.CASUAL: I do. Somebody hands me a glass of water and nobody asks why I'm still wearing my work clothes.
+JULES.CASUAL: Marisol asked me to return these keys. I took the long way.
+IMANI.CASUAL: Was it through a loading bay?
+> BAR FACE COUNTER JULES.CASUAL,IMANI.CASUAL HOLD
+JULES.CASUAL: Not since Calder put that barrier there.
+YOU: Then tomorrow we take the ordinary route. I need to see the course before I try improving it.
+IMANI.CASUAL: Good. You can learn where the marshal's entrance is on the way.
+
 
 @ C07 RAIN RADIO WATER - MOVE
 NIA: Rain on the waterfront. Give yourself room to discover how much grip you've actually got.
@@ -303,59 +399,90 @@ IMANI: Let them. You can't borrow their tires by following closely enough.
 > RAIN RADIO AWNING - MOVE
 MINA: You can borrow Marisol's awning, though. I've already checked.
 
-@ C08 MARINA FACE FOOD MINA HOLD
-MINA: The supplier gave me a card. 'Come back with a few consistent results.'
-> NOTES PAN MAP - MOVE
-YOU: So tonight buys us another line on the notebook.
-> MARINA FACE FOOD NIA,MINA HOLD
-MINA: Exactly. No mysterious rival, no grand announcement. Just a receipt that doesn't embarrass us.
-NIA: Frame that one. It's the most realistic plan we've had.
+@ C08 RECORD_SHOP FACE NOTICES MINA.CASUAL,JULES.CASUAL HOLD
+MINA.CASUAL: The supplier wants three consistent results. I stuck the card beside the club flyer so I stop losing it.
+YOU: We could put it in the notebook.
+MINA.CASUAL: That's at Sunline. This is where I stop being the crew's filing cabinet for an hour.
+> RECORD_SHOP PAN RECORDS - MOVE
+JULES.CASUAL: She has opinions about sleeves. None of them have been affordable so far.
+MINA.CASUAL: I like looking at how somebody chose a picture. It's research I don't have to justify to a sponsor.
+YOU: Sorry. What were you going to show me?
+> RECORD_SHOP FACE RECORDS MINA.CASUAL HOLD
+MINA.CASUAL: This one. No car, no famous face. Just a light left on in a window.
+YOU: It makes me want to know who's inside.
+MINA.CASUAL: Exactly. After tonight's heat, I'm taking a picture of Sunline from across the street.
 
-@ C09 GARAGE FACE CAR NIA HOLD
-YOU: I thought coming here would mean winning every conversation.
-NIA: You've spent a week asking good questions. That's considerably more useful.
-> RAIN PAN AWNING - MOVE
-YOU: Even the one about wet tires?
-> GARAGE FACE CAR NIA HOLD
-NIA: Especially that one. Another small heat tonight. Quiet confidence suits you.
 
-@ C10 CORNER RADIO MARKER - MOVE
-IMANI: You keep taking the tightest line, even when it makes the next corner awkward.
-> CORNER RADIO EXIT - MOVE
-YOU: It looks shorter.
-IMANI: So does sleeping on the sofa instead of going upstairs. Doesn't mean you wake up better off.
-YOU: There's an upstairs?
-NIA: No. She means look further ahead.
+@ C09 NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
+YOU: I thought getting invited to Lantern meant I'd stop feeling like the person with the wrong question.
+NIA.CASUAL: You've asked better questions all week. That's an improvement you can actually keep.
+YOU: Including the one about wet tires?
+NIA.CASUAL: Especially that one. I used to pretend I knew what Dad meant rather than ask him twice.
+> NIA_KITCHEN PAN ORANGES - MOVE
+YOU: Did he notice?
+NIA.CASUAL: Eventually. Usually when I handed him the wrong spanner with tremendous confidence.
+YOU: What did he do?
+> NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
+NIA.CASUAL: Asked me to say what I thought he'd meant. Turned out we both needed the practice.
+YOU: Quiet heat tonight, then. One actual question before I go out.
+NIA.CASUAL: Good. Mine is whether you remembered the bread this time.
 
-@ C11 MARINA FACE HARBOR IMANI HOLD
-IMANI: My shift changes tomorrow. One free evening before I disappear into work again.
-YOU: You want to race?
-> MARINA PAN HARBOR - MOVE
-IMANI: I want a clean hour where nobody needs anything from me. Racing seems an excellent excuse.
-> MARINA FACE HARBOR IMANI HOLD
-YOU: No favors at the line.
-IMANI: That's the first sensible thing you've said to me all week.
 
-@ C12 MARINA FACE CARS MARISOL,IMANI HOLD
+@ C10 HARBOR_BATHROOM FACE BASIN IMANI.CASUAL HOLD
+IMANI.CASUAL: Soap's empty again. Use mine; the harbor shift buys a bottle every Friday.
+YOU: You came straight from work?
+IMANI.CASUAL: If I go home first, I sit down. Sitting down has ended several promising evenings.
+> HARBOR_BATHROOM PAN BASIN - MOVE
+YOU: I was trying to ask about that tight line yesterday. It looked shorter.
+IMANI.CASUAL: So does sleeping on a sofa instead of going to bed. Doesn't mean you wake up better off.
+YOU: The next corner matters more than how neat the first one looks.
+> HARBOR_BATHROOM FACE MIRROR IMANI.CASUAL HOLD
+IMANI.CASUAL: There. You understood before I finished washing the grease off.
+YOU: Is that the standard for joining this club?
+IMANI.CASUAL: No. Refilling the soap gets you considerably further.
+
+
+@ C11 CLUB FACE TABLE IMANI.CASUAL HOLD
+IMANI.CASUAL: One free evening before the shift change. I wanted to hear a song I didn't have to talk over a compressor.
+YOU: We can leave the race invitation for another time.
+IMANI.CASUAL: I was getting to that. Tomorrow, harbor circuit. Tonight, sit down.
+> CLUB PAN STAGE - MOVE
+YOU: Do you know the band?
+IMANI.CASUAL: The drummer fixes the ferry gates. We try not to bring him work questions between sets.
+YOU: A whole room where we're allowed to be bad at something else.
+> CLUB FACE TABLE IMANI.CASUAL HOLD
+IMANI.QUIET: Don't say it as if it's a failure. I like having an evening nobody can put on a results sheet.
+YOU: No favors when we do get to the line.
+IMANI.CASUAL: None. But you can buy the sodas before I beat you.
+
+
+@ C12 MARINA FACE CARS MARISOL,IMANI.GEAR HOLD
 MARISOL: Imani picked the harbor circuit. Watch the change in surface by the warehouses.
-IMANI: Don't give away all my advantages.
+IMANI.GEAR: Don't give away all my advantages.
 YOU: I noticed that patch yesterday.
-IMANI: Then you've earned it. Let's go.
+IMANI.GEAR: Then you've earned it. Let's go.
 > MARINA MONTAGE HARBOR - MOVE
 NARRATOR: SHIFT-CHANGE DUEL. The harbor lights sweep across the finish. Imani offers a tired, satisfied smile.
-> MARINA FACE HARBOR IMANI HOLD
-IMANI: You left me room when you didn't have to. I remember things like that.
+> MARINA FACE HARBOR IMANI.GEAR HOLD
+IMANI.GEAR: You left me room when you didn't have to. I remember things like that.
 YOU: Will you come to the supplier meeting?
-> AWNING FACE AWNING IMANI HOLD
-IMANI: After I sleep. That part isn't negotiable.
+> AWNING FACE AWNING IMANI.GEAR HOLD
+IMANI.GEAR: After I sleep. That part isn't negotiable.
 
-@ C13 AWNING PAN AWNING - MOVE
-MARISOL: Sit down. This is a table, not a podium.
-> AWNING FACE AWNING NIA,MARISOL HOLD
-NIA: We can commit to regular appearances. We can't promise you a different garage every month.
-MARISOL: The supplier wants reliable people, not a new paint scheme. Tell them that.
-> NOTES PAN MAP - MOVE
-YOU: And show them the notebook.
+@ C13 BRIDGE_CAFE FACE FOLDER NIA.CASUAL,MARISOL.CASUAL HOLD
+MARISOL.CASUAL: Sit down. The supplier booked this table, not a podium.
+NIA.CASUAL: We can commit to regular appearances. We can't become a different garage every month.
+YOU: Should we show the notebook?
+MARISOL.CASUAL: When they arrive. First decide what you can honestly promise without spending everyone else's evenings.
+> BRIDGE_CAFE PAN BRIDGE - MOVE
+NIA.CASUAL: You do this for every new crew?
+MARISOL.CASUAL: No. I introduce people after I've watched them put the borrowed chairs away.
+YOU: That matters more than a lap time?
+> BRIDGE_CAFE FACE FOLDER MARISOL.CASUAL,NIA.CASUAL HOLD
+MARISOL.CASUAL: A fast lap tells me who drove. Coming back tells me who will do the work when I'm not watching.
+NIA.CASUAL: Then we can promise the boring version.
+MARISOL.CASUAL: That's the one worth writing down.
+
 
 @ C14 MEET FACE CREW MINA HOLD
 MINA: They want three more club appearances before they decide.
@@ -371,20 +498,33 @@ YOU: I didn't think you played cards.
 JULES: Neither did the man who invited me. Turned out he meant the circuit by the bridge.
 IMANI: Try to keep that confusion off the results sheet.
 
-@ C16 PAPERS RADIO BUDGET - MOVE
-NIA: Entry, fuel, a little left over. That's the whole plan tonight.
-YOU: We used to race to save the garage. Now we're racing to buy printer ink.
-> MEMORIES RADIO SIGN - MOVE
-NIA: Both are honest reasons. One makes a much shorter speech.
-MINA: The ink is important. My photographs are currently black, white, and wishful thinking.
+@ C16 DINER FACE BOOTH ELI.CASUAL,NIA.CASUAL,MINA.CASUAL HOLD
+ELI.CASUAL: Booth's free. Somebody left a notebook here and then rang three times to check nobody had put soup on it.
+MINA.CASUAL: It contains our entire financial empire and a very good drawing of Jules asleep.
+YOU: Entry, fuel, enough left for ink. That's tonight's plan?
+> DINER PAN COUNTER - MOVE
+NIA.CASUAL: Yes. It doesn't need a dramatic name.
+ELI.CASUAL: Good. I've run this place for nineteen years without naming a single electricity payment.
+YOU: Do you ever get tired of the same evening?
+> DINER FACE BOOTH ELI.CASUAL,MINA.CASUAL HOLD
+ELI.CASUAL: Of course. Then somebody brings someone new and the same booth becomes a different evening.
+MINA.CASUAL: Hold that thought. And don't move the mug; the light's finally right.
+ELI.CASUAL: Ask before you take the picture. My good side charges more.
 
-@ C17 AWNING FACE AWNING MARISOL HOLD
-MARISOL: The supplier asked whether your crew has a reputation.
-YOU: What did you say?
-> AWNING PAN AWNING - MOVE
-MARISOL: That you return borrowed equipment. They were more interested in that than your lap times.
-> AWNING FACE AWNING NIA,MARISOL HOLD
-NIA: Remind them about the awning. I ironed it.
+
+@ C17 FISHMARKET FACE CRATES MARISOL.CASUAL,IMANI.CASUAL HOLD
+MARISOL.CASUAL: Put the awning there. Dry, folded, and only slightly inside out. Nia's been thorough.
+YOU: She ironed it.
+IMANI.CASUAL: That might be a first for this market.
+> FISHMARKET PAN SHUTTERS - MOVE
+YOU: The supplier asked about our reputation. Is this what you told them?
+MARISOL.QUIET: I told them you return things. I've lost more evenings to unkept small promises than to a poor result.
+IMANI.CASUAL: The fish stall let us use their power after the street box failed. We keep their shutters clear in return.
+> FISHMARKET FACE CRATES MARISOL.CASUAL,IMANI.CASUAL HOLD
+YOU: That's a complicated sponsorship agreement.
+MARISOL.CASUAL: It's a neighborhood. Contracts are what you use when people can't remember the rest.
+IMANI.CASUAL: Tonight's late heat is quiet. Try to keep a few nights like that when this gets bigger.
+
 
 @ C18 MARINA FACE CARS IMANI HOLD
 IMANI: Tonight's the quiet late heat. No special event. Just us and whoever finishes work in time.
@@ -396,12 +536,20 @@ YOU: Will you be on the grid?
 > START PAN BARRIER - MOVE
 IMANI: If you save me a space that isn't the marshal's entrance.
 
-@ C19 NOTES RADIO FILM - MOVE
-NIA: I compared your first harbor lap with last night's. You're doing less, and getting more out of it.
-> NOTES RADIO MAP - MOVE
-YOU: That sounds like an argument for taking a night off.
-NIA: After the next two heats. I didn't say we'd become sensible all at once.
-MINA: I've put 'future night off' in the notebook. In pencil.
+@ C19 WAITING_ROOM FACE CHAIRS IMANI.CASUAL HOLD
+YOU: I brought the flowers. Is everything all right?
+IMANI.CASUAL: Mum's with the physio. Same appointment every other Thursday. Nothing dramatic.
+YOU: You could have said why you missed the early session.
+IMANI.CASUAL: I said I had somewhere to be. That ought to be enough until I choose to tell you the rest.
+> WAITING_ROOM PAN FLOWERS - MOVE
+YOU: You're right. I'm sorry.
+IMANI.QUIET: You came with flowers instead of a lecture. We're doing all right.
+YOU: Does racing fit around this, or the other way round?
+> WAITING_ROOM FACE CHAIRS IMANI.QUIET HOLD
+IMANI.QUIET: Some weeks it fits. Some weeks it doesn't. I still get to be somebody who loves it.
+YOU: I'll save you a spot at the next late heat.
+IMANI.CASUAL: One that isn't the marshal's entrance. I have a reputation to maintain now.
+
 
 @ C20 MARINA FACE HARBOR MARISOL HOLD
 MARISOL: Your name's on the harbor final list.
@@ -411,13 +559,19 @@ MARISOL: It should be. People ought to know the work that gets them invited.
 YOU: Do I get to race you?
 MARISOL: At last, a question worth answering with a yes.
 
-@ C21 AWNING PAN FOOD - MOVE
-MINA: The food van has our little sign in its window.
+@ C21 PRINTSHOP FACE PHOTOS MINA.CASUAL,NIA.CASUAL HOLD
+MINA.CASUAL: The food van wants our sign in its window. Also a picture of the sandwich that doesn't look like a threat.
 YOU: A sponsorship?
-> AWNING PAN FOOD - MOVE
-MINA: A free sandwich if I fix the van's bad photograph. We're starting small.
-> MARINA FACE FOOD NIA,MINA HOLD
-NIA: Small is fine. I've had enough people promising us the world this week.
+MINA.CASUAL: Lunch, if I can make bread look friendly.
+> PRINTSHOP PAN PHOTOS - MOVE
+NIA.CASUAL: Did they ask for Sunline's name on the photograph?
+MINA.CASUAL: They asked for mine. Is that all right?
+NIA.CASUAL: You don't need my permission to be good at your own work.
+> PRINTSHOP FACE PHOTOS MINA.QUIET,NIA.CASUAL HOLD
+MINA.QUIET: I know. I wanted to hear it before there was a contract involved.
+YOU: Start with lunch. We can learn the grander arrangements when they happen.
+MINA.CASUAL: Good. Tonight's heat might finally buy ink that doesn't turn everything grey.
+
 
 @ C22 MARINA RADIO CARS - MOVE
 JULES: Last ferry heat before the final. Short course, early finish.
@@ -434,28 +588,33 @@ NIA: What does the application cost?
 MARISOL: More than a good lap. We'll talk afterward. Don't let the next gate spoil this evening.
 YOU: One harbor final at a time, then.
 
-@ C24 GARAGE FACE DOOR NIA HOLD
+@ C24 NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
 YOU: You look more nervous than I feel.
-NIA: That's because you've been asleep. I've been reading application forms.
-> PAPERS PAN LEASE - MOVE
+NIA.CASUAL: You've been asleep. I've been reading application forms beside a toaster I still haven't fixed.
 YOU: Anything useful?
-> PAPERS PAN BUDGET - MOVE
-NIA: A lot of small print, and a place for a club guarantor. Marisol left that part circled.
-> GARAGE FACE DOOR NIA HOLD
-YOU: Tomorrow we give her a reason to sign it.
+> PAPERS PAN LEASE - MOVE
+NIA.CASUAL: A place for a club guarantor. Marisol circled it. Then she told me to stop reading for one evening.
+YOU: That doesn't sound like bad advice.
+> NIA_KITCHEN FACE TABLE NIA.QUIET HOLD
+NIA.QUIET: I know how to prepare a car. I don't know how to prepare everyone for the next thing without deciding it for them.
+YOU: Ask them what they want to bring. Jules has a calendar now. That ought to qualify him for something.
+NIA.CASUAL: Tomorrow we give Marisol a reason to sign. Tonight, help me clear the table.
+YOU: Paperwork or toaster?
+NIA.CASUAL: Both. We need somewhere to eat.
 
-@ C25 MARINA FACE CARS MARISOL,IMANI HOLD
-MARISOL: I organize this series. That doesn't mean I intend to hand it over politely.
+
+@ C25 MARINA FACE CARS MARISOL.GEAR,IMANI HOLD
+MARISOL.GEAR: I organize this series. That doesn't mean I intend to hand it over politely.
 YOU: I was counting on that.
 IMANI: I'll marshal the start. Jules, put the phone away and hold this flag.
 > MARINA MONTAGE HARBOR - MOVE
 NARRATOR: HARBOR FINAL. The waterfront keeps shining long after the finish. Marisol brings the application to Sunline's awning.
-> AWNING FACE AWNING MARISOL,NIA HOLD
-MARISOL: There's your recommendation. My club will back the next step.
+> AWNING FACE AWNING MARISOL.GEAR,NIA HOLD
+MARISOL.GEAR: There's your recommendation. My club will back the next step.
 > PAPERS PAN LEASE - MOVE
 NIA: The attached sponsor contract asks who controls the team name. Is that part of the application?
-> AWNING FACE AWNING MARISOL,NIA HOLD
-MARISOL: It's Voss's commercial offer, separate from my club recommendation. Read every page before you sign.
+> AWNING FACE AWNING MARISOL.GEAR,NIA HOLD
+MARISOL.GEAR: It's Voss's commercial offer, separate from my club recommendation. Read every page before you sign.
 > FOUNDRY RADIO CIRCUIT - MOVE
 KADE: Heard you earned a Foundry invitation. Come early. Let's find out what you learned since Saltblock.
 YOU: I was hoping you'd ask.
@@ -491,23 +650,34 @@ NIA: We could. It wouldn't move that braking point you keep missing.
 YOU: You're enjoying this a little.
 NIA: I'm enjoying having a problem we can name. Tonight, work on the approach. Leave the parts catalog shut.
 
-@ B04 NOTES PAN FILM - MOVE
-JULES: I watched Kade's film. His car's pointing down the next straight while yours is still apologizing to the corner.
-> NOTES PAN MAP - MOVE
-YOU: You've become very technical since buying that calendar.
-JULES: I wrote 'watch the exit' on it. We'll practice on the short course until it stops sounding obvious.
-> GARAGE FACE CAR NIA,JULES HOLD
-NIA: Good. Understanding an instruction and doing it are separate jobs.
-
-@ B05 GARAGE FACE DOOR MINA HOLD
-MINA: Nobody's talking much this morning.
+@ B04 CREW_VAN FACE MAP JULES.CASUAL,NIA.CASUAL HOLD
+JULES.CASUAL: Parked, handbrake on. I refuse to become a cornering example while giving a lecture about one.
+YOU: You watched Kade's film?
+JULES.CASUAL: Twice. His car's pointing down the next straight while yours is still apologizing to the corner.
 > NOTES PAN FILM - MOVE
-YOU: I was thinking about yesterday's lap.
-> GARAGE FACE DOOR NIA,MINA HOLD
-NIA: I'm thinking about the kettle. You can both help by putting the shutters up.
-> GARAGE FACE DOOR MINA,NIA HOLD
-MINA: Then another club heat tonight?
-NIA: Yes. There's room for disappointment and work in the same day.
+NIA.CASUAL: Notice the corner before it. That's where he made the space.
+YOU: We're looking a whole question earlier than I was.
+> CREW_VAN FACE MAP NIA.CASUAL,JULES.CASUAL HOLD
+JULES.CASUAL: I wrote that in the calendar. It looks very wise between 'pay rent' and 'buy soap.'
+NIA.CASUAL: Understanding an instruction and doing it are separate jobs. Tonight's short course gives us repetitions.
+YOU: Let me finish the tea before you start demonstrating with the van.
+JULES.CASUAL: Not a chance. This is the one vehicle whose passengers still trust me.
+
+
+@ B05 BLACKOUT FACE LANTERN NIA.CASUAL,MINA.CASUAL,JULES.CASUAL HOLD
+NIA.CASUAL: Breaker's gone again. Nobody touches that cabinet until the electrician arrives.
+YOU: Should we cancel tonight?
+NIA.CASUAL: Calder's heat has its own lights. We can still go. We just can't pretend this is a normal workshop evening.
+> BLACKOUT PAN CHAIRS - MOVE
+MINA.CASUAL: The neighbors stayed when the lights went out. Mrs. Vale says her thermos is bigger than our kettle anyway.
+JULES.CASUAL: I found the chair that doesn't collapse. This is how civilizations begin.
+YOU: I was going to spend the evening being annoyed about yesterday's lap.
+> BLACKOUT FACE LANTERN NIA.QUIET,MINA.CASUAL HOLD
+NIA.QUIET: There's room for disappointment and company in the same day. You don't have to earn the chair first.
+MINA.CASUAL: Help me get the lantern where Vale can see her knitting.
+YOU: Then the shutters can wait?
+NIA.CASUAL: For once. Somebody else can stand in the doorway and be useful.
+
 
 @ B06 FOUNDRY RADIO CLUB - MOVE
 ROOK: Three short sessions this week. Same layout, no headline rivals. They're for people who need repetitions.
@@ -516,21 +686,33 @@ YOU: We'll take all three.
 ROOK: Thought you might. Do a little better each time; don't invent a crisis if you don't.
 NIA: I like her.
 
-@ B07 CORNER PAN MARKER - MOVE
-YOU: I found the marker Kade was using.
-KADE: Found the marker, or found what the road looks like from there?
-> CORNER PAN EXIT - MOVE
+@ B07 FERRY FACE BENCH KADE.CASUAL HOLD
+KADE.CASUAL: I take this crossing after the early sessions. It's hard to race anybody when you're both on the same boat.
+YOU: I found the marker you were using.
+KADE.CASUAL: Found the marker, or found what the road looks like from there?
 YOU: You're going to make me explain it, aren't you?
-> FOUNDRY FACE CIRCUIT KADE HOLD
-KADE: If you can explain it to Nia, you can repeat it without me. That's the useful part.
+> FERRY PAN WATER - MOVE
+KADE.QUIET: I thought you might stop answering after the second exhibition. People don't always enjoy learning from the person who beat them.
+YOU: You could have just taken the win and left.
+> FERRY FACE BENCH KADE.QUIET HOLD
+KADE.QUIET: I did that for years. You meet a surprising number of people once and nobody twice.
+YOU: Then watch tonight's practice. I'll explain the line afterward, and you can tell me which half I invented.
+KADE.CASUAL: Make it good. This crossing only lasts twenty minutes.
 
-@ B08 NOTES PAN MAP - MOVE
-NIA: New page in the notebook. Not a new engine, not a miracle setup. A new page.
-> GARAGE FACE CAR NIA,MINA HOLD
-YOU: Are we calling it a fresh start?
-MINA: I've called it 'less shouting at corners.' It tested well with our audience.
-YOU: Our audience is Jules.
-MINA: He's very demanding.
+
+@ B08 JULES_ROOM FACE HELMET JULES.CASUAL,MINA.CASUAL HOLD
+MINA.CASUAL: You found the missing spoke. Does that mean the bike can work tomorrow?
+JULES.CASUAL: Yes. I'm trying to finish one job before I start another. An unfamiliar routine.
+YOU: You could buy a table.
+> JULES_ROOM PAN BILLS - MOVE
+JULES.CASUAL: I paid something first. The landlord was less impressed by a new lap record than I'd hoped.
+MINA.CASUAL: I've got a new page for tonight. 'Less shouting at corners.'
+YOU: It tested well with our audience?
+> JULES_ROOM FACE HELMET JULES.CASUAL,MINA.CASUAL HOLD
+JULES.CASUAL: Very demanding audience. Especially when it hasn't had breakfast.
+YOU: Come to Sunline before the session. Kade left us the onboard film.
+MINA.CASUAL: A working bike, a bill paid, and a plan that fits on one page. Call it a fresh start.
+
 
 @ B09 FOUNDRY FACE CLUB ROOK HOLD
 ROOK: You've stopped chasing every little mistake with a bigger one.
@@ -557,34 +739,48 @@ KADE: Good. I don't need you to promise you'll beat me. I want to see the work.
 YOU: You'll have to stay close enough to watch.
 KADE: That's better. Keep some of that for tomorrow.
 
-@ B12 FOUNDRY FACE CIRCUIT ROOK,KADE HOLD
+@ B12 FOUNDRY FACE CIRCUIT ROOK,KADE.GEAR HOLD
 ROOK: One fair start. Nobody gets a favor for being local.
-KADE: If you catch me, do it at the exit. I'd like to know I taught you something inconvenient.
+KADE.GEAR: If you catch me, do it at the exit. I'd like to know I taught you something inconvenient.
 YOU: I'll see what I can arrange.
 > CORNER MONTAGE EXIT - MOVE
 NARRATOR: THE REMATCH. At the last bend, Kade leaves the smallest opening. This time your exit carries all the way to the flag.
-> FOUNDRY FACE CIRCUIT KADE,NIA HOLD
-KADE: That was yours. No explanation needed.
+> FOUNDRY FACE CIRCUIT KADE.GEAR,NIA HOLD
+KADE.GEAR: That was yours. No explanation needed.
 YOU: You kept your word about the handshake.
-KADE: Keep yours about the clean race. Here, take this copy of the licensing rules.
-> FOUNDRY FACE CLUB NIA,KADE HOLD
+KADE.GEAR: Keep yours about the clean race. Here, take this copy of the licensing rules.
+> FOUNDRY FACE CLUB NIA,KADE.GEAR HOLD
 NIA: Why the rules?
-KADE: Because the fast lap is the easy part of the next application.
+KADE.GEAR: Because the fast lap is the easy part of the next application.
 
-@ B13 MEMORIES PAN CHAIRS - MOVE
-JULES: The man who embarrassed us twice is having breakfast in our garage.
-> GARAGE FACE DOOR JULES,KADE,NIA HOLD
-KADE: Once officially. The first exhibition was a public service.
-YOU: You're not getting paid for it.
-NIA: He brought the application notes. That's enough. Someone find him a chair that doesn't fold unexpectedly.
+@ B13 DINER FACE BOOTH JULES.CASUAL,KADE.CASUAL,ELI.CASUAL HOLD
+JULES.CASUAL: The man who embarrassed us twice is eating our breakfast.
+KADE.CASUAL: Once officially. The first exhibition was a public service.
+ELI.CASUAL: He ordered his own breakfast. You could try it before claiming the entire table.
+YOU: Did you bring the licensing notes?
+> DINER PAN COUNTER - MOVE
+KADE.CASUAL: In the folder. I'd like ten minutes where the only thing anyone asks me to explain is the menu.
+JULES.CASUAL: Fair. Why are there three kinds of toast?
+KADE.QUIET: I walked into that one.
+> DINER FACE BOOTH KADE.CASUAL,JULES.CASUAL HOLD
+YOU: Stay after tonight's club heat. Nia has a chair with fewer surprises now.
+KADE.CASUAL: A result worth defending. I'll be there.
 
-@ B14 FOUNDRY FACE CLUB NIA HOLD
-NIA: For a Meridian license, we need a season-cost guarantee. The office only sent Voss's commercial application.
-> PAPERS PAN BUDGET - MOVE
-ROOK: His organization would cover the costs and control the team identity. That's the route they prefer.
-> FOUNDRY FACE CLUB NIA,ROOK HOLD
+
+@ B14 BRIDGE_CAFE FACE FOLDER NIA.CASUAL,ROOK.CASUAL HOLD
+NIA.CASUAL: For a Meridian license, we need a season-cost guarantee. The office only sent Voss's commercial application.
+ROOK.CASUAL: His organization covers the costs and controls the team identity. It's their preferred route.
 YOU: Is it the only one?
-ROOK: No. But the other route takes more people willing to put their names beside yours.
+> BRIDGE_CAFE PAN BRIDGE - MOVE
+ROOK.QUIET: My first club had a sponsor's name over the door. When the contract ended, we found out it wasn't our door anymore.
+NIA.CASUAL: Did anybody explain that when you signed?
+ROOK.QUIET: Somebody tried. I was busy being grateful.
+> BRIDGE_CAFE FACE FOLDER ROOK.QUIET,NIA.CASUAL HOLD
+YOU: What do we ask before we become grateful?
+ROOK.CASUAL: Who carries the risk. Who owns the name. And whether a club can guarantee an independent crew instead.
+NIA.CASUAL: Can it?
+ROOK.CASUAL: If enough members stand behind it. I'll read the other route with you. Then you can decide what you can actually promise.
+
 
 @ B15 GARAGE FACE DOOR VOSS HOLD
 VOSS: You've done impressive work with very little. I can pay your crew properly, secure the lease, and put you on the grid.
@@ -600,14 +796,19 @@ NIA: Then help us build something that can stand. Don't ask us to become a sign 
 > PAPERS PAN BUDGET - MOVE
 VOSS: Read the offer. You owe your people that much.
 
-@ B16 NIGHTGARAGE FACE KETTLE NIA HOLD
+@ B16 LAUNDROMAT FACE CHAIRS NIA.CASUAL,MINA.CASUAL HOLD
 YOU: He wasn't wrong about the wages.
-> PAPERS PAN BUDGET - MOVE
-NIA: No. That doesn't make the contract right. We'll put the actual choices on the table, not pretend this is easy.
-> NIGHTGARAGE FACE KETTLE NIA,MINA HOLD
-MINA: First choice: tonight's club heat. It won't solve the contract, but it will pay for tomorrow.
-YOU: Ordinary work, then.
-NIA: Ordinary work.
+NIA.CASUAL: No. That doesn't make the contract right. It does mean I can't answer it with a speech about Dad's sign.
+> LAUNDROMAT PAN WASHERS - MOVE
+MINA.CASUAL: We have forty minutes before the machine gives us another problem. Put the choices on the table.
+NIA.QUIET: If saying yes keeps everyone fed, I need to understand that. If saying no asks them to be frightened for me, I need to understand that too.
+YOU: Start by asking. Jules has been waiting for someone to make that a real question.
+> LAUNDROMAT FACE CHAIRS NIA.QUIET,MINA.CASUAL HOLD
+NIA.QUIET: I thought making Sunline somewhere to belong meant nobody would need anything else.
+MINA.CASUAL: It means they can tell you when they do.
+YOU: Tonight's club heat pays for tomorrow. We can do that without deciding the whole future beside a washing machine.
+NIA.CASUAL: Good. Help me fold these before I turn another T-shirt into a business meeting.
+
 
 @ B17 FOUNDRY FACE CLUB JULES HOLD
 JULES: Another long shift of short races. Feels like Saltblock again.
@@ -624,30 +825,49 @@ KADE: This one's proof that the paperwork describes a real driver.
 > NOTES RADIO FILM - MOVE
 MINA: I'll file it beside our very real takeaway-menu notebook.
 
-@ B19 GARAGE FACE DOOR MINA,NIA HOLD
-MINA: I sent a portfolio to the circuit press office. They offered me a paid weekend.
-> GARAGE FACE DOOR NIA,MINA HOLD
-NIA: With Voss's organization?
-> GARAGE FACE DOOR MINA,NIA HOLD
-MINA: At his circuit. I don't have to sign away the pictures. I checked.
+@ B19 TRAIN_PLATFORM FACE BENCH MINA.CASUAL,NIA.CASUAL HOLD
+MINA.CASUAL: Paid weekend at the circuit press office. They want me on the first train.
+NIA.CASUAL: At Voss's circuit?
+MINA.CASUAL: Yes. I keep the rights to my pictures. I asked before I bought a ticket.
+> TRAIN_PLATFORM PAN TRAIN - MOVE
 YOU: Then take it. Sunline isn't independent if we decide who you're allowed to work for.
-NIA: You're right. Bring us back something better than a blurry phone photograph.
+NIA.QUIET: You're right. I was already working out how we'd manage without asking whether you wanted to go.
+MINA.QUIET: I do. That doesn't mean I don't want to come back.
+> TRAIN_PLATFORM FACE BENCH MINA.QUIET,NIA.CASUAL HOLD
+YOU: We can hold a chair without asking it to hold you in place.
+NIA.CASUAL: Send us a picture when you get there. A proper one, not Jules's thumb over a phone lens.
+MINA.CASUAL: I'll send one with my name on it. And one of the kettle. You'd only ask otherwise.
 
-@ B20 FOUNDRY FACE CLUB ROOK HOLD
-ROOK: My first club had a sponsor's name on the door. When the contract ended, we discovered it wasn't our door anymore.
-> FOUNDRY FACE CLUB ROOK,NIA HOLD
-YOU: Is that why you're helping us?
-ROOK: It's why I read every page. Helping you is a separate decision.
-NIA: What did we miss?
-ROOK: A club can guarantee an independent team. It just needs enough members willing to stand behind it.
 
-@ B21 FOUNDRY FACE CLUB ROOK HOLD
-ROOK: Your final invitation is ready. So is a draft of the club guarantee.
-> FOUNDRY FACE CLUB ROOK,NIA HOLD
+@ B20 OLD_WORKSHOP FACE LIFT VOSS.CASUAL HOLD
+VOSS.CASUAL: The lift stayed. Everything with wheels left in one afternoon.
+YOU: This was your garage?
+VOSS.CASUAL: Before I started signing entries. Before I learned a promise to cover wages still has to work on a bad Friday.
+> OLD_WORKSHOP PAN CHAIR - MOVE
+YOU: You kept one chair.
+VOSS.QUIET: My brother used it while he kept the books. He has a perfectly good office now. I keep finding reasons not to move it.
+YOU: Nia thinks you're asking her to lose something like this.
+> OLD_WORKSHOP FACE LIFT VOSS.QUIET HOLD
+VOSS.QUIET: I know. I am trying to make sure she doesn't lose the people inside it first.
+YOU: Then help us ask for terms that protect both.
+VOSS.QUIET: Ask with figures, not just with hope. If a club route can meet the obligation, show me how.
+YOU: Rook's reading it with us. We still intend to race her final.
+VOSS.CASUAL: Good. She'll ask whether you can finish the dull work too.
+
+
+@ B21 BRIDGE_CAFE FACE FOLDER ROOK.CASUAL,NIA.CASUAL HOLD
+ROOK.CASUAL: Your final invitation is ready. So is the draft for a club guarantee.
 YOU: We haven't won your final.
-ROOK: A guarantee isn't a prize for one lap. It's a judgment about whether you'll come back when the work is dull.
-NIA: We'll be back for tonight's heat too.
-ROOK: That's part of my evidence.
+ROOK.CASUAL: A guarantee isn't a prize for one lap. It's a judgment about whether you'll come back when the work is dull.
+> BRIDGE_CAFE PAN FOLDER - MOVE
+NIA.CASUAL: Enough members?
+ROOK.CASUAL: Mine are reading it. Calder and Marisol agreed to ask their clubs too. Nobody should sign because you made an exciting speech.
+YOU: Voss said to bring figures.
+> BRIDGE_CAFE FACE FOLDER ROOK.CASUAL,NIA.CASUAL HOLD
+ROOK.CASUAL: Sensible. He doesn't have a monopoly on being right about costs. He doesn't get to decide there is only one way to meet them either.
+NIA.CASUAL: We'll bring the budget, then. And we'll be back for tonight's heat.
+ROOK.CASUAL: Both are part of my evidence.
+
 
 @ B22 FOUNDRY RADIO CLUB - MOVE
 NIA: We're close enough to start thinking about the next chapter. That's exactly when people stop doing the things that got them here.
@@ -665,22 +885,28 @@ KADE: Can you do the next corner properly while somebody refuses to go away?
 YOU: Sounds familiar.
 KADE: You're welcome.
 
-@ B24 PAPERS PAN BUDGET - MOVE
-NIA: Rook's members signed. So did Calder and Marisol as supporting clubs.
-> GARAGE FACE DOOR NIA HOLD
+@ B24 GREENHOUSE FACE SEEDLINGS VALE.CASUAL,NIA.CASUAL HOLD
+VALE.CASUAL: Calder brought the papers through after lunch. He wanted a chair and two witnesses, so naturally he came to a greenhouse.
+NIA.CASUAL: Rook's members signed. So did Calder and Marisol as supporting clubs.
 YOU: That's a lot of people on one piece of paper.
-NIA: It should feel heavy. They didn't sign because they think we're invincible.
-YOU: They signed because they think we'll come back.
-NIA: Win or lose. Tomorrow, remember that.
+> GREENHOUSE PAN ORANGES - MOVE
+VALE.CASUAL: They didn't sign because they think you're invincible. Nobody who has seen Jules unfold a chair could think that.
+NIA.QUIET: I want to be certain they know what happens if we lose tomorrow.
+VALE.CASUAL: A result changes. The promise is that you come back and do the work you said you would.
+> GREENHOUSE FACE SEEDLINGS NIA.QUIET,VALE.CASUAL HOLD
+YOU: Win or lose, the door opens on Monday.
+NIA.CASUAL: That's the part we know how to do.
+VALE.CASUAL: Then finish your tea. I have plants to water and you're blocking the tap.
 
-@ B25 FOUNDRY FACE CIRCUIT ROOK HOLD
-ROOK: You want a permanent circuit. Show me the patience to finish a long race first.
+
+@ B25 FOUNDRY FACE CIRCUIT ROOK.GEAR HOLD
+ROOK.GEAR: You want a permanent circuit. Show me the patience to finish a long race first.
 YOU: No miracles?
-ROOK: No miracles. Just the plan you practiced.
+ROOK.GEAR: No miracles. Just the plan you practiced.
 > CORNER MONTAGE EXIT - MOVE
 NARRATOR: FOUNDRY FINAL. The last lap holds together. Rook brings two documents to the finish: the result, and the club guarantee.
-> FOUNDRY FACE CLUB ROOK,NIA HOLD
-ROOK: This gets you an application, not an exemption from the rules. I expect to hear how it goes.
+> FOUNDRY FACE CLUB ROOK.GEAR,NIA HOLD
+ROOK.GEAR: This gets you an application, not an exemption from the rules. I expect to hear how it goes.
 NIA: You will. And the garage door stays open.
 > PADDOCK RADIO PITS - MOVE
 REN: Sunline? I'm Ren. Your independent application cleared its first review. Bring your notes. Meridian will give you new ones.
@@ -702,18 +928,23 @@ REN: Yes. It gives you more choices, including several bad ones. Start with a qu
 NIA: No chasing lap records today.
 YOU: Nobody here lets me enjoy being impressed for very long.
 
-@ A03 PITWALL RADIO TIMES - MOVE
-REN: Three sectors. You don't have to improve them all in one session.
+@ A03 BRIEFING FACE BOARD REN.GEAR,NIA.GEAR HOLD
+REN.GEAR: Three sectors. You don't have to improve them all in one session.
 YOU: That sounds almost forgiving.
-> NOTES RADIO MAP - MOVE
-REN: It is efficient. Choose one question before you go out. Bring back an answer instead of six guesses.
-NIA: I bought a second notebook. We're going to need it.
+REN.GEAR: It's efficient. Choose one question before you go out. Bring back an answer instead of six guesses.
+> BRIEFING PAN BOARD - MOVE
+NIA.GEAR: I bought a second notebook. We're going to need it.
+YOU: Does everyone here have to sit in the front row?
+> BRIEFING FACE CHAIRS REN.GEAR,NIA.GEAR HOLD
+REN.GEAR: No. But everybody has to be able to ask the person with the pencil to explain a line twice.
+NIA.GEAR: I can vouch for that method.
+YOU: One question, then. Mine is about the second turn.
 
 @ A04 PADDOCK PAN LANE - MOVE
-MINA: A marshal stopped me taking a shortcut across the apron.
-> PADDOCK FACE LANE MINA,REN HOLD
+MINA.GEAR: A marshal stopped me taking a shortcut across the apron.
+> PADDOCK FACE LANE MINA.GEAR,REN HOLD
 YOU: Did you tell them you were with us?
-MINA: Yes. They asked you to learn the same rule before your out lap.
+MINA.GEAR: Yes. They asked you to learn the same rule before your out lap.
 REN: Good marshal. Nice camera, too. Stay behind the marked line and we can all keep liking one another.
 
 @ A05 PADDOCK FACE LANE ASTER HOLD
@@ -724,12 +955,20 @@ ASTER: It gives everyone room to learn how a field moves. Take it seriously. I w
 > PADDOCK FACE PITS REN,ASTER HOLD
 REN: That's Aster. She runs a fair circuit. Don't mistake that for an easy one.
 
-@ A06 PITWALL RADIO RADIO - MOVE
-YOU: At home I knew every sound that meant something was about to happen.
-NIA: You'll learn the sounds here too. Until then, listen when Ren says wait.
+@ A06 ROAD_BATHROOM FACE MIRROR JULES.CASUAL HOLD
+YOU: I've checked the introduction in that mirror three times. Still sounds as if I've borrowed someone else's invitation.
+JULES.CASUAL: It's a washroom at a service station. Even if the mirror disagrees, we're leaving in five minutes.
+> ROAD_BATHROOM PAN BASIN - MOVE
+YOU: At home I knew every sound that meant something was about to happen. Here I keep preparing for the wrong thing.
+JULES.QUIET: You don't have to become a different person before you drive through the gate.
+YOU: Easy to say when you can make a joke out of anything.
+> ROAD_BATHROOM FACE MIRROR JULES.QUIET HOLD
+JULES.QUIET: That's preparation too. You just don't hear the first three versions.
 > PITWALL RADIO RADIO - MOVE
-REN: Wait.
-YOU: That one I recognize.
+REN.GEAR: Sunline? Briefing moved back ten minutes. Take your time and come in ready to listen.
+YOU: Useful advice, or did Jules call you?
+REN.CASUAL: Both can be true. Bring a pencil.
+
 
 @ A07 PADDOCK FACE LANE REN HOLD
 REN: You're turning before you've finished making space for the exit.
@@ -748,24 +987,33 @@ REN: Keep that. Tonight's short session is about joining the good pieces, not co
 > NIGHTGARAGE RADIO KETTLE - MOVE
 MINA: I'll take the celebration photographs afterward. At a safe distance from the kettle.
 
-@ A09 PADDOCK FACE PITS NIA HOLD
-YOU: Another paid support heat instead of a headline race?
-> PADDOCK FACE PITS REN,NIA HOLD
-NIA: The support program pays travel expenses. The big event still needs fuel and somewhere to sleep.
-> PADDOCK PAN LANE - MOVE
-REN: It also needs a driver who recognizes the braking boards. Practice is doing both jobs.
-> PADDOCK FACE PITS REN,NIA HOLD
-YOU: Ordinary work follows us everywhere.
-NIA: Fortunately.
+@ A09 MOTEL_ROOM FACE BEDS NIA.CASUAL,JULES.CASUAL HOLD
+JULES.CASUAL: Two beds, three bags, and a television older than our first invoice. Permanent circuits have changed us.
+YOU: I thought reaching Meridian would mean we could stop counting the travel money.
+NIA.CASUAL: It means we have different things to count. Tonight's paid support heat covers the next two rooms.
+> MOTEL_ROOM PAN MAP - MOVE
+YOU: Another practice session instead of a headline race?
+NIA.CASUAL: A support heat. The program pays travel expenses. Practice is the other job it does.
+JULES.CASUAL: And if we finish early, I can discover whether this television has a second channel.
+> MOTEL_ROOM FACE BEDS NIA.CASUAL,JULES.CASUAL HOLD
+YOU: We could have stayed somewhere nicer.
+NIA.QUIET: We could have stayed somewhere we couldn't afford to leave. I'd rather remember the bad carpet with people who came willingly.
+JULES.CASUAL: I'll put that in the review. After I check whether the beds fold unexpectedly.
 
-@ A10 PADDOCK FACE PITS MINA HOLD
-MINA: First paid press pass. Look, my name's printed properly.
-> MEMORIES PAN SIGN - MOVE
-YOU: Put it beside the old Sunline sign.
-> PADDOCK FACE PITS MINA,NIA HOLD
-MINA: I'm keeping both. One got me in here; the other reminds me why I wanted to come.
-> MEMORIES PAN CHAIRS - MOVE
-NIA: Just bring your own chair when the photographers visit the garage. We've run out again.
+
+@ A10 MEDIA_ROOM FACE CAMERA MINA.CASUAL HOLD
+MINA.CASUAL: A season press pass. My name is printed properly, and nobody added Sunline in front of it.
+YOU: Does it feel different?
+MINA.QUIET: A little frightening. If the pictures are bad, I can't call it helping a friend anymore.
+> MEDIA_ROOM PAN PRINTS - MOVE
+YOU: You didn't get this far by hiding behind our cars.
+MINA.CASUAL: No. Mostly I stood in front of them and asked people to move their elbows.
+YOU: Keep the old sign picture too.
+> MEDIA_ROOM FACE CAMERA MINA.QUIET HOLD
+MINA.QUIET: I'm keeping all of it. One got me in here. The other reminds me why I wanted to come.
+YOU: What happens after the first assignment on it?
+MINA.CASUAL: I send another portfolio. Then I come home and ask who ate the food I left in the fridge. A career can include both.
+
 
 @ A11 PITWALL PAN TIMES - MOVE
 REN: I submitted your sector sheets to Aster. She asked whether the driver could do it with someone beside them.
@@ -775,44 +1023,59 @@ REN: I am discovering that lending out a pencil has consequences. Event twelve. 
 YOU: I'll return the pencil first.
 REN: Now you're making promises you can't keep.
 
-@ A12 PADDOCK FACE LANE REN HOLD
-REN: No trick setup. No secret line. Race the circuit that's in front of you, and let me worry about mine.
+@ A12 PADDOCK FACE LANE REN.GEAR HOLD
+REN.GEAR: No trick setup. No secret line. Race the circuit that's in front of you, and let me worry about mine.
 YOU: That might be the hardest thing you've asked all week.
 > PADDOCK MONTAGE LANE - MOVE
 NARRATOR: SECTOR DUEL. Two cars cross the line within a breath. Ren studies the timing sheet, then finally puts the pencil down.
-> PITWALL FACE TIMES REN,NIA HOLD
-REN: You found the lap without borrowing it from me. That's the recommendation I wanted to write.
+> PITWALL FACE TIMES REN.GEAR,NIA HOLD
+REN.GEAR: You found the lap without borrowing it from me. That's the recommendation I wanted to write.
 NIA: Stay with us for the next round?
 > PITWALL PAN TIMES - MOVE
-REN: On one condition. Someone else keeps track of the pencils.
+REN.GEAR: On one condition. Someone else keeps track of the pencils.
 YOU: Mina has a notebook for that.
 
-@ A13 OFFICE FACE CONTRACT VOSS,NIA HOLD
-VOSS: Your independent entry is costing you time you could spend racing. My offer still includes a Cup seat.
-> OFFICE PAN CONTRACT - MOVE
+@ A13 SKY_LOUNGE FACE FOLDER VOSS.CASUAL,NIA.CASUAL HOLD
+VOSS.CASUAL: The room comes with the entry agreement. Transport too. No more motel arithmetic before you sleep.
 YOU: And the name on our garage.
-> OFFICE FACE CONTRACT VOSS,NIA HOLD
-VOSS: The name brings obligations. I can guarantee wages, transport, a future beyond one good season.
-NIA: Let us discuss it as a crew. Not just the two people you invited into this room.
-VOSS: Fair. Bring me an answer, not a slogan.
+VOSS.CASUAL: The name brings obligations. I can guarantee wages, a Cup seat, and work beyond one good season.
+> SKY_LOUNGE PAN WINDOW - MOVE
+NIA.CASUAL: From up here, Sunline is probably smaller than a window reflection.
+VOSS.CASUAL: It isn't small to the people waiting to be paid. I haven't forgotten that.
+YOU: Neither have we. But you invited two people to answer for a whole crew.
+> SKY_LOUNGE FACE FOLDER VOSS.CASUAL,NIA.CASUAL HOLD
+NIA.CASUAL: Let us discuss it with them. With the budget and the clauses where everyone can see them.
+VOSS.CASUAL: Fair. Bring me an answer, not a slogan.
+YOU: We'll meet downstairs. I want to see the city at its normal size on the way back.
 
-@ A14 NIGHTGARAGE FACE KETTLE JULES,MINA HOLD
-JULES: A steady wage isn't a small thing. I've been paid late by people who were very proud of being independent.
-MINA: And a contract isn't automatically a cage. Mine let me keep my photographs.
-> PAPERS PAN LEASE - MOVE
-NIA: This one doesn't let us keep the garage name. That matters to me. I need to know what matters to you.
-> NIGHTGARAGE FACE KETTLE NIA,JULES,MINA,REN HOLD
-YOU: We should decide what we're building before we decide who can buy it.
-> PAPERS PAN BUDGET - MOVE
-REN: Put the clauses beside the actual budget. Nobody should have to choose between a speech and a meal.
 
-@ A15 PAPERS PAN BUDGET - MOVE
-NIA: Our guarantee covers Meridian. A full Cup season would cost more. We can finish this stage without selling the name.
-> NIGHTGARAGE FACE KETTLE NIA,JULES,MINA HOLD
-JULES: Then I can afford to say no to the parts I don't like.
-MINA: And I can keep doing my own paid work without leaving the crew.
+@ A14 MOTEL_ROOM FACE MAP JULES.CASUAL,MINA.CASUAL,NIA.CASUAL,REN.CASUAL HOLD
+JULES.QUIET: A steady wage isn't a small thing. I've been paid late by people very proud of being independent.
+MINA.CASUAL: And a contract isn't automatically a cage. Mine let me keep my photographs.
+NIA.QUIET: This one doesn't let us keep the garage name. That matters to me. I need to know what matters to you.
+> MOTEL_ROOM PAN BEDS - MOVE
+JULES.CASUAL: Being able to say I can't do another unpaid evening without feeling as if I'm leaving the family.
+MINA.CASUAL: Being able to take my own work without asking whether it looks disloyal.
+YOU: I'd like to know we still choose the people we spend these ordinary nights with.
+> MOTEL_ROOM FACE MAP NIA.QUIET,REN.CASUAL,JULES.CASUAL,MINA.CASUAL HOLD
+NIA.QUIET: Then those are the first terms. Mine as well. I can't keep saying everyone gets a voice and hope they use mine.
+REN.CASUAL: Put the clauses beside the actual budget. Nobody should have to choose between a speech and a meal.
+JULES.CASUAL: Good. This is the first crew meeting where that sounded like a real choice.
+
+
+@ A15 MOTEL_LOT FACE BAGS NIA.CASUAL,JULES.CASUAL,MINA.CASUAL HOLD
+NIA.CASUAL: Our guarantee covers Meridian. The work already booked covers the travel. A full Cup season would cost more.
+YOU: Then we can finish this stage without signing away the name.
+NIA.CASUAL: If we're all agreeing to the real figures. Nobody's volunteering someone else's evenings.
+> MOTEL_LOT PAN DOORS - MOVE
+JULES.CASUAL: Then I can afford to say no to the parts I don't like. With an actual payment date for the work I do.
+MINA.CASUAL: And I can keep my own paid work without leaving the crew.
+> MOTEL_LOT FACE BAGS NIA.QUIET,JULES.CASUAL,MINA.CASUAL HOLD
+NIA.QUIET: Thank you for telling me before it became the reason you stopped coming back.
 YOU: Nobody owns anyone's name here.
-NIA: Including me. I needed to hear that as much as Voss does.
+NIA.CASUAL: Including me. I needed that clause too.
+JULES.CASUAL: Excellent. Next motion: find a breakfast that isn't in a vending machine before tonight's session.
+
 
 @ A16 PITWALL RADIO TIMES - MOVE
 REN: Next block: strategy. Not a plot twist. A series of sessions where we stop improvising every decision.
@@ -821,36 +1084,62 @@ YOU: That sounds less exciting than the meeting we just had.
 REN: Good. I'd like the next problem to be something a timing sheet can help with.
 NIA: You can have three practice heats and the least broken clipboard.
 
-@ A17 NOTES PAN MAP - MOVE
-YOU: These tires have their own page in the notebook now.
-> PITWALL FACE TIMES REN HOLD
-REN: They work differently as a stint goes on. Learn the pattern before you need to guess at it.
-YOU: So this session isn't about the first lap.
-> NOTES PAN MAP - MOVE
-REN: Precisely. Kade will be delighted someone else is giving that speech.
+@ A17 LOCKER_ROOM FACE WATER REN.CASUAL HOLD
+REN.CASUAL: Leave that towel alone. It's the only part of my equipment that has been washed this week.
+YOU: You look tired.
+REN.QUIET: I used to call that concentration. It sounded more respectable than admitting I needed to go home.
+> LOCKER_ROOM PAN LOCKER - MOVE
+YOU: Is that why the tire notes have a page about how the driver feels?
+REN.CASUAL: A tired driver can make a very ordinary set of tires sound like a mechanical conspiracy.
+YOU: I have made that speech.
+> LOCKER_ROOM FACE WATER REN.QUIET HOLD
+REN.QUIET: So have I. Learn the pattern through a stint, and learn when you're the part that needs a rest.
+YOU: What do we do before the next session?
+REN.CASUAL: Drink the water. Sit down. Then ask me the question you were going to bury under a setup change.
 
-@ A18 PADDOCK PAN LANE - MOVE
-JULES: I watched the long session. Looked as if nothing happened for ages.
-> PADDOCK FACE PITS NIA,JULES HOLD
+
+@ A18 CAFETERIA FACE TABLE JULES.CASUAL,NIA.CASUAL HOLD
+JULES.CASUAL: I watched the long session. Looked as if nothing happened for ages.
 YOU: That's what we were trying to achieve.
-JULES: You make it sound complicated.
-NIA: It is. That's why we're spending these evenings practicing instead of looking for a new rival every night.
+JULES.CASUAL: You make it sound complicated.
+NIA.CASUAL: It is. Same standard, lap after lap. No grand rescue at the end to pay for a careless beginning.
+> CAFETERIA PAN COUNTER - MOVE
+JULES.CASUAL: I brought dinner to the pit wall once. It was still there when you came in.
+YOU: Soup?
+JULES.CASUAL: No lid. An important early chapter in our technical development.
+> CAFETERIA FACE TABLE NIA.CASUAL,JULES.CASUAL HOLD
+NIA.CASUAL: Tonight, we eat here before we read any notes. Ren's already gone to rest.
+YOU: Nobody needs us for half an hour?
+NIA.CASUAL: Someone does. Three people who haven't had dinner yet.
 
-@ A19 PITWALL RADIO TIMES - MOVE
-REN: You're describing what the car does before telling me what part you want changed. Thank you.
-> PITWALL RADIO TIMES - MOVE
+
+@ A19 VOLUNTEERS FACE PASSES REN.CASUAL,MINA.CASUAL HOLD
+MINA.CASUAL: I left a lens cap here. They catalogued it before I noticed it was gone.
+REN.CASUAL: The volunteer office runs on miracles less glamorous than ours.
+YOU: And more staplers.
+> VOLUNTEERS PAN MAP - MOVE
+REN.CASUAL: You're describing what the car does before telling me what part to change now. Thank you.
 YOU: It only took two notebooks.
-> NOTES RADIO MAP - MOVE
-NIA: Three. Jules spilled tea on one.
-JULES: I improved the atmosphere in the data.
-REN: Keep him away from the fourth notebook.
+MINA.CASUAL: Three. Jules spilled tea on one. The office gave us a spare.
+> VOLUNTEERS FACE PASSES REN.CASUAL,MINA.CASUAL HOLD
+YOU: I should bring it back.
+REN.CASUAL: And learn the person's name before you ask for the fourth. A working circuit is a town; don't only notice the people at the line.
+MINA.CASUAL: I'm taking that picture next. If they say yes.
 
-@ A20 PADDOCK PAN LANE - MOVE
-MINA: No spectators for tonight's private session. Do I count?
-> PADDOCK FACE LANE ASTER,MINA HOLD
-ASTER: You count as someone with a pass who knows where to stand.
+
+@ A20 MEDIA_ROOM FACE PRINTS MINA.CASUAL,ASTER.CASUAL HOLD
+MINA.CASUAL: No spectators for tonight's private session. Do I count?
+ASTER.CASUAL: You have a pass, a job, and the sense to ask. That's an excellent start.
 YOU: And me?
-ASTER: Someone with one last opportunity to ask questions before the final. Use it.
+ASTER.CASUAL: One last opportunity to ask questions before the final. Use it.
+> MEDIA_ROOM PAN CAMERA - MOVE
+MINA.CASUAL: I still feel as if somebody will realize they meant a different photographer.
+ASTER.QUIET: The name on your pass is yours. You don't have to apologize for the work behind it.
+YOU: Does that advice apply to drivers?
+> MEDIA_ROOM FACE PRINTS ASTER.CASUAL,MINA.CASUAL HOLD
+ASTER.CASUAL: Within reason. A pass is permission to do the work, not permission to forget the rules.
+MINA.CASUAL: Good. A useful sentence I can keep beside the other one.
+
 
 @ A21 OFFICE FACE LICENSE ASTER,NIA HOLD
 ASTER: Consistent sectors, a recognized club guarantee, completed sessions. That's the list. Your application meets it.
@@ -862,39 +1151,53 @@ YOU: Voss made them sound inseparable.
 > OFFICE PAN LICENSE - MOVE
 ASTER: People often confuse their preferred route with the only route. Now, about our final.
 
-@ A22 PITWALL RADIO RADIO - MOVE
+@ A22 EMPTY_STANDS FACE NOTEBOOK REN.CASUAL,NIA.CASUAL HOLD
 YOU: I keep thinking about everything the final could change.
-REN: Think about one clear lap first. Then the next. The larger picture won't disappear because you stop staring at it.
-> OFFICE RADIO LICENSE - MOVE
-NIA: We'll handle the paperwork from the pit wall. You already did your share of that.
-YOU: One lap. I can do that.
+REN.CASUAL: Empty grandstands help. It's harder to imagine disappointing a chair.
+NIA.CASUAL: Jules has managed it. Don't encourage him.
+> EMPTY_STANDS PAN CIRCUIT - MOVE
+YOU: Did you ever stop wanting someone to tell you you'd done enough to belong?
+REN.QUIET: Not entirely. I did stop asking a lap time to answer a question about my whole life.
+YOU: What answered it?
+> EMPTY_STANDS FACE NOTEBOOK REN.QUIET,NIA.CASUAL HOLD
+REN.QUIET: People who still wanted breakfast with me after a bad result. Work I could explain without mentioning a trophy.
+NIA.CASUAL: We'll handle the paperwork from the pit wall. You don't have to carry all of it into the first corner.
+YOU: One clear lap, then the next.
+REN.CASUAL: That's a question a car can actually help you answer.
 
-@ A23 PADDOCK FACE PITS KADE HOLD
-KADE: Permanent circuits suit you.
-> NIGHTGARAGE PAN KETTLE - MOVE
-YOU: I miss knowing where the kettle is.
-> PADDOCK FACE PITS KADE,MINA HOLD
-KADE: Take that knowledge to the Cup. Most people arrive knowing where the cameras are instead.
-MINA: I can cover that part. We are becoming a very practical team.
 
-@ A24 PADDOCK FACE PITS ASTER,NIA HOLD
-ASTER: Final inspection. Belts, wheels, paperwork. No exceptions because this is an important day.
+@ A23 SERVICE_STATION FACE PUMP KADE.CASUAL HOLD
+KADE.CASUAL: Permanent circuits suit you. You still look happiest when you know where the kettle is.
+YOU: I miss being able to point to home without opening a map.
+KADE.CASUAL: Take that with you. Most people arrive at the Cup knowing where the cameras are instead.
+> SERVICE_STATION PAN SHOP - MOVE
+YOU: You make that sound like experience.
+KADE.QUIET: I know a lot of good ways to finish an evening alone with a result sheet.
+YOU: Then come with us after the final. Mina can cover the cameras. Jules can complain about the motel.
+> SERVICE_STATION FACE PUMP KADE.QUIET HOLD
+KADE.QUIET: I was hoping you'd ask without making it a recommendation.
+YOU: It's an invitation to breakfast. Much stricter rules.
+KADE.CASUAL: Good. I know a route that doesn't go through a loading bay.
+
+
+@ A24 PADDOCK FACE PITS ASTER.GEAR,NIA HOLD
+ASTER.GEAR: Final inspection. Belts, wheels, paperwork. No exceptions because this is an important day.
 YOU: I wouldn't want one.
 > OFFICE PAN LICENSE - MOVE
-ASTER: Good. I helped build this program so people could prove they belonged here. Don't let a contract tell you otherwise.
-> PADDOCK FACE PITS NIA,ASTER HOLD
+ASTER.GEAR: Good. I helped build this program so people could prove they belonged here. Don't let a contract tell you otherwise.
+> PADDOCK FACE PITS NIA,ASTER.GEAR HOLD
 NIA: We'll see you at the line.
 
-@ A25 PADDOCK FACE LANE ASTER,NIA HOLD
-ASTER: The gate isn't a favor. You've done the work to reach it. Now give me a race worth staying late for.
+@ A25 PADDOCK FACE LANE ASTER.GEAR,NIA HOLD
+ASTER.GEAR: The gate isn't a favor. You've done the work to reach it. Now give me a race worth staying late for.
 YOU: We'll try to get everyone home before breakfast.
 NIA: Not another promise about breakfast. Focus.
 > PADDOCK MONTAGE LANE - MOVE
 NARRATOR: MERIDIAN FINAL. Sunline's last stint holds. Aster signs the independent Cup entry in the quiet after the finish.
-> OFFICE FACE LICENSE ASTER,REN HOLD
-ASTER: This is your sporting invitation. Cup season costs still need their own guarantee. Two separate approvals.
-> PITWALL FACE TIMES REN HOLD
-REN: I'll bring the timing sheets. Try not to look so alarmed; they're part of the luggage now.
+> OFFICE FACE LICENSE ASTER.GEAR,REN.GEAR HOLD
+ASTER.GEAR: This is your sporting invitation. Cup season costs still need their own guarantee. Two separate approvals.
+> PITWALL FACE TIMES REN.GEAR HOLD
+REN.GEAR: I'll bring the timing sheets. Try not to look so alarmed; they're part of the luggage now.
 > OFFICE FACE CONTRACT VOSS HOLD
 VOSS: Congratulations. The Cup guarantee is larger. My commercial route remains open. Think about the costs after the applause.
 YOU: We have. That's why we're coming as Sunline.
@@ -904,7 +1207,7 @@ MINA: Our name's on the paddock board. Spelled properly. Twice.
 > FINALE FACE PADDOCK NIA,MINA HOLD
 NIA: Take the photograph. Provisional entry or not, we made it into the paddock.
 > FINALE FACE PADDOCK SABLE,MINA HOLD
-SABLE: They won't. I checked the entry list. I'm Sable, and I've been hoping you'd get this far.
+SABLE: I checked the list and hoped I'd find you on it. I'm Sable. I've been looking forward to meeting you.
 YOU: To make the final more interesting?
 SABLE: To make the paddock more interesting. A race is only part of the weekend.
 
@@ -916,38 +1219,61 @@ REN: They can't see your braking point from the grandstand. Don't lend them spac
 > NIGHTGARAGE RADIO KETTLE - MOVE
 NIA: We found the kettle. One less thing for you to worry about.
 
-@ S03 FINALE FACE PADDOCK SABLE HOLD
-SABLE: Are you always this quiet before a session?
-YOU: I'm trying to remember everything I'm supposed to have learned.
-> PITWALL PAN TIMES - MOVE
-SABLE: That won't fit in one lap. Pick the things you can actually do, and do them properly.
-> FINALE FACE PADDOCK SABLE HOLD
-YOU: You and Ren should compare notebooks.
-SABLE: Absolutely not. I like my spare time.
+@ S03 CLUB FACE TABLE SABLE.CASUAL HOLD
+SABLE.CASUAL: Nobody here has asked me for a qualifying prediction. It's an excellent room.
+YOU: We could leave before they recognize you.
+SABLE.CASUAL: Or we could stay and let them recognize someone who likes bad songs as well as fast laps.
+> CLUB PAN STAGE - MOVE
+YOU: I was trying to remember everything I'm supposed to have learned.
+SABLE.CASUAL: That won't fit in one lap. Tonight it won't fit in one song either. Pick something you can actually do.
+YOU: You're very calm about this.
+> CLUB FACE TABLE SABLE.CASUAL HOLD
+SABLE.CASUAL: I've had years of practice looking calm. Ask Ren what the notebooks used to sound like.
+YOU: You two should compare them.
+SABLE.CASUAL: Absolutely not. I like my spare time. And the band is finally doing something interesting.
 
-@ S04 PADDOCK PAN LANE - MOVE
-ASTER: Clean start, clear signals, the usual obligations. Nobody loses them because the cameras arrived.
-> PADDOCK FACE LANE ASTER,MINA HOLD
-YOU: I preferred our old audience. They brought oranges.
-ASTER: They can still attend. They'll just need passes and somewhere sensible to put the oranges.
-MINA: Leave that with me.
 
-@ S05 NOTES PAN MAP - MOVE
-SABLE: I saw the courier map in your garage. Jules drew every bad corner twice.
-> FINALE FACE PADDOCK SABLE HOLD
-YOU: One version shows the way through. The other shows what he actually did.
-SABLE: Keep both. A perfect record is a very poor teacher.
-YOU: You have something like that?
-> NOTES PAN FILM - MOVE
-SABLE: Several drawers. You don't reach this level without collecting a few useful mistakes.
+@ S04 GALLERY FACE PRINTS MINA.CASUAL,ASTER.CASUAL HOLD
+MINA.CASUAL: The room belongs to a community group. They gave me one evening and told me not to put the cups near the prints.
+YOU: These aren't racing photographs.
+MINA.CASUAL: They're the reasons I kept coming back afterward.
+> GALLERY PAN PRINTS - MOVE
+ASTER.CASUAL: There's a photograph of the volunteer desk. They sent me the invitation before you did.
+MINA.CASUAL: They know how to run an office.
+YOU: Can our old audience come to the Cup too? They brought oranges to the club nights.
+> GALLERY FACE BOOK MINA.CASUAL,ASTER.CASUAL HOLD
+ASTER.CASUAL: They'll need passes and somewhere sensible to put the oranges. Leave the invitations with my office.
+MINA.QUIET: Tonight, they can just sign the book. No result required.
+YOU: Put us down for cleaning up after. We have a reputation for returning chairs.
 
-@ S06 PITWALL RADIO RADIO - MOVE
-NIA: You've been checking the weather forecast every thirty seconds.
+
+@ S05 EMPTY_STANDS FACE NOTEBOOK SABLE.CASUAL HOLD
+SABLE.CASUAL: I saw Jules's courier map at Sunline. Every bad corner drawn twice.
+YOU: One way through. One version of what he actually did.
+SABLE.CASUAL: Keep both. A perfect record is a poor teacher.
+> EMPTY_STANDS PAN CIRCUIT - MOVE
+YOU: Do you have something like it?
+SABLE.QUIET: Several drawers. People show me the perfect photograph and forget I remember the rest of that afternoon.
+YOU: Does winning make the other version disappear?
+> EMPTY_STANDS FACE NOTEBOOK SABLE.QUIET HOLD
+SABLE.QUIET: No. It just means I get to choose whether I lie about it. I prefer people who'll sit here without asking for the perfect version.
+YOU: This crew has had plenty of practice.
+SABLE.CASUAL: I noticed. That's part of why I wanted you in the paddock.
+
+
+@ S06 MOTEL_ROOM FACE MAP NIA.CASUAL,REN.CASUAL HOLD
+NIA.CASUAL: You've checked the forecast every thirty seconds. The motel television has started doing it for you.
 YOU: It might have changed.
-> PITWALL RADIO TIMES - MOVE
-REN: We have a plan for both versions. You can stop checking long enough to practice one of them.
-YOU: Useful advice, or a request for the phone back?
-NIA: Both.
+REN.CASUAL: We have a plan for both versions. You can stop long enough to practice one of them.
+> MOTEL_ROOM PAN BEDS - MOVE
+YOU: Everyone else seems to sleep through this part.
+NIA.QUIET: They don't. They just don't all stand in front of your bed holding a phone.
+YOU: Useful advice, or a request for it back?
+> MOTEL_ROOM FACE MAP REN.CASUAL,NIA.CASUAL HOLD
+REN.CASUAL: Both. Tonight's session needs a rested driver more than it needs another witness to the weather.
+NIA.CASUAL: I'll knock when it's time to leave. No heroic alarm schedule.
+YOU: One nap. Then one question we can actually do something about.
+
 
 @ S07 PITWALL PAN RADIO - MOVE
 JULES: Long stint this evening. I brought dinner to the pit wall.
@@ -964,25 +1290,32 @@ REN: We change what the conditions ask us to change. Panic isn't a setup option.
 > NOTES RADIO MAP - MOVE
 IMANI: Put that on the notebook. Somewhere Jules can't spill tea on it.
 
-@ S09 OFFICE FACE LICENSE ASTER,NIA HOLD
-ASTER: Your last practice result is under review. You crossed the marked limit on the fast lap.
-> PITWALL PAN TIMES - MOVE
-YOU: The camera will show it. I thought I'd kept two wheels inside, but I hadn't.
-> OFFICE FACE LICENSE ASTER,NIA HOLD
-NIA: Then we accept the correction and do the next session properly.
-ASTER: Good. A fair rule applies when it costs you something too. This doesn't change your right to be here.
-> PITWALL PAN TIMES - MOVE
+@ S09 STEWARDS FACE VIDEO ASTER.CASUAL,NIA.CASUAL HOLD
+ASTER.CASUAL: Your practice result is under review. You crossed the marked limit on the fast lap.
+YOU: I thought I'd kept two wheels inside.
+> STEWARDS PAN VIDEO - MOVE
+YOU: No. There it is. I hadn't.
+NIA.CASUAL: Then we accept the correction and do the next session properly.
+> STEWARDS FACE DESK ASTER.QUIET,NIA.CASUAL HOLD
+ASTER.QUIET: A fair rule applies when it costs you something too. This doesn't change your right to be here.
+YOU: I was afraid it would look as if we weren't ready after everything people signed for us.
+ASTER.CASUAL: It looks like a driver who made an error and said so. Don't turn it into a different story because you're embarrassed.
 YOU: I'll bring back a lap we don't have to explain.
+NIA.CASUAL: And we'll keep this one in the notebook. The useful version, not the flattering one.
 
-@ S10 MEMORIES RADIO SIGN - MOVE
-CALDER: Nia called. Said you're all working too late and nobody's admitting it.
-> PITWALL RADIO RADIO - MOVE
-YOU: We're preparing for a Cup round.
-> MEMORIES RADIO SIGN - MOVE
-CALDER: Then prepare like people who intend to finish it. Eat, sleep, put the spanners away at a reasonable hour.
-JULES: He used to say that to Nia's dad.
-> PITWALL RADIO RADIO - MOVE
-NIA: My dad used to ignore it. We're trying a different method.
+
+@ S10 LOCKER_ROOM FACE WATER NIA.CASUAL,JULES.CASUAL HOLD
+NIA.CASUAL: Calder called. I'm putting him on speaker before you both pretend you aren't tired.
+> LOCKER_ROOM RADIO WATER - MOVE
+CALDER.QUIET: Eat, sleep, put the spanners away. Preparing for a Cup round should include intending to finish it.
+YOU: We have one more page of notes.
+CALDER.CASUAL: It'll still be a page in the morning. I'm not so certain about your ability to read it.
+> LOCKER_ROOM FACE WATER NIA.CASUAL,JULES.CASUAL HOLD
+JULES.CASUAL: He used to say that to Nia's dad.
+NIA.QUIET: My dad used to ignore it. We're trying a different method.
+YOU: Lockers closed, then. We can go back to the room without calling it giving up.
+NIA.CASUAL: Yes. The crew can stop being useful for one evening and still be the crew tomorrow.
+
 
 @ S11 FINALE FACE PADDOCK SABLE HOLD
 SABLE: Event twelve. A proper duel before the final series starts swallowing all our time.
@@ -993,20 +1326,20 @@ YOU: No charitable laps. And don't sign Nia's proposal for independent Cup terms
 > FINALE FACE PADDOCK SABLE HOLD
 SABLE: I'll read the figures before I sign anything. And I still intend to finish ahead.
 
-@ S12 FINALE FACE PADDOCK SABLE HOLD
-SABLE: Whatever the timing sheet says, we shake hands afterward. I don't want Voss turning this into a story about enemies.
+@ S12 FINALE FACE PADDOCK SABLE.GEAR HOLD
+SABLE.GEAR: Whatever the timing sheet says, we shake hands afterward. I don't want Voss turning this into a story about enemies.
 YOU: He's not driving either of our cars.
-SABLE: Exactly. Let's keep it that way.
+SABLE.GEAR: Exactly. Let's keep it that way.
 > NIGHTFINAL MONTAGE CORNER - MOVE
 NARRATOR: SILVER APEX DUEL. The last sector decides it. Sable brings the timing sheet over herself instead of sending an assistant.
-> NIGHTFINAL FACE FLAG SABLE,NIA HOLD
-SABLE: You made me use everything. Thank you.
+> NIGHTFINAL FACE FLAG SABLE.GEAR,NIA HOLD
+SABLE.GEAR: You made me use everything. Thank you.
 YOU: Doesn't sound like something a beaten rival usually says.
 > OFFICE PAN LICENSE - MOVE
-SABLE: Then find better rivals. And tell Nia I'll sign the independent-entry statement.
-> NIGHTFINAL FACE FLAG NIA,SABLE HOLD
+SABLE.GEAR: Then find better rivals. And tell Nia I'll sign the independent-entry statement.
+> NIGHTFINAL FACE FLAG NIA,SABLE.GEAR HOLD
 NIA: It's a request for published Cup guarantees, not a favor to us.
-SABLE: I know. That's why I'm signing it.
+SABLE.GEAR: I know. That's why I'm signing it.
 
 @ S13 OFFICE FACE CONTRACT VOSS,NIA HOLD
 VOSS: Your statement has attracted attention. Some of it from people who have never paid a mechanic on Friday.
@@ -1017,23 +1350,33 @@ VOSS: Your clubs covered Meridian. The Cup guarantee is larger. Who covers your 
 YOU: Then publish the actual guarantee. Let an independent crew meet it without selling its name.
 VOSS: If you can meet the obligation, I'll hear the proposal. All of it.
 
-@ S14 MEMORIES PAN SIGN - MOVE
-MINA: People keep asking whether 'No Sale' is our new slogan.
-> NIGHTGARAGE FACE KETTLE NIA,MINA,JULES HOLD
-NIA: It's an answer to one contract. It isn't a substitute for the budget.
-YOU: And nobody has to give up their own work to stay with Sunline.
-JULES: Good. My deliveries are funding an important biscuit habit.
-> PAPERS PAN BUDGET - MOVE
-NIA: Keep the habit. Keep the invoices too. We're going to need both kinds of honesty.
+@ S14 GALLERY FACE BOOK MINA.CASUAL,NIA.CASUAL,JULES.CASUAL HOLD
+MINA.CASUAL: Someone bought a print. They asked for the one of us outside the laundromat, not a car.
+JULES.CASUAL: Finally. My finest folding performance gets the recognition it deserves.
+YOU: What happens to the photograph now?
+> GALLERY PAN PRINTS - MOVE
+MINA.CASUAL: They get a print. I keep the negative. Nobody bought the people in it.
+NIA.QUIET: People keep asking whether 'No Sale' is our new slogan. It isn't a budget. It isn't permission to tell anyone else which offers to take either.
+> GALLERY FACE BOOK MINA.QUIET,NIA.CASUAL,JULES.CASUAL HOLD
+MINA.QUIET: Good. I want to keep making pictures that aren't for the crew. I also want to keep coming back.
+YOU: We can do both. Nobody has to prove loyalty by giving up everything else.
+JULES.CASUAL: Even deliveries?
+NIA.CASUAL: Especially the invoices. We're going to need the honest figures before the final series.
 
-@ S15 FINALE FACE CIRCUIT REN HOLD
-REN: One last block before the final invitation. No mystery opponent. Just a demanding week of racing and preparation.
-> PITWALL PAN TIMES - MOVE
-YOU: Practice, session, notes, sleep. Repeat.
-> PAPERS PAN BUDGET - MOVE
-NIA: And enough club work between rounds to meet the guarantee. We have a schedule, not a miracle.
-> FINALE FACE PADDOCK MINA,NIA HOLD
-MINA: I'll photograph the ordinary bits too. They're most of the story.
+
+@ S15 DINER FACE BOOTH ELI.CASUAL,NIA.CASUAL,VALE.CASUAL HOLD
+NARRATOR: BETWEEN CUP ROUNDS. Sunline is back in Saltblock for two nights of repairs, ordinary paid work, and familiar food.
+ELI.CASUAL: Booth's free. Same one. Try not to look as if you've forgotten how chairs work outside a paddock.
+VALE.CASUAL: I watched the last round at the community room. They were very pleased every time I asked which little car was yours.
+YOU: I'm sorry I didn't get back sooner.
+> DINER PAN COUNTER - MOVE
+ELI.CASUAL: You came back. Start there. The rest of us have had our own weeks too.
+NIA.CASUAL: We have one last block before the final invitation. Sessions, notes, enough work to meet the guarantee. No miracle in the budget.
+YOU: What do you want pictures of when we leave again?
+> DINER FACE BOOTH VALE.CASUAL,ELI.CASUAL HOLD
+VALE.CASUAL: Something that reminds you to eat. You don't owe the neighbors proof that they backed a perfect person.
+ELI.CASUAL: Bring someone new here afterward. That's how the booth earns its living.
+
 
 @ S16 PITWALL RADIO TIMES - MOVE
 REN: Think about the whole stint. A quick opening lap doesn't repay an unnecessary stop later.
@@ -1044,14 +1387,19 @@ NIA: Send the invoice to Jules. He keeps borrowing the phrase.
 > PAPERS RADIO BUDGET - MOVE
 JULES: I prefer our old accounting system. It involved oranges.
 
-@ S17 FINALE FACE CIRCUIT SABLE HOLD
-SABLE: You keep wanting the faster line when the useful one is already yours.
-> FINALE PAN CIRCUIT - MOVE
-YOU: The useful one?
-> FINALE FACE CIRCUIT SABLE HOLD
-SABLE: The position you can keep without spending the next three corners rescuing it. Speed is a tool, not a debt collector.
-YOU: Another drawer full of mistakes?
-SABLE: The expensive drawer.
+@ S17 FERRY FACE WATER SABLE.CASUAL HOLD
+SABLE.CASUAL: I hadn't taken this crossing in years. It looks different when nobody's asking whether the journey is part of training.
+YOU: Kade says it's hard to race anyone on a boat.
+SABLE.CASUAL: Sensible man. I hope it annoys him when you tell him I said that.
+> FERRY PAN BENCH - MOVE
+YOU: I keep wanting the faster line when the useful one is already mine.
+SABLE.CASUAL: The position you can keep without rescuing it for three corners. Same problem as accepting the invitation and forgetting to enjoy the evening.
+YOU: Another expensive drawer full of mistakes?
+> FERRY FACE WATER SABLE.CASUAL HOLD
+SABLE.QUIET: Several. I don't need you to lose so I can be the only person who learned anything from them.
+YOU: I'll try remembering that when you're difficult to pass.
+SABLE.CASUAL: Please do. I intend to be very difficult.
+
 
 @ S18 NIGHTFINAL MONTAGE CORNER - MOVE
 NARRATOR: A LATE SAFETY CAR gathers the field. The comfortable gap disappears; the next decision matters more than the last fast lap.
@@ -1061,12 +1409,20 @@ YOU: Hold position for now?
 REN: Hold the useful option. We'll make the next decision with the information we actually have.
 NIA: We practiced being patient. This is why.
 
-@ S19 PITWALL RADIO TIMES - MOVE
-YOU: I lost a little time in the first sector. Kept thinking I had to win it back immediately.
-REN: You gave me a clean second sector instead. That's why the whole session still works.
-> PITWALL RADIO RADIO - MOVE
-NIA: Nobody here needs you to be perfect. We need you to stay in the conversation.
-YOU: I can do that.
+@ S19 CREW_VAN FACE WINDOW NIA.CASUAL HOLD
+YOU: I lost time in the first sector. I kept thinking I had to win it back immediately.
+NIA.CASUAL: You gave Ren a clean second sector instead. That's why the whole session still worked.
+YOU: I can do that in a car now. Outside it, I keep answering what I think people need.
+> CREW_VAN PAN WINDOW - MOVE
+NIA.QUIET: What do you want, if the next result doesn't have to answer first?
+YOU: Somewhere I don't have to arrive with good news to be welcome.
+NIA.QUIET: I'd like Sunline to be that. I haven't always made it easy to say when it wasn't.
+> CREW_VAN FACE MAP NIA.QUIET HOLD
+YOU: We can write the next version together. Same as the budget.
+NIA.CASUAL: After the final. With everyone's name where it belongs.
+YOU: Then let's sit here a minute before we go back.
+NIA.CASUAL: Handbrake's on. For once, we have nowhere we need to get faster.
+
 
 @ S20 OFFICE PAN CONTRACT - MOVE
 VOSS: Here is the Cup guarantee amount, the reporting schedule, and the actual risk. No team-name clause on this version.
@@ -1078,14 +1434,19 @@ YOU: Neither will we. That's why we brought our books, not just our signatures.
 > OFFICE FACE CONTRACT VOSS,NIA HOLD
 VOSS: Good. Now I can argue with your figures instead of your slogan.
 
-@ S21 OFFICE PAN LICENSE - MOVE
-ASTER: Sporting invitation for the final. The financial review cleared separately this morning.
-> OFFICE FACE LICENSE ASTER,NIA,MINA HOLD
-YOU: Everyone at Sunline signed off on the budget. The clubs agreed to the guarantee.
-ASTER: Then you've done both jobs. Try to enjoy the evening before you invent a third one.
-> FINALE FACE PADDOCK MINA,NIA HOLD
-MINA: Too late. I'm arranging twelve people for one photograph.
-NIA: That may be the hardest job of the season.
+@ S21 VOLUNTEERS FACE PASSES ASTER.CASUAL,MINA.CASUAL,NIA.CASUAL HOLD
+ASTER.CASUAL: Sporting invitation for the final. Financial review cleared separately this morning.
+YOU: Everyone signed off on the budget. The clubs agreed to the Cup guarantee.
+ASTER.CASUAL: Then you've done both jobs. Put this pass somewhere that isn't under a takeaway receipt.
+> VOLUNTEERS PAN PASSES - MOVE
+MINA.CASUAL: Mrs. Vale asked for twelve visitor passes and somewhere to put a bag of oranges.
+ASTER.CASUAL: I'll approve the visitors through the normal list. The oranges are between her and the cafeteria.
+NIA.CASUAL: She won't treat that as a defeat.
+> VOLUNTEERS FACE MAP ASTER.CASUAL,MINA.CASUAL HOLD
+MINA.CASUAL: I want one photograph with everyone in it. Before people disappear into their separate jobs again.
+ASTER.QUIET: Get the volunteers first. They're usually still working when everyone decides the important part is over.
+YOU: We can wait. We've had some practice being the ordinary part.
+
 
 @ S22 PITWALL RADIO TIMES - MOVE
 REN: Final qualifying. One clear lap, and then another if the first one doesn't come together.
@@ -1094,44 +1455,53 @@ YOU: Not the whole season in one corner.
 REN: You're becoming difficult to lecture. I'll have to start bringing longer pencils.
 NIA: Save the lecture for the cooldown. We want to hear all of it.
 
-@ S23 MEMORIES PAN SIGN - MOVE
-MINA: The final entry still says Sunline Garage. Same name as the old sign.
-> MEMORIES PAN CHAIRS - MOVE
-NIA: The people holding it up have changed. It shouldn't belong to one person just because my dad painted it first.
-> GARAGE FACE DOOR NIA,JULES HOLD
+@ S23 ROOFTOP FACE RADIO NIA.CASUAL,JULES.CASUAL,MINA.CASUAL HOLD
+MINA.CASUAL: Final entry still says Sunline Garage. Same name as the old sign.
+NIA.QUIET: The people holding it up have changed. It shouldn't belong to one person because my dad painted it first.
 YOU: What are you thinking?
-NIA: A proper stake for the people doing the work. We'll write it together after the final.
-> MEMORIES PAN CHAIRS - MOVE
-JULES: Can my stake include a chair that doesn't fold unexpectedly?
+> ROOFTOP PAN CHAIRS - MOVE
+NIA.CASUAL: A proper stake for the people doing the work. Written together, after the final. Not a reward I can take back if somebody says no to me.
+JULES.QUIET: With ordinary wages for ordinary work. Not just a share of a speech about the future.
+NIA.CASUAL: Yes. And space for the parts of your lives that don't belong to the garage.
+MINA.CASUAL: I want a wall for photographs. You all get to say when yours comes down.
+> ROOFTOP FACE CHAIRS NIA.CASUAL,JULES.CASUAL,MINA.CASUAL HOLD
+YOU: And a door that opens after a bad result too.
+JULES.CASUAL: Excellent. Can my stake include a chair that doesn't fold unexpectedly?
+NIA.CASUAL: We'll put that clause first. Some traditions have earned retirement.
 
-@ S24 FINALE FACE PADDOCK VOSS HOLD
-VOSS: Before I started signing entries, I used to enter them. You'll be racing me tomorrow, not my office.
-> FINALE FACE PADDOCK VOSS,NIA HOLD
+
+@ S24 FINALE FACE PADDOCK VOSS.GEAR HOLD
+VOSS.GEAR: Before I started signing entries, I used to enter them. You'll be racing me tomorrow, not my office.
+> FINALE FACE PADDOCK VOSS.GEAR,NIA HOLD
 YOU: With Aster's marshals checking both of us?
 > OFFICE PAN LICENSE - MOVE
-VOSS: The same rules for both of us. The contract is settled; whatever happens tomorrow, your independent terms remain yours.
-> FINALE FACE PADDOCK NIA,VOSS HOLD
+VOSS.GEAR: The same rules for both of us. The contract is settled; whatever happens tomorrow, your independent terms remain yours.
+> FINALE FACE PADDOCK NIA,VOSS.GEAR HOLD
 NIA: Then we can finally have an ordinary argument about driving.
-VOSS: I look forward to being difficult to pass.
+VOSS.GEAR: I look forward to being difficult to pass.
 
-@ S25 FINALE FACE PADDOCK NIA,VOSS HOLD
+@ S25 FINALE FACE PADDOCK NIA,VOSS.GEAR HOLD
 NIA: First night, I asked you to bring the car home straight. Seems a small instruction for all this.
 YOU: It was a good place to start.
-VOSS: Same start for everyone. Same obligations at the finish. Ready?
+VOSS.GEAR: Same start for everyone. Same obligations at the finish. Ready?
 YOU: Ready.
 > NIGHTFINAL MONTAGE CORNER - MOVE
 NARRATOR: THE COASTLINE FINAL. Under the floodlights, Sunline takes the flag ahead of Voss. The crew waits on the pit wall.
 > NIGHTFINAL PAN FLAG - MOVE
 SABLE: There it is. A result nobody needs to explain away.
-> NIGHTFINAL FACE FLAG VOSS,NIA HOLD
-VOSS: Well driven. Keep your promise to the people who brought you here. That's harder than a final lap.
+> NIGHTFINAL FACE FLAG VOSS.GEAR,NIA HOLD
+VOSS.GEAR: Well driven. Keep your promise to the people who brought you here. That's harder than a final lap.
 NIA: We'll keep it together.
-> GARAGE MONTAGE DOOR - MOVE
+> EPILOGUE MONTAGE KEYS - MOVE
 NARRATOR: DAWN AT SUNLINE. The shutters rise over familiar tools, too many chairs, and a car waiting outside the open door.
-> MEMORIES FACE CHAIRS MINA,JULES HOLD
-MINA: Someone new. Says Calder told them we might have work.
+> EPILOGUE FACE CHAIRS MINA.CASUAL,JULES.CASUAL HOLD
+MINA.CASUAL: Someone new. Says Calder told them we might have work.
 JULES: Do they know what the small, disappointing keys are for?
-> BENCH PAN JACK - MOVE
+> EPILOGUE PAN KEYS - MOVE
 YOU: I'll show them. Mind the jack. It rolls toward anything expensive.
-> MEMORIES PAN CHAIRS - MOVE
-NIA: Put another chair by the door.
+> EPILOGUE PAN CHAIRS - MOVE
+NIA.CASUAL: Put another chair by the door.
+> EPILOGUE FACE CHAIRS ELI,VALE HOLD
+ELI: Breakfast is at the diner. Bring the new driver when they're ready.
+VALE: And take the oranges. I haven't taught them to wait for a champion.
+YOU: Same small keys. A little more room to come home to.
