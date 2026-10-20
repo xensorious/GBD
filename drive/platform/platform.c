@@ -142,6 +142,18 @@ void ds_present(const uint16_t *top, const uint16_t *bottom) {
         DC_FlushRange(top, 256*192*2);
         dmaCopyWords(0, top, back, 256*192*2);
     }
+    if (world_active) {
+        /* Hold the 3D swap until the last visible interval before the same
+         * deadline as the dashboard. An early swap could otherwise show a
+         * fast scene one LCD frame sooner than a slower scene (1/3 pacing).
+         * Leave the preceding blank before submitting, so the geometry
+         * engine cannot consume that earlier blank as its swap target. */
+        if (paced_frames) {
+            while ((int32_t)(lcd_frames+1-frame_deadline)<0) wait_lcd_vblank();
+            while (REG_VCOUNT>=192) {}
+        }
+        glFlush(0);
+    }
     /* Both screens share the deadline. Input is sampled once at frame begin. */
     if (paced_frames) {
         while ((int32_t)(lcd_frames-frame_deadline)<0) wait_lcd_vblank();

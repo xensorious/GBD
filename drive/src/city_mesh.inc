@@ -13,7 +13,7 @@ typedef struct {int x,y,z,u,v;} CityVertex;
 typedef struct {int cx,cy,sn,cs,minx,miny,maxx,maxy;} CityView;
 static CityView city_view;
 volatile uint32_t city_mesh_stats[4]; /* submitted quads, culled, uploads, heading */
-volatile uint32_t city_mesh_last_stats[6]; /* complete frame for read-only QA */
+volatile uint32_t city_mesh_last_stats[6]; /* prepared scene for read-only QA */
 static int city_layer;
 /* Ground is a composed flat surface. It occupies a dedicated far-depth band;
  * scenery keeps physical height/depth. Subpixel rounding of a tilted road
@@ -533,9 +533,8 @@ static void city_scene(Surface*s,const Game*g){
  }
  city_mesh_caption(g);
  city_profile[3]=(profile_clock()-stage)&65535;
-#ifdef ARM9
- glFlush(0);
-#endif
+ /* The platform submits the completed scene at the paced LCD boundary.
+  * Flushing here made fast/slow preparations alternate 1/3 visible frames. */
  for(int k=0;k<4;k++)city_mesh_last_stats[k]=city_mesh_stats[k];
 #ifdef ARM9
  city_mesh_last_stats[4]=GFX_CONTROL&(GL_COLOR_UNDERFLOW|GL_POLY_OVERFLOW);

@@ -90,3 +90,14 @@ uncached unions, and cross cache boundaries without changing world shading.
 Conservative scenery visibility tests are compared pixel-for-pixel against the
 unculled renderer at sixteen headings. Actual cartridge tests capture the
 player in sunlight, partial shade and full shade and measure driving cadence.
+
+Scene preparation and presentation are measured separately. The platform holds
+the 3D buffer swap until the final visible interval before the dashboard's
+two-LCD-frame deadline. Swapping directly after scene preparation allowed fast
+and slow scenes to appear one and three LCD frames apart despite averaging
+30 updates/sec. tests/shadow_audit.py observes actual top-screen image changes
+on every LCD frame, uses independent ray intersections to check road-shadow
+pixels in paused scenes, and drives the fixed street network through all five
+districts. tests/shadow_views.c compares 192 district/heading/vehicle scenes
+with the unculled native renderer and checks static-light determinism; those
+native diagnostic scenes are separate from DS performance measurements.

@@ -1,0 +1,614 @@
+{
+  "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+  "date_utc": "2026-10-20T08:53:35.559383+00:00",
+  "scope": "Actual Nintendo DS emulator execution with controller input and read-only RAM. Test garage fixtures are labelled, not earned progression. Native reference renders are separately labelled. No physical Delta/iPhone/DS testing.",
+  "native_views": {
+    "scenarios": 192,
+    "pixel_checks": 18874368,
+    "visibility_loss": false,
+    "static_light_flicker": false,
+    "method": "Six districts/scene types, 32 camera headings each, six representative vehicle forms; culled versus unculled reference output and consecutive static-light frames. Native preprocessing is byte-identical after the ARM9-only presentation adjustment."
+  },
+  "previous_rom_sha256": "d467f22bbcaaef70940a4bc58f7f5fbf121fd9c10016455d7b6213e92dc2ba9f",
+  "original_extended_audit": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 2129408,
+      "sha256": "d467f22bbcaaef70940a4bc58f7f5fbf121fd9c10016455d7b6213e92dc2ba9f",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 2096920
+        },
+        "arm7": {
+          "offset": 2113536,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "model": 3,
+    "button_only": true,
+    "emulated_ram_read_only": true,
+    "city_updates": 4132,
+    "hardware_frames": 8490,
+    "city_hz": 29.20141342756184,
+    "waypoints": 17,
+    "districts": [
+      "Canal Gardens",
+      "Downtown West",
+      "Glass Quay",
+      "Ocean Boulevard",
+      "Palmetto Heights"
+    ],
+    "headings": 116,
+    "camera_chunks": 95,
+    "max_quads": 418,
+    "max_casters": 115,
+    "partial_player_frames": 343,
+    "pause_freezes_world": true,
+    "shadow_probes": [
+      {
+        "label": "shadow-stop-00",
+        "world": [
+          654.0,
+          1418.0
+        ],
+        "heading": 0,
+        "sunlit_asphalt": 8583,
+        "shaded_asphalt": 985,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-01",
+        "world": [
+          1269.08,
+          1407.84
+        ],
+        "heading": 59,
+        "sunlit_asphalt": 5133,
+        "shaded_asphalt": 164,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-02",
+        "world": [
+          1279.86,
+          2037.04
+        ],
+        "heading": 125,
+        "sunlit_asphalt": 9074,
+        "shaded_asphalt": 448,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-04",
+        "world": [
+          2495.61,
+          2676.25
+        ],
+        "heading": 124,
+        "sunlit_asphalt": 4991,
+        "shaded_asphalt": 78,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-06",
+        "world": [
+          2911.93,
+          3093.15
+        ],
+        "heading": 125,
+        "sunlit_asphalt": 6144,
+        "shaded_asphalt": 510,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-08",
+        "world": [
+          1290.86,
+          3104.15
+        ],
+        "heading": 192,
+        "sunlit_asphalt": 5015,
+        "shaded_asphalt": 1010,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-11",
+        "world": [
+          896.38,
+          2443.58
+        ],
+        "heading": 1,
+        "sunlit_asphalt": 2908,
+        "shaded_asphalt": 1431,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      },
+      {
+        "label": "shadow-stop-15",
+        "world": [
+          638.89,
+          522.54
+        ],
+        "heading": 250,
+        "sunlit_asphalt": 11188,
+        "shaded_asphalt": 378,
+        "missing_shadow": 0,
+        "unexplained_shadow": 0,
+        "overlap_single_shade": 0,
+        "other_overlap_colors": []
+      }
+    ],
+    "render_pacing": {
+      "samples": 4237,
+      "lcd_frame_gaps": {
+        "1": 1019,
+        "2": 1997,
+        "3": 1200,
+        "4": 21
+      },
+      "median_ms": 33.333333333333336,
+      "p95_ms": 50.0,
+      "worst_ms": 66.66666666666667,
+      "frames_over_50ms": 21
+    }
+  },
+  "focused_display_comparison": {
+    "before": {
+      "rom": "build/Coastline.nds",
+      "visual_lcd_gaps": {
+        "1": 49,
+        "2": 192,
+        "3": 46,
+        "4": 1
+      },
+      "render_lcd_gaps": {
+        "1": 50,
+        "2": 189,
+        "3": 49
+      },
+      "visual_hz": 30.05217391304348,
+      "health": 78
+    },
+    "after": {
+      "rom": "build/Coastline.nds",
+      "visual_lcd_gaps": {
+        "1": 1,
+        "2": 287
+      },
+      "render_lcd_gaps": {
+        "1": 36,
+        "2": 217,
+        "3": 35
+      },
+      "visual_hz": 30.05217391304348,
+      "health": 78
+    },
+    "method": "Same battery fixture and straight highway acceleration, top-screen output hashed every emulated LCD frame. A single initial pipeline interval is retained in these focused logs; the extended checks exclude eight LCD frames after menu transitions."
+  },
+  "pixel_probe_method": "Independently clip sun rays to roof prisms and canopy alpha, project into the actual paused DS scene, omit raised actors, lane-paint colors and a two-pixel shadow-boundary fringe. Up to eight isolated sampling differences per view are tolerated for nearest-neighbor foliage and fixed-point raster edges. Raw per-view differences are retained below.",
+  "cases": [
+    {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 2129408,
+        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2097032
+          },
+          "arm7": {
+            "offset": 2113536,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "model": 3,
+      "button_only": true,
+      "emulated_ram_read_only": true,
+      "city_updates": 4132,
+      "hardware_frames": 8478,
+      "city_hz": 29.24274593064402,
+      "waypoints": 17,
+      "districts": [
+        "Canal Gardens",
+        "Downtown West",
+        "Glass Quay",
+        "Ocean Boulevard",
+        "Palmetto Heights"
+      ],
+      "headings": 107,
+      "camera_chunks": 95,
+      "max_quads": 419,
+      "max_casters": 117,
+      "partial_player_frames": 265,
+      "pause_freezes_world": true,
+      "shadow_probes": [
+        {
+          "label": "shadow-stop-00",
+          "world": [
+            654.0,
+            1418.0
+          ],
+          "heading": 0,
+          "sunlit_asphalt": 8583,
+          "shaded_asphalt": 985,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-01",
+          "world": [
+            1269.08,
+            1407.84
+          ],
+          "heading": 59,
+          "sunlit_asphalt": 5133,
+          "shaded_asphalt": 164,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-02",
+          "world": [
+            1279.86,
+            2037.04
+          ],
+          "heading": 125,
+          "sunlit_asphalt": 9074,
+          "shaded_asphalt": 448,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-04",
+          "world": [
+            2496.61,
+            2677.11
+          ],
+          "heading": 136,
+          "sunlit_asphalt": 4577,
+          "shaded_asphalt": 108,
+          "missing_shadow": 1,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-06",
+          "world": [
+            2912.04,
+            3093.49
+          ],
+          "heading": 131,
+          "sunlit_asphalt": 6050,
+          "shaded_asphalt": 614,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-08",
+          "world": [
+            1290.53,
+            3103.5
+          ],
+          "heading": 193,
+          "sunlit_asphalt": 5019,
+          "shaded_asphalt": 1015,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-11",
+          "world": [
+            896.26,
+            2442.24
+          ],
+          "heading": 1,
+          "sunlit_asphalt": 2921,
+          "shaded_asphalt": 1413,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-15",
+          "world": [
+            639.52,
+            521.93
+          ],
+          "heading": 0,
+          "sunlit_asphalt": 11830,
+          "shaded_asphalt": 283,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        }
+      ],
+      "render_pacing": {
+        "samples": 4237,
+        "lcd_frame_gaps": {
+          "1": 1005,
+          "2": 2018,
+          "3": 1214
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 50.0,
+        "worst_ms": 50.0,
+        "frames_over_50ms": 0
+      },
+      "presentation_pacing": {
+        "samples": 4079,
+        "lcd_frame_gaps": {
+          "1": 15,
+          "2": 3846,
+          "3": 218
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 50.0,
+        "worst_ms": 50.0,
+        "frames_over_50ms": 0,
+        "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
+      }
+    },
+    {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 2129408,
+        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2097032
+          },
+          "arm7": {
+            "offset": 2113536,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "model": 46,
+      "button_only": true,
+      "emulated_ram_read_only": true,
+      "city_updates": 952,
+      "hardware_frames": 1906,
+      "city_hz": 29.968520461699896,
+      "waypoints": 4,
+      "districts": [
+        "Downtown West",
+        "Glass Quay"
+      ],
+      "headings": 19,
+      "camera_chunks": 23,
+      "max_quads": 378,
+      "max_casters": 112,
+      "partial_player_frames": 90,
+      "pause_freezes_world": true,
+      "shadow_probes": [
+        {
+          "label": "shadow-stop-00",
+          "world": [
+            654.0,
+            1419.89
+          ],
+          "heading": 0,
+          "sunlit_asphalt": 7221,
+          "shaded_asphalt": 1016,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-01",
+          "world": [
+            1269.44,
+            1407.43
+          ],
+          "heading": 72,
+          "sunlit_asphalt": 4257,
+          "shaded_asphalt": 204,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-02",
+          "world": [
+            1280.31,
+            2037.01
+          ],
+          "heading": 128,
+          "sunlit_asphalt": 10830,
+          "shaded_asphalt": 740,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        }
+      ],
+      "render_pacing": {
+        "samples": 1049,
+        "lcd_frame_gaps": {
+          "1": 143,
+          "2": 766,
+          "3": 140
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 50.0,
+        "worst_ms": 50.0,
+        "frames_over_50ms": 0
+      },
+      "presentation_pacing": {
+        "samples": 923,
+        "lcd_frame_gaps": {
+          "1": 3,
+          "2": 920
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 33.333333333333336,
+        "worst_ms": 33.333333333333336,
+        "frames_over_50ms": 0,
+        "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
+      }
+    },
+    {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 2129408,
+        "sha256": "dd0b356d386bc84b8dfb7eb758f7b40c7739d23a4ac63989fe52d2693aa4f644",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2097032
+          },
+          "arm7": {
+            "offset": 2113536,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "model": 0,
+      "button_only": true,
+      "emulated_ram_read_only": true,
+      "city_updates": 1222,
+      "hardware_frames": 2466,
+      "city_hz": 29.7323600973236,
+      "waypoints": 4,
+      "districts": [
+        "Downtown West",
+        "Glass Quay"
+      ],
+      "headings": 28,
+      "camera_chunks": 25,
+      "max_quads": 378,
+      "max_casters": 112,
+      "partial_player_frames": 109,
+      "pause_freezes_world": true,
+      "shadow_probes": [
+        {
+          "label": "shadow-stop-00",
+          "world": [
+            654.0,
+            1419.74
+          ],
+          "heading": 0,
+          "sunlit_asphalt": 7426,
+          "shaded_asphalt": 1024,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-01",
+          "world": [
+            1269.54,
+            1407.29
+          ],
+          "heading": 64,
+          "sunlit_asphalt": 5587,
+          "shaded_asphalt": 361,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        },
+        {
+          "label": "shadow-stop-02",
+          "world": [
+            1280.23,
+            2036.33
+          ],
+          "heading": 123,
+          "sunlit_asphalt": 10871,
+          "shaded_asphalt": 674,
+          "missing_shadow": 0,
+          "unexplained_shadow": 0,
+          "overlap_single_shade": 0,
+          "other_overlap_colors": []
+        }
+      ],
+      "render_pacing": {
+        "samples": 1319,
+        "lcd_frame_gaps": {
+          "1": 309,
+          "2": 686,
+          "3": 324
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 50.0,
+        "worst_ms": 50.0,
+        "frames_over_50ms": 0
+      },
+      "presentation_pacing": {
+        "samples": 1204,
+        "lcd_frame_gaps": {
+          "1": 1,
+          "2": 1187,
+          "3": 16
+        },
+        "median_ms": 33.333333333333336,
+        "p95_ms": 33.333333333333336,
+        "worst_ms": 50.0,
+        "frames_over_50ms": 0,
+        "method": "Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded."
+      }
+    }
+  ]
+}
