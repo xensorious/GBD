@@ -50,6 +50,13 @@ int city_water(int x,int y){return (x>=1920&&x<2240&&y>1152)||(x>3712)||(y<256);
 CityLot city_lot_bounds(int col,int row){
  CityLot lot={0,0,0,0,0};
  if(col<2||col>28||row<3||row>29)return lot;
+ /* The fixed map is immutable. Cache local byte-sized bounds instead of
+  * walking every road again for each collision corner and garden test. */
+ typedef struct {uint8_t x,y,w,h,kind;} CachedLot;
+ static CachedLot lots[32*32];CachedLot*cached=&lots[row*32+col];
+ if(cached->kind&128u)return (cached->kind&127u)?
+   (CityLot){col*128+cached->x,row*128+cached->y,cached->w,cached->h,cached->kind&127u}:lot;
+ cached->kind=128;
  int x=col*128,y=row*128;
  if(city_water(x+64,y+64))return lot;
  unsigned h=road_hash(0x50414c4d,col+row*32);
@@ -66,7 +73,9 @@ CityLot city_lot_bounds(int col,int row){
   }
  }
  if(right-left<30||bottom-top<30)return lot;
- lot=(CityLot){left,top,right-left,bottom-top,1+(int)(h%6)};return lot;
+ lot=(CityLot){left,top,right-left,bottom-top,1+(int)(h%6)};
+ *cached=(CachedLot){(uint8_t)(left-x),(uint8_t)(top-y),(uint8_t)lot.w,(uint8_t)lot.h,(uint8_t)(lot.kind|128)};
+ return lot;
 }
 int city_lot(int col,int row){return city_lot_bounds(col,row).kind;}
 int city_solid(int x,int y){

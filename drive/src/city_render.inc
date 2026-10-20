@@ -3,7 +3,7 @@ static int city_abs(int x){return x<0?-x:x;}
 /* Each source now has a 256-color material palette and three steered-axle
  * drawings. Only one small indexed model bank is decoded at a time. */
 static uint8_t city_pose_art[3*48*72];
-static void city_pixels_pose(uint16_t*out,int model,int pose,const Save*save){
+static void city_decode_model(int model){
  uint8_t*art=city_pose_art;static int last=-1;int bank=model;
  if(last!=bank){
   const uint8_t*src=overhead_lz+overhead_offsets[bank];unsigned in=4,pos=0;
@@ -15,11 +15,12 @@ static void city_pixels_pose(uint16_t*out,int model,int pose,const Save*save){
    }
   }last=bank;
  }
+}
+static void city_pose_palette(uint16_t*palette,int model,const Save*save){
  int paint=save?save->paint[model]:0,livery=save?save->livery[model]:0,wheels=save?save->wheels[model]:0;
  const FinishColor*body=body_finish(paint),*decal=livery_finish(save?save->livery_color[model]:0);
  const uint16_t*source=overhead_palette+model*256;const uint8_t*flags=overhead_flags+model*256;
  static const uint8_t rims[4][3]={{16,18,20},{9,12,14},{28,30,31},{31,24,8}};
- uint16_t palette[256];
  for(int index=0;index<256;index++){
   uint16_t c=source[index];unsigned tag=flags[index];
   if(tag&1){
@@ -31,7 +32,10 @@ static void city_pixels_pose(uint16_t*out,int model,int pose,const Save*save){
    c=(uint16_t)(0x8000|clampi(rims[wheels][0]*shade/24,0,31)|(clampi(rims[wheels][1]*shade/24,0,31)<<5)|(clampi(rims[wheels][2]*shade/24,0,31)<<10));}
   palette[index]=c;
  }
- for(unsigned at=0;at<48*72;at++)out[at]=palette[art[pose*48*72+at]];
+}
+static void city_pixels_pose(uint16_t*out,int model,int pose,const Save*save){
+ city_decode_model(model);uint16_t palette[256];city_pose_palette(palette,model,save);
+ for(unsigned at=0;at<48*72;at++)out[at]=palette[city_pose_art[pose*48*72+at]];
 }
 void city_vehicle_pixels(uint16_t*out,int model,const Save*save){city_pixels_pose(out,model,1,save);}
 #ifndef ARM9

@@ -104,5 +104,5 @@ then returns to both driving modes. Later-chapter batteries are explicitly
 labelled visual fixtures rather than claimed earned progression. Actual emulator
 captures are used for the story previews. Catalog sheets are labelled indexed
 asset previews and are not represented as emulator screenshots. Physical Delta
-or DS testing is not claimed. Existing rare Free Roam frame delays remain a
-separate, measured limitation in VALIDATION.json.
+or DS testing is not claimed. Free Roam performance is verified separately;
+its optimization and visual-equivalence results are in PERFORMANCE.json.

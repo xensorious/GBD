@@ -79,8 +79,10 @@ Version 7 preserves the 8 KiB, three-profile save bank and migrates versions
 v7 and retains its progress in this update. Pre-story ROMs cannot read v7
 records; keep a backup when switching back to those builds.
 
-Existing Free Roam frame-time spikes remain a separate limitation. Current
-measurements and any explicit review-build exception are in VALIDATION.json.
+Free Roam now keeps all three full-resolution steering poses in video memory,
+caches fixed-map bounds and graphics state, and rejects off-screen cars before
+lighting work. See PERFORMANCE.md and PERFORMANCE.json for measured frame
+timings and comparisons against the previous sprite pixels and simulation.
 
 ## Controls
 

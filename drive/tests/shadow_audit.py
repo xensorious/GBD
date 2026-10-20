@@ -64,6 +64,7 @@ p.add_argument('--rom',type=Path,default=ROOT/'build/Coastline.nds')
 p.add_argument('--elf',type=Path,default=ROOT/'build/arm9.elf')
 p.add_argument('--model',type=int,default=3)
 p.add_argument('--short',action='store_true')
+p.add_argument('--trace',action='store_true',help='Record read-only per-frame CPU stages, uploads and shadow rebuilds.')
 p.add_argument('--template',type=Path,help='Genuine .dsv from a stock playthrough (only its emulator footer is reused).')
 a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 rom=a.rom.resolve();elf=a.elf.resolve();initial_sha=hashlib.sha256(rom.read_bytes()).hexdigest()
@@ -81,6 +82,9 @@ template=a.template or next((ROOT/name for name in ('build/validation/save/Coast
 assert template and template.exists(),'Run tests/playthrough.py --emulator-only --output build/validation first, or provide --template.'
 write_battery(template,directory/'Coastline.dsv',encode_profile(lib,profile))
 addr={name:find_symbol(elf,name) for name in ('city','game','city_mesh_last_stats','city_sun_stats','city_casters','city_caster_count','city_sun_bin_stats')}
+if a.trace:
+ addr.update({name:find_symbol(elf,name) for name in ('city_last_profile','render_profile','update_profile')})
+trace=[]
 atlas=np.frombuffer((ROOT/'build/city_mesh_idx.bin').read_bytes(),dtype=np.uint8).reshape(512,256)
 road=RoadPixels(lib);cadence=[];meshes=[];sunframes=[];headings=set();chunks=set();districts=set();photos=[];probes=[];pacing=[];presentation=[]
 with Emulator(rom,directory) as e:
@@ -147,6 +151,15 @@ with Emulator(rom,directory) as e:
    tag=int.from_bytes(e.read_ram(addr['city_mesh_last_stats']+20,4),'little')
    if tag!=last_tag:
     if last_lcd is not None:pacing.append(e.frames-last_lcd)
+    if a.trace:
+     c=state();g=d.game()
+     trace.append({'lcd':e.frames,'frame':tag,'gap':e.frames-last_lcd if last_lcd is not None else 0,
+      'city':list((C.c_uint32*8).from_buffer_copy(e.read_ram(addr['city_last_profile'],32))),
+      'render':list((C.c_uint32*5).from_buffer_copy(e.read_ram(addr['render_profile'],20))),
+      'update':int.from_bytes(e.read_ram(addr['update_profile'],4),'little'),
+      'mesh':list((C.c_uint32*6).from_buffer_copy(e.read_ram(addr['city_mesh_last_stats'],24))),
+      'sun':list((C.c_uint32*9).from_buffer_copy(e.read_ram(addr['city_sun_stats'],36))),
+      'world':[c.x,c.y,c.camera_x,c.camera_y,c.angle],'steer':g.steering,'speed':g.speed_q8})
     last_tag=tag;last_lcd=e.frames
    speed=int.from_bytes(e.read_ram(addr['game']+Game.speed_q8.offset,4),'little',signed=True)
    if image_warm or speed<35*256:
@@ -200,4 +213,5 @@ result['presentation_pacing']={'samples':len(presentation),'lcd_frame_gaps':dict
  'worst_ms':float(max(presentation)*1000/60),'frames_over_50ms':sum(f>3 for f in presentation),
  'method':'Actual top-screen output hash observed each LCD frame, moving above 35 km/h; eight LCD frames after a menu transition are excluded.'}
 (out/'shadow-audit-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
+if a.trace:(out/'frame-trace.json').write_text(json.dumps({'rom':result['rom'],'timer_hz':33513982/64,'frames':trace},separators=(',',':'))+'\n')
 assert len(presentation)>200 and result['presentation_pacing']['worst_ms']<=50 and sum(f==2 for f in presentation)>=len(presentation)*.90,('Visible frame pacing',result['presentation_pacing'])

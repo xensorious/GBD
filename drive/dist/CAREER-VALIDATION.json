@@ -1,5 +1,5 @@
 {
-  "sha256": "f1399316bd8518e57b6140e98bb8b4418fb418afe2270f3e43c415fb7bd788f9",
+  "sha256": "669a5ebc2d52f8e326bc388da8f12c52e5eeda30c1d6c616197ada3cca123937",
   "chapters": 5,
   "events": 125,
   "dialogue_lines": 923,
@@ -37,20 +37,20 @@
     {
       "scene": "D04",
       "dialogue_lines": 10,
-      "updates": 138,
+      "updates": 139,
       "lcd_frames": 862
     },
     {
       "scene": "D05",
       "dialogue_lines": 10,
       "updates": 164,
-      "lcd_frames": 1156
+      "lcd_frames": 1154
     },
     {
       "scene": "D06",
       "dialogue_lines": 10,
       "updates": 324,
-      "lcd_frames": 2164
+      "lcd_frames": 2162
     }
   ],
   "saved_progress": 6,

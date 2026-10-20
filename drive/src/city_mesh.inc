@@ -20,6 +20,24 @@ static int city_layer;
  * must never make asphalt compete with its own curb or sidewalk. */
 static int city_ground_pass;
 static int city_shadow_pass;
+#ifdef ARM9
+static int city_player_pose;
+/* Attribute state persists between polygons. Reissuing identical state
+ * consumes CPU/FIFO bandwidth without changing a single vertex or texel. */
+static uint32_t city_gpu_format,city_gpu_palette,city_gpu_polygon,city_gpu_color;
+static unsigned city_gpu_valid;
+static void city_gpu_state(uint32_t format,uint32_t palette,uint32_t polygon){
+ city_profile[4]+=3;
+ if(!(city_gpu_valid&1)||city_gpu_format!=format){GFX_TEX_FORMAT=format;city_gpu_format=format;city_profile[5]++;}
+ if(!(city_gpu_valid&2)||city_gpu_palette!=palette){GFX_PAL_FORMAT=palette;city_gpu_palette=palette;city_profile[5]++;}
+ if(!(city_gpu_valid&4)||city_gpu_polygon!=polygon){GFX_POLY_FORMAT=polygon;city_gpu_polygon=polygon;city_profile[5]++;}
+ city_gpu_valid|=7;
+}
+static void city_gpu_tint(uint16_t color){
+ color&=0x7fff;city_profile[4]++;
+ if(!(city_gpu_valid&8)||city_gpu_color!=color){glColor(color);city_gpu_color=color;city_profile[5]++;city_gpu_valid|=8;}
+}
+#endif
 enum {CITY_SHADOW_ATLAS=-2,CITY_SHADOW_CAR=100};
 #ifndef ARM9
 static int16_t city_depth[256*192];
@@ -126,21 +144,23 @@ static void city_quad_colors(CityVertex a,CityVertex b,CityVertex c,CityVertex d
 #ifdef ARM9
  uint32_t format=0,palette=0;
  if(texture==0||texture==CITY_SHADOW_ATLAS)format=(5u<<20)|(6u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
- else if(texture==1)format=((0x20000u+98304u)>>3)|(3u<<20)|(4u<<23)|(GL_RGBA<<26);
+ else if(texture==1){
+  format=((0x20000u+98304u)>>3)|(5u<<20)|(4u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
+  palette=(512u+VEHICLE_COUNT*512u+512u)>>4;
+ }
  else if(texture>=2){unsigned model=texture>=CITY_SHADOW_CAR?(unsigned)texture-CITY_SHADOW_CAR:(unsigned)texture-2;
   format=((0x20000u+model*2048u)>>3)|(2u<<20)|(3u<<23)|(GL_RGB256<<26)|GL_TEXTURE_COLOR0_TRANSPARENT;
   palette=(512u+model*512u)>>4;
  }
  if(texture==CITY_SHADOW_ATLAS||texture>=CITY_SHADOW_CAR)palette=(512u+VEHICLE_COUNT*512u)>>4;
- GFX_TEX_FORMAT=format;GFX_PAL_FORMAT=palette;
- glPolyFmt(POLY_ALPHA(alpha)|POLY_CULL_NONE|POLY_ID(city_shadow_pass?50:a.z>7000?62:texture>=1?40:1));
+ city_gpu_state(format,palette,POLY_ALPHA(alpha)|POLY_CULL_NONE|POLY_ID(city_shadow_pass?50:a.z>7000?62:texture>=1?40:1));
  int gouraud=tint[0]!=tint[1]||tint[0]!=tint[2]||tint[0]!=tint[3];
- if(!gouraud)glColor(tint[0]&0x7fff);
+ if(!gouraud)city_gpu_tint(tint[0]);
  glBegin(GL_QUADS);
  const CityVertex p[4]={a,b,c,d};
  for(int i=0;i<4;i++){
-  if(gouraud)glColor(tint[i]&0x7fff);
-  glTexCoord2t16((t16)p[i].u,(t16)p[i].v);
+  if(gouraud)city_gpu_tint(tint[i]);
+  if(format)glTexCoord2t16((t16)p[i].u,(t16)p[i].v);
   /* Keep Q4 coordinates directly in v16. Multiplying by four limited road
    * corners to +/-512 pixels and could wrap a clipped, long street during
    * rotation. The matching projection below preserves the same screen scale. */
@@ -336,7 +356,12 @@ static void city_mesh_lamp(int x,int y,int dx,int dy){
 static void city_mesh_car(int x,int y,int angle,int model,int player){
  int sn=city_sin(angle),cs=city_cos(angle),texture=player?1:model+2;
  int tw=player?48:32,th=player?72:64;
+ int pose_u=0;
+#ifdef ARM9
+ if(player)pose_u=city_player_pose*64*16;
+#endif
  CityShape shape=city_vehicle_shape(model);
+ if(!city_visible(x,y,shape.draw_half_length+shape.draw_half_width+8,3))return;
  const int side[4]={-shape.draw_half_width,shape.draw_half_width,shape.draw_half_width,-shape.draw_half_width};
  const int fore[4]={-shape.draw_half_length,-shape.draw_half_length,shape.draw_half_length,shape.draw_half_length};
  CityVertex shadow[4];
@@ -353,7 +378,7 @@ static void city_mesh_car(int x,int y,int angle,int model,int player){
   if(shade<low)low=shade;
   if(shade>high)high=shade;
   total+=shade;
-  grid[at]=(CityVertex){xq,yq,3,xx*(tw*16-1)/NX,yy*(th*16-1)/NY};colors[at]=sun_tint(shade);
+  grid[at]=(CityVertex){xq,yq,3,pose_u+xx*(tw*16-1)/NX,yy*(th*16-1)/NY};colors[at]=sun_tint(shade);
  }
  if(player){city_sun_stats[4]=(uint32_t)low;city_sun_stats[5]=(uint32_t)high;city_sun_stats[8]=(uint32_t)total/((NX+1)*(NY+1));}
  /* Keep the same fractional outline when entering/leaving a shadow. */
@@ -392,19 +417,24 @@ static void city_mesh_caption(const Game*g){
 }
 #ifdef ARM9
 static void city_mesh_textures(const Game*g){
- static unsigned epoch;static int vehicle=-1,pose=-1,paint=-1,livery=-1,color=-1,wheels=-1;
+ static unsigned epoch;static int vehicle=-1,paint=-1,livery=-1,color=-1,wheels=-1;
  int full=epoch!=ds_world_epoch(),steer=g->steering<0?0:g->steering>0?2:1,v=g->vehicle;
- if(!full&&vehicle==v&&pose==steer&&paint==g->save.paint[v]&&livery==g->save.livery[v]&&color==g->save.livery_color[v]&&wheels==g->save.wheels[v])return;
- static uint16_t pixels[48*72];
- /* Prepare a normal pose while all scenery/NPC texture banks remain mapped.
-  * The short vblank window contains only the player texture row transfers. */
- if(!full){city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);}
- ds_world_upload_begin(full);
+ city_player_pose=steer;
+ if(!full&&vehicle==v&&paint==g->save.paint[v]&&livery==g->save.livery[v]&&color==g->save.livery_color[v]&&wheels==g->save.wheels[v])return;
+ /* DMA cannot read the ARM9's DTCM stack. Keep its palette source in
+  * aligned main RAM, like the indexed drawings and the original pixels. */
+ static uint16_t palette[256] __attribute__((aligned(32)));
+ city_pose_palette(palette,v,&g->save);
+ /* Three original 48x72 indexed drawings share their exact RGB555 palette.
+  * They fit in the same remaining 32 KiB of bank D, at 64-pixel offsets.
+  * Steering changes only texture coordinates; it never remaps live VRAM. */
+ if(!full)city_decode_model(v);
+ ds_world_upload_begin(1);
  if(full){
   DC_FlushRange(city_mesh_idx,256*512);dmaCopyWords(0,city_mesh_idx,VRAM_A,256*512);
   DC_FlushRange(city_mesh_palette,512);dmaCopyWords(0,city_mesh_palette,VRAM_E,512);
   for(int model=0;model<VEHICLE_COUNT;model++){
-   city_pixels_pose(pixels,model,1,0);
+   city_decode_model(model);
    /* VRAM only supports halfword/word stores, including indexed texels. */
    uint16_t*dest=(uint16_t*)((uint8_t*)VRAM_D+model*2048);
    const uint8_t*source=city_pose_art+48*72;
@@ -413,12 +443,15 @@ static void city_mesh_textures(const Game*g){
   }
   DC_FlushRange(overhead_palette,VEHICLE_COUNT*512);dmaCopyWords(0,overhead_palette,(uint8_t*)VRAM_E+512,VEHICLE_COUNT*512);
   dmaFillHalfWords(C(16,28,48),(uint8_t*)VRAM_E+512+VEHICLE_COUNT*512,512);
-  dmaFillHalfWords(0,(uint8_t*)VRAM_D+98304,64*128*2);
+  city_decode_model(v);
  }
- if(full){city_pixels_pose(pixels,v,steer,&g->save);DC_FlushRange(pixels,sizeof pixels);}
- for(int y=0;y<72;y++)dmaCopyHalfWords(0,pixels+y*48,(uint8_t*)VRAM_D+98304+y*64*2,48*2);
- ds_world_upload_end(full);city_mesh_stats[2]++;
- epoch=ds_world_epoch();vehicle=v;pose=steer;paint=g->save.paint[v];livery=g->save.livery[v];color=g->save.livery_color[v];wheels=g->save.wheels[v];
+ dmaFillHalfWords(0,(uint8_t*)VRAM_D+98304,256*128);
+ DC_FlushRange(city_pose_art,sizeof city_pose_art);DC_FlushRange(palette,sizeof palette);
+ for(int pose=0;pose<3;pose++)for(int y=0;y<72;y++)
+  dmaCopyHalfWords(0,city_pose_art+pose*48*72+y*48,(uint8_t*)VRAM_D+98304+y*256+pose*64,48);
+ dmaCopyHalfWords(0,palette,(uint8_t*)VRAM_E+512+VEHICLE_COUNT*512+512,sizeof palette);
+ ds_world_upload_end(1);city_mesh_stats[2]++;
+ epoch=ds_world_epoch();vehicle=v;paint=g->save.paint[v];livery=g->save.livery[v];color=g->save.livery_color[v];wheels=g->save.wheels[v];
 }
 #endif
 static void city_scene(Surface*s,const Game*g){
@@ -431,6 +464,7 @@ static void city_scene(Surface*s,const Game*g){
  city_view=(CityView){city.camera_x,city.camera_y,city_sin(city.angle),city_cos(city.angle),cx-256,cy-300,cx+256,cy+300};
 #ifdef ARM9
  city_mesh_textures(g);
+ city_gpu_valid=0;
  glMatrixMode(GL_PROJECTION);glLoadIdentity();
  glOrthof32(0,1<<12,3<<10,0,-(2<<12),2<<12);
  glMatrixMode(GL_MODELVIEW);glLoadIdentity();
