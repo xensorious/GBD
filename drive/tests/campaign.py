@@ -12,12 +12,13 @@ from fixtures import encode_profile,write_battery,assert_compact_battery
 class Line(C.LittleEndianStructure):
  _fields_=[(n,C.c_uint8) for n in ('speaker','companion','stage','background')]+[('focus',C.c_uint16),('length',C.c_uint8),('pose_flags',C.c_uint8),('text',C.c_char*192)]
 class Story(C.LittleEndianStructure):
- _fields_=[('offsets',C.c_uint32*16),('revision',C.c_uint32),('current',Line),('previous',Line)]+[(n,C.c_uint16) for n in ('revealed','ticks','age')]+[(n,C.c_uint8) for n in ('active','chapter','event','line','count','phase','phase_tick','replay','pause','cursor','failed')]
+ _fields_=[('offsets',C.c_uint32*16),('revision',C.c_uint32),('current',Line),('previous',Line)]+[(n,C.c_uint16) for n in ('revealed','ticks','age')]+[(n,C.c_uint8) for n in ('active','chapter','event','line','count','phase','phase_tick','replay','pause','cursor','failed','page_start','page_end','page_index')]
 class Campaign(C.LittleEndianStructure):
  _fields_=[(n,C.c_uint8) for n in ('tab','chapter','event','modal','page','garage_return','drive_column')]+[('revision',C.c_uint32)]
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,default=ROOT/'build/story-release');p.add_argument('--native-only',action='store_true');p.add_argument('--emulator-only',action='store_true');p.add_argument('--verify-progress',type=int);p.add_argument('--slot',type=int,default=0);p.add_argument('--save-dir',type=Path);p.add_argument('--case');a=p.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 rom=ROOT/'build/Coastline.nds';elf=ROOT/'build/arm9.elf';addr=find_symbol(elf,'game');sa=find_symbol(elf,'story');ca=find_symbol(elf,'campaign');va=find_symbol(elf,'story_visual_stats')
 assert symbol_size(elf,'story')==C.sizeof(Story)==488 and symbol_size(elf,'campaign')==C.sizeof(Campaign)==12
+assert (Story.page_start.offset,Story.page_end.offset,Story.page_index.offset)==(485,486,487)
 sha=hashlib.sha256(rom.read_bytes()).hexdigest()
 manifest=json.loads((ROOT/'build/story-manifest.json').read_text());line_count=manifest['dialogue_lines']
 def view(e):return Story.from_buffer_copy(e.read_ram(sa,C.sizeof(Story)))
@@ -26,19 +27,33 @@ def enter_career(d):
  d.menu(0);d.press('a');assert d.game().mode==11;d.press('down');d.press('a');assert d.game().mode==12
 
 def play(d,e,label,expected,shots):
- captured=set();start=d.game().frame;hardware=e.frames
+ captured=set();pages={};texts={};start=d.game().frame;hardware=e.frames
  for step in range(1200):
   s=view(e);assert d.game().mode==13 and not s.failed
   if s.phase==4:
    assert d.game().save.reserved[0]==expected
+   assert len(texts)==s.count
+   for line,spans in pages.items():
+    at=0;covered=b''
+    for expected_page,(page,(first,last)) in enumerate(sorted(spans.items())):
+     assert page==expected_page and first==at and first<last<=len(texts[line])
+     covered+=texts[line][first:last];at=last
+    assert covered==texts[line]
    d.ticks(16)
    if not s.replay:assert d.game().save_ok and not d.game().save_requested,('Scene autosave failed',label)
    if label in ('D01','D06','S25'):d.shot('story-'+label.lower()+'-clear')
    d.press('a');assert d.game().mode==12
    assert not any((C.c_uint32*5).from_buffer_copy(e.read_ram(va,20))[:1])
-   return {'scene':label,'dialogue_lines':s.count,'updates':d.game().frame-start,'lcd_frames':e.frames-hardware}
+   return {'scene':label,'dialogue_lines':s.count,'dialogue_pages':sum(len(x) for x in pages.values()),'updates':d.game().frame-start,'lcd_frames':e.frames-hardware}
   if s.phase!=1:d.ticks(2);continue
-  if s.revealed<s.current.length:d.press('a');continue
+  assert 0<=s.page_start<=s.revealed<=s.page_end<=s.current.length
+  text=bytes(s.current.text);assert len(text)==s.current.length
+  if s.line in texts:assert texts[s.line]==text
+  else:texts[s.line]=text
+  spans=pages.setdefault(s.line,{})
+  if s.page_index in spans:assert spans[s.page_index]==(s.page_start,s.page_end)
+  else:spans[s.page_index]=(s.page_start,s.page_end)
+  if s.revealed<s.page_end:d.press('a');continue
   if s.line not in captured and (s.line in shots or (s.current.stage==3 and label in ('D06','B02'))):
    d.ticks(40);d.shot('story-'+label.lower()+'-'+str(s.line));captured.add(s.line)
   d.press('a')

@@ -5,6 +5,13 @@
 #define STORY_TOTAL 125
 #define STORY_TEXT_MAX 192
 #define STORY_MAX_LINES 16
+#define STORY_SCENE_HEIGHT 288
+#define STORY_DIALOG_Y 96
+#define STORY_DIALOG_TEXT_X 15
+#define STORY_DIALOG_TEXT_Y 124
+#define STORY_DIALOG_TEXT_WIDTH 226
+#define STORY_DIALOG_ROWS 3
+#define STORY_DIALOG_LINE_HEIGHT 14
 #include "story_limits.h"
 #define STORY_FOCUS_MOVE 0x8000u
 #define STORY_FOCUS_SUBJECT 0x4000u
@@ -25,6 +32,8 @@ typedef struct {
  StoryLine current,previous;
  uint16_t revealed,ticks,age;
  uint8_t active,chapter,event,line,count,phase,phase_tick,replay,pause,cursor,failed;
+ /* Consume the old tail padding so existing RAM/save fixture offsets stay put. */
+ uint8_t page_start,page_end,page_index;
 } StoryState;
 extern StoryState story;
 extern const char*const story_cast_names[STORY_SPEAKERS];
@@ -38,6 +47,8 @@ int story_asset(int id,uint8_t*destination,uint16_t*palette,unsigned capacity,in
 void story_draw(const Game*,uint16_t*top,uint16_t*bottom);
 void story_render_release(void);
 int story_text_lines(const char*,int width);
+unsigned story_text_advance(unsigned character);
+unsigned story_text_page_end(const char*,unsigned start);
 /* One shared scratch lease: the ordinary sprite cache is invalidated on both edges. */
 void *gfx_story_scratch(unsigned*size);
 void gfx_story_release(void);

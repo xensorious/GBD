@@ -3,12 +3,13 @@
 #include "career.h"
 #include "render.h"
 #include "opening.h"
+#include "assets.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 extern volatile uint32_t story_visual_stats[5];
-static unsigned checks,lines_seen,stages[4],extended_roles[2];
+static unsigned checks,lines_seen,pages_seen,expected_pages,stages[4],extended_roles[2];
 #define CHECK(x) do{checks++;if(!(x)){fprintf(stderr,"story:%d: %s\n",__LINE__,#x);exit(1);}}while(0)
 static void press(Game*g,unsigned key){Input in={key,key};game_update(g,&in);}
 static void tick(Game*g){Input in={0,0};game_update(g,&in);}
@@ -18,8 +19,64 @@ static void draw(Game*g){
 }
 static void extended_pose(Game*g,int companion);
 static void sign_disk(uint8_t*p){memset(p+8,0,4);uint32_t hash=2166136261u;for(int i=0;i<1000;i++)hash=(hash^p[i])*16777619u;memcpy(p+8,&hash,4);}
+/* Use the renderer's actual linked font as an independent wrapping oracle. */
+static unsigned font_page_end(const char*text,unsigned start){
+ unsigned at=start,rows=1;int pixels=0,used=0;
+ while(text[at]){
+  if(text[at]=='\n'){at++;if(rows==STORY_DIALOG_ROWS)return at;rows++;pixels=used=0;continue;}
+  if(text[at]==' '){if(used){pixels+=gfx_text_width(" ");used++;}at++;continue;}
+  char word[STORY_TEXT_MAX];unsigned count=0;
+  while(text[at+count]&&text[at+count]!=' '&&text[at+count]!='\n'){word[count]=text[at+count];count++;}
+  word[count]=0;int width=gfx_text_width(word);CHECK(width<=STORY_DIALOG_TEXT_WIDTH);
+  if(used&&pixels+width>STORY_DIALOG_TEXT_WIDTH){if(rows==STORY_DIALOG_ROWS)return at;rows++;pixels=used=0;}
+  pixels+=width;used+=(int)count;at+=count;
+ }
+ return at;
+}
+static unsigned check_pages(const StoryLine*line){
+ char covered[STORY_TEXT_MAX]={0};unsigned start=0,pages=0;
+ do{
+  unsigned end=story_text_page_end(line->text,start);char page[STORY_TEXT_MAX];
+  CHECK(end>start&&end<=line->length&&end==font_page_end(line->text,start));
+  memcpy(page,line->text+start,end-start);page[end-start]=0;
+  CHECK(story_text_lines(page,STORY_DIALOG_TEXT_WIDTH)<=STORY_DIALOG_ROWS);
+  memcpy(covered+start,page,end-start);start=end;pages++;
+ }while(start<line->length);
+ CHECK(!memcmp(covered,line->text,(unsigned)line->length+1));return pages;
+}
+static void pagination_rules(void){
+ for(unsigned ch=32;ch<=127;ch++){
+  char glyph[2]={(char)ch,0};CHECK(story_text_advance(ch)==font_advance[ch-32]);CHECK(story_text_advance(ch)==(unsigned)gfx_text_width(glyph));
+ }
+ CHECK(story_text_advance(0)==story_text_advance('?')&&story_text_advance(255)==story_text_advance('?'));
+ Game g;game_init(&g,123);CHECK(story_open(&g,0,0));
+ for(int t=0;t<16;t++)tick(&g);
+ CHECK(story.phase==ST_READING);
+ /* A final authored line with enough wide words to need two dialogue pages. */
+ const char*text="WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW WWWW";
+ strcpy(story.current.text,text);story.current.length=(uint8_t)strlen(text);story.line=(uint8_t)(story.count-1);
+ story.page_start=story.page_index=0;story.page_end=(uint8_t)story_text_page_end(text,0);story.revealed=0;story.age=63;story.ticks=301;
+ CHECK(check_pages(&story.current)==2&&story.page_end<story.current.length);
+ StoryLine current=story.current,previous=story.previous;Save untouched=g.save;
+ for(int t=0;t<80;t++){Input held={K_A,0};game_update(&g,&held);CHECK(story.revealed<=story.page_end);}
+ CHECK(story.phase==ST_READING&&story.page_index==0&&story.revealed==story.page_end&&!story_completed(&g));
+ press(&g,K_B);unsigned age=story.age,ticks=story.ticks;for(int t=0;t<20;t++)tick(&g);
+ CHECK(story.pause&&story.age==age&&story.ticks==ticks);press(&g,K_B);CHECK(!story.pause);
+ story.revealed=story.page_start;press(&g,K_A);CHECK(story.revealed==story.page_end&&story.page_index==0&&story.phase==ST_READING);
+ StoryState before=story;press(&g,K_A);
+ CHECK(story.page_index==1&&story.page_start==before.page_end&&story.page_end==story.current.length&&story.revealed==story.page_start);
+ CHECK(story.line==before.line&&story.phase==before.phase&&story.phase_tick==before.phase_tick&&story.age==before.age+1&&story.ticks==(uint16_t)(before.ticks+1));
+ CHECK(!memcmp(&current,&story.current,sizeof current)&&!memcmp(&previous,&story.previous,sizeof previous)&&!memcmp(&untouched,&g.save,sizeof untouched));
+ StoryState second_page=story;press(&g,K_B);press(&g,K_DOWN);press(&g,K_A);
+ CHECK(story.phase==ST_FADEIN&&!story.line&&!story.page_start&&!story.page_index&&!story.revealed&&story.page_end==story_text_page_end(story.current.text,0));
+ CHECK(!memcmp(&untouched,&g.save,sizeof untouched));story=second_page;
+ for(int t=0;t<80;t++)tick(&g);
+ CHECK(story.revealed==story.page_end&&story.phase==ST_READING&&!story_completed(&g));
+ press(&g,K_A);CHECK(story.phase==ST_ENDING&&!story_completed(&g));for(int t=0;t<16;t++)tick(&g);
+ CHECK(story.phase==ST_CLEAR&&story_completed(&g)==1&&g.save_requested);
+}
 static void finish(Game*g,int render){
- unsigned observed=~0u,steps=0;uint8_t previous_flags=0;
+ unsigned observed=~0u,observed_page=~0u,steps=0;uint8_t previous_flags=0;
  while(story.phase!=ST_CLEAR){
   CHECK(g->mode==M_DIALOG&&++steps<3000);
   if(story.phase==ST_READING){
@@ -30,12 +87,22 @@ static void finish(Game*g,int render){
     CHECK(story.current.speaker<STORY_SPEAKERS&&story.current.background<STORY_BACKGROUNDS&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
     CHECK(story_pose(&story.current,0)<STORY_POSES&&story_pose(&story.current,1)<STORY_POSES);
     CHECK(story.current.text[story.current.length]==0);
-    CHECK(story_text_lines(story.current.text,226)<=8);
+    expected_pages+=check_pages(&story.current);observed_page=~0u;
     CHECK(!strstr(story.current.text,"Proposed objective")&&!strstr(story.current.text,"IDEA:"));
     if(story.current.stage==ST_FACE&&story.current.speaker==SC_NIA&&story_pose(&story.current,0)==4){if(!extended_roles[0])extended_pose(g,0);extended_roles[0]++;}
     if(story.current.stage==ST_FACE&&story.current.speaker<STORY_PEOPLE&&story.current.companion==SC_NIA&&story_pose(&story.current,1)==4){if(!extended_roles[1])extended_pose(g,1);extended_roles[1]++;}
    }
-   press(g,K_A);if(render)draw(g);
+   CHECK(story.page_start<story.page_end&&story.page_end<=story.current.length&&story.revealed>=story.page_start&&story.revealed<=story.page_end);
+   if(observed_page!=story.page_index){CHECK(observed_page==~0u?story.page_index==0:story.page_index==observed_page+1);observed_page=story.page_index;pages_seen++;}
+   StoryState before=story;Save saved=g->save;press(g,K_A);
+   if(before.revealed<before.page_end){
+    CHECK(story.line==before.line&&story.page_index==before.page_index&&story.revealed==before.page_end&&story.phase==ST_READING);
+   }else if(before.page_end<before.current.length){
+    CHECK(story.line==before.line&&story.phase==ST_READING&&story.phase_tick==before.phase_tick&&story.page_start==before.page_end&&story.page_index==before.page_index+1&&story.revealed==story.page_start);
+    CHECK(story.age==(before.age<65535?before.age+1:65535)&&story.ticks==(uint16_t)(before.ticks+1));
+    CHECK(!memcmp(&before.current,&story.current,sizeof story.current)&&!memcmp(&before.previous,&story.previous,sizeof story.previous)&&!memcmp(&saved,&g->save,sizeof saved));
+   }
+   if(render)draw(g);
   }else{tick(g);if(render&&story.phase_tick==8)draw(g);}
  }
 }
@@ -72,7 +139,7 @@ static unsigned isolated_hash(Game*g){
 }
 static void extended_pose(Game*g,int companion){
  StoryState saved=story;
- story.phase=ST_READING;story.phase_tick=0;story.age=8;story.ticks=0;story.pause=0;story.revealed=story.current.length;
+ story.phase=ST_READING;story.phase_tick=0;story.age=8;story.ticks=0;story.pause=0;story.revealed=story.page_end;
  story.current.focus&=(uint16_t)~STORY_FOCUS_MOVE;
  StoryLine extended=story.current,ordinary=extended;
  ordinary.pose_flags&=(uint8_t)~(companion?0xf0u:0x0fu);
@@ -114,17 +181,20 @@ static void directed_camera(void){
 }
 int main(void){
  screen.before=screen.middle=screen.after=0xabc12345u;
- CHECK(STORY_PORTRAIT_SIZE==168);
+ CHECK(STORY_PORTRAIT_WIDTH==256&&STORY_PORTRAIT_HEIGHT==264);
  CHECK(STORY_POSES>=5&&STORY_POSES<=64&&sizeof(StoryLine)==200&&sizeof(StoryState)==488);
  CHECK(offsetof(StoryLine,length)==6&&offsetof(StoryLine,pose_flags)==7&&offsetof(StoryLine,text)==8);
- uint8_t pixels[512*216];uint16_t palette[256];int w,h;
+ CHECK(offsetof(StoryState,page_start)==485&&offsetof(StoryState,page_end)==486&&offsetof(StoryState,page_index)==487);
+ CHECK(STORY_SCENE_HEIGHT==288&&STORY_DIALOG_Y==96&&STORY_DIALOG_TEXT_X==15&&STORY_DIALOG_TEXT_Y==124&&STORY_DIALOG_ROWS==3&&STORY_DIALOG_LINE_HEIGHT==14);
+ uint8_t pixels[STORY_BACKGROUND_WIDTH*STORY_BACKGROUND_HEIGHT];uint16_t palette[256];int w,h;
  for(int asset=0;asset<STORY_ASSETS;asset++){
-  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<STORY_BACKGROUNDS?512:STORY_PORTRAIT_SIZE)&&h==(asset<STORY_BACKGROUNDS?216:STORY_PORTRAIT_SIZE));
+  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<STORY_BACKGROUNDS?STORY_BACKGROUND_WIDTH:STORY_PORTRAIT_WIDTH)&&h==(asset<STORY_BACKGROUNDS?STORY_BACKGROUND_HEIGHT:STORY_PORTRAIT_HEIGHT));
   unsigned filled=0,empty=0;for(int i=0;i<w*h;i++){filled+=pixels[i]!=0;empty+=pixels[i]==0;}
   if(asset>=STORY_BACKGROUNDS)CHECK(filled>1000&&empty>100&&palette[0]==0);
  }
  CHECK(!story_asset(STORY_ASSETS,pixels,palette,sizeof pixels,&w,&h));CHECK(!story_asset(0,pixels,palette,10,&w,&h));
  compatibility();
+ pagination_rules();
  directed_camera();
  Game g;game_init(&g,123);CHECK(!story_open(&g,0,1));CHECK(story_completed(&g)==0&&g.mode==M_HOME);
  CHECK(story_open(&g,0,0));draw(&g);
@@ -143,7 +213,7 @@ int main(void){
   CHECK(campaign.chapter==(index+1<125?(index+1)/25:4));CHECK(campaign.event==(index+1<125?(index+1)%25:24));
   CHECK(career_journal_open(&g,index/25,0));
  }
- CHECK(lines_seen==STORY_LINES&&extended_roles[0]&&extended_roles[1]);for(int method=0;method<4;method++)CHECK(stages[method]>0);
+ CHECK(lines_seen==STORY_LINES&&pages_seen==expected_pages&&pages_seen>=lines_seen&&extended_roles[0]&&extended_roles[1]);unsigned campaign_pages=pages_seen;for(int method=0;method<4;method++)CHECK(stages[method]>0);
  for(int ch=0;ch<5;ch++)for(int ev=0;ev<25;ev++)CHECK(story_status(&g,ch,ev)==2);
  Save completed=g.save;CHECK(story_open(&g,0,5)&&story.replay);finish(&g,1);CHECK(!memcmp(&completed,&g.save,sizeof completed));press(&g,K_B);CHECK(campaign.chapter==0&&campaign.event==5);
  for(int skin=SKIN_FUSION;skin<SKIN_STORAGE_LIMIT;skin++){
@@ -152,6 +222,6 @@ int main(void){
   CHECK(story_open(&g,4,24));for(int t=0;t<18;t++)tick(&g);press(&g,K_A);draw(&g);press(&g,K_B);draw(&g);press(&g,K_DOWN);press(&g,K_DOWN);press(&g,K_A);draw(&g);
  }
  CHECK(!story_visual_stats[0]);g.mode=M_GARAGE;g.cursor=0;draw(&g);g.mode=M_DRIVE;g.cursor=0;press(&g,K_A);draw(&g);CHECK(g.mode==M_RUN);
- printf("story: %u checks; all 125 scenes / %u lines, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks,(unsigned)STORY_LINES);
+ printf("story: %u checks; all 125 scenes / %u lines / %u dialogue pages, exact font wrapping and text coverage, page reveal/advance rules, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks,(unsigned)STORY_LINES,campaign_pages);
  return 0;
 }

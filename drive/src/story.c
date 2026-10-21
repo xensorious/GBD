@@ -3,6 +3,37 @@
 #include <string.h>
 StoryState story;
 const char*const story_cast_names[STORY_SPEAKERS]={"Nia","Jules","Calder","Imani","Marisol","Kade","Rook","Ren","Aster","Sable","Voss","Mina","Eli","Mrs. Vale","You","Later..."};
+/* Generated from the same font used by gfx_text, without linking the artwork
+ * into progression-only fixtures. Wrapping follows gfx_wrap's word boundaries. */
+static const uint8_t text_advance[96]=STORY_FONT_ADVANCE_INITIALIZER;
+unsigned story_text_advance(unsigned ch){return text_advance[(ch>=32&&ch<=127?ch:'?')-32];}
+static unsigned word_width(const char*text,unsigned*length){
+ unsigned n=0,width=0;while(text[n]&&text[n]!=' '&&text[n]!='\n'){width+=story_text_advance((unsigned char)text[n]);n++;}
+ *length=n;return width;
+}
+int story_text_lines(const char*text,int width){
+ int rows=1;unsigned used=0,pixels=0;
+ while(*text){
+  if(*text=='\n'){if(text[1])rows++;used=pixels=0;text++;continue;}
+  if(*text==' '){if(used){used++;pixels+=story_text_advance(' ');}text++;continue;}
+  unsigned length,word=word_width(text,&length);
+  if(used&&pixels+word>(unsigned)(width>0?width:0)){rows++;used=pixels=0;}
+  used+=length;pixels+=word;text+=length;
+ }
+ return rows;
+}
+unsigned story_text_page_end(const char*text,unsigned start){
+ unsigned at=start,rows=1,used=0,pixels=0;
+ while(text[at]){
+  if(text[at]=='\n'){at++;if(rows==STORY_DIALOG_ROWS)return at;rows++;used=pixels=0;continue;}
+  if(text[at]==' '){if(used){used++;pixels+=story_text_advance(' ');}at++;continue;}
+  unsigned length,word=word_width(text+at,&length);
+  if(used&&pixels+word>STORY_DIALOG_TEXT_WIDTH){if(rows==STORY_DIALOG_ROWS)return at;rows++;used=pixels=0;}
+  used+=length;pixels+=word;at+=length;
+ }
+ return at;
+}
+static void start_pages(void){story.page_start=story.page_index=0;story.page_end=(uint8_t)story_text_page_end(story.current.text,0);story.revealed=0;}
 static int index_of(int ch,int ev){return ch*25+ev;}
 int story_completed(const Game*g){return g->save.reserved[0]<=125?g->save.reserved[0]:0;}
 int story_status(const Game*g,int ch,int ev){int i=index_of(ch,ev),done=story_completed(g);return i<done?2:i==done?1:0;}
@@ -24,7 +55,7 @@ int story_open(Game*g,int ch,int ev){
  uint32_t revision=story.revision+1;memset(&story,0,sizeof story);story.revision=revision;
  story.chapter=(uint8_t)ch;story.event=(uint8_t)ev;story.count=(uint8_t)info[0];story.replay=(uint8_t)(index<story_completed(g));
  if(!story_read(record[0]+4,story.offsets,(unsigned)story.count*4)||!read_line(0,&story.current)){story.failed=1;return 0;}
- story.previous=story.current;story.active=1;story.phase=ST_FADEIN;g->mode=M_DIALOG;g->notice_timer=0;return 1;
+ story.previous=story.current;start_pages();story.active=1;story.phase=ST_FADEIN;g->mode=M_DIALOG;g->notice_timer=0;return 1;
 }
 static void return_map(Game*g,int next){
  int done=story_completed(g);campaign.chapter=story.chapter;campaign.event=story.event;
@@ -33,7 +64,7 @@ static void return_map(Game*g,int next){
 }
 static void advance_line(void){
  StoryLine next;if(!read_line(story.line+1,&next)){story.failed=1;story.pause=1;story.cursor=2;return;}
- story.previous=story.current;story.current=next;story.line++;story.revealed=0;story.age=0;
+ story.previous=story.current;story.current=next;story.line++;start_pages();story.age=0;
  int jump=(int)(story.current.focus&STORY_FOCUS_X)-(int)(story.previous.focus&STORY_FOCUS_X);
  if(story.current.background!=story.previous.background||story.current.stage!=story.previous.stage||
     (!(story.current.focus&STORY_FOCUS_MOVE)&&(jump>64||jump< -64))){story.phase=ST_SHOT;story.phase_tick=0;}
@@ -65,10 +96,14 @@ void story_tick(Game*g,const Input*in){
   }story.revision++;return;
  }
  if(in->pressed&K_A){
-  if(story.revealed<story.current.length)story.revealed=story.current.length;
+  if(story.revealed<story.page_end)story.revealed=story.page_end;
+  else if(story.page_end<story.current.length){
+   story.page_start=story.page_end;story.page_end=(uint8_t)story_text_page_end(story.current.text,story.page_start);
+   story.page_index++;story.revealed=story.page_start;
+  }
   else if(story.line+1<story.count)advance_line();
   else{story.phase=ST_ENDING;story.phase_tick=0;}
   story.revision++;return;
  }
- if(story.revealed<story.current.length){story.revealed=(uint16_t)(story.revealed+2);if(story.revealed>story.current.length)story.revealed=story.current.length;story.revision++;}
+ if(story.revealed<story.page_end){story.revealed=(uint16_t)(story.revealed+2);if(story.revealed>story.page_end)story.revealed=story.page_end;story.revision++;}
 }
