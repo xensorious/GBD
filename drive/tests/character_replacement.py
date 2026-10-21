@@ -13,7 +13,7 @@ import struct
 import sys
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
@@ -44,15 +44,16 @@ def story_digest(scene, backgrounds):
 def components(mask, width):
     remaining = bytearray(bool(value) for value in mask)
     areas = []
+    largest = []
     for seed in range(len(remaining)):
         if not remaining[seed]:
             continue
         remaining[seed] = 0
         todo = [seed]
-        area = 0
+        component = []
         while todo:
             at = todo.pop()
-            area += 1
+            component.append(at)
             x = at % width
             for neighbor in ((at - 1 if x else -1),
                              (at + 1 if x + 1 < width else -1),
@@ -60,8 +61,10 @@ def components(mask, width):
                 if 0 <= neighbor < len(remaining) and remaining[neighbor]:
                     remaining[neighbor] = 0
                     todo.append(neighbor)
-        areas.append(area)
-    return sorted(areas, reverse=True)
+        areas.append(len(component))
+        if len(component) > len(largest):
+            largest = component
+    return sorted(areas, reverse=True), largest
 
 
 def read_assets(data, asset_table, count):
@@ -84,6 +87,7 @@ def source_overrides(catalog):
     assert {spec['pose'] for spec in selected} == set(POSES)
     assert len(specs) == len(selected), 'Replacement overrides must only target Nia'
     result = []
+    alpha_oracles = {}
     for spec in selected:
         source = ROOT / 'art/story' / spec.get('sheet', spec.get('file', ''))
         assert source.is_file(), ('Missing source portrait', source)
@@ -109,11 +113,27 @@ def source_overrides(catalog):
         mask = alpha.point(lambda value: 255 if value >= 96 else 0)
         bounds = mask.getbbox()
         assert bounds and sum(bool(value) for value in mask.tobytes()) > 500, spec
+        areas, figure = components(mask.tobytes(), tile.width)
+        assert len(areas) == 1 or areas[1] <= 32, ('Large disconnected source fragment', spec, areas[:5])
+        # Derive transparency from the approved image's alpha only. Color-key
+        # cleanup must never erase opaque hair, lips, clothing or skin pixels.
+        raw = alpha.tobytes()
+        isolated = bytearray(len(raw))
+        for at in figure:
+            isolated[at] = raw[at]
+        silhouette = Image.frombytes('L', tile.size, bytes(isolated))
+        figure_alpha = ImageOps.contain(silhouette.crop(silhouette.getbbox()),
+                                       (164, 166), Image.Resampling.LANCZOS)
+        native_alpha = Image.new('L', (168, 168))
+        native_alpha.paste(figure_alpha, ((168 - figure_alpha.width) // 2,
+                                        168 - figure_alpha.height))
+        alpha_oracles[spec['pose']] = bytes(value >= 96 for value in native_alpha.tobytes())
         result.append({'pose': spec['pose'], 'source': str(source.relative_to(ROOT)),
                        'sha256': digest(source.read_bytes()), 'crop': box,
                        'crop_sha256': digest(tile.tobytes()),
+                       'source_components': areas[:5],
                        'alpha_bounds': bounds})
-    return result
+    return result, alpha_oracles
 
 
 def main():
@@ -179,6 +199,7 @@ def main():
                 preserved += 1
     nia_ids = [row[0] for row in portrait_map]
     assert len(set(nia_ids)) == len({hashes['NIA.' + pose] for pose in POSES}) == 5
+    sources, alpha_oracles = source_overrides(catalog)
     masks = []
     for pose, portrait_id in zip(POSES, nia_ids):
         asset = assets[len(backgrounds) + portrait_id]
@@ -186,12 +207,16 @@ def main():
         assert asset['palette'][:2] == b'\0\0'
         pixels = asset['pixels']
         assert 100 < pixels.count(0) < len(pixels) - 1000, pose
-        areas = components(pixels, 168)
+        areas, _ = components(pixels, 168)
         assert len(areas) == 1 or areas[1] <= 32, ('Detached portrait fragments', pose, areas[:5])
+        alpha_errors = sum(bool(actual) != bool(expected)
+                           for actual, expected in zip(pixels, alpha_oracles[pose]))
+        assert not alpha_errors, ('Imported alpha differs from approved crop', pose, alpha_errors)
         xs = [at % 168 for at, value in enumerate(pixels) if value]
         ys = [at // 168 for at, value in enumerate(pixels) if value]
         assert min(xs) > 0 and max(xs) < 167 and min(ys) > 0, ('Portrait touches crop edge', pose)
         masks.append({'pose': pose, 'opaque_pixels': len(xs), 'components': areas[:5],
+                      'source_alpha_mismatches': alpha_errors,
                       'bounds': [min(xs), min(ys), max(xs) + 1, max(ys) + 1]})
 
     changed_backgrounds = set()
@@ -228,7 +253,6 @@ def main():
                     occurrences.append({'scene': scene['id'], 'line': line_index, 'role': role,
                                         'portrait': portrait_map[selected][actor], 'flags': flags})
     assert occurrences, 'Fifth Nia pose is not used by any compiled story line'
-    sources = source_overrides(catalog)
     approved = baseline['replacement_source']
     for source in sources:
         expected = approved['crops'][source['pose']]
@@ -238,6 +262,7 @@ def main():
     result = {'baseline_ref': baseline['baseline_ref'], 'archive_sha256': digest(data),
               'portrait_size': 168, 'portraits': 51, 'nia_poses': POSES,
               'all_previous_nia_portraits_replaced': True,
+              'imported_alpha_matches_approved_source': True,
               'other_actor_pose_payloads_preserved': preserved,
               'names_and_story_preserved': True, 'changed_backgrounds': sorted(changed_backgrounds),
               'workshop_family_photo_shots': family_shots,
