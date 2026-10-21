@@ -6,7 +6,7 @@ backgrounds, fourteen named people and 56 transparent portrait records. These
 comprise the existing 51 upper-body portraits re-exported from their original
 sources and five additional full-body Nia poses. Sixty-one scenes have expanded
 writing, and the ending has an additional extension. Sixty-two events visit the new
-settings; all 36 new locations and all 56 portrait records appear in the script.
+settings; all 36 new locations appear in the script.
 Nineteen of the new backgrounds are used in only one event.
 
 Career remains a cutscene prototype. Finishing a scene saves its completion and
@@ -123,7 +123,8 @@ The native campaign suite passes 38,448 sanitizer checks across all 125 scenes,
 advance rules, text fit and screen guards, asset masks, saves, replay, abort
 and camera pause/hold behavior. The archive
 check compares every message, cast, outfit and camera target against the source,
-requires all backgrounds and portraits to be used, and retains the RAM and ITCM
+requires all backgrounds and authored upper-body portrait cues to be used,
+checks the five full-body variants, and retains the RAM and ITCM
 bounds. The 4,387 pixel checks cover the continuous LCD seam, reserved lower
 dialogue area, native actor pixels and cache limits. The archive check also rejects
 large detached atlas fragments in encoded portraits.
