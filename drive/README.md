@@ -60,8 +60,11 @@ target instead of looping sideways. Soft cuts and typewriter text suit the retro
 ROM streams its artwork internally; it needs no external asset files.
 The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
 motel, washrooms, gallery and other places away from the grid. Nineteen new
-locations appear in only one event. Fifty portraits cover fourteen people,
+locations appear in only one event. Fifty-one portraits cover fourteen people,
 with casual clothes, work gear and quieter expressions for the main cast.
+Nia now uses the approved five-pose replacement, including the skeptical,
+palm-up wrench pose. Her childhood photographs with her father match the new
+design; her name, relationships and dialogue are unchanged.
 Speaking portraits are prepared directly at their native 168x168 display size,
 filling the height below the scene header without enlarging a smaller export.
 Only secondary characters and compact dialogue thumbnails are drawn smaller.

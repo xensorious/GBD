@@ -62,7 +62,8 @@
     "DEFAULT",
     "CASUAL",
     "GEAR",
-    "QUIET"
+    "QUIET",
+    "ANNOYED"
   ],
   "sheets": [
     {
@@ -154,6 +155,68 @@
       "people": 4,
       "first": 8,
       "pose": "QUIET"
+    }
+  ],
+  "overrides": [
+    {
+      "character": "NIA",
+      "pose": "DEFAULT",
+      "sheet": "nia-replacement.png",
+      "bounds": [
+        0,
+        0,
+        430,
+        627
+      ],
+      "remove_export_matte": true
+    },
+    {
+      "character": "NIA",
+      "pose": "CASUAL",
+      "sheet": "nia-replacement.png",
+      "bounds": [
+        430,
+        0,
+        836,
+        627
+      ],
+      "remove_export_matte": true
+    },
+    {
+      "character": "NIA",
+      "pose": "GEAR",
+      "sheet": "nia-replacement.png",
+      "bounds": [
+        836,
+        0,
+        1254,
+        627
+      ],
+      "remove_export_matte": true
+    },
+    {
+      "character": "NIA",
+      "pose": "QUIET",
+      "sheet": "nia-replacement.png",
+      "bounds": [
+        0,
+        627,
+        407,
+        1254
+      ],
+      "remove_export_matte": true
+    },
+    {
+      "character": "NIA",
+      "pose": "ANNOYED",
+      "sheet": "nia-replacement.png",
+      "bounds": [
+        400,
+        627,
+        900,
+        1254
+      ],
+      "remove_export_matte": true
     }
   ]
 }

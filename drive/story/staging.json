@@ -276,12 +276,12 @@
     },
     {
       "name": "MEMORIES",
-      "sheet": "inserts.png",
+      "sheet": "nia-family-workshop.png",
       "grid": [
-        3,
-        4
+        1,
+        1
       ],
-      "tile": 8,
+      "tile": 0,
       "subjects": {
         "SIGN": [
           115,
@@ -1013,12 +1013,12 @@
     {
       "name": "LIGHTHOUSE",
       "location": "The lighthouse walk",
-      "sheet": "specials.png",
+      "sheet": "nia-family-lighthouse.png",
       "grid": [
-        2,
-        3
+        1,
+        1
       ],
-      "tile": 3,
+      "tile": 0,
       "subjects": {
         "PHOTO": [
           128,

@@ -9,8 +9,8 @@
 NIA.GEAR: Mind the jack. It rolls toward anything expensive.
 > BENCH PAN KEYS - MOVE
 YOU: Is that why you parked my car beside it?
-> GARAGE FACE DOOR NIA.GEAR HOLD
-NIA.GEAR: Your car? These are the garage keys. The car keys are the small, disappointing ones.
+> GARAGE FACE DOOR NIA.ANNOYED HOLD
+NIA.ANNOYED: Your car? These are the garage keys. The car keys are the small, disappointing ones.
 YOU: You said there was work.
 NIA.GEAR: There is. Sunline needs another pair of hands, and tonight the club needs another driver.
 > MEET FACE CREW MINA,NIA.GEAR HOLD
@@ -69,7 +69,7 @@ MINA.CASUAL: He keeps doing that. Someone should photograph it before he learns 
 YOU: Is this going on a tab?
 ELI.CASUAL: Already paid. Nia doesn't get to decide you're part of a crew and then forget you need feeding.
 NIA.CASUAL: I'm sitting right here.
-> DINER FACE BOOTH NIA.CASUAL,ELI.CASUAL HOLD
+> DINER FACE BOOTH NIA.ANNOYED,ELI.CASUAL HOLD
 ELI.CASUAL: Good. Your soup's getting cold too.
 YOU: Is every person in Saltblock allowed to tell you what to do?
 NIA.CASUAL: Only the ones who remember me shorter than the counter. That leaves you several years to practice.
@@ -336,7 +336,7 @@ JULES: Lantern Mile. Later nights, better food, worse parking.
 NIA: The garage still needs an answer about the lease.
 > GARAGE FACE DOOR NIA HOLD
 YOU: What's ours?
-> MEMORIES PAN CHAIRS - MOVE
+> MEMORIES PAN SIGN - MOVE
 NIA: We're staying. Now help me put another chair by the door.
 
 @ C01 MARINA FACE HARBOR MARISOL,JULES HOLD

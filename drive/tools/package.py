@@ -34,7 +34,7 @@ assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed']
 story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
 assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==manifest['dialogue_lines'] and story_assets['portrait_alpha_masks_valid']
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
-assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==50
+assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==51
 assert story_assets['one_event_new_backgrounds']>=19 and story_assets['new_place_events']>=62 and story_assets['all_portraits_used']
 assert story_assets['no_large_atlas_fragments']
 assert story_assets['authored_shots']==sum(len(e['shots']) for e in manifest['events'])
@@ -247,7 +247,7 @@ for i,place in enumerate(places):
 sheet.save(DIST/'Story-Locations.png')
 portrait_size=manifest['portrait_size'];portrait_row=portrait_size+26
 sheet=Image.new('RGB',(8*portrait_size,24+((manifest['portraits']+7)//8)*portrait_row),'#142b36');draw=ImageDraw.Draw(sheet)
-draw.text((8,5),'INDEXED CHARACTER ART / 50 transparent portraits / not emulator screenshots',font=font,fill='white');seen=set()
+draw.text((8,5),f"INDEXED CHARACTER ART / {manifest['portraits']} transparent portraits / not emulator screenshots",font=font,fill='white');seen=set()
 for pose,row in enumerate(manifest['portrait_map']):
     for person,portrait in enumerate(row):
         if portrait in seen:continue

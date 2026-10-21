@@ -2,9 +2,9 @@
 
 The campaign still has 125 event nodes and the same saved completion record.
 This edition contains 923 messages, 54 panoramic backgrounds, fourteen named
-people and fifty transparent portraits. Sixty-one scenes have expanded writing,
+people and fifty-one transparent portraits. Sixty-one scenes have expanded writing,
 and the ending has an additional extension. Sixty-two events visit the new
-settings; all 36 new backgrounds and all 50 portraits appear in the script.
+settings; all 36 new backgrounds and all 51 portraits appear in the script.
 Nineteen of the new backgrounds are used in only one event.
 
 Career remains a cutscene prototype. Finishing a scene saves its completion and
@@ -75,19 +75,29 @@ moves ease toward the named object and hold; there is no idle side-to-side loop
 or speaker-number offset. Face conversations, directed inserts, radio and
 letterboxed narrative shots remain mixed throughout the story.
 
-The twelve principal characters have their original portraits plus casual,
-work/race-day and reflective variants. Eli and Vale have their own original
-portraits. Reflective variants retain the casual wardrobe, so a change of
+The twelve principal characters have default, casual, work/race-day and
+reflective variants. Nia's five approved replacement poses also include a
+skeptical, palm-up wrench expression. Eli and Vale retain their own portraits.
+Reflective variants retain each character's casual wardrobe, so a change of
 expression does not also remove a racing suit in the same conversation. Image
 extraction isolates the intended actor before normalization and indexed-color
 conversion; stray pieces of adjacent atlas portraits must not appear above a
 head or beside a shoulder.
 
 All art is inside the ROM. Only two background buffers and two portrait buffers
-are available to the scene at a time, sharing the same 256,000-byte scratch
-lease as before. Additional paintings do not enlarge those buffers. Outfit and
-expression choices use spare shot-record bits; the story runtime state and
+are available to the scene at a time. Native 168x168 speaking portraits and
+512x216 backgrounds require 279,680 bytes of the existing 300 KiB driving
+scratch lease. Additional paintings do not enlarge those buffers. Extended
+expression choices share the eight-byte message header, using the previously
+zero high byte of the short text length; the story runtime state and
 8 KiB, three-profile EEPROM format stay unchanged.
+
+Nia's unnamed father is her only established blood relative. The family photo
+in the workshop and the keepsake at the lighthouse now depict the same
+dark-haired father and fully clothed younger Nia. The D25 workshop insert pans
+to the sign and family photo. Calder remains her father's friend; no other
+named cast member is a parent, sibling or romantic partner. The replacement
+changes no dialogue or heritage references; none specify her appearance.
 
 ## Verification
 

@@ -19,26 +19,60 @@ def isolate_portrait(tile):
  clean=bytearray(w*h)
  for p in largest:clean[p]=raw[p]
  tile.putalpha(Image.frombytes('L',(w,h),bytes(clean)));return tile
+
+def remove_export_matte(tile):
+ """Discard saturated red/yellow export fringe before silhouette extraction.
+
+ This is opt-in for the approved replacement atlas, not a color correction for
+ skin, tattoos, clothing or the other actors. These chroma-key edge pixels are
+ outside the artwork and can otherwise survive the normal alpha cutoff.
+ """
+ pixels=[]
+ for r,g,b,a in zip(*[iter(tile.tobytes())]*4):
+  red=r>220 and g<60 and b<60
+  yellow=r>220 and g>220 and b<60
+  pixels.append((r,g,b,0 if red or yellow else a))
+ tile.putdata(pixels)
+ return tile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'build/nitro';OUT.mkdir(parents=True,exist_ok=True)
 portrait_size=int(CATALOG['portrait_size'])
 assert portrait_size==192-24, 'Portraits fill the screen below the scene header'
 backgrounds,scenes=load_story(ROOT)
 nbg=len(backgrounds)
-assets=[];portraits=[];portrait_map=[[None]*len(PEOPLE) for _ in POSES]
+assert 0<len(POSES)<=64
+assets=[];portraits=[];sources=[[None]*len(PEOPLE) for _ in POSES]
 for spec in CATALOG['sheets']:
  for n in range(spec['people']):
-  portrait_map[POSES.index(spec['pose'])][spec['first']+n]=len(portraits)
-  portraits.append({'sheet':spec['file'],'grid':spec['grid'],'tile':n})
-for row in portrait_map:
+  sources[POSES.index(spec['pose'])][spec['first']+n]={'sheet':spec['file'],'grid':spec['grid'],'tile':n}
+for spec in CATALOG.get('overrides',[]):
+ actor=PEOPLE.index(spec['character']);pose=POSES.index(spec['pose'])
+ sources[pose][actor]={k:v for k,v in spec.items() if k not in ('character','pose')}
+for row in sources:
  for i,value in enumerate(row):
-  if value is None:row[i]=portrait_map[0][i]
-assert all(all(v is not None for v in row) for row in portrait_map)
+  if value is None:row[i]=sources[0][i]
+assert all(all(v is not None for v in row) for row in sources)
+# Resolve overrides before assigning IDs: replaced portraits consume no archive
+# records, and unprovided expressions share each actor's existing default.
+portrait_map=[];source_ids={}
+for row in sources:
+ ids=[]
+ for spec in row:
+  key=json.dumps(spec,sort_keys=True)
+  if key not in source_ids:
+   source_ids[key]=len(portraits);portraits.append(spec)
+  ids.append(source_ids[key])
+ portrait_map.append(ids)
 for idx,spec in enumerate(backgrounds+portraits):
- sheet=Image.open(ROOT/'art/story'/spec['sheet']).convert('RGB' if idx<nbg else 'RGBA');cols,rows=spec['grid'];n=spec['tile']
- box=(round(n%cols*sheet.width/cols),round(n//cols*sheet.height/rows),round((n%cols+1)*sheet.width/cols),round((n//cols+1)*sheet.height/rows))
+ sheet=Image.open(ROOT/'art/story'/spec['sheet']).convert('RGB' if idx<nbg else 'RGBA')
+ if 'bounds' in spec:box=tuple(spec['bounds'])
+ else:
+  cols,rows=spec['grid'];n=spec['tile']
+  box=(round(n%cols*sheet.width/cols),round(n//cols*sheet.height/rows),round((n%cols+1)*sheet.width/cols),round((n//cols+1)*sheet.height/rows))
+ assert 0<=box[0]<box[2]<=sheet.width and 0<=box[1]<box[3]<=sheet.height,(spec,box,sheet.size)
  tile=sheet.crop(box)
  if idx<nbg:tile=tile.resize((512,216),Image.Resampling.LANCZOS)
  else:
+  if spec.get('remove_export_matte'):tile=remove_export_matte(tile)
   tile=isolate_portrait(tile)
   # Prepare the final speaking size directly from the original source. Runtime
   # draws this canvas 1:1; only secondary actors and small UI portraits shrink.
@@ -62,8 +96,9 @@ for index,scene in enumerate(scenes):
  start=len(data);data.extend(b'\0'*(4+4*len(lines)));struct.pack_into('<HH',data,start,len(lines),0)
  for n,l in enumerate(lines):
   offset=len(data);struct.pack_into('<I',data,start+4+n*4,offset)
-  text=l['text'].encode('ascii');focus=l['focus']|(0x8000 if l['move'] else 0)|(0x4000 if l['caption_right'] else 0)|(l['pose']<<9)|(l['companion_pose']<<11)
-  data.extend(struct.pack('<BBBBHH',l['speaker'],l['companion'],l['stage'],l['background'],focus,len(text))+text)
+  text=l['text'].encode('ascii');focus=l['focus']|(0x8000 if l['move'] else 0)|(0x4000 if l['caption_right'] else 0)|((l['pose']&3)<<9)|((l['companion_pose']&3)<<11)
+  pose_flags=(l['pose']>>2)|((l['companion_pose']>>2)<<4)
+  data.extend(struct.pack('<BBBBHBB',l['speaker'],l['companion'],l['stage'],l['background'],focus,len(text),pose_flags)+text)
  struct.pack_into('<IHHI',data,event_table+index*12,start,len(data)-start,len(lines),0)
 for idx,(w,h,payload) in enumerate(assets):
  while len(data)%512:data.append(0)
