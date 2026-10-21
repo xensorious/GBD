@@ -1,0 +1,3715 @@
+{
+  "build": "Coastline continuous-story preview",
+  "source_revision": "0d1e39860c743afbc15029a585f65d622c2af688",
+  "rom": {
+    "filename": "Coastline.nds",
+    "bytes": 15055360,
+    "sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15"
+  },
+  "layout": {
+    "lcd_width": 256,
+    "lcd_height": 192,
+    "continuous_scene_height": 288,
+    "dialogue_height": 96,
+    "dialogue_rows": 3,
+    "portrait_canvas": [
+      256,
+      264
+    ]
+  },
+  "screenshots": {
+    "Close-Scene.png": {
+      "bytes": 88452,
+      "sha256": "c60bdcf5100f534c2b2a27220962f49af5544d4c3ddaff0cdd1280374586842c",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    },
+    "Dialogue-Page-1.png": {
+      "bytes": 88790,
+      "sha256": "3e9a43390f975f720d3406e7025239eb42619048dd7e2385701f2172581eebc5",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    },
+    "Dialogue-Page-2.png": {
+      "bytes": 84052,
+      "sha256": "1fde6d27604ab4ecf9134f6ea82b1ce5119f9ba9a105e3889666e4cd11cee6a9",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    },
+    "Nia-Full-Body.png": {
+      "bytes": 101975,
+      "sha256": "a68461c3390e252b911784c41f9965b2e525674fd310577d58897d19cd05dbd7",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    },
+    "Nia-Kitchen.png": {
+      "bytes": 90825,
+      "sha256": "56a078733f301554aaf4c2886452c2fe74938515c6e09a9bfb3e53344e4801e5",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    },
+    "Nia-Quiet.png": {
+      "bytes": 91701,
+      "sha256": "74073dd42bab5b24359a654232be6ca8a01f405f7c0eb33a8674bd3db6be2579",
+      "dimensions": [
+        256,
+        384
+      ],
+      "kind": "unscaled actual DeSmuME dual-LCD capture"
+    }
+  },
+  "scope": {
+    "new_character_art": "Nia only; five full-body poses",
+    "new_standing_backgrounds": 8,
+    "saved_story_and_relationships_preserved": true,
+    "touch_controls": false,
+    "save_format_unchanged": true
+  },
+  "limits": [
+    "Focused story preview, not the official full-driving release matrix.",
+    "Five scenes emulated; all 125 traversed in the sanitized native campaign.",
+    "Later-scene battery fixtures are manufactured review data, not earned progression.",
+    "No physical DS, phone or Delta execution test."
+  ],
+  "reports": {
+    "campaign-native-results.json": {
+      "sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+      "checks": 38448,
+      "sanitizers_passed": true,
+      "all_scenes": 125,
+      "dialogue_lines": 923,
+      "result": "story: 38448 checks; all 125 scenes / 923 lines / 929 dialogue pages, exact font wrapping and text coverage, page reveal/advance rules, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
+    },
+    "native-portrait-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 15055360,
+        "sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2148664
+          },
+          "arm7": {
+            "offset": 2165248,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "native_speaking_pixels": true,
+      "reduced_secondary_pixels": true,
+      "clipping_opacity_lighting": true,
+      "continuous_lcd_seam": true,
+      "lower_96_ui_rows_reserved": true,
+      "sanitizers_passed": true,
+      "background_cache_slots": 1,
+      "actor_cache_slots": 2,
+      "shared_scratch_bytes": 307200,
+      "required_scratch_bytes": 302592,
+      "result": "dialogue pixels: 4387 checks; rectangular native 1:1 pixels, depth reductions, clipping, opacity, lighting, continuous LCD seam, reserved lower UI and one-background/two-actor cache isolation pass"
+    },
+    "story-assets-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 15055360,
+        "sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2148664
+          },
+          "arm7": {
+            "offset": 2165248,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "archive_matches_nitrofs": true,
+      "archive_bytes": 12873728,
+      "scenes": 125,
+      "lines": 923,
+      "backgrounds": 54,
+      "people": 14,
+      "portraits": 56,
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "background_width": 512,
+      "background_height": 324,
+      "all_authored_upper_body_portraits_used": true,
+      "fullbody_portraits": 5,
+      "fullbody_backgrounds": [
+        "DINER",
+        "EPILOGUE",
+        "GARAGE",
+        "GREENHOUSE",
+        "MEET",
+        "NIA_KITCHEN",
+        "NIGHTGARAGE",
+        "ROOFTOP"
+      ],
+      "fullbody_occurrences": [
+        {
+          "event": "D01",
+          "line": 2,
+          "role": "lead",
+          "portrait": 55
+        },
+        {
+          "event": "D01",
+          "line": 3,
+          "role": "companion",
+          "portrait": 55
+        },
+        {
+          "event": "D01",
+          "line": 4,
+          "role": "lead",
+          "portrait": 53
+        },
+        {
+          "event": "D01",
+          "line": 7,
+          "role": "lead",
+          "portrait": 53
+        },
+        {
+          "event": "D03",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D04",
+          "line": 0,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "D04",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D04",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "D04",
+          "line": 5,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "D04",
+          "line": 6,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "D04",
+          "line": 7,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "D05",
+          "line": 2,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D05",
+          "line": 9,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D06",
+          "line": 8,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "D07",
+          "line": 2,
+          "role": "companion",
+          "portrait": 51
+        },
+        {
+          "event": "D07",
+          "line": 3,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "D09",
+          "line": 0,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D09",
+          "line": 1,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "D09",
+          "line": 2,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D09",
+          "line": 6,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "D09",
+          "line": 7,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "D09",
+          "line": 8,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "D09",
+          "line": 9,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "D09",
+          "line": 10,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D14",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D14",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "D14",
+          "line": 6,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D14",
+          "line": 8,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D19",
+          "line": 3,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "D21",
+          "line": 0,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D21",
+          "line": 3,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D21",
+          "line": 7,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "D21",
+          "line": 8,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "D25",
+          "line": 1,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "D25",
+          "line": 2,
+          "role": "companion",
+          "portrait": 51
+        },
+        {
+          "event": "D25",
+          "line": 7,
+          "role": "companion",
+          "portrait": 51
+        },
+        {
+          "event": "C09",
+          "line": 0,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 3,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 7,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 8,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "C09",
+          "line": 9,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C14",
+          "line": 3,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "C24",
+          "line": 0,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "C24",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C24",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "C24",
+          "line": 5,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "C24",
+          "line": 6,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "C24",
+          "line": 7,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "C24",
+          "line": 8,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "C24",
+          "line": 9,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "B02",
+          "line": 7,
+          "role": "companion",
+          "portrait": 51
+        },
+        {
+          "event": "B02",
+          "line": 8,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "B03",
+          "line": 1,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "B03",
+          "line": 2,
+          "role": "companion",
+          "portrait": 51
+        },
+        {
+          "event": "B03",
+          "line": 3,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "B15",
+          "line": 5,
+          "role": "lead",
+          "portrait": 51
+        },
+        {
+          "event": "B24",
+          "line": 1,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "B24",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "B24",
+          "line": 6,
+          "role": "companion",
+          "portrait": 54
+        },
+        {
+          "event": "B24",
+          "line": 7,
+          "role": "lead",
+          "portrait": 52
+        },
+        {
+          "event": "S23",
+          "line": 1,
+          "role": "lead",
+          "portrait": 54
+        },
+        {
+          "event": "S23",
+          "line": 2,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "S23",
+          "line": 7,
+          "role": "companion",
+          "portrait": 52
+        },
+        {
+          "event": "S23",
+          "line": 9,
+          "role": "lead",
+          "portrait": 52
+        }
+      ],
+      "no_large_atlas_fragments": true,
+      "one_event_new_backgrounds": 19,
+      "new_place_events": 62,
+      "authored_shots": 393,
+      "compiled_directions_match_source": true,
+      "subjects_in_final_frame": true,
+      "shot_local_companions": true,
+      "longest_line": 143,
+      "methods": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "all_character_sprites": true,
+      "portrait_alpha_masks_valid": true,
+      "resident_end": "0x2379798",
+      "resident_headroom_bytes": 26728,
+      "itcm_headroom_bytes": 488,
+      "shared_scratch_bytes": 307200,
+      "story_scratch_required_bytes": 302592,
+      "background_cache_slots": 1,
+      "actor_cache_slots": 2,
+      "art": [
+        {
+          "id": 0,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "00a5496911cf6c4af29d65a1fdba4a31a348c8c71479a2fa53add1ccd0d8855a"
+        },
+        {
+          "id": 1,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "21a4f88a72ca1085bcfb410fbd45a09a1b7ba6f7f6e10e7c4622e15fd48596af"
+        },
+        {
+          "id": 2,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c456f5703899c3426e9f8f9a394552edd1e347ff10ad2067572800fe651b31f7"
+        },
+        {
+          "id": 3,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "a7d77aab0f0383ca68e3c6f0a972483960e8a024fb0448536a18d9d872bdc908"
+        },
+        {
+          "id": 4,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b066ffaa2db59605e79992e73212b6ff3f6185afb49e9204540f02ec984fdd12"
+        },
+        {
+          "id": 5,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d269f08435b70713e91d7ee0d9562ccfcfbbec065a1f8f35aa4b1b1c8e085580"
+        },
+        {
+          "id": 6,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "63e72a8be5f9d60c065b27823f985bd802d8337b6bdf753274d5c50adecc7f59"
+        },
+        {
+          "id": 7,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c98eda189568a423f8a9a6df2fd8e69dfe473f7a59ceca0ca0be7eb9f3bf5c25"
+        },
+        {
+          "id": 8,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "edceb451f14741804629bc7f40dc8dc19521962c682a4b396a079303b541c00d"
+        },
+        {
+          "id": 9,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b2965f6046268553e009ffd9cb1492c7c9eb8c6d58206a8b5a86e241606926e4"
+        },
+        {
+          "id": 10,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e8bb7732758681ad37afdbf0fc27aff7442e22fb256508f08f0ff34a9711a8a0"
+        },
+        {
+          "id": 11,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6be3c29dab1b131bf8f5e807abafee9176c3d20112cc9a2f8e5d4fcf26c0f8c7"
+        },
+        {
+          "id": 12,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "361d87cf6c869a2e4ff7cc39e0e27eea9643be80589bf49166401b6107c4598f"
+        },
+        {
+          "id": 13,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "759d0f8579dd5ebb3580defb3e19e77548348aeab344b1944ef0ae4aed610f47"
+        },
+        {
+          "id": 14,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "efa658b00aca6e4e9cf3809d647b3d5b7d44b3d71ffa00bec074bdc3146189ce"
+        },
+        {
+          "id": 15,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "a66de5a8b9e1831f1233f157f439b8dbb96f9e53eb0f6679e1d82d86a7bb2260"
+        },
+        {
+          "id": 16,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6d0fb924b947eb6623bfccd07be3ed17120a23ccf1b056232e3ebe465f07828f"
+        },
+        {
+          "id": 17,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "2d709f8ebb78d1cbc50b9a59fef3a76ecb5cbd933c051a033be8e36d7544423e"
+        },
+        {
+          "id": 18,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "f2059ac179fb6e1eb73b01ed658a6cfa845dd3e86a69dd622834c849974daab3"
+        },
+        {
+          "id": 19,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "92ef9ad217d4e8ad8c72e76c5f62584fc796bd8ca3769481113c9070d2b4aaf5"
+        },
+        {
+          "id": 20,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "5370a4ffe1a07bee9723713c76c2e2d778ec95bfbad52465306029d3b6336e52"
+        },
+        {
+          "id": 21,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "ea2955a496b86852a87b5b96008b0f926cda5f01de8bb245a5b6be8b652c16fb"
+        },
+        {
+          "id": 22,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "9d3a959e8097466b7db748b74847bd34bbad37e9d8f33cbd0464e380f1c92d04"
+        },
+        {
+          "id": 23,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e716aa6ab1e6e9eb47b045ccc8566322021265f7c3612be1475764b6d619a7de"
+        },
+        {
+          "id": 24,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d8d973bf73b35ff3d6e8ffb54f4d98f80652c87d938598db9fd16a195399c87b"
+        },
+        {
+          "id": 25,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "44e4275674d27785b7468eebee98716fe12468839aa22bf5e045d8037baa3990"
+        },
+        {
+          "id": 26,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "220547c956766a7b2a0353a0af9fc8e938c11165ef17617088abe681a3efc8fd"
+        },
+        {
+          "id": 27,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b99ebe4f446d1e1d40980dc5af18174819c360e440cf7f0026a90f696f710362"
+        },
+        {
+          "id": 28,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "ebca1482b1c03d164cad0714661b2d1269de89d5202513a69882050adf5f7b4a"
+        },
+        {
+          "id": 29,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "326223372b5fda9af25955e88c025a81dfa050c64f9d23b9ebc9f1efc021c699"
+        },
+        {
+          "id": 30,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "0d62e5bddb23b3ee231cb9d0808b04cf5f0a210fc2be030259c7bd41d02b3fed"
+        },
+        {
+          "id": 31,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b06e3af025a42c9ab4e3a0e307e4e4e0cbd52249d7317260cebed70280ecb243"
+        },
+        {
+          "id": 32,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b9792edaaef36e8e019582ce3399831da3a450c5b6642d103f23a5a89f36f210"
+        },
+        {
+          "id": 33,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "fc1fa245b6e7c71b6741a9aa534a7d789be640b1d00d5d5a233efe88f9eff082"
+        },
+        {
+          "id": 34,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c14b6da0254bc10793cf472b6e2f172568bab2a4da5d486dd1da248b52888d5c"
+        },
+        {
+          "id": 35,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "0a4f25ed9a83063f60f9fce0f092bee53fc912773b15f3821584c06c08467b0d"
+        },
+        {
+          "id": 36,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "386203d4f0613da37ba319383244deda16414476d8072182a8e05378008ceadb"
+        },
+        {
+          "id": 37,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "1f6f45afd8bca914bb78f7a551ad5961d99f2424db0b095beccab77c002a1934"
+        },
+        {
+          "id": 38,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "2f9f0c17ab35662c3a4806bbf5a102d5a58c1a14023572d5f33367867088af26"
+        },
+        {
+          "id": 39,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "32c4f5f1a7c23472a3b065cd2745fc400154ff54492bd41320227e32ba157e9d"
+        },
+        {
+          "id": 40,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "fbb9a9fae0666491e5453e25748039b211c22485afbf61bce117bcbce448cfe4"
+        },
+        {
+          "id": 41,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "afed89364da8e851b60eef14865592ba4fccdef30b1fe19642b3d33d533b5322"
+        },
+        {
+          "id": 42,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "13f620e670bff846556fccd21dc200b3aaaa070e254a8157489fd79a73bf52c4"
+        },
+        {
+          "id": 43,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c0d8cab1a0c61f3e37fa6b0bdd02a12c49a089c8bd4283d1fd22bd9b7994a1d0"
+        },
+        {
+          "id": 44,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "f0cc991fe29207ecf6bfe26d78e43a9ce0f54f67a3fe0d9d09cb97330ed8652e"
+        },
+        {
+          "id": 45,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7e8ce23883aab2640b55be4da21217e383b60cc0ea929655f33a97281bb95efb"
+        },
+        {
+          "id": 46,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7c2ec9c462cc0b1c3aadfb3017b63b6f9854013797c3fc25e505a8ccf964c8b2"
+        },
+        {
+          "id": 47,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d7ac24077e50f447782efd3dff01f79d38b9a6b7699e64259253658ca68f036a"
+        },
+        {
+          "id": 48,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "cd710d7411493aa554f750814d37cc8c00a019009c41fc5dc6c8eee8a0c138f6"
+        },
+        {
+          "id": 49,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "4960903dd18c703ae2452f63bfadc708203fae874266e8c31248f65491b628db"
+        },
+        {
+          "id": 50,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7433ad5fe67adcc69aea220d8ee3ada22ec5abd2c253cc55fd0cab25b7ce2644"
+        },
+        {
+          "id": 51,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6cac3f10b062ac80ef3b5b3efd7835b7af699b7d2c30735132fb623cf1ac8f97"
+        },
+        {
+          "id": 52,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d4eee44f60e2797a17eeba6b064b1dfb94610fe14b6bf1a69ff18e79392144fd"
+        },
+        {
+          "id": 53,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e258a02cd337a2d0c93dfc08b41071be41425ee5c99cffbfb92533b92fa103da"
+        },
+        {
+          "id": 54,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "10cb517c37d50c0b82f8eca52c5cad3a881062ac32d388c32eb671f4127c8b39"
+        },
+        {
+          "id": 55,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8f0ab08c9eea5cfb0a494cb178f7054ce903c57e779dc7e845c27135d68153dc"
+        },
+        {
+          "id": 56,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b1282fd9a83635b472f9f17f506bdd8575434b40f37ba19e1e8660c2b7404185"
+        },
+        {
+          "id": 57,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "526cc9dd76cbb5a7bfb0b553b172376b774c991b5e5b4fecadb32e86f37752fd"
+        },
+        {
+          "id": 58,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "93b1ed00e31c95cb5b5b7ec032b08ffec3473ba688c4693162c0f431fa14d3aa"
+        },
+        {
+          "id": 59,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "53a60ee88325748db9794e4043b7cde8572aa884d0fc9f10794cdc584e4f75a0"
+        },
+        {
+          "id": 60,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "f62c0ac143a00ec8b291bfd003d70d4962d6185b46f57a6f5a51b42a409a2338"
+        },
+        {
+          "id": 61,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "1634c725d6c9d73e239b57e3df8effad6a4c91430123762b45a6ae674f43b7ab"
+        },
+        {
+          "id": 62,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "c5444862d50e2e222a0984d443ce8c603e122a34b8edc256592eb9294cb63b4e"
+        },
+        {
+          "id": 63,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "c88d76c69278854ee6e90ebcdcb2154d7c335054791744090fa475d54e597d68"
+        },
+        {
+          "id": 64,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a4a936900735a1696f126f2f0af5e726e49b416322ba019b18f7a4641bd0902c"
+        },
+        {
+          "id": 65,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "1dffbf9e45a19bcd135025cf31142e2541b1fede0632f5e7edb5769f74b4a2b4"
+        },
+        {
+          "id": 66,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8d6d41668f1fc6b7964de747660212ed4bcc216d062f8a5b59bf67f5f9a73b3b"
+        },
+        {
+          "id": 67,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b031dcd27f4e925c04931e278e1f9bcf2bda9ffc318642435ce72ce45e293705"
+        },
+        {
+          "id": 68,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0751d683c9dd8c765a507164f9d16a568873f03e9101ac347a42052dea2f0579"
+        },
+        {
+          "id": 69,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "460222cdfdfb095809a440672b86b5b0925cb29bcb3afcd6850500306a721099"
+        },
+        {
+          "id": 70,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "5024871826b806c1aed446a4122699dd1cfe83fef418e4b668d81a0b8d9d7fa3"
+        },
+        {
+          "id": 71,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "f9f2fc07ae642a17dc222818fa280bb420b923e14f3f86dae8ce25a5a2e91cac"
+        },
+        {
+          "id": 72,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "58aca7e2f6170d9e9a7bd1cf3dc7fdfc0329ca714e8f8a3afd479ef9afeb38c2"
+        },
+        {
+          "id": 73,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8e7c788378cf13ade6741866ac2b50d05ecf304b9e1b665ce69422a73134b1fe"
+        },
+        {
+          "id": 74,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "f771d01cd1581066d14a7befdf8c7037dcc75ef185e789b26f0c3fac12677563"
+        },
+        {
+          "id": 75,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "55a8eeab407d3be8d5f2e507fec0b843c08c8c8a4e257ce83c6dd1afac02c7c5"
+        },
+        {
+          "id": 76,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "bb352c97057e649bc2af7787f196a0e3b0c0725d8744f9559347f4c5b53a48f4"
+        },
+        {
+          "id": 77,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4f19b7c80b007cc47eecc1346aadfbd2896d420b87c1eb10a1603e463e987af0"
+        },
+        {
+          "id": 78,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "68c3015806453e3710318c95e265f036c22e078f541bb3f852fe76c2bcd6e240"
+        },
+        {
+          "id": 79,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "aa9c3a266b13c66846053d3644296f77efc53cc4ffc567bb09c62cdb5500b35a"
+        },
+        {
+          "id": 80,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "7ea3b5c10d9b93583451af6f3a5d2a40f5f6ed3c526717d66c8ffa6531c687f3"
+        },
+        {
+          "id": 81,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a6392c9536eafa6c459de8b21d9aa6d9b9346c4e755f669db0a97f5ed3adc06a"
+        },
+        {
+          "id": 82,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "fd5784b6bbeaf079f8d8aafaed35e0740f40d8478cd0feefbf3ace8b1d7a79ed"
+        },
+        {
+          "id": 83,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8f63bd03081364c9328a086094789a700343b5309dc2f99dc320d0b2eef888be"
+        },
+        {
+          "id": 84,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "9089622cf308d64e1dc618f931c0bd06faa69e8cee8dfe407350dc0d6c812687"
+        },
+        {
+          "id": 85,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a60797e38f09d8c6c65ed583981bf0c0415be442e38698ae123d962b74dde934"
+        },
+        {
+          "id": 86,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4f2bac99f1affbf9d46eb6e3d1072ca156b096770ab811ad238ccded7a0e389d"
+        },
+        {
+          "id": 87,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "7caea560ddb1a0d50aefb33d6c95e26990386b8f015bcd7d695bb8a198b74c22"
+        },
+        {
+          "id": 88,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b9abf5c891ced8b87ba47a0ad9710d4ebb4c5c24e7cda658792ebc558d217189"
+        },
+        {
+          "id": 89,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "61852bd5b04862b86b833c2047ab78afede10276b5789ab30d157bccbb388106"
+        },
+        {
+          "id": 90,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b8081d9a010ea58c9f9319b4649b977b3c408f4b5a2a99fb6962d9771e8a2476"
+        },
+        {
+          "id": 91,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "25d1bb115da90cc12089f0e5c85a5399d8f02c068e65e663a16d300d1ca83476"
+        },
+        {
+          "id": 92,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "54c1b50e538db97396d493eff7dc86a54a6f71045849866d132c166cb2418717"
+        },
+        {
+          "id": 93,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "12da4c49811400cd20cf518f3bcbbf1deb4a266d6f8d4df88441feaa7fe27d5f"
+        },
+        {
+          "id": 94,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "875a3da61f37a91ee27610b5b00fa10effb042240bd2031509fdcbe13b305d1f"
+        },
+        {
+          "id": 95,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "004a5cabb9a40c124ff7faeb22a2d41b117ec261ede6df8883cdde0cb516b3b9"
+        },
+        {
+          "id": 96,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "1d593d2a8703efad2c0ad96b7d5dd0af080f24169ebcd3ba2cf26dcc821a526b"
+        },
+        {
+          "id": 97,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0d03e1e0e2248174b305d9724c9bf43d61c44ff3e1a7429c8a3c27dca9e87159"
+        },
+        {
+          "id": 98,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "06b312167ecc77092e7d640aa0883f2c59a3baa2fbfeedb08d6ed239eef03024"
+        },
+        {
+          "id": 99,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "9682d4fdb4d69efa22005c5f56711ed3fcee9530dc6da031640251f440b246c1"
+        },
+        {
+          "id": 100,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "308ffa3035b04605ed8560ec955a55b23bf2af52e92169dbbea80c68318da392"
+        },
+        {
+          "id": 101,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "ab892b5ab26d8f70684cbcf7fe4dc0b81652445229438f7dff2f902173dbd1b3"
+        },
+        {
+          "id": 102,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "78da5e2206fb9131da13f2a99b22674e671856a72f2c85a27133fd3b4f0fcdeb"
+        },
+        {
+          "id": 103,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "913e246746ad2b7752324e18648a57a6f2fa14c15ae2dbb0b91fb4870fe60247"
+        },
+        {
+          "id": 104,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "577c68eaabf26179d1a39b55b424876c98f69d6bf78efe3e3c9cb3b7d3d5df8a"
+        },
+        {
+          "id": 105,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "083e7d102e2a67debc285f6c32d4d295c9fbea11bb608b5ecc05fa9d09823e22"
+        },
+        {
+          "id": 106,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2075baee2baba52ef10637b99b0b93c902ef55563e63dbc55ac5fafac0594afb"
+        },
+        {
+          "id": 107,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "ccf70e854df1308140ed95835739c140c7a5474837e677a0f1830fcbb0f2ed7c"
+        },
+        {
+          "id": 108,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "d4eb13e2b6f00d79b3b9f193ed2a74156dd1676901566db642ab03a8eae65538"
+        },
+        {
+          "id": 109,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4d69f3fba205be34b44de56aea6b09237354834362e33637ab07bfaf55c831a6"
+        }
+      ],
+      "pose_count": 5,
+      "extended_pose_lead_lines": 1,
+      "extended_pose_companion_lines": 1,
+      "all_portraits_used": true
+    },
+    "character-replacement-results.json": {
+      "baseline_ref": "65b963f794ac405bf06f36420a2ae6ce27a1a45a",
+      "archive_sha256": "fa9eef590ec49aed4fd8dabe439370cd3016f4f0fd80e5513fb647abf3a439ea",
+      "source_preservation_ref": "b4a95c8d16ddfd9c15530efdb0398693139913e4",
+      "portrait_size": 256,
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "portraits": 56,
+      "ordinary_portraits": 51,
+      "fullbody_portraits": 5,
+      "nia_poses": [
+        "DEFAULT",
+        "CASUAL",
+        "GEAR",
+        "QUIET",
+        "ANNOYED"
+      ],
+      "all_previous_nia_portraits_replaced": true,
+      "imported_alpha_matches_approved_source": true,
+      "fullbody_alpha_matches_approved_source": true,
+      "other_actor_pose_sources_preserved": 65,
+      "original_source_files_preserved": 20,
+      "original_background_source_specs_preserved": 54,
+      "names_and_story_preserved": true,
+      "intentional_reexport": "Intentional native 256x264 speaking-frame reexport of original source art, plus five additional approved Nia full bodies; historical 168px packed payload hashes are retained only as provenance.",
+      "workshop_family_photo_shots": [
+        {
+          "scene": "D25",
+          "focus": 0,
+          "subject_x": 115
+        }
+      ],
+      "fifth_pose_compiled_occurrences": [
+        {
+          "scene": "D01",
+          "line": 2,
+          "role": "speaker",
+          "portrait": 50,
+          "flags": 1
+        },
+        {
+          "scene": "D01",
+          "line": 3,
+          "role": "companion",
+          "portrait": 50,
+          "flags": 16
+        },
+        {
+          "scene": "D05",
+          "line": 7,
+          "role": "companion",
+          "portrait": 50,
+          "flags": 16
+        }
+      ],
+      "portrait_masks": [
+        {
+          "pose": "DEFAULT",
+          "opaque_pixels": 30564,
+          "components": [
+            30563,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            43,
+            2,
+            213,
+            264
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "opaque_pixels": 29689,
+          "components": [
+            29689
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            48,
+            2,
+            207,
+            264
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "opaque_pixels": 29717,
+          "components": [
+            29716,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            46,
+            2,
+            210,
+            264
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "opaque_pixels": 27445,
+          "components": [
+            27444,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            56,
+            2,
+            199,
+            264
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "opaque_pixels": 29986,
+          "components": [
+            29985,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            26,
+            2,
+            229,
+            264
+          ]
+        }
+      ],
+      "fullbody_masks": [
+        {
+          "pose": "DEFAULT",
+          "opaque_pixels": 14478,
+          "components": [
+            14478
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            74,
+            2,
+            182,
+            264
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "opaque_pixels": 14112,
+          "components": [
+            14112
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            79,
+            2,
+            176,
+            264
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "opaque_pixels": 14464,
+          "components": [
+            14462,
+            1,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            78,
+            2,
+            177,
+            264
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "opaque_pixels": 13090,
+          "components": [
+            13090
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            81,
+            2,
+            176,
+            264
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "opaque_pixels": 14412,
+          "components": [
+            14411,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            62,
+            2,
+            193,
+            264
+          ]
+        }
+      ],
+      "source_overrides": [
+        {
+          "pose": "DEFAULT",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            0,
+            430,
+            627
+          ],
+          "crop_sha256": "24e1d019983ac1bb73adcf3dbae127127682ad5eb1e0808475c8e723db20020a",
+          "source_components": [
+            165825,
+            1,
+            1,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            420,
+            617
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            430,
+            0,
+            836,
+            627
+          ],
+          "crop_sha256": "11e6a74bef624fd3881c6a2220e1619a95707c799596764d7b762576c4c1dcc1",
+          "source_components": [
+            160705,
+            3
+          ],
+          "alpha_bounds": [
+            8,
+            8,
+            378,
+            617
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            836,
+            0,
+            1254,
+            627
+          ],
+          "crop_sha256": "8dacfe4a81e42c8f24a6767f68d4872abafb9f9babba2b3d314889b275ad18f1",
+          "source_components": [
+            161335,
+            3,
+            2,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            406,
+            617
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            627,
+            407,
+            1254
+          ],
+          "crop_sha256": "151dd65e4c3868dfcac79c245a1ce06abf1accf0e0456942fefce65458a22773",
+          "source_components": [
+            151199,
+            18
+          ],
+          "alpha_bounds": [
+            65,
+            2,
+            407,
+            616
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            400,
+            627,
+            900,
+            1254
+          ],
+          "crop_sha256": "8098a282fd15b47d80fb357501d73d7178f00e1c85a872cae22aab0970d67e35",
+          "source_components": [
+            163435,
+            5,
+            3
+          ],
+          "alpha_bounds": [
+            0,
+            5,
+            479,
+            616
+          ]
+        }
+      ],
+      "fullbody_source_overrides": [
+        {
+          "pose": "DEFAULT",
+          "source": "art/story/nia-fullbody-approved-source.png",
+          "sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+          "crop": [
+            0,
+            750,
+            512,
+            1536
+          ],
+          "crop_sha256": "23e357c5f2b68e3cfac31ce42cad9559030550cfedc95cd730228b0ada68fac4",
+          "source_components": [
+            116823
+          ],
+          "alpha_bounds": [
+            143,
+            4,
+            450,
+            748
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "source": "art/story/nia-fullbody-approved-source.png",
+          "sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+          "crop": [
+            512,
+            750,
+            1024,
+            1536
+          ],
+          "crop_sha256": "26f978af0bcf03d4528b942429c3309ab0546db1c0bb637ae1d5ff81e44cde23",
+          "source_components": [
+            111348
+          ],
+          "alpha_bounds": [
+            94,
+            9,
+            366,
+            746
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            140,
+            0,
+            570,
+            1000
+          ],
+          "crop_sha256": "6cfb640c6f3df6b7673437dd3d0be6c8737947b36eb54a4c7db42c2e15389ace",
+          "source_components": [
+            191894,
+            8,
+            6,
+            4,
+            3
+          ],
+          "alpha_bounds": [
+            37,
+            14,
+            397,
+            971
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            590,
+            0,
+            985,
+            1000
+          ],
+          "crop_sha256": "162883ea30575d80f68e2d4f7a8882bc469b42fce1c38feab2f5ed923da1d85d",
+          "source_components": [
+            174496,
+            29,
+            13,
+            9,
+            7
+          ],
+          "alpha_bounds": [
+            35,
+            14,
+            389,
+            970
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            985,
+            0,
+            1518,
+            1000
+          ],
+          "crop_sha256": "d9fb2a8c2bef4f8033d63b09ba45544a0199f0b73185267b78b764dc2f35fa0a",
+          "source_components": [
+            191248,
+            15,
+            6,
+            5,
+            5
+          ],
+          "alpha_bounds": [
+            5,
+            15,
+            483,
+            968
+          ]
+        }
+      ]
+    },
+    "continuous-story-results.json": {
+      "rom_sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+      "cases": [
+        "D01",
+        "D04",
+        "D05",
+        "D24",
+        "S17"
+      ],
+      "lcd_dimensions": [
+        256,
+        384
+      ],
+      "scene_rows": [
+        0,
+        288
+      ],
+      "lcd_seam_y": 192,
+      "dialogue_rows": [
+        288,
+        384
+      ],
+      "button_only": true,
+      "emulated_ram_read_only": true,
+      "fixture_note": "Save frontiers are native codec visual fixtures, not earned progression.",
+      "pagination_note": "S17 exercises an authored line across the three-row dialogue pages.",
+      "page_flips": 1,
+      "scenes": [
+        {
+          "scene": "D01",
+          "authored_lines": 8,
+          "pages": 8,
+          "page_flips": 0,
+          "pause_resume_checked": true,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D01",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 50,
+              "length": 50,
+              "speaker": 0,
+              "companion": 255,
+              "background": 6,
+              "background_name": "BENCH",
+              "stage": 1,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 26
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-00-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 40,
+              "length": 40,
+              "speaker": 14,
+              "companion": 255,
+              "background": 6,
+              "background_name": "BENCH",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d01-01-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 84,
+              "length": 84,
+              "speaker": 0,
+              "companion": 255,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 4,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 4,
+                  "full_body": true,
+                  "portrait": 55
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-02-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 24,
+              "length": 24,
+              "speaker": 14,
+              "companion": 0,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 4,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 4,
+                  "full_body": true,
+                  "portrait": 55
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-03-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 0,
+              "companion": 255,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": true,
+                  "portrait": 53
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-04-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 72,
+              "length": 72,
+              "speaker": 11,
+              "companion": 0,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 2,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 0,
+                  "full_body": false,
+                  "portrait": 11
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-05-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 18,
+              "length": 18,
+              "speaker": 14,
+              "companion": 11,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 0,
+                  "full_body": false,
+                  "portrait": 11
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-06-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 69,
+              "length": 69,
+              "speaker": 0,
+              "companion": 11,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": true,
+                  "portrait": 53
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-07-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D04",
+          "authored_lines": 10,
+          "pages": 10,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D04",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 78,
+              "length": 78,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 52
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-00-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 56,
+              "length": 56,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 52
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-01-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 52
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-02-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 79,
+              "length": 79,
+              "speaker": 0,
+              "companion": 255,
+              "background": 8,
+              "background_name": "PAPERS",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-03-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 31,
+              "length": 31,
+              "speaker": 14,
+              "companion": 255,
+              "background": 8,
+              "background_name": "PAPERS",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": false,
+              "image": "continuous-d04-04-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 110,
+              "length": 110,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 54
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-05-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 20,
+              "length": 20,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 54
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-06-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 54,
+              "length": 54,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 54
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-07-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 96,
+              "length": 96,
+              "speaker": 14,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d04-08-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-09-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D05",
+          "authored_lines": 10,
+          "pages": 10,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D05",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 44,
+              "length": 44,
+              "speaker": 12,
+              "companion": 11,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 12
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d05-00-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 24,
+              "length": 24,
+              "speaker": 14,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 12
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-01-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 64,
+              "length": 64,
+              "speaker": 0,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 52
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-02-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 77,
+              "length": 77,
+              "speaker": 11,
+              "companion": 0,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 25
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-03-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 14,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d05-04-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 95,
+              "length": 95,
+              "speaker": 12,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 12
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-05-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 0,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-06-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 35,
+              "length": 35,
+              "speaker": 12,
+              "companion": 0,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 4,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 12
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d05-07-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 60,
+              "length": 60,
+              "speaker": 14,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 12
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-08-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 98,
+              "length": 98,
+              "speaker": 0,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 52
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-09-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D24",
+          "authored_lines": 11,
+          "pages": 11,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D24",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-00-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 39,
+              "length": 39,
+              "speaker": 0,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                },
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-01-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 54,
+              "length": 54,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-02-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 30,
+              "length": 30,
+              "speaker": 14,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d24-03-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 101,
+              "length": 101,
+              "speaker": 0,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 38
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-04-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 100,
+              "length": 100,
+              "speaker": 2,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 40
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-05-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 70,
+              "length": 70,
+              "speaker": 0,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 38
+                },
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 40
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-06-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 97,
+              "length": 97,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 40
+                },
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 38
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-07-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 39,
+              "length": 39,
+              "speaker": 14,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 40
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-08-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 99,
+              "length": 99,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 38
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-09-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 10,
+              "page": 0,
+              "start": 0,
+              "end": 41,
+              "length": 41,
+              "speaker": 0,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-10-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "S17",
+          "authored_lines": 9,
+          "pages": 10,
+          "page_flips": 1,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "S17",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 119,
+              "length": 119,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-s17-00-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 45,
+              "length": 45,
+              "speaker": 14,
+              "companion": 9,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-01-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 65,
+              "length": 65,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-02-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 67,
+              "length": 67,
+              "speaker": 14,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-s17-03-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 124,
+              "length": 142,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-04-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 4,
+              "page": 1,
+              "start": 124,
+              "end": 142,
+              "length": 142,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-04-page-2.png"
+            },
+            {
+              "scene": "S17",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 42,
+              "length": 42,
+              "speaker": 14,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": false,
+              "image": "continuous-s17-05-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 93,
+              "length": 93,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 47
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-s17-06-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 56,
+              "length": 56,
+              "speaker": 14,
+              "companion": 9,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-07-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 41,
+              "length": 41,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-08-page-1.png"
+            }
+          ]
+        }
+      ]
+    },
+    "continuous-story-visual-review.json": {
+      "rom_sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+      "review": "Actual DeSmuME LCD screenshots viewed at native 256x384 resolution.",
+      "frames": [
+        "continuous-d01-00-page-1.png",
+        "continuous-d01-02-page-1.png",
+        "continuous-d01-04-page-1.png",
+        "continuous-d01-07-page-1.png",
+        "continuous-d01-paused.png",
+        "continuous-d04-00-page-1.png",
+        "continuous-d04-05-page-1.png",
+        "continuous-d05-02-page-1.png",
+        "continuous-d24-01-page-1.png",
+        "continuous-d24-03-page-1.png",
+        "continuous-s17-04-page-1.png",
+        "continuous-s17-04-page-2.png"
+      ],
+      "observations": {
+        "scene_seam": "Background and actor rows continue across LCD rows 191/192 without duplication or clipping.",
+        "standing_actors": "Nia full-body gestures retain complete hands, props and bare feet. Feet sit on the garage, meeting, kitchen and diner floors above the dialogue boundary.",
+        "close_fallback": "D24 uses the retained upper-body pair, without introducing standing figures into the close lighthouse composition.",
+        "family_photo": "D24 photo insert keeps both figures and the frame visible, with the sea still in view.",
+        "dialogue": "Text, speaker and page counter fit the lower 96 rows; the D01 pause menu also fits.",
+        "pagination": "S17 line 4 has three complete rows on page 1 and the remaining sentence on page 2; scenery and portrait remain in place."
+      },
+      "issues_found": []
+    },
+    "framing-review.json": {
+      "rom_sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+      "archive_sha256": "fa9eef590ec49aed4fd8dabe439370cd3016f4f0fd80e5513fb647abf3a439ea",
+      "method": "Actual indexed archive palettes and pixels sampled with renderer integer camera mapping; target focus held; actors/labels omitted for background subject review.",
+      "reviewed_camera_frames": 30,
+      "reviewed_unique_subjects": 29,
+      "reviewed_events": [
+        "D01",
+        "D04",
+        "D10",
+        "D17",
+        "D19",
+        "D24",
+        "C07",
+        "C10",
+        "C19",
+        "B20",
+        "A13",
+        "A21",
+        "S20",
+        "S25"
+      ],
+      "all_named_subjects_present": true,
+      "independent_second_review": [
+        "C07",
+        "C10",
+        "C19",
+        "B20",
+        "A13",
+        "A21"
+      ],
+      "notes": [
+        "This is visual review of the indexed cartridge exports through the actual integer camera mapping, not a check of authored subject coordinates alone.",
+        "Background-only crops omit actors, portrait badges and captions so the painted objects can be inspected.",
+        "The partly clipped workshop and epilogue chairs remain identifiable; no required subject was lost."
+      ],
+      "contact_sheets": [
+        "framing-contact-d.png",
+        "framing-contact-cba.png",
+        "framing-contact-s.png"
+      ],
+      "issues_found": [],
+      "frames": [
+        {
+          "scene": "D01",
+          "background": "BENCH",
+          "subject": "JACK",
+          "subject_label": "The wandering jack",
+          "stage": 1,
+          "focus": 107,
+          "crop": [
+            107,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d01-bench-jack-256.png",
+          "subject_present": true,
+          "visual_observation": "The red floor jack, lifting arm and wheels remain prominent in the foreground."
+        },
+        {
+          "scene": "D01",
+          "background": "BENCH",
+          "subject": "KEYS",
+          "subject_label": "The small keys",
+          "stage": 1,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d01-bench-keys-256.png",
+          "subject_present": true,
+          "visual_observation": "Both small metal keys and their orange tag remain completely visible on the left post."
+        },
+        {
+          "scene": "D04",
+          "background": "NIA_KITCHEN",
+          "subject": "TABLE",
+          "subject_label": "A place at the table",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d04-nia_kitchen-table-256.png",
+          "subject_present": true,
+          "visual_observation": "The kitchen table and its chairs remain visible beneath the window."
+        },
+        {
+          "scene": "D04",
+          "background": "PAPERS",
+          "subject": "LEASE",
+          "subject_label": "Lease renewal / application papers",
+          "stage": 1,
+          "focus": 38,
+          "crop": [
+            38,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d04-papers-lease-256.png",
+          "subject_present": true,
+          "visual_observation": "The application forms remain visible in the open envelope on the foreground table."
+        },
+        {
+          "scene": "D10",
+          "background": "MINA_BEDROOM",
+          "subject": "PHOTOS",
+          "subject_label": "Photographs after midnight",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d10-mina_bedroom-photos-256.png",
+          "subject_present": true,
+          "visual_observation": "The hanging photographs remain clearly identifiable on the bedroom wall."
+        },
+        {
+          "scene": "D10",
+          "background": "MINA_BEDROOM",
+          "subject": "NOTES",
+          "subject_label": "The takeaway-menu notes",
+          "stage": 1,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d10-mina_bedroom-notes-256.png",
+          "subject_present": true,
+          "visual_observation": "The handwritten/menu papers remain visible across the foreground desk and bed edge."
+        },
+        {
+          "scene": "D17",
+          "background": "JULES_ROOM",
+          "subject": "HELMET",
+          "subject_label": "Courier gear by the bed",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d17-jules_room-helmet-256.png",
+          "subject_present": true,
+          "visual_observation": "The dark courier helmet and its visor remain prominent beside the bag on the bed."
+        },
+        {
+          "scene": "D17",
+          "background": "JULES_ROOM",
+          "subject": "BILLS",
+          "subject_label": "The bills nobody jokes about",
+          "stage": 1,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d17-jules_room-bills-256.png",
+          "subject_present": true,
+          "visual_observation": "Loose bills and papers remain visible on the right foreground work surface."
+        },
+        {
+          "scene": "D19",
+          "background": "CORNER",
+          "subject": "MARKER",
+          "subject_label": "Corner reference marker",
+          "stage": 1,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d19-corner-marker-256.png",
+          "subject_present": true,
+          "visual_observation": "The striped road marker and illuminated warning lamp remain prominent at the corner."
+        },
+        {
+          "scene": "D19",
+          "background": "CORNER",
+          "subject": "EXIT",
+          "subject_label": "The next corner exit",
+          "stage": 1,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d19-corner-exit-256.png",
+          "subject_present": true,
+          "visual_observation": "The road exit and turning cars remain visible beyond the corner."
+        },
+        {
+          "scene": "D24",
+          "background": "LIGHTHOUSE",
+          "subject": "PHOTO",
+          "subject_label": "A photograph brought from home",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d24-lighthouse-photo-256.png",
+          "subject_present": true,
+          "visual_observation": "Both family figures and the complete picture frame remain visible on the bench."
+        },
+        {
+          "scene": "D24",
+          "background": "LIGHTHOUSE",
+          "subject": "SEA",
+          "subject_label": "Somewhere the workshop is quiet",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/d24-lighthouse-sea-256.png",
+          "subject_present": true,
+          "visual_observation": "The sunset water, boats, rail and distant waterfront remain visible."
+        },
+        {
+          "scene": "C07",
+          "background": "RAIN",
+          "subject": "WATER",
+          "subject_label": "Rain on the waterfront",
+          "stage": 2,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c07-rain-water-256.png",
+          "subject_present": true,
+          "visual_observation": "Wet waterfront pavement, water and reflections remain visible."
+        },
+        {
+          "scene": "C07",
+          "background": "RAIN",
+          "subject": "AWNING",
+          "subject_label": "Shelter under the awning",
+          "stage": 2,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c07-rain-awning-256.png",
+          "subject_present": true,
+          "visual_observation": "The canopy, lamp and sheltered table remain visible."
+        },
+        {
+          "scene": "C10",
+          "background": "HARBOR_BATHROOM",
+          "subject": "BASIN",
+          "subject_label": "Washing the shift away",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c10-harbor_bathroom-basin-256.png",
+          "subject_present": true,
+          "visual_observation": "The wash basins and taps remain visible."
+        },
+        {
+          "scene": "C10",
+          "background": "HARBOR_BATHROOM",
+          "subject": "MIRROR",
+          "subject_label": "A moment to collect yourself",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c10-harbor_bathroom-mirror-256.png",
+          "subject_present": true,
+          "visual_observation": "The framed wall mirror and reflected waterfront remain visible."
+        },
+        {
+          "scene": "C19",
+          "background": "WAITING_ROOM",
+          "subject": "CHAIRS",
+          "subject_label": "The ordinary Thursday routine",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c19-waiting_room-chairs-256.png",
+          "subject_present": true,
+          "visual_observation": "The blue waiting-room seats remain clearly visible in the foreground."
+        },
+        {
+          "scene": "C19",
+          "background": "WAITING_ROOM",
+          "subject": "FLOWERS",
+          "subject_label": "Flowers by the corridor",
+          "stage": 1,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/c19-waiting_room-flowers-256.png",
+          "subject_present": true,
+          "visual_observation": "The glass vase and flowers remain visible at the lower right."
+        },
+        {
+          "scene": "B20",
+          "background": "OLD_WORKSHOP",
+          "subject": "LIFT",
+          "subject_label": "Where the tool chest stood",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/b20-old_workshop-lift-256.png",
+          "subject_present": true,
+          "visual_observation": "The blue lift posts and floor arms remain visible."
+        },
+        {
+          "scene": "B20",
+          "background": "OLD_WORKSHOP",
+          "subject": "CHAIR",
+          "subject_label": "The last folding chair",
+          "stage": 1,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/b20-old_workshop-chair-256.png",
+          "subject_present": true,
+          "visual_observation": "The folding chair remains identifiable by its back, seat and legs; its right side is partly clipped."
+        },
+        {
+          "scene": "A13",
+          "background": "SKY_LOUNGE",
+          "subject": "FOLDER",
+          "subject_label": "The other version of security",
+          "stage": 0,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/a13-sky_lounge-folder-256.png",
+          "subject_present": true,
+          "visual_observation": "The closed folio remains visible on the foreground table."
+        },
+        {
+          "scene": "A13",
+          "background": "SKY_LOUNGE",
+          "subject": "WINDOW",
+          "subject_label": "The city from far above",
+          "stage": 1,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/a13-sky_lounge-window-256.png",
+          "subject_present": true,
+          "visual_observation": "The broad harbor and city window remain visible."
+        },
+        {
+          "scene": "A21",
+          "background": "OFFICE",
+          "subject": "LICENSE",
+          "subject_label": "Independent application",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/a21-office-license-256.png",
+          "subject_present": true,
+          "visual_observation": "The tan application folio remains visible; document lettering is not legible at this art scale."
+        },
+        {
+          "scene": "A21",
+          "background": "OFFICE",
+          "subject": "CONTRACT",
+          "subject_label": "Commercial contract",
+          "stage": 1,
+          "focus": 64,
+          "crop": [
+            64,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/a21-office-contract-256.png",
+          "subject_present": true,
+          "visual_observation": "The open binder and paper remain clear."
+        },
+        {
+          "scene": "S20",
+          "background": "OFFICE",
+          "subject": "CONTRACT",
+          "subject_label": "Commercial contract",
+          "stage": 1,
+          "focus": 64,
+          "crop": [
+            64,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/s20-office-contract-256.png",
+          "subject_present": true,
+          "visual_observation": "The open binder and paper remain clear in the same authored OFFICE crop."
+        },
+        {
+          "scene": "S20",
+          "background": "OFFICE",
+          "subject": "LICENSE",
+          "subject_label": "Independent application",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/s20-office-license-256.png",
+          "subject_present": true,
+          "visual_observation": "The tan application folio remains visible in the same authored OFFICE crop."
+        },
+        {
+          "scene": "S25",
+          "background": "NIGHTFINAL",
+          "subject": "CORNER",
+          "subject_label": "Floodlit final corner",
+          "stage": 3,
+          "focus": 0,
+          "crop": [
+            0,
+            7,
+            276,
+            310
+          ],
+          "image": "framing/s25-nightfinal-corner-276.png",
+          "subject_present": true,
+          "visual_observation": "The floodlit circuit corner and road bend remain visible through the wider montage lens."
+        },
+        {
+          "scene": "S25",
+          "background": "EPILOGUE",
+          "subject": "KEYS",
+          "subject_label": "The small keys are still here",
+          "stage": 3,
+          "focus": 0,
+          "crop": [
+            0,
+            7,
+            276,
+            310
+          ],
+          "image": "framing/s25-epilogue-keys-276.png",
+          "subject_present": true,
+          "visual_observation": "The hanging keys remain visible on the left workshop wall in both montage and ordinary crops."
+        },
+        {
+          "scene": "S25",
+          "background": "EPILOGUE",
+          "subject": "CHAIRS",
+          "subject_label": "One more chair by the door",
+          "stage": 0,
+          "focus": 256,
+          "crop": [
+            256,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/s25-epilogue-chairs-256.png",
+          "subject_present": true,
+          "visual_observation": "The two folding chairs and cooler remain visible by the open door; the far-right chair touches the frame edge."
+        },
+        {
+          "scene": "S25",
+          "background": "EPILOGUE",
+          "subject": "KEYS",
+          "subject_label": "The small keys are still here",
+          "stage": 1,
+          "focus": 0,
+          "crop": [
+            0,
+            18,
+            256,
+            288
+          ],
+          "image": "framing/s25-epilogue-keys-256.png",
+          "subject_present": true,
+          "visual_observation": "The hanging keys remain visible on the left workshop wall in both montage and ordinary crops."
+        }
+      ]
+    }
+  }
+}
