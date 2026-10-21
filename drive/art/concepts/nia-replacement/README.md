@@ -23,6 +23,12 @@ Both transparent PNGs show the same four variants in a single row:
 `dialogue-portraits.png` provides closer waist-up framing for readable faces.
 These are source illustrations, not indexed DS exports or emulator captures.
 
+`bikini-outfit-poses.png` is a separate wardrobe draft with a plain opaque white
+triangle bikini top and the same four poses. The matching dialogue portrait
+revision is unfinished; the two original tank-top sheets remain together for
+comparison. Several tiny hair tips touch the bikini sheet's upper edge; allow
+headroom when preparing individual cutouts for export.
+
 The outfit sheet has clean quarter-cell gutters. The closer dialogue sheet has
 some arms extending across the nominal quarter-cell boundaries; extract complete
 individual silhouettes rather than blindly clipping equal quarters. The tiny
