@@ -34,7 +34,10 @@ assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed']
 story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
 assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==manifest['dialogue_lines'] and story_assets['portrait_alpha_masks_valid']
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
-assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==51
+assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==56
+assert story_assets['fullbody_portraits']==manifest['fullbody_portraits']==5
+assert (story_assets['portrait_width'],story_assets['portrait_height'])==(manifest['portrait_width'],manifest['portrait_height'])==(256,264)
+assert manifest['portrait_size']==manifest['portrait_width']
 assert story_assets['one_event_new_backgrounds']>=19 and story_assets['new_place_events']>=62 and story_assets['all_portraits_used']
 assert story_assets['no_large_atlas_fragments']
 assert story_assets['authored_shots']==sum(len(e['shots']) for e in manifest['events'])
@@ -245,15 +248,27 @@ for i,place in enumerate(places):
     x=i%6*256;y=24+i//6*126;sheet.paste(indexed_art(i).resize((256,108),Image.Resampling.NEAREST),(x,y))
     draw.text((x+4,y+110),place.get('location',place['name']),font=font,fill='#d7e7e4')
 sheet.save(DIST/'Story-Locations.png')
-portrait_size=manifest['portrait_size'];portrait_row=portrait_size+26
-sheet=Image.new('RGB',(8*portrait_size,24+((manifest['portraits']+7)//8)*portrait_row),'#142b36');draw=ImageDraw.Draw(sheet)
-draw.text((8,5),f"INDEXED CHARACTER ART / {manifest['portraits']} transparent portraits / not emulator screenshots",font=font,fill='white');seen=set()
-for pose,row in enumerate(manifest['portrait_map']):
-    for person,portrait in enumerate(row):
-        if portrait in seen:continue
-        seen.add(portrait);x=portrait%8*portrait_size;y=24+portrait//8*portrait_row;im=indexed_art(manifest['backgrounds']+portrait)
-        sheet.paste(im,(x,y),im);draw.text((x+3,y+portrait_size-1),catalog['people'][person][1],font=font,fill='white')
-        draw.text((x+3,y+portrait_size+12),catalog['poses'][pose].title(),font=font,fill='#9cbcb9')
+portrait_width=manifest['portrait_width'];portrait_height=manifest['portrait_height'];portrait_row=portrait_height+30
+portrait_map=manifest['portrait_map'];fullbody_map=manifest['fullbody_map']
+assert len(portrait_map)==len(fullbody_map)==len(catalog['poses'])==5
+assert manifest['people']==len(catalog['people'])==14 and all(len(row)==14 for row in portrait_map+fullbody_map)
+ordinary_ids={value for row in portrait_map for value in row}
+fullbody_ids={value for row in fullbody_map for value in row if value>=0}
+assert ordinary_ids==set(range(51)) and len(fullbody_ids)==manifest['fullbody_portraits']==5
+assert not ordinary_ids&fullbody_ids and ordinary_ids|fullbody_ids==set(range(manifest['portraits']))
+nia=next(i for i,person in enumerate(catalog['people']) if person[0]=='NIA')
+assert all(value>=0 if person==nia else value==-1 for row in fullbody_map for person,value in enumerate(row))
+sheet=Image.new('RGB',(8*portrait_width,24+((manifest['portraits']+7)//8)*portrait_row),'#142b36');draw=ImageDraw.Draw(sheet)
+draw.text((8,5),f"INDEXED CHARACTER ART / {len(ordinary_ids)} upper-body portraits + {len(fullbody_ids)} full-body portraits / not emulator screenshots",font=font,fill='white');seen=set()
+for mapping,fullbody in ((portrait_map,False),(fullbody_map,True)):
+    for pose,row in enumerate(mapping):
+        for person,portrait in enumerate(row):
+            if portrait<0 or portrait in seen:continue
+            seen.add(portrait);x=portrait%8*portrait_width;y=24+portrait//8*portrait_row;im=indexed_art(manifest['backgrounds']+portrait)
+            assert im.size==(portrait_width,portrait_height)
+            sheet.paste(im,(x,y),im);draw.text((x+3,y+portrait_height+1),catalog['people'][person][1],font=font,fill='white')
+            draw.text((x+3,y+portrait_height+14),catalog['poses'][pose].title()+(' / Full body' if fullbody else ''),font=font,fill='#9cbcb9')
+assert seen==set(range(manifest['portraits']))
 sheet.save(DIST/'Story-Wardrobes.png')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 
