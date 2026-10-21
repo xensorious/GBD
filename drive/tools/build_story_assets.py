@@ -20,6 +20,8 @@ def isolate_portrait(tile):
  for p in largest:clean[p]=raw[p]
  tile.putalpha(Image.frombytes('L',(w,h),bytes(clean)));return tile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'build/nitro';OUT.mkdir(parents=True,exist_ok=True)
+portrait_size=int(CATALOG['portrait_size'])
+assert portrait_size==192-24, 'Portraits fill the screen below the scene header'
 backgrounds,scenes=load_story(ROOT)
 nbg=len(backgrounds)
 assets=[];portraits=[];portrait_map=[[None]*len(PEOPLE) for _ in POSES]
@@ -38,10 +40,11 @@ for idx,spec in enumerate(backgrounds+portraits):
  if idx<nbg:tile=tile.resize((512,216),Image.Resampling.LANCZOS)
  else:
   tile=isolate_portrait(tile)
-  # Normalize visible height across different outfits and atlas aspect ratios.
+  # Prepare the final speaking size directly from the original source. Runtime
+  # draws this canvas 1:1; only secondary actors and small UI portraits shrink.
   bounds=tile.getchannel('A').point(lambda a:255 if a>=96 else 0).getbbox();assert bounds,(idx,spec)
-  figure=ImageOps.contain(tile.crop(bounds),(124,126),Image.Resampling.LANCZOS)
-  tile=Image.new('RGBA',(128,128));tile.alpha_composite(figure,((128-figure.width)//2,128-figure.height))
+  figure=ImageOps.contain(tile.crop(bounds),(portrait_size-4,portrait_size-2),Image.Resampling.LANCZOS)
+  tile=Image.new('RGBA',(portrait_size,portrait_size));tile.alpha_composite(figure,((portrait_size-figure.width)//2,portrait_size-figure.height))
  # Palette zero is transparent only for people; backgrounds retain all 256 colors.
  q=tile.convert('RGB').quantize(colors=256 if idx<nbg else 255,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.FLOYDSTEINBERG)
  p=q.getpalette();palette=[0]*256
@@ -68,8 +71,8 @@ for idx,(w,h,payload) in enumerate(assets):
 struct.pack_into('<8s6I',data,0,b'CSTORY02',event_table,len(scenes),asset_table,len(assets),len(data),0)
 (OUT/'story.bin').write_bytes(data)
 line_count=sum(len(s['lines']) for s in scenes)
-(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'people':len(PEOPLE),'portrait_map':portrait_map,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
-limits={'BACKGROUNDS':nbg,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count}
+(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'portrait_size':portrait_size,'people':len(PEOPLE),'portrait_map':portrait_map,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
+limits={'BACKGROUNDS':nbg,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_size,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count}
 (ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items()))
 def cstring(value):return json.dumps(value,ensure_ascii=True)
 visuals='/* Generated visual catalog; included by the dialogue renderer only. */\n'

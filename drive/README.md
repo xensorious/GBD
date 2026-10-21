@@ -62,6 +62,11 @@ The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
 motel, washrooms, gallery and other places away from the grid. Nineteen new
 locations appear in only one event. Fifty portraits cover fourteen people,
 with casual clothes, work gear and quieter expressions for the main cast.
+Speaking portraits are prepared directly at their native 168x168 display size,
+filling the height below the scene header without enlarging a smaller export.
+Only secondary characters and compact dialogue thumbnails are drawn smaller.
+The two panoramic background caches and both portrait slots reuse existing
+driving-cache memory; the higher detail does not add a resident graphics buffer.
 Eli and Mrs. Vale make the neighborhood part of the story. The crew has private
 choices, paid work and relationships beyond the next race. These are illustrated
 cutscene settings; they do not add free-roaming interiors or Career races.

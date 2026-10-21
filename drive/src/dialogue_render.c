@@ -22,9 +22,11 @@ void story_render_release(void){
 }
 static int lease(void){
  if(leased)return 1;
- unsigned bytes;uint8_t*base=gfx_story_scratch(&bytes);if(bytes<256000)return 0;
- back[0]=base;back[1]=base+512*216;people[0]=base+2*512*216;people[1]=people[0]+128*128;
- uint16_t*pal=(uint16_t*)(people[1]+128*128);back_palette[0]=pal;back_palette[1]=pal+256;people_palette[0]=pal+512;people_palette[1]=pal+768;
+ const unsigned portrait_bytes=STORY_PORTRAIT_SIZE*STORY_PORTRAIT_SIZE;
+ const unsigned required=2*512*216+2*portrait_bytes+4*256*sizeof(uint16_t);
+ unsigned bytes;uint8_t*base=gfx_story_scratch(&bytes);if(bytes<required)return 0;
+ back[0]=base;back[1]=base+512*216;people[0]=base+2*512*216;people[1]=people[0]+portrait_bytes;
+ uint16_t*pal=(uint16_t*)(people[1]+portrait_bytes);back_palette[0]=pal;back_palette[1]=pal+256;people_palette[0]=pal+512;people_palette[1]=pal+768;
  leased=1;return 1;
 }
 static int background(int id){
@@ -37,19 +39,28 @@ static int person(int id,int protect){
  if(id<0||id>=STORY_PORTRAITS)return -1;
  for(int i=0;i<2;i++)if(people_id[i]==id)return i;
  int slot=protect>=0&&people_id[0]==protect?1:0,w,h;
- if(!story_asset(STORY_BACKGROUNDS+id,people[slot],people_palette[slot],128*128,&w,&h)||w!=128||h!=128){story_visual_stats[0]++;return -1;}
+ if(!story_asset(STORY_BACKGROUNDS+id,people[slot],people_palette[slot],STORY_PORTRAIT_SIZE*STORY_PORTRAIT_SIZE,&w,&h)||w!=STORY_PORTRAIT_SIZE||h!=STORY_PORTRAIT_SIZE){story_visual_stats[0]++;return -1;}
  people_id[slot]=id;story_visual_stats[2]++;return slot;
 }
 static void actor(Surface*s,int slot,int x,int y,int width,int height,int opacity,int light){
- if(slot<0)return;
+ if(slot<0||width<=0||height<=0||width>STORY_PORTRAIT_SIZE||height>STORY_PORTRAIT_SIZE)return;
  uint16_t palette[256];palette[0]=0;
  for(int i=1;i<256;i++)palette[i]=mix_color(people_palette[slot][i],C(0,0,0),light);
- int columns[160];if(width>160)width=160;
- for(int xx=0;xx<width;xx++)columns[xx]=xx*128/width;
+ int native=width==STORY_PORTRAIT_SIZE&&height==STORY_PORTRAIT_SIZE;
+ int columns[STORY_PORTRAIT_SIZE];
+ if(!native)for(int xx=0;xx<width;xx++)columns[xx]=xx*STORY_PORTRAIT_SIZE/width;
  int left=limit(-x,0,width),right=limit(s->w-x,0,width),top=limit(-y,0,height),end=limit(s->h-y,0,height);
+ if(left>=right||top>=end)return;
  for(int yy=top;yy<end;yy++){
-  const uint8_t*p=people[slot]+yy*128/height*128;uint16_t*d=s->pixels+(y+yy)*s->w+x;
-  for(int xx=left;xx<right;xx++){uint8_t index=p[columns[xx]];if(index){uint16_t c=palette[index];d[xx]=opacity>=256?c:mix_color(c,d[xx],opacity);}}
+  const uint8_t*p=people[slot]+(native?yy:yy*STORY_PORTRAIT_SIZE/height)*STORY_PORTRAIT_SIZE;
+  uint16_t*d=s->pixels+(y+yy)*s->w+x+left;
+  if(native){
+   /* One indexed source pixel becomes one screen pixel, without resampling. */
+   p+=left;
+   for(int xx=left;xx<right;xx++,d++){uint8_t index=*p++;if(index){uint16_t c=palette[index];*d=opacity>=256?c:mix_color(c,*d,opacity);}}
+  }else{
+   for(int xx=left;xx<right;xx++,d++){uint8_t index=p[columns[xx]];if(index){uint16_t c=palette[index];*d=opacity>=256?c:mix_color(c,*d,opacity);}}
+  }
  }
 }
 static void overlay(Surface*s,int x,int y,int w,int h,uint16_t c,int alpha){
@@ -112,8 +123,8 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
     int left=other>=STORY_PEOPLE||line->speaker<other;
     actor(&image,companion,left?137:-2,72,121,121,210,light*160/256);
     int opacity=story.age<7?160+(int)story.age*96/7:256;
-    actor(&image,lead,left?0:104,40+breath,152,152,opacity,light);
-   }else actor(&image,lead,52,40+breath,152,152,256,light);
+    actor(&image,lead,left?0:256-STORY_PORTRAIT_SIZE,192-STORY_PORTRAIT_SIZE-breath,STORY_PORTRAIT_SIZE,STORY_PORTRAIT_SIZE,opacity,light);
+   }else actor(&image,lead,(256-STORY_PORTRAIT_SIZE)/2,192-STORY_PORTRAIT_SIZE-breath,STORY_PORTRAIT_SIZE,STORY_PORTRAIT_SIZE,256,light);
   }
   if(line->stage==ST_MONTAGE||line->stage==ST_RADIO){overlay(&image,0,0,256,14,C(1,6,13),190);overlay(&image,0,178,256,14,C(1,6,13),190);}
   story_visual_stats[3]=(uint32_t)cx;story_visual_stats[4]=line->stage;

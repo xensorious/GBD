@@ -1,5 +1,12 @@
 # Coastline cartridge validation
 
+`python3 drive/tests/dialogue_pixels.py` checks native 168x168 speaking portraits
+against an independent screen-pixel oracle, including clipping, fades, lighting,
+smaller secondary actors and thumbnails. ASan/UBSan also checks that two full
+panoramic backgrounds and both larger portraits fit the existing 300 KiB driving
+cache lease without corrupting the protected portrait or palette. Run after
+`make -C drive`; no character source art is replaced by this check.
+
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
 GCC AddressSanitizer and UndefinedBehaviorSanitizer. Twelve suites cover driving,
 score receipts, six-level parts, effective tuning, mastery/career/perks, traffic

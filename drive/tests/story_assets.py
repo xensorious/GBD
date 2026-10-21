@@ -10,6 +10,9 @@ from story_script import load_story,CAST,PEOPLE
 source_backgrounds,source_scenes=load_story(ROOT)
 manifest=json.loads((ROOT/'build/story-manifest.json').read_text());nbg=len(source_backgrounds);portrait_map=manifest['portrait_map'];portraits_seen=set();background_events={}
 expected_lines=sum(len(e['lines']) for e in source_scenes)
+portrait_size=manifest['portrait_size'];assert portrait_size==168
+scratch_required=2*512*216+2*portrait_size*portrait_size+4*256*2
+assert scratch_required<=307200
 p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'build/story-release');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 rom=ROOT/'build/Coastline.nds';r=rom.read_bytes();fat,size=struct.unpack_from('<II',r,0x48);assert size==8
 start,end=struct.unpack_from('<II',r,fat);archive=r[start:end];assert archive==(ROOT/'build/nitro/story.bin').read_bytes()
@@ -57,7 +60,7 @@ for key,subjects in important.items():
 art=[]
 for i in range(assets):
  offset,w,h,size,kind=struct.unpack_from('<IHHII',archive,asset_table+i*16);assert size==w*h and offset+512+size<=len(archive)
- assert (w,h)==((512,216) if i<nbg else (128,128))
+ assert (w,h)==((512,216) if i<nbg else (portrait_size,portrait_size))
  palette=struct.unpack_from('<256H',archive,offset);pixels=archive[offset+512:offset+512+size]
  if kind:
   assert palette[0]==0 and 100<pixels.count(0)<size-1000
@@ -76,5 +79,5 @@ for i in range(assets):
  art.append({'id':i,'width':w,'height':h,'transparent':bool(kind),'sha256':hashlib.sha256(pixels).hexdigest()})
 elf=ROOT/'build/arm9.elf';main_end=find_symbol(elf,'__bss_end__');itcm_end=find_symbol(elf,'__itcm_end')
 assert main_end<0x02380000 and itcm_end<=0x01008000
-result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'all_portraits_used':True,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':256000,'art':art}
+result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_size':portrait_size,'all_portraits_used':True,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'art':art}
 (a.output/'story-assets-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

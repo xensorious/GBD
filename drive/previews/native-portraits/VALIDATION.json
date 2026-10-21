@@ -1,0 +1,136 @@
+{
+  "scope": "Focused native portrait build; existing character art, no replacement-character integration.",
+  "rom": {
+    "title": "COASTLINE",
+    "game_code": "KCWE",
+    "bytes": 9712128,
+    "sha256": "b4ca0b212ac58daeaa4adead14098665cbd5e1932b8728d36b200a3c2a819b1f",
+    "executables": {
+      "arm9": {
+        "offset": 16384,
+        "entry": "0x2000800",
+        "load": "0x2000000",
+        "bytes": 2146060
+      },
+      "arm7": {
+        "offset": 2162688,
+        "entry": "0x2380000",
+        "load": "0x2380000",
+        "bytes": 10136
+      }
+    }
+  },
+  "main_portrait_canvas": [
+    168,
+    168
+  ],
+  "main_portraits_drawn_at_native_size": true,
+  "scaled_uses": [
+    "secondary characters",
+    "compact dialogue thumbnails"
+  ],
+  "source_art_rebuilt_directly_at_display_size": true,
+  "new_resident_graphics_buffers": 0,
+  "pixel_oracle": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 9712128,
+      "sha256": "b4ca0b212ac58daeaa4adead14098665cbd5e1932b8728d36b200a3c2a819b1f",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 2146060
+        },
+        "arm7": {
+          "offset": 2162688,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "portrait_size": 168,
+    "native_speaking_pixels": true,
+    "reduced_secondary_and_thumbnail_pixels": true,
+    "clipping_opacity_lighting": true,
+    "sanitizers_passed": true,
+    "shared_scratch_bytes": 307200,
+    "required_scratch_bytes": 279680,
+    "result": "dialogue pixels: 1421 checks; native 1:1 pixels, depth/thumbnail reductions, clipping, opacity, lighting and two-background/two-portrait cache isolation pass"
+  },
+  "story_assets": {
+    "rom": {
+      "title": "COASTLINE",
+      "game_code": "KCWE",
+      "bytes": 9712128,
+      "sha256": "b4ca0b212ac58daeaa4adead14098665cbd5e1932b8728d36b200a3c2a819b1f",
+      "executables": {
+        "arm9": {
+          "offset": 16384,
+          "entry": "0x2000800",
+          "load": "0x2000000",
+          "bytes": 2146060
+        },
+        "arm7": {
+          "offset": 2162688,
+          "entry": "0x2380000",
+          "load": "0x2380000",
+          "bytes": 10136
+        }
+      }
+    },
+    "archive_matches_nitrofs": true,
+    "archive_bytes": 7533120,
+    "scenes": 125,
+    "lines": 923,
+    "backgrounds": 54,
+    "people": 14,
+    "portraits": 50,
+    "portrait_size": 168,
+    "all_portraits_used": true,
+    "no_large_atlas_fragments": true,
+    "one_event_new_backgrounds": 19,
+    "new_place_events": 62,
+    "authored_shots": 393,
+    "compiled_directions_match_source": true,
+    "subjects_in_final_frame": true,
+    "shot_local_companions": true,
+    "longest_line": 143,
+    "methods": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "all_character_sprites": true,
+    "portrait_alpha_masks_valid": true,
+    "resident_end": "0x2378d78",
+    "resident_headroom_bytes": 29320,
+    "itcm_headroom_bytes": 488,
+    "shared_scratch_bytes": 307200,
+    "story_scratch_required_bytes": 279680
+  },
+  "all_scenes_native": {
+    "sha256": "b4ca0b212ac58daeaa4adead14098665cbd5e1932b8728d36b200a3c2a819b1f",
+    "checks": 19694,
+    "sanitizers_passed": true,
+    "all_scenes": 125,
+    "dialogue_lines": 923,
+    "result": "story: 19694 checks; all 125 scenes / 923 lines, four staging methods, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
+  },
+  "emulator": {
+    "core": "DeSmuME 0.9.11 libretro interpreter",
+    "scene": "D01",
+    "completed": true,
+    "button_only": true,
+    "emulated_ram_read_only": true,
+    "capture_size": [
+      256,
+      384
+    ]
+  },
+  "validation_limits": "Focused portrait checks and first-scene cartridge tour; the complete driving and migration release matrix was not rerun. No physical DS, Delta or phone test."
+}

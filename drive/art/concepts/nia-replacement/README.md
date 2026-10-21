@@ -41,6 +41,6 @@ individual silhouettes rather than blindly clipping equal quarters. The tiny
 colored alpha fringes in the source are below alpha 8 and do not survive the
 existing alpha-96 sprite cutoff. All heads remain inside the image bounds.
 
-The existing game uses 128x128 compiled character cutouts. Conversion, individual
+The existing game uses 168x168 compiled character cutouts. Conversion, individual
 sprite extraction, any family-photo revisions and story integration are a later
 step. Original generated source images are retained in /workspace/generated_images.

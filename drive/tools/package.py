@@ -245,14 +245,15 @@ for i,place in enumerate(places):
     x=i%6*256;y=24+i//6*126;sheet.paste(indexed_art(i).resize((256,108),Image.Resampling.NEAREST),(x,y))
     draw.text((x+4,y+110),place.get('location',place['name']),font=font,fill='#d7e7e4')
 sheet.save(DIST/'Story-Locations.png')
-sheet=Image.new('RGB',(1024,24+((manifest['portraits']+7)//8)*154),'#142b36');draw=ImageDraw.Draw(sheet)
+portrait_size=manifest['portrait_size'];portrait_row=portrait_size+26
+sheet=Image.new('RGB',(8*portrait_size,24+((manifest['portraits']+7)//8)*portrait_row),'#142b36');draw=ImageDraw.Draw(sheet)
 draw.text((8,5),'INDEXED CHARACTER ART / 50 transparent portraits / not emulator screenshots',font=font,fill='white');seen=set()
 for pose,row in enumerate(manifest['portrait_map']):
     for person,portrait in enumerate(row):
         if portrait in seen:continue
-        seen.add(portrait);x=portrait%8*128;y=24+portrait//8*154;im=indexed_art(manifest['backgrounds']+portrait)
-        sheet.paste(im,(x,y),im);draw.text((x+3,y+127),catalog['people'][person][1],font=font,fill='white')
-        draw.text((x+3,y+140),catalog['poses'][pose].title(),font=font,fill='#9cbcb9')
+        seen.add(portrait);x=portrait%8*portrait_size;y=24+portrait//8*portrait_row;im=indexed_art(manifest['backgrounds']+portrait)
+        sheet.paste(im,(x,y),im);draw.text((x+3,y+portrait_size-1),catalog['people'][person][1],font=font,fill='white')
+        draw.text((x+3,y+portrait_size+12),catalog['poses'][pose].title(),font=font,fill='#9cbcb9')
 sheet.save(DIST/'Story-Wardrobes.png')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')
 

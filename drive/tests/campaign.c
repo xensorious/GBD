@@ -74,9 +74,10 @@ static void directed_camera(void){
 }
 int main(void){
  screen.before=screen.middle=screen.after=0xabc12345u;
+ CHECK(STORY_PORTRAIT_SIZE==168);
  uint8_t pixels[512*216];uint16_t palette[256];int w,h;
  for(int asset=0;asset<STORY_ASSETS;asset++){
-  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<STORY_BACKGROUNDS?512:128)&&h==(asset<STORY_BACKGROUNDS?216:128));
+  CHECK(story_asset(asset,pixels,palette,sizeof pixels,&w,&h));CHECK(w==(asset<STORY_BACKGROUNDS?512:STORY_PORTRAIT_SIZE)&&h==(asset<STORY_BACKGROUNDS?216:STORY_PORTRAIT_SIZE));
   unsigned filled=0,empty=0;for(int i=0;i<w*h;i++){filled+=pixels[i]!=0;empty+=pixels[i]==0;}
   if(asset>=STORY_BACKGROUNDS)CHECK(filled>1000&&empty>100&&palette[0]==0);
  }
