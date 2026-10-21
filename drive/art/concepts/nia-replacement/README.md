@@ -12,7 +12,7 @@ jewelry impressions are visible through the fabric relief; the tank remains
 fully opaque. Her final name is undecided. Previous drafts remain in git history
 and the original generated-image directory.
 
-Both transparent PNGs show the same four variants in a single row:
+The transparent sheets show the same four variants in a single row:
 
 1. Neutral / confident — proposed DEFAULT.
 2. Friendly / smiling — proposed CASUAL.
@@ -24,10 +24,16 @@ Both transparent PNGs show the same four variants in a single row:
 These are source illustrations, not indexed DS exports or emulator captures.
 
 `bikini-outfit-poses.png` is a separate wardrobe draft with a plain opaque white
-triangle bikini top and the same four poses. The matching dialogue portrait
-revision is unfinished; the two original tank-top sheets remain together for
-comparison. Several tiny hair tips touch the bikini sheet's upper edge; allow
-headroom when preparing individual cutouts for export.
+triangle bikini top and the same four poses. `bikini-dialogue-portraits.png` is
+cropped directly from that exact image, with no regeneration, redrawing or
+resampling. The two original tank-top sheets remain together for comparison.
+
+`bikini-portraits/` contains the four individual 560x591 transparent portrait
+PNGs. Source crops use horizontal boundaries 0, 543, 1085, 1628 and 2170 and
+vertical bounds 0 to 575, then are centered in each portrait with 16 pixels of
+transparent headroom. The combined sheet places these portraits in the listed
+order. Crop pixels are verified identical to the source. Several tiny hair tips
+already touch the source image's upper edge; the crops preserve them as supplied.
 
 The outfit sheet has clean quarter-cell gutters. The closer dialogue sheet has
 some arms extending across the nominal quarter-cell boundaries; extract complete
