@@ -7,9 +7,10 @@ replaced.
 The design is an original fictional adult garage owner: dark wavy hair,
 blue-green eyes, a fitted opaque white cropped tank with no buttons and a clean
 sewn hem, worn denim shorts, a dark brown belt, small hoop earrings and a pendant
-necklace. The revised adult figure has a fuller, supported bust. Her final name
-is undecided. Previous coral-shirt drafts remain in git history and the original
-generated-image directory.
+necklace. The revised adult figure has a fuller, supported bust. Subtle barbell
+jewelry impressions are visible through the fabric relief; the tank remains
+fully opaque. Her final name is undecided. Previous drafts remain in git history
+and the original generated-image directory.
 
 Both transparent PNGs show the same four variants in a single row:
 
