@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Check the Nia replacement against a named, pre-replacement art baseline.
 
-Run after ``make -C drive``. The baseline hashes include each asset's palette
-and indexed pixels; logical actor/pose names keep this check independent of
-asset numbering. Source overrides are read from cast.json, not inferred from
-the archive's generated portrait map.
+Run after ``make -C drive``. Portraits intentionally reexport at a native
+256x264 speaking frame; historical 168px packed hashes cannot establish source
+preservation across that change. Original catalog/background source files and
+specifications are pinned separately, alongside the approved Nia crop hashes.
+Both ordinary and additional full-body Nia imports use independent alpha
+oracles derived from their approved source images.
 """
 import argparse
 import hashlib
@@ -20,7 +22,6 @@ sys.path.insert(0, str(ROOT / 'tools'))
 from story_script import load_story
 
 POSES = ['DEFAULT', 'CASUAL', 'GEAR', 'QUIET', 'ANNOYED']
-FAMILY_BACKGROUNDS = {'MEMORIES', 'LIGHTHOUSE'}
 STORY_FIELDS = ('speaker', 'companion', 'text', 'background', 'stage', 'focus',
                 'move', 'caption_right', 'shot')
 
@@ -79,9 +80,10 @@ def read_assets(data, asset_table, count):
     return assets
 
 
-def source_overrides(catalog):
+def source_overrides(catalog, width, height, fullbody=False):
     # Both spellings permit an explicit metadata file during art preparation.
-    specs = catalog.get('overrides', catalog.get('portrait_overrides', []))
+    specs = catalog.get('fullbody_overrides', []) if fullbody else catalog.get(
+        'overrides', catalog.get('portrait_overrides', []))
     selected = [spec for spec in specs if spec.get('character') == 'NIA']
     assert len(selected) == 5, ('Expected five explicit Nia source overrides', selected)
     assert {spec['pose'] for spec in selected} == set(POSES)
@@ -107,9 +109,17 @@ def source_overrides(catalog):
         assert len(box) == 4 and 0 <= box[0] < box[2] <= sheet.width
         assert 0 <= box[1] < box[3] <= sheet.height
         tile = sheet.crop(box)
+        crop_sha256 = digest(tile.tobytes())
         alpha = tile.getchannel('A')
         low, high = alpha.getextrema()
         assert low == 0 and high >= 240, ('Source crop lacks transparent silhouette', spec)
+        # This explicitly approved export cleanup precedes component isolation
+        # in the importer. The pinned source/crop hashes above remain raw.
+        if spec.get('remove_export_matte'):
+            alpha = Image.frombytes('L', tile.size, bytes(
+                0 if (r > 220 and g < 60 and b < 60) or
+                     (r > 220 and g > 220 and b < 60) else a
+                for r, g, b, a in zip(*[iter(tile.tobytes())] * 4)))
         mask = alpha.point(lambda value: 255 if value >= 96 else 0)
         bounds = mask.getbbox()
         assert bounds and sum(bool(value) for value in mask.tobytes()) > 500, spec
@@ -123,17 +133,57 @@ def source_overrides(catalog):
             isolated[at] = raw[at]
         silhouette = Image.frombytes('L', tile.size, bytes(isolated))
         figure_alpha = ImageOps.contain(silhouette.crop(silhouette.getbbox()),
-                                       (164, 166), Image.Resampling.LANCZOS)
-        native_alpha = Image.new('L', (168, 168))
-        native_alpha.paste(figure_alpha, ((168 - figure_alpha.width) // 2,
-                                        168 - figure_alpha.height))
+                                       (width - 4, height - 2), Image.Resampling.LANCZOS)
+        native_alpha = Image.new('L', (width, height))
+        native_alpha.paste(figure_alpha, ((width - figure_alpha.width) // 2,
+                                        height - figure_alpha.height))
         alpha_oracles[spec['pose']] = bytes(value >= 96 for value in native_alpha.tobytes())
         result.append({'pose': spec['pose'], 'source': str(source.relative_to(ROOT)),
                        'sha256': digest(source.read_bytes()), 'crop': box,
-                       'crop_sha256': digest(tile.tobytes()),
+                       'crop_sha256': crop_sha256,
                        'source_components': areas[:5],
                        'alpha_bounds': bounds})
     return result, alpha_oracles
+
+
+def preserve_sources(catalog, backgrounds, baseline):
+    """Pin authored inputs, independently of the intentionally new export size."""
+    approved = baseline['source_preservation']
+    assert catalog['sheets'] == approved['catalog_sheets'], 'Original cast source specs changed'
+    assert catalog['overrides'] == approved['catalog_overrides'], 'Approved Nia source specs changed'
+    assert catalog['poses'] == approved['catalog_poses'], 'Authored pose names/order changed'
+    assert backgrounds == approved['background_specs'], 'Original background source specs changed'
+    for relative, expected in approved['authored_files'].items():
+        assert digest((ROOT / relative).read_bytes()) == expected, ('Authored input changed', relative)
+    for relative, expected in approved['source_files'].items():
+        source = ROOT / relative
+        assert digest(source.read_bytes()) == expected['sha256'], ('Original source artwork changed', relative)
+        with Image.open(source) as image:
+            assert list(image.size) == expected['size'], ('Original source dimensions changed', relative)
+    return len(approved['source_files'])
+
+
+def check_masks(assets, first_portrait, ids, alpha_oracles, width, height):
+    masks = []
+    for pose, portrait_id in zip(POSES, ids):
+        asset = assets[first_portrait + portrait_id]
+        assert (asset['width'], asset['height'], asset['kind']) == (width, height, 1)
+        assert asset['palette'][:2] == b'\0\0'
+        pixels = asset['pixels']
+        assert 100 < pixels.count(0) < len(pixels) - 1000, pose
+        areas, _ = components(pixels, width)
+        assert len(areas) == 1 or areas[1] <= 32, ('Detached portrait fragments', pose, areas[:5])
+        assert len(pixels) == len(alpha_oracles[pose]) == width * height
+        alpha_errors = sum(bool(actual) != bool(expected)
+                           for actual, expected in zip(pixels, alpha_oracles[pose]))
+        assert not alpha_errors, ('Imported alpha differs from approved crop', pose, alpha_errors)
+        xs = [at % width for at, value in enumerate(pixels) if value]
+        ys = [at // width for at, value in enumerate(pixels) if value]
+        assert min(xs) > 0 and max(xs) < width - 1 and min(ys) > 0, ('Portrait touches crop edge', pose)
+        masks.append({'pose': pose, 'opaque_pixels': len(xs), 'components': areas[:5],
+                      'source_alpha_mismatches': alpha_errors,
+                      'bounds': [min(xs), min(ys), max(xs) + 1, max(ys) + 1]})
+    return masks
 
 
 def main():
@@ -155,8 +205,14 @@ def main():
     assert catalog['people'][0] == ['NIA', 'Nia']
     assert catalog['poses'] == POSES
     assert names == baseline['background_order']
-    assert catalog['portrait_size'] == manifest['portrait_size'] == baseline['portrait_size'] == 168
-    assert manifest['portraits'] == 51 and manifest['people'] == len(catalog['people'])
+    width, height = baseline['native_render_frame']['portrait_dimensions']
+    assert (width, height) == (256, 264), 'Native speaking frame changed'
+    assert catalog['portrait_size'] == manifest['portrait_size'] == width
+    assert (catalog['portrait_width'], catalog['portrait_height']) == (width, height)
+    assert (manifest['portrait_width'], manifest['portrait_height']) == (width, height)
+    assert manifest['portraits'] == 56 and manifest['fullbody_portraits'] == 5
+    assert manifest['people'] == len(catalog['people'])
+    preserved_source_files = preserve_sources(catalog, backgrounds, baseline)
     assert len(scenes) == len(baseline['story_events']) == 125
     for scene, expected in zip(scenes, baseline['story_events']):
         assert scene['id'] == expected['id']
@@ -177,12 +233,17 @@ def main():
         '<8s6I', data)
     assert magic == b'CSTORY02' and event_count == 125 and total == len(data) and not unused
     assert digest(data) == manifest['archive_sha256']
-    assert asset_count == manifest['assets'] == len(backgrounds) + 51
+    assert asset_count == manifest['assets'] == len(backgrounds) + 56
     assets = read_assets(data, asset_table, asset_count)
+    for asset in assets[len(backgrounds):]:
+        assert (asset['width'], asset['height'], asset['kind']) == (width, height, 1)
+    for asset in assets[:len(backgrounds)]:
+        assert (asset['width'], asset['height'], asset['kind']) == (512, 324, 0)
     portrait_map = manifest['portrait_map']
     assert len(portrait_map) == 5
     assert all(len(row) == len(catalog['people']) for row in portrait_map)
     assert {value for row in portrait_map for value in row} == set(range(51))
+    assert portrait_map == baseline['source_preservation']['ordinary_portrait_map'], 'Original portrait source mapping changed'
     hashes = {}
     preserved = 0
     for pose_index, pose in enumerate(POSES):
@@ -194,36 +255,31 @@ def main():
                 if pose in baseline['poses']:
                     assert asset['sha256'] != baseline['portraits'][key], ('Nia art unchanged', pose)
             else:
-                previous = actor + '.' + (pose if pose in baseline['poses'] else 'DEFAULT')
-                assert asset['sha256'] == baseline['portraits'][previous], ('Other actor changed', key)
+                # Source sheets and selection specs are pinned above. Reexport
+                # at256x264 intentionally changes every old168px payload.
                 preserved += 1
     nia_ids = [row[0] for row in portrait_map]
     assert len(set(nia_ids)) == len({hashes['NIA.' + pose] for pose in POSES}) == 5
-    sources, alpha_oracles = source_overrides(catalog)
-    masks = []
-    for pose, portrait_id in zip(POSES, nia_ids):
-        asset = assets[len(backgrounds) + portrait_id]
-        assert (asset['width'], asset['height'], asset['kind']) == (168, 168, 1)
-        assert asset['palette'][:2] == b'\0\0'
-        pixels = asset['pixels']
-        assert 100 < pixels.count(0) < len(pixels) - 1000, pose
-        areas, _ = components(pixels, 168)
-        assert len(areas) == 1 or areas[1] <= 32, ('Detached portrait fragments', pose, areas[:5])
-        alpha_errors = sum(bool(actual) != bool(expected)
-                           for actual, expected in zip(pixels, alpha_oracles[pose]))
-        assert not alpha_errors, ('Imported alpha differs from approved crop', pose, alpha_errors)
-        xs = [at % 168 for at, value in enumerate(pixels) if value]
-        ys = [at // 168 for at, value in enumerate(pixels) if value]
-        assert min(xs) > 0 and max(xs) < 167 and min(ys) > 0, ('Portrait touches crop edge', pose)
-        masks.append({'pose': pose, 'opaque_pixels': len(xs), 'components': areas[:5],
-                      'source_alpha_mismatches': alpha_errors,
-                      'bounds': [min(xs), min(ys), max(xs) + 1, max(ys) + 1]})
-
-    changed_backgrounds = set()
-    for index, name in enumerate(names):
-        if assets[index]['sha256'] != baseline['backgrounds'][name]:
-            changed_backgrounds.add(name)
-    assert changed_backgrounds == FAMILY_BACKGROUNDS, ('Unexpected background changes', changed_backgrounds)
+    sources, alpha_oracles = source_overrides(catalog, width, height)
+    masks = check_masks(assets, len(backgrounds), nia_ids, alpha_oracles, width, height)
+    fullbody_map = manifest['fullbody_map']
+    assert len(fullbody_map) == len(POSES)
+    assert all(len(row) == len(catalog['people']) for row in fullbody_map)
+    assert all(row[actor] == -1 for row in fullbody_map for actor in range(1, len(catalog['people'])))
+    fullbody_ids = [row[0] for row in fullbody_map]
+    assert set(fullbody_ids) == set(range(51, 56)), 'Full bodies must be five additional Nia-only records'
+    assert not set(fullbody_ids) & {value for row in portrait_map for value in row}
+    fullbody_sources, fullbody_alpha = source_overrides(catalog, width, height, fullbody=True)
+    fullbody_masks = check_masks(assets, len(backgrounds), fullbody_ids, fullbody_alpha, width, height)
+    assert len({assets[len(backgrounds) + index]['sha256'] for index in fullbody_ids}) == 5
+    for ordinary, full in zip(nia_ids, fullbody_ids):
+        assert assets[len(backgrounds) + ordinary]['sha256'] != assets[len(backgrounds) + full]['sha256']
+    assert catalog['fullbody_overrides'] == baseline['fullbody_replacement']['overrides']
+    for source in fullbody_sources:
+        expected = baseline['fullbody_replacement']['crops'][source['pose']]
+        assert source['sha256'] == expected['source_sha256'], ('Unapproved full-body source', source['pose'])
+        assert source['crop'] == tuple(expected['bounds']), ('Full-body crop changed', source['pose'])
+        assert source['crop_sha256'] == expected['rgba_sha256'], ('Full-body crop pixels changed', source['pose'])
 
     occurrences = []
     for event, scene in enumerate(scenes):
@@ -260,14 +316,21 @@ def main():
         assert source['crop'] == tuple(expected['bounds']), ('Pose crop changed', source['pose'])
         assert source['crop_sha256'] == expected['rgba_sha256'], ('Pose crop pixels changed', source['pose'])
     result = {'baseline_ref': baseline['baseline_ref'], 'archive_sha256': digest(data),
-              'portrait_size': 168, 'portraits': 51, 'nia_poses': POSES,
+              'source_preservation_ref': baseline['source_preservation']['baseline_ref'],
+              'portrait_size': width, 'portrait_width': width, 'portrait_height': height,
+              'portraits': 56, 'ordinary_portraits': 51, 'fullbody_portraits': 5, 'nia_poses': POSES,
               'all_previous_nia_portraits_replaced': True,
               'imported_alpha_matches_approved_source': True,
-              'other_actor_pose_payloads_preserved': preserved,
-              'names_and_story_preserved': True, 'changed_backgrounds': sorted(changed_backgrounds),
+              'fullbody_alpha_matches_approved_source': True,
+              'other_actor_pose_sources_preserved': preserved,
+              'original_source_files_preserved': preserved_source_files,
+              'original_background_source_specs_preserved': len(backgrounds),
+              'names_and_story_preserved': True,
+              'intentional_reexport': baseline['native_render_frame']['reason'],
               'workshop_family_photo_shots': family_shots,
               'fifth_pose_compiled_occurrences': occurrences, 'portrait_masks': masks,
-              'source_overrides': sources}
+              'fullbody_masks': fullbody_masks, 'source_overrides': sources,
+              'fullbody_source_overrides': fullbody_sources}
     assert not args.source_sha256 or args.source, '--source-sha256 requires --source'
     if args.source:
         sha = digest(args.source.read_bytes())

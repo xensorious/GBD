@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "baseline_ref": "65b963f794ac405bf06f36420a2ae6ce27a1a45a",
   "archive_sha256": "0c00cc7b0d2dc754dc55ade2d15650a8e161525ac91b4e487ad19b9482034d7e",
   "portrait_size": 168,
@@ -791,6 +791,1593 @@
           1254
         ],
         "rgba_sha256": "8098a282fd15b47d80fb357501d73d7178f00e1c85a872cae22aab0970d67e35"
+      }
+    }
+  },
+  "native_render_frame": {
+    "portrait_dimensions": [
+      256,
+      264
+    ],
+    "reason": "Intentional native 256x264 speaking-frame reexport of original source art, plus five additional approved Nia full bodies; historical 168px packed payload hashes are retained only as provenance."
+  },
+  "source_preservation": {
+    "baseline_ref": "b4a95c8d16ddfd9c15530efdb0398693139913e4",
+    "catalog_sheets": [
+      {
+        "file": "cast.png",
+        "grid": [
+          4,
+          3
+        ],
+        "people": 12,
+        "first": 0,
+        "pose": "DEFAULT"
+      },
+      {
+        "file": "neighbors.png",
+        "grid": [
+          2,
+          1
+        ],
+        "people": 2,
+        "first": 12,
+        "pose": "DEFAULT"
+      },
+      {
+        "file": "casual.png",
+        "grid": [
+          4,
+          3
+        ],
+        "people": 12,
+        "first": 0,
+        "pose": "CASUAL"
+      },
+      {
+        "file": "gear_0.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 0,
+        "pose": "GEAR"
+      },
+      {
+        "file": "gear_1.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 4,
+        "pose": "GEAR"
+      },
+      {
+        "file": "gear_2.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 8,
+        "pose": "GEAR"
+      },
+      {
+        "file": "quiet_0.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 0,
+        "pose": "QUIET"
+      },
+      {
+        "file": "quiet_1.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 4,
+        "pose": "QUIET"
+      },
+      {
+        "file": "quiet_2.png",
+        "grid": [
+          4,
+          1
+        ],
+        "people": 4,
+        "first": 8,
+        "pose": "QUIET"
+      }
+    ],
+    "catalog_overrides": [
+      {
+        "character": "NIA",
+        "pose": "DEFAULT",
+        "sheet": "nia-replacement.png",
+        "bounds": [
+          0,
+          0,
+          430,
+          627
+        ],
+        "remove_export_matte": true
+      },
+      {
+        "character": "NIA",
+        "pose": "CASUAL",
+        "sheet": "nia-replacement.png",
+        "bounds": [
+          430,
+          0,
+          836,
+          627
+        ],
+        "remove_export_matte": true
+      },
+      {
+        "character": "NIA",
+        "pose": "GEAR",
+        "sheet": "nia-replacement.png",
+        "bounds": [
+          836,
+          0,
+          1254,
+          627
+        ],
+        "remove_export_matte": true
+      },
+      {
+        "character": "NIA",
+        "pose": "QUIET",
+        "sheet": "nia-replacement.png",
+        "bounds": [
+          0,
+          627,
+          407,
+          1254
+        ],
+        "remove_export_matte": true
+      },
+      {
+        "character": "NIA",
+        "pose": "ANNOYED",
+        "sheet": "nia-replacement.png",
+        "bounds": [
+          400,
+          627,
+          900,
+          1254
+        ],
+        "remove_export_matte": true
+      }
+    ],
+    "catalog_poses": [
+      "DEFAULT",
+      "CASUAL",
+      "GEAR",
+      "QUIET",
+      "ANNOYED"
+    ],
+    "ordinary_portrait_map": [
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ],
+      [
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        12,
+        13
+      ],
+      [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        12,
+        13
+      ],
+      [
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        12,
+        13
+      ],
+      [
+        50,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    ],
+    "background_specs": [
+      {
+        "name": "GARAGE",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "DOOR": [
+            258,
+            "Open garage door"
+          ],
+          "CAR": [
+            123,
+            "Nia's loaner"
+          ],
+          "JACK": [
+            425,
+            "Workshop jack"
+          ]
+        }
+      },
+      {
+        "name": "MARINA",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "HARBOR": [
+            254,
+            "Harbor lights"
+          ],
+          "CARS": [
+            125,
+            "Waterfront grid"
+          ],
+          "FOOD": [
+            399,
+            "Food van"
+          ]
+        }
+      },
+      {
+        "name": "MEET",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "CREW": [
+            165,
+            "Club gathering"
+          ],
+          "GRID": [
+            373,
+            "Club cars"
+          ]
+        }
+      },
+      {
+        "name": "FOUNDRY",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "CLUB": [
+            400,
+            "Foundry workshop"
+          ],
+          "CIRCUIT": [
+            140,
+            "Industrial waterfront"
+          ]
+        }
+      },
+      {
+        "name": "PADDOCK",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "PITS": [
+            130,
+            "Meridian pit garages"
+          ],
+          "LANE": [
+            337,
+            "Pit lane and marked apron"
+          ]
+        }
+      },
+      {
+        "name": "FINALE",
+        "sheet": "backgrounds.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "CIRCUIT": [
+            294,
+            "Cup circuit"
+          ],
+          "PADDOCK": [
+            127,
+            "Cup paddock"
+          ]
+        }
+      },
+      {
+        "name": "BENCH",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 0,
+        "subjects": {
+          "KEYS": [
+            85,
+            "The small keys"
+          ],
+          "JACK": [
+            235,
+            "The wandering jack"
+          ]
+        }
+      },
+      {
+        "name": "NOTES",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 1,
+        "subjects": {
+          "MAP": [
+            142,
+            "Notebook and course map"
+          ],
+          "FILM": [
+            333,
+            "Onboard corner study"
+          ]
+        }
+      },
+      {
+        "name": "PAPERS",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 2,
+        "subjects": {
+          "LEASE": [
+            166,
+            "Lease renewal / application papers"
+          ],
+          "BUDGET": [
+            396,
+            "Invoices and budget"
+          ]
+        }
+      },
+      {
+        "name": "PITWALL",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 3,
+        "subjects": {
+          "RADIO": [
+            128,
+            "Crew radio and weather"
+          ],
+          "TIMES": [
+            384,
+            "Sector timing sheet"
+          ]
+        }
+      },
+      {
+        "name": "OFFICE",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 4,
+        "subjects": {
+          "CONTRACT": [
+            192,
+            "Commercial contract"
+          ],
+          "LICENSE": [
+            414,
+            "Independent application"
+          ]
+        }
+      },
+      {
+        "name": "START",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 5,
+        "subjects": {
+          "BARRIER": [
+            128,
+            "Marshal's entrance"
+          ],
+          "GRID": [
+            384,
+            "Club starting grid"
+          ]
+        }
+      },
+      {
+        "name": "CORNER",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 6,
+        "subjects": {
+          "MARKER": [
+            128,
+            "Corner reference marker"
+          ],
+          "EXIT": [
+            384,
+            "The next corner exit"
+          ]
+        }
+      },
+      {
+        "name": "AWNING",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 7,
+        "subjects": {
+          "AWNING": [
+            128,
+            "Borrowed club awning"
+          ],
+          "FOOD": [
+            384,
+            "Harbor food van"
+          ]
+        }
+      },
+      {
+        "name": "MEMORIES",
+        "sheet": "nia-family-workshop.png",
+        "grid": [
+          1,
+          1
+        ],
+        "tile": 0,
+        "subjects": {
+          "SIGN": [
+            115,
+            "Sunline's sign and family photo"
+          ],
+          "CHAIRS": [
+            322,
+            "Chairs by the open door"
+          ]
+        }
+      },
+      {
+        "name": "NIGHTGARAGE",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 9,
+        "subjects": {
+          "CAR": [
+            128,
+            "Sunline after hours"
+          ],
+          "KETTLE": [
+            384,
+            "The crew's kettle"
+          ]
+        }
+      },
+      {
+        "name": "NIGHTFINAL",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 10,
+        "subjects": {
+          "CORNER": [
+            128,
+            "Floodlit final corner"
+          ],
+          "FLAG": [
+            384,
+            "Finish line"
+          ]
+        }
+      },
+      {
+        "name": "RAIN",
+        "sheet": "inserts.png",
+        "grid": [
+          3,
+          4
+        ],
+        "tile": 11,
+        "subjects": {
+          "WATER": [
+            128,
+            "Rain on the waterfront"
+          ],
+          "AWNING": [
+            384,
+            "Shelter under the awning"
+          ]
+        }
+      },
+      {
+        "name": "NIA_KITCHEN",
+        "location": "Nia's kitchen",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "ORANGES": [
+            128,
+            "Oranges and the old toaster"
+          ],
+          "TABLE": [
+            384,
+            "A place at the table"
+          ]
+        }
+      },
+      {
+        "name": "MINA_BEDROOM",
+        "location": "Mina's room",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "NOTES": [
+            128,
+            "The takeaway-menu notes"
+          ],
+          "PHOTOS": [
+            384,
+            "Photographs after midnight"
+          ]
+        }
+      },
+      {
+        "name": "JULES_ROOM",
+        "location": "Jules's flat",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "HELMET": [
+            128,
+            "Courier gear by the bed"
+          ],
+          "BILLS": [
+            384,
+            "The bills nobody jokes about"
+          ]
+        }
+      },
+      {
+        "name": "LAUNDROMAT",
+        "location": "Saltblock laundromat",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "WASHERS": [
+            128,
+            "One quiet cycle"
+          ],
+          "CHAIRS": [
+            384,
+            "Waiting with someone"
+          ]
+        }
+      },
+      {
+        "name": "DINER",
+        "location": "Eli's diner",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "COUNTER": [
+            128,
+            "Coffee and the receipt book"
+          ],
+          "BOOTH": [
+            384,
+            "The usual booth"
+          ]
+        }
+      },
+      {
+        "name": "BUSSTOP",
+        "location": "The early bus",
+        "sheet": "homes.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "BENCH": [
+            128,
+            "A parcel on the bench"
+          ],
+          "ROAD": [
+            384,
+            "The city waking up"
+          ]
+        }
+      },
+      {
+        "name": "BAR",
+        "location": "Lantern / after closing",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "COUNTER": [
+            128,
+            "Water at the bar"
+          ],
+          "DOOR": [
+            384,
+            "The last customers have left"
+          ]
+        }
+      },
+      {
+        "name": "CLUB",
+        "location": "The listening room",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "STAGE": [
+            128,
+            "Between sets"
+          ],
+          "TABLE": [
+            384,
+            "A night without a grid"
+          ]
+        }
+      },
+      {
+        "name": "HARBOR_BATHROOM",
+        "location": "Harbor public washroom",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "BASIN": [
+            128,
+            "Washing the shift away"
+          ],
+          "MIRROR": [
+            384,
+            "A moment to collect yourself"
+          ]
+        }
+      },
+      {
+        "name": "FERRY",
+        "location": "The late ferry",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "BENCH": [
+            128,
+            "Food on the ferry bench"
+          ],
+          "WATER": [
+            384,
+            "The long way home"
+          ]
+        }
+      },
+      {
+        "name": "FISHMARKET",
+        "location": "The morning market",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "CRATES": [
+            128,
+            "The work before the race"
+          ],
+          "SHUTTERS": [
+            384,
+            "Opening the shutters"
+          ]
+        }
+      },
+      {
+        "name": "WAITING_ROOM",
+        "location": "A Thursday appointment",
+        "sheet": "harbor_life.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "CHAIRS": [
+            128,
+            "The ordinary Thursday routine"
+          ],
+          "FLOWERS": [
+            384,
+            "Flowers by the corridor"
+          ]
+        }
+      },
+      {
+        "name": "ROOFTOP",
+        "location": "Sunline / the roof",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "RADIO": [
+            128,
+            "The neighborhood below"
+          ],
+          "CHAIRS": [
+            384,
+            "Room for another chair"
+          ]
+        }
+      },
+      {
+        "name": "RECORD_SHOP",
+        "location": "The record shop",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "RECORDS": [
+            128,
+            "The listening station"
+          ],
+          "NOTICES": [
+            384,
+            "The community board"
+          ]
+        }
+      },
+      {
+        "name": "PRINTSHOP",
+        "location": "The corner print shop",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "PRINTER": [
+            128,
+            "A sign without a paper jam"
+          ],
+          "PHOTOS": [
+            384,
+            "A first proper print"
+          ]
+        }
+      },
+      {
+        "name": "BRIDGE_CAFE",
+        "location": "The bridge cafe",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "FOLDER": [
+            128,
+            "Two cups and a hard question"
+          ],
+          "BRIDGE": [
+            384,
+            "People on the other side"
+          ]
+        }
+      },
+      {
+        "name": "OLD_WORKSHOP",
+        "location": "Voss's old workshop",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "LIFT": [
+            128,
+            "Where the tool chest stood"
+          ],
+          "CHAIR": [
+            384,
+            "The last folding chair"
+          ]
+        }
+      },
+      {
+        "name": "BLACKOUT",
+        "location": "Sunline / power cut",
+        "sheet": "neighborhood.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "LANTERN": [
+            128,
+            "The battery lantern"
+          ],
+          "CHAIRS": [
+            384,
+            "Staying when the lights go out"
+          ]
+        }
+      },
+      {
+        "name": "MOTEL_ROOM",
+        "location": "The budget motel",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "BEDS": [
+            128,
+            "Two beds and too much luggage"
+          ],
+          "MAP": [
+            384,
+            "Tomorrow on a paper map"
+          ]
+        }
+      },
+      {
+        "name": "MOTEL_LOT",
+        "location": "Motel / first light",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "BAGS": [
+            128,
+            "Loading up again"
+          ],
+          "DOORS": [
+            384,
+            "Other people heading to work"
+          ]
+        }
+      },
+      {
+        "name": "SERVICE_STATION",
+        "location": "Rain at the service stop",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "PUMP": [
+            128,
+            "A pump and a borrowed minute"
+          ],
+          "SHOP": [
+            384,
+            "The shop is still open"
+          ]
+        }
+      },
+      {
+        "name": "ROAD_BATHROOM",
+        "location": "A roadside washroom",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "BASIN": [
+            128,
+            "Cold water before check-in"
+          ],
+          "MIRROR": [
+            384,
+            "Practicing an introduction"
+          ]
+        }
+      },
+      {
+        "name": "TRAIN_PLATFORM",
+        "location": "The morning train",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "BENCH": [
+            128,
+            "Mina's camera bag"
+          ],
+          "TRAIN": [
+            384,
+            "Her own door opening"
+          ]
+        }
+      },
+      {
+        "name": "CREW_VAN",
+        "location": "The parked crew van",
+        "sheet": "travel.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "MAP": [
+            128,
+            "A map between the seats"
+          ],
+          "WINDOW": [
+            384,
+            "A rest stop above the coast"
+          ]
+        }
+      },
+      {
+        "name": "BRIEFING",
+        "location": "The briefing room",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "BOARD": [
+            128,
+            "Learning the marked route"
+          ],
+          "CHAIRS": [
+            384,
+            "An empty seat for questions"
+          ]
+        }
+      },
+      {
+        "name": "MEDIA_ROOM",
+        "location": "The press room",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "CAMERA": [
+            128,
+            "A paid press pass"
+          ],
+          "PRINTS": [
+            384,
+            "Pictures with her own name"
+          ]
+        }
+      },
+      {
+        "name": "CAFETERIA",
+        "location": "The late cafeteria",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "COUNTER": [
+            128,
+            "A meal before the notes"
+          ],
+          "TABLE": [
+            384,
+            "One more place at the table"
+          ]
+        }
+      },
+      {
+        "name": "STEWARDS",
+        "location": "The video review room",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 3,
+        "subjects": {
+          "VIDEO": [
+            128,
+            "The actual track limit"
+          ],
+          "DESK": [
+            384,
+            "Accepting the correction"
+          ]
+        }
+      },
+      {
+        "name": "LOCKER_ROOM",
+        "location": "The quiet locker room",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "LOCKER": [
+            128,
+            "Leaving the overalls behind"
+          ],
+          "WATER": [
+            384,
+            "Rest is part of the work"
+          ]
+        }
+      },
+      {
+        "name": "VOLUNTEERS",
+        "location": "The volunteer office",
+        "sheet": "backrooms.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "PASSES": [
+            128,
+            "Passes and ordinary patience"
+          ],
+          "MAP": [
+            384,
+            "The people behind an event"
+          ]
+        }
+      },
+      {
+        "name": "SKY_LOUNGE",
+        "location": "The hotel sky lounge",
+        "sheet": "specials.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 0,
+        "subjects": {
+          "FOLDER": [
+            128,
+            "The other version of security"
+          ],
+          "WINDOW": [
+            384,
+            "The city from far above"
+          ]
+        }
+      },
+      {
+        "name": "EMPTY_STANDS",
+        "location": "After the spectators leave",
+        "sheet": "specials.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 1,
+        "subjects": {
+          "NOTEBOOK": [
+            128,
+            "A pencil on an empty seat"
+          ],
+          "CIRCUIT": [
+            384,
+            "Nobody watching for a moment"
+          ]
+        }
+      },
+      {
+        "name": "GREENHOUSE",
+        "location": "Mrs. Vale's greenhouse",
+        "sheet": "specials.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 2,
+        "subjects": {
+          "SEEDLINGS": [
+            128,
+            "The repaired watering can"
+          ],
+          "ORANGES": [
+            384,
+            "Another kind of harvest"
+          ]
+        }
+      },
+      {
+        "name": "LIGHTHOUSE",
+        "location": "The lighthouse walk",
+        "sheet": "nia-family-lighthouse.png",
+        "grid": [
+          1,
+          1
+        ],
+        "tile": 0,
+        "subjects": {
+          "PHOTO": [
+            128,
+            "A photograph brought from home"
+          ],
+          "SEA": [
+            384,
+            "Somewhere the workshop is quiet"
+          ]
+        }
+      },
+      {
+        "name": "GALLERY",
+        "location": "Mina's small exhibition",
+        "sheet": "specials.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 4,
+        "subjects": {
+          "PRINTS": [
+            128,
+            "The ordinary nights she kept"
+          ],
+          "BOOK": [
+            384,
+            "Names in the guestbook"
+          ]
+        }
+      },
+      {
+        "name": "EPILOGUE",
+        "location": "Sunline / the open door",
+        "sheet": "specials.png",
+        "grid": [
+          2,
+          3
+        ],
+        "tile": 5,
+        "subjects": {
+          "KEYS": [
+            128,
+            "The small keys are still here"
+          ],
+          "CHAIRS": [
+            384,
+            "One more chair by the door"
+          ]
+        }
+      }
+    ],
+    "authored_files": {
+      "story/staging.json": "b275641fd811e91442dd38645fe29b591c78df1787b8554ecace8456912af193",
+      "story/rising_tide.txt": "7370c43f7f2b202ff6ab20de2425a4fb6e583f66b488e153670cdc7216d5d059"
+    },
+    "source_files": {
+      "art/story/backgrounds.png": {
+        "sha256": "7feb646518948c71845d2fa2eeb210b03da6d41a15734a74f7f501c5715eb06e",
+        "size": [
+          1536,
+          1024
+        ]
+      },
+      "art/story/backrooms.png": {
+        "sha256": "4a6beb1a9651b86c8f44ccb566688c108e1d5315ca427f3e0ad3ce53d691eb8e",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/cast.png": {
+        "sha256": "9849d101a1eaec077d8baddb9812ade04f998962751798ae201c1b3c2dffde6d",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/casual.png": {
+        "sha256": "536c725f9e594150f7456eb0f8cc1eb16f65edece5b44f6a204169454a4f64b3",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/gear_0.png": {
+        "sha256": "c834da846d60b4953ba52fc15f3a219f3ffd66c63f1f4e502118cdc19e0cd2bd",
+        "size": [
+          2172,
+          724
+        ]
+      },
+      "art/story/gear_1.png": {
+        "sha256": "8b211d7b0a44c024fad5ee744278d765841fb46829512b4876c24e9e91b01697",
+        "size": [
+          2172,
+          724
+        ]
+      },
+      "art/story/gear_2.png": {
+        "sha256": "de34247480c5d53a456b82b6ed25dda96ae5f6fa2a3e1b16d723bc1f85512bba",
+        "size": [
+          2172,
+          724
+        ]
+      },
+      "art/story/harbor_life.png": {
+        "sha256": "35a5ff285ab392efa751eb8055d832e79e0f378b7cf27bf696a6a53eb4cfb185",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/homes.png": {
+        "sha256": "5be3191015007d8ee80976a4dd188044c8971cea0c233e1f4406424e108648bc",
+        "size": [
+          1536,
+          1024
+        ]
+      },
+      "art/story/inserts.png": {
+        "sha256": "3f738a515c3f47216c0009d6de18dbd76a57e860861085852bb8fec964560ebb",
+        "size": [
+          1536,
+          1024
+        ]
+      },
+      "art/story/neighborhood.png": {
+        "sha256": "80a3204c57632543a5c599c45717b38219e93de6bd67599b1e70cc41b82168f1",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/neighbors.png": {
+        "sha256": "179092af11243048939269efb9d687f4297818f9ac3925641565b3566ce58d44",
+        "size": [
+          1774,
+          887
+        ]
+      },
+      "art/story/nia-family-lighthouse.png": {
+        "sha256": "25e6d6fc122492e1484bbc7bdc5be78c4287935574cce8b14ea33d136bafdffb",
+        "size": [
+          1774,
+          887
+        ]
+      },
+      "art/story/nia-family-workshop.png": {
+        "sha256": "9bc50926065bdfd1d9128ace40aa8f60e7daece0fbb1982d1f4bdf23ad9055c9",
+        "size": [
+          1774,
+          887
+        ]
+      },
+      "art/story/nia-replacement.png": {
+        "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+        "size": [
+          1254,
+          1254
+        ]
+      },
+      "art/story/quiet_0.png": {
+        "sha256": "2901670dc2866aad4da0c868576ad51b88046f56fac6ac5b9f23a197741f46ba",
+        "size": [
+          2048,
+          768
+        ]
+      },
+      "art/story/quiet_1.png": {
+        "sha256": "cdf54ec4eb8205964b9fd25b8a0f4634827230b51d00e3c9c5cb9a6068621c66",
+        "size": [
+          2022,
+          778
+        ]
+      },
+      "art/story/quiet_2.png": {
+        "sha256": "b461cd101cade087e38904279a6368649a081b982ced4982f2a803a6ac4876da",
+        "size": [
+          2172,
+          724
+        ]
+      },
+      "art/story/specials.png": {
+        "sha256": "1b445d17131c71eee5f34052dd96a6ae7e56ae3efe13fe70227483657e793d9b",
+        "size": [
+          1448,
+          1086
+        ]
+      },
+      "art/story/travel.png": {
+        "sha256": "661d12088e8a044c6293217a9df4d9cf018d9a63cee22249f41a7fd19ce0a4b6",
+        "size": [
+          1448,
+          1086
+        ]
+      }
+    }
+  },
+  "fullbody_replacement": {
+    "overrides": [
+      {
+        "character": "NIA",
+        "pose": "DEFAULT",
+        "sheet": "nia-fullbody-approved-source.png",
+        "bounds": [
+          0,
+          750,
+          512,
+          1536
+        ]
+      },
+      {
+        "character": "NIA",
+        "pose": "CASUAL",
+        "sheet": "nia-fullbody-approved-source.png",
+        "bounds": [
+          512,
+          750,
+          1024,
+          1536
+        ]
+      },
+      {
+        "character": "NIA",
+        "pose": "GEAR",
+        "sheet": "nia-fullbody-expressions-source.png",
+        "bounds": [
+          140,
+          0,
+          570,
+          1000
+        ]
+      },
+      {
+        "character": "NIA",
+        "pose": "QUIET",
+        "sheet": "nia-fullbody-expressions-source.png",
+        "bounds": [
+          590,
+          0,
+          985,
+          1000
+        ]
+      },
+      {
+        "character": "NIA",
+        "pose": "ANNOYED",
+        "sheet": "nia-fullbody-expressions-source.png",
+        "bounds": [
+          985,
+          0,
+          1518,
+          1000
+        ]
+      }
+    ],
+    "crops": {
+      "DEFAULT": {
+        "source": "art/story/nia-fullbody-approved-source.png",
+        "source_sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+        "bounds": [
+          0,
+          750,
+          512,
+          1536
+        ],
+        "rgba_sha256": "23e357c5f2b68e3cfac31ce42cad9559030550cfedc95cd730228b0ada68fac4"
+      },
+      "CASUAL": {
+        "source": "art/story/nia-fullbody-approved-source.png",
+        "source_sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+        "bounds": [
+          512,
+          750,
+          1024,
+          1536
+        ],
+        "rgba_sha256": "26f978af0bcf03d4528b942429c3309ab0546db1c0bb637ae1d5ff81e44cde23"
+      },
+      "GEAR": {
+        "source": "art/story/nia-fullbody-expressions-source.png",
+        "source_sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+        "bounds": [
+          140,
+          0,
+          570,
+          1000
+        ],
+        "rgba_sha256": "6cfb640c6f3df6b7673437dd3d0be6c8737947b36eb54a4c7db42c2e15389ace"
+      },
+      "QUIET": {
+        "source": "art/story/nia-fullbody-expressions-source.png",
+        "source_sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+        "bounds": [
+          590,
+          0,
+          985,
+          1000
+        ],
+        "rgba_sha256": "162883ea30575d80f68e2d4f7a8882bc469b42fce1c38feab2f5ed923da1d85d"
+      },
+      "ANNOYED": {
+        "source": "art/story/nia-fullbody-expressions-source.png",
+        "source_sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+        "bounds": [
+          985,
+          0,
+          1518,
+          1000
+        ],
+        "rgba_sha256": "d9fb2a8c2bef4f8033d63b09ba45544a0199f0b73185267b78b764dc2f35fa0a"
       }
     }
   }
