@@ -6,7 +6,7 @@ from inspect_rom import inspect
 from game_snapshot import find_symbol
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from story_script import load_story,CAST,PEOPLE
+from story_script import load_story,CAST,PEOPLE,POSES
 source_backgrounds,source_scenes=load_story(ROOT)
 manifest=json.loads((ROOT/'build/story-manifest.json').read_text());nbg=len(source_backgrounds);portrait_map=manifest['portrait_map'];portraits_seen=set();background_events={}
 expected_lines=sum(len(e['lines']) for e in source_scenes)
@@ -18,24 +18,32 @@ rom=ROOT/'build/Coastline.nds';r=rom.read_bytes();fat,size=struct.unpack_from('<
 start,end=struct.unpack_from('<II',r,fat);archive=r[start:end];assert archive==(ROOT/'build/nitro/story.bin').read_bytes()
 magic,event_table,events,asset_table,assets,total,unused=struct.unpack_from('<8s6I',archive)
 assert magic==b'CSTORY02' and events==125 and assets==manifest['assets'] and total==len(archive)
-lines=0;methods=set();speakers=set();backgrounds=set();longest=0
+lines=0;methods=set();speakers=set();backgrounds=set();longest=0;extended_leads=0;extended_companions=0
+assert 5<=len(POSES)<=64
 for event in range(events):
  offset,bytes_,count,reserved=struct.unpack_from('<IHHI',archive,event_table+event*12);n,pad=struct.unpack_from('<HH',archive,offset);assert count==n and 4<=n<=16
  assert offset+bytes_<=len(archive) and not pad and not reserved
  for line in range(n):
-  ptr=struct.unpack_from('<I',archive,offset+4+line*4)[0];speaker,companion,method,bg,focus,length=struct.unpack_from('<BBBBHH',archive,ptr)
+  ptr=struct.unpack_from('<I',archive,offset+4+line*4)[0];speaker,companion,method,bg,focus,length,pose_flags=struct.unpack_from('<BBBBHBB',archive,ptr)
   assert speaker<len(CAST) and (companion<len(PEOPLE) or companion==255) and method<4 and bg<nbg and (focus&511)<=256 and not focus&0x2000 and 0<length<192
+  pose=((focus>>9)&3)|((pose_flags&15)<<2);companion_pose=((focus>>11)&3)|((pose_flags>>4)<<2)
+  assert pose<len(POSES) and companion_pose<len(POSES)
   text=archive[ptr+8:ptr+8+length].decode('ascii');assert '\0' not in text and len(text)==length
   authored=source_scenes[event]['lines'][line]
-  expected_focus=authored['focus']|(0x8000 if authored['move'] else 0)|(0x4000 if authored['caption_right'] else 0)|(authored['pose']<<9)|(authored['companion_pose']<<11)
-  assert (speaker,companion,method,bg,focus,text)==(authored['speaker'],authored['companion'],authored['stage'],authored['background'],expected_focus,authored['text'])
+  expected_focus=authored['focus']|(0x8000 if authored['move'] else 0)|(0x4000 if authored['caption_right'] else 0)|((authored['pose']&3)<<9)|((authored['companion_pose']&3)<<11)
+  expected_flags=(authored['pose']>>2)|((authored['companion_pose']>>2)<<4)
+  assert (speaker,companion,method,bg,focus,pose_flags,text)==(authored['speaker'],authored['companion'],authored['stage'],authored['background'],expected_focus,expected_flags,authored['text'])
+  assert (pose,companion_pose)==(authored['pose'],authored['companion_pose'])
   assert not any(token in text for token in ('TODO','TBD','Proposed objective','IDEA:'))
   methods.add(method);speakers.add(speaker);backgrounds.add(bg);lines+=1;longest=max(longest,length)
   background_events.setdefault(bg,set()).add(event)
-  if speaker<len(PEOPLE):portraits_seen.add(portrait_map[(focus>>9)&3][speaker])
-  if method==0 and companion<len(PEOPLE):portraits_seen.add(portrait_map[(focus>>11)&3][companion])
+  if speaker<len(PEOPLE):portraits_seen.add(portrait_map[pose][speaker])
+  if method==0 and companion<len(PEOPLE):portraits_seen.add(portrait_map[companion_pose][companion])
+  extended_leads+=speaker==PEOPLE.index('NIA') and pose==4
+  extended_companions+=method==0 and speaker<len(PEOPLE) and companion==PEOPLE.index('NIA') and companion_pose==4
 assert lines==expected_lines and methods==set(range(4)) and speakers==set(range(len(CAST))) and backgrounds==set(range(nbg))
 assert portraits_seen==set(range(manifest['portraits']))
+assert extended_leads and extended_companions
 shot_count=0
 for scene in source_scenes:
  for shot in scene['shots']:
@@ -80,4 +88,5 @@ for i in range(assets):
 elf=ROOT/'build/arm9.elf';main_end=find_symbol(elf,'__bss_end__');itcm_end=find_symbol(elf,'__itcm_end')
 assert main_end<0x02380000 and itcm_end<=0x01008000
 result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_size':portrait_size,'all_portraits_used':True,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'art':art}
+result.update({'pose_count':len(POSES),'extended_pose_lead_lines':extended_leads,'extended_pose_companion_lines':extended_companions})
 (a.output/'story-assets-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

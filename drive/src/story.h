@@ -14,7 +14,12 @@
 enum StoryPhase {ST_FADEIN,ST_READING,ST_SHOT,ST_ENDING,ST_CLEAR};
 enum StoryStage {ST_FACE,ST_PAN,ST_RADIO,ST_MONTAGE};
 enum StoryCast {SC_NIA,SC_JULES,SC_CALDER,SC_IMANI,SC_MARISOL,SC_KADE,SC_ROOK,SC_REN,SC_ASTER,SC_SABLE,SC_VOSS,SC_MINA,SC_ELI,SC_VALE,SC_YOU,SC_NARRATOR,SC_NONE=255};
-typedef struct {uint8_t speaker,companion,stage,background;uint16_t focus,length;char text[STORY_TEXT_MAX];} StoryLine;
+/* Byte seven used to be the always-zero high byte of the text length.
+ * Its two nibbles extend the lead/companion pose indices without growing a line. */
+typedef struct {uint8_t speaker,companion,stage,background;uint16_t focus;uint8_t length,pose_flags;char text[STORY_TEXT_MAX];} StoryLine;
+static inline unsigned story_pose(const StoryLine*line,int companion){
+ return ((line->focus>>(companion?11:9))&3u)|(((line->pose_flags>>(companion?4:0))&15u)<<2);
+}
 typedef struct {
  uint32_t offsets[STORY_MAX_LINES],revision;
  StoryLine current,previous;

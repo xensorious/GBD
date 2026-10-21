@@ -86,7 +86,7 @@ int story_text_lines(const char*text,int width){
 static const char*subject_name(int bg,int right){
  return bg>=6&&bg<STORY_BACKGROUNDS?story_subjects[bg][right]:NULL;
 }
-static int portrait_id(int actor_id,int pose){return actor_id>=0&&actor_id<STORY_PEOPLE?story_portraits[pose][actor_id]:-1;}
+static int portrait_id(int actor_id,int pose){return actor_id>=0&&actor_id<STORY_PEOPLE&&pose>=0&&pose<STORY_POSES?story_portraits[pose][actor_id]:-1;}
 void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  Surface image={top,256,192},dialog={bottom,256,192};
  const StoryLine*line=&story.current;
@@ -98,7 +98,7 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  int okay=lease();int bg=okay?background(line->background):-1;okay=bg>=0;
  int speaking=line->speaker<STORY_PEOPLE;
  int face=speaking?line->speaker:line->companion,other=speaking?line->companion:255;
- int face_pose=(line->focus>>(speaking?9:11))&3,other_pose=(line->focus>>11)&3;
+ int face_pose=(int)story_pose(line,!speaking),other_pose=(int)story_pose(line,1);
  int face_id=portrait_id(face,face_pose),other_id=portrait_id(other,other_pose);
  int lead=-1,companion=-1;
  if(okay&&line->stage==ST_FACE){lead=person(face_id,other_id);if(other<STORY_PEOPLE&&other!=face)companion=person(other_id,face_id);}

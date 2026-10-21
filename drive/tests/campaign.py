@@ -10,7 +10,7 @@ from game_snapshot import Game,Save,find_symbol,symbol_size,enter_opening
 from playthrough import DriveThrough
 from fixtures import encode_profile,write_battery,assert_compact_battery
 class Line(C.LittleEndianStructure):
- _fields_=[(n,C.c_uint8) for n in ('speaker','companion','stage','background')]+[('focus',C.c_uint16),('length',C.c_uint16),('text',C.c_char*192)]
+ _fields_=[(n,C.c_uint8) for n in ('speaker','companion','stage','background')]+[('focus',C.c_uint16),('length',C.c_uint8),('pose_flags',C.c_uint8),('text',C.c_char*192)]
 class Story(C.LittleEndianStructure):
  _fields_=[('offsets',C.c_uint32*16),('revision',C.c_uint32),('current',Line),('previous',Line)]+[(n,C.c_uint16) for n in ('revealed','ticks','age')]+[(n,C.c_uint8) for n in ('active','chapter','event','line','count','phase','phase_tick','replay','pause','cursor','failed')]
 class Campaign(C.LittleEndianStructure):
@@ -63,7 +63,8 @@ if a.case:
   for shot in scene['shots']:
    shots.add(at)
    for n,line in enumerate(shot['lines']):
-    if line['pose']==3 and (not n or shot['lines'][n-1]['pose']!=3):shots.add(at+n)
+    if line['pose']>=3 and (not n or shot['lines'][n-1]['pose']!=line['pose']):shots.add(at+n)
+    if line['companion_pose']>=4 and (not n or shot['lines'][n-1]['companion_pose']!=line['companion_pose']):shots.add(at+n)
    at+=len(shot['lines'])
   play(d,e,a.case,ch*25+ev+1,shots);d.shot('story-'+a.case.lower()+'-map')
  print('Later-chapter visual fixture reviewed:',a.case,flush=True);raise SystemExit(0)
