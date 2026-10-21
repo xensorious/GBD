@@ -1,0 +1,107 @@
+{
+  "character": "NIA",
+  "design": "Existing approved fictional adult Nia, age 29; same face, hair, body proportions, plain opaque white triangle top, denim shorts, brown belt, pendant, hoops and tattoos.",
+  "generation": {
+    "tool": "image_gen.imagegen",
+    "source_file": "/workspace/generated_images/exec-bbca76b5-4922-4187-ace1-222b373b91dc.png",
+    "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+    "copied_without_pixel_changes": true,
+    "approved_references": [
+      {
+        "file": "/workspace/generated_images/exec-4c831209-94b6-43af-88f2-02b1ebb6cd87.png",
+        "sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+        "role": "Approved full-body proportions, costume and bare-foot neutral/wave reference; bottom row only."
+      },
+      {
+        "file": "art/story/nia-replacement.png",
+        "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+        "role": "Approved five-expression face, hair, clothing, tattoos and GEAR/QUIET/ANNOYED upper-body gestures."
+      },
+      {
+        "file": "/workspace/generated_images/exec-767e8c8e-2a2a-4867-b309-0734068a6627.png",
+        "sha256": "a7e4a8a8365a11b0bb4a6f4a9b7e110be9e31c28d3cd01f880701901418c9e1f",
+        "role": "Latest approved side-view face, hair, barefoot anatomy and character identity reference."
+      }
+    ],
+    "request": "Extend only the approved GEAR, QUIET and ANNOYED upper-body gestures into natural full-body standing sprites. Keep all three barefoot, consistent with the approved neutral and wave full bodies."
+  },
+  "sheet": {
+    "file": "nia-fullbody-expressions-source.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "grid": [
+      3,
+      1
+    ],
+    "grid_is_layout_only": true,
+    "extraction": "Use explicit bounds; equal thirds would clip GEAR and ANNOYED. Bounds use Pillow left,top,right,bottom with exclusive right/bottom. Isolate largest connected alpha component at threshold 96, matching the story importer. RGB under transparent pixels retains the source brown matte.",
+    "alpha_threshold": 96
+  },
+  "poses": [
+    {
+      "character": "NIA",
+      "pose": "GEAR",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        140,
+        0,
+        570,
+        1000
+      ],
+      "content_bounds": [
+        177,
+        14,
+        537,
+        971
+      ],
+      "barefoot": true,
+      "gesture": "Focused neutral expression, right hand holds a wrench upright near shoulder; tattooed left arm relaxed."
+    },
+    {
+      "character": "NIA",
+      "pose": "QUIET",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        590,
+        0,
+        985,
+        1000
+      ],
+      "content_bounds": [
+        628,
+        14,
+        979,
+        970
+      ],
+      "barefoot": true,
+      "gesture": "Thoughtful neutral expression, forearm across waist."
+    },
+    {
+      "character": "NIA",
+      "pose": "ANNOYED",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        985,
+        0,
+        1518,
+        1000
+      ],
+      "content_bounds": [
+        990,
+        15,
+        1468,
+        968
+      ],
+      "barefoot": true,
+      "gesture": "Skeptical raised brow, tattooed left hand on hip, right palm up at waist with wrench hanging down."
+    }
+  ],
+  "review": {
+    "visual": "All three figures match the approved identity and costume. Complete heads, hands, props and feet are visible. Knees and ankles have natural anatomy; no figure or prop is clipped. GEAR, QUIET and ANNOYED gestures follow the approved upper-body sheet.",
+    "independent_review": true,
+    "technical": "Three large connected alpha components, one per pose. All have transparent extraction borders and retain full extremities and tools."
+  }
+}
