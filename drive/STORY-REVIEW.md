@@ -1,10 +1,12 @@
 # Rising Tide: life between races
 
 The campaign still has 125 event nodes and the same saved completion record.
-This edition contains 923 messages, 54 panoramic backgrounds, fourteen named
-people and fifty-one transparent portraits. Sixty-one scenes have expanded writing,
-and the ending has an additional extension. Sixty-two events visit the new
-settings; all 36 new backgrounds and all 51 portraits appear in the script.
+This edition contains 923 messages on 929 dialogue pages, 54 panoramic
+backgrounds, fourteen named people and 56 transparent portrait records. These
+comprise the existing 51 upper-body portraits re-exported from their original
+sources and five additional full-body Nia poses. Sixty-one scenes have expanded
+writing, and the ending has an additional extension. Sixty-two events visit the new
+settings; all 36 new locations and all 56 portrait records appear in the script.
 Nineteen of the new backgrounds are used in only one event.
 
 Career remains a cutscene prototype. Finishing a scene saves its completion and
@@ -69,6 +71,13 @@ from the garage, and the roof is reached by an exterior ladder.
 
 ## Presentation and memory
 
+One logical 256x288 scene spans the top screen's 192 rows and the bottom
+screen's upper 96 rows. The lower 96 rows contain the speaker and three
+dialogue rows. Six messages split into two pages without changing their text;
+the speaker, cast, expressions and shot stay in place until the final page.
+Pressing A reveals the current page, then advances its page or message. Pause and
+resume retain the current page.
+
 The script has 393 authored shot cues. Each names a real visual subject and the
 people physically present. A radio caller is not placed in the room. Camera
 moves ease toward the named object and hold; there is no idle side-to-side loop
@@ -82,15 +91,23 @@ Reflective variants retain each character's casual wardrobe, so a change of
 expression does not also remove a racing suit in the same conversation. Image
 extraction isolates the intended actor before normalization and indexed-color
 conversion; stray pieces of adjacent atlas portraits must not appear above a
-head or beside a shoulder.
+head or beside a shoulder. All actors are prepared on a native 256x264 canvas
+directly from the source art, rather than enlarged from earlier exports.
 
-All art is inside the ROM. Only two background buffers and two portrait buffers
-are available to the scene at a time. Native 168x168 speaking portraits and
-512x216 backgrounds require 279,680 bytes of the existing 300 KiB driving
-scratch lease. Additional paintings do not enlarge those buffers. Extended
-expression choices share the eight-byte message header, using the previously
-zero high byte of the short text length; the story runtime state and
-8 KiB, three-profile EEPROM format stay unchanged.
+Eight 512x324 replacement backgrounds provide standing floor space:
+GARAGE, MEET, NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE.
+Only Nia uses full-body poses, and only in those settings. Other cast members
+and the remaining close scenes use their upper-body portraits. Original
+background sources remain intact; older close shots are fitted to the taller
+view with their aspect ratios preserved. The workshop and lighthouse family
+images retain their authored content and upper-body staging.
+
+All art is inside the ROM. One 512x324 background cache, two 256x264 actor
+slots and their three palettes require 302,592 bytes of the existing
+307,200-byte driving scratch lease. Extended expression choices retain the
+eight-byte message header. Pagination uses existing StoryState tail padding;
+the runtime state stays 488 bytes and the 8 KiB, three-profile EEPROM format
+is unchanged.
 
 Nia's unnamed father is her only established blood relative. The family photo
 in the workshop and the keepsake at the lighthouse now depict the same
@@ -101,18 +118,23 @@ changes no dialogue or heritage references; none specify her appearance.
 
 ## Verification
 
-Native sanitizer checks complete all 125 scenes through the game state machine,
-render all 923 messages, check text fit and screen guards, verify asset masks,
-and exercise saves, replay, abort and camera pause/hold behavior. The archive
+The native campaign suite passes 38,448 sanitizer checks across all 125 scenes,
+923 messages and 929 pages. It checks exact font wrapping, page reveal and
+advance rules, text fit and screen guards, asset masks, saves, replay, abort
+and camera pause/hold behavior. The archive
 check compares every message, cast, outfit and camera target against the source,
 requires all backgrounds and portraits to be used, and retains the RAM and ITCM
-bounds. It also checks for large detached atlas fragments in encoded portraits.
+bounds. The 4,387 pixel checks cover the continuous LCD seam, reserved lower
+dialogue area, native actor pixels and cache limits. The archive check also rejects
+large detached atlas fragments in encoded portraits.
 
 The cartridge tour earns the first six events with controller input, verifies
 immediate autosaves and three independent profile records, replays and aborts,
 then returns to both driving modes. Later-chapter batteries are explicitly
 labelled visual fixtures rather than claimed earned progression. Actual emulator
-captures are used for the story previews. Catalog sheets are labelled indexed
-asset previews and are not represented as emulator screenshots. Physical Delta
+captures are used for the story previews. The continuous-scene capture suite
+also visits D01, D04, D05, D24 and S17, capturing 49 pages including an actual
+page flip in S17. Catalog sheets are labelled indexed asset previews and are
+not represented as emulator screenshots. Physical Delta
 or DS testing is not claimed. Free Roam performance is verified separately;
 its optimization and visual-equivalence results are in PERFORMANCE.json.

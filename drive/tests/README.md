@@ -1,11 +1,27 @@
 # Coastline cartridge validation
 
-`python3 drive/tests/dialogue_pixels.py` checks native 168x168 speaking portraits
-against an independent screen-pixel oracle, including clipping, fades, lighting,
-smaller secondary actors and thumbnails. ASan/UBSan also checks that two full
-panoramic backgrounds and both larger portraits fit the existing 300 KiB driving
-cache lease without corrupting the protected portrait or palette. Run after
+`python3 drive/tests/dialogue_pixels.py` passes 4,387 checks of native 256x264
+actor canvases against an independent screen-pixel oracle, including clipping,
+fades, lighting, smaller secondary actors and badges. It checks the continuous
+256x288 scene across the LCD seam and reserves the lower 96 rows for dialogue.
+ASan/UBSan also checks that one 512x324 background, two actor slots and their
+palettes use 302,592 bytes within the existing 307,200-byte driving scratch
+lease without corrupting the protected actor or palette. Run after
 `make -C drive`; no character source art is replaced by this check.
+
+`python3 drive/tests/campaign.py` passes 38,448 checks through all 125 scenes,
+923 authored messages and 929 dialogue pages. Six messages split across two
+three-row pages. Tests verify exact font wrapping and text coverage, page
+reveal/advance rules, unchanged shot and speaker until the final page, pause,
+replay, abort, saved progress, profile migration and scratch restoration.
+`python3 drive/tests/story_assets.py` checks the 54 backgrounds and 56 portrait
+records, including the 51 upper-body portraits re-exported from original art,
+five Nia-only full-body poses and eight floor-compatible background overrides.
+
+`python3 drive/tests/continuous_story.py` captures 49 actual-cartridge dialogue
+pages across D01, D04, D05, D24 and S17, including a page flip in S17 and pause
+and resume in D01. Controller input drives the emulator; RAM is observed read
+only. These saves are labelled visual fixtures rather than earned progression.
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
 GCC AddressSanitizer and UndefinedBehaviorSanitizer. Twelve suites cover driving,

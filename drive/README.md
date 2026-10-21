@@ -3,7 +3,7 @@
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 **Drive** now opens three illustrated cards: **Endless Drive**, **Free Roam** and **Career**.
-Career now plays **125 story scenes with 923 dialogue messages**, original
+Career now plays **125 story scenes with 923 dialogue messages on 929 pages**, original
 backgrounds and characters, varied cinematic staging, and saved level unlocks.
 Racing in Career is still a future step; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
 Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
@@ -52,6 +52,11 @@ opens the next node. There is no Career racing gameplay yet. Narrated race
 montages are fiction, not simulated races or cash rewards. All modes retain
 the same cars, upgrades, finishes and economy.
 
+Scenes share a continuous 256x288 illustration: the top screen's 192 rows and
+the upper 96 rows of the bottom screen. The lower 96 rows hold the speaker and
+three dialogue rows. Six longer messages use a second page, keeping the same
+speaker, cast and shot until the final page advances.
+
 Scenes mix painted first-person conversations, transparent character sprites,
 directed object inserts, radio exchanges and letterboxed montages. Fifty-four
 paintings and 393 authored shot cues put the camera on the relevant people,
@@ -60,23 +65,24 @@ target instead of looping sideways. Soft cuts and typewriter text suit the retro
 ROM streams its artwork internally; it needs no external asset files.
 The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
 motel, washrooms, gallery and other places away from the grid. Nineteen new
-locations appear in only one event. Fifty-one portraits cover fourteen people,
-with casual clothes, work gear and quieter expressions for the main cast.
-Nia now uses the approved five-pose replacement, including the skeptical,
-palm-up wrench pose. Her childhood photographs with her father match the new
-design; her name, relationships and dialogue are unchanged.
-Speaking portraits are prepared directly at their native 168x168 display size,
-filling the height below the scene header without enlarging a smaller export.
-Only secondary characters and compact dialogue thumbnails are drawn smaller.
-The two panoramic background caches and both portrait slots reuse existing
-driving-cache memory; the higher detail does not add a resident graphics buffer.
+locations appear in only one event. Fifty-six portrait records cover fourteen
+people: the existing 51 upper-body portraits re-exported directly from their
+original sources, plus five approved full-body Nia poses. Speaking actors use a
+native 256x264 canvas; secondary portraits and compact badges can shrink.
+Eight 512x324 backgrounds provide standing floor space in the garage, meet,
+kitchen, diner, greenhouse, rooftop, night garage and epilogue. Nia uses full-body
+poses there; other characters and the remaining close scenes retain upper-body
+portraits. The source artwork, dialogue and cast relationships are preserved.
+One background cache, two actor slots and their palettes use 302,592 bytes of
+the existing 307,200-byte driving scratch pool.
 Eli and Mrs. Vale make the neighborhood part of the story. The crew has private
 choices, paid work and relationships beyond the next race. These are illustrated
 cutscene settings; they do not add free-roaming interiors or Career races.
 The complete continuity and staging review is in [STORY-REVIEW.md](STORY-REVIEW.md).
 
-A reveals and advances dialogue. B or Start pauses a scene; Up/Down selects
-Resume, Restart, or Return to map. Aborting and replaying do not grant extra
+A reveals the current page, then advances to the next page or message. B or
+Start pauses a scene; Up/Down selects Resume, Restart, or Return to map.
+Aborting and replaying do not grant extra
 progress. L/R changes Career tabs; Left/Right changes the chapter or event.
 Future journal entries stay locked until the corresponding story progress.
 The Office records saved progress and offers Continue. The old unsaved map
