@@ -129,13 +129,14 @@ bounds. The 4,387 pixel checks cover the continuous LCD seam, reserved lower
 dialogue area, native actor pixels and cache limits. The archive check also rejects
 large detached atlas fragments in encoded portraits.
 
-The cartridge tour earns the first six events with controller input, verifies
-immediate autosaves and three independent profile records, replays and aborts,
-then returns to both driving modes. Later-chapter batteries are explicitly
-labelled visual fixtures rather than claimed earned progression. Actual emulator
-captures are used for the story previews. The continuous-scene capture suite
-also visits D01, D04, D05, D24 and S17, capturing 49 pages including an actual
-page flip in S17. Catalog sheets are labelled indexed asset previews and are
+The earlier story cartridge tour earned the first six events with controller
+input, verified autosaves and three independent profiles, replayed and aborted,
+then returned to both driving modes. That broader tour was not rerun for this
+layout. The current continuous-scene capture suite visits D01, D04, D05, D24
+and S17, capturing 49 pages including an actual page flip in S17. Its later-scene
+batteries are explicitly labelled review fixtures rather than claimed earned
+progression. Actual emulator captures are used for the story previews.
+Catalog sheets are labelled indexed asset previews and are
 not represented as emulator screenshots. Physical Delta
 or DS testing is not claimed. Free Roam performance is verified separately;
 its optimization and visual-equivalence results are in PERFORMANCE.json.
