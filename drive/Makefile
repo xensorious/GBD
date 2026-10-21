@@ -22,7 +22,7 @@ build:
 	mkdir -p build
 
 assets: build/assets.c build/assets.h build/vehicle_geometry.h
-build/assets.c build/assets.h build/vehicle_geometry.h &: tools/build_assets.py tools/vehicle_details.py tools/city_art.py tools/city_environment.py tools/city_mesh_assets.py $(wildcard art/city/*.png) tools/overhead_assets.py tools/overhead_materials.py $(wildcard art/overhead/*.png) art/overhead/materials.json art/materials/vehicle-materials.png art/materials/vehicle-materials.json $(wildcard art/*.png) | build
+build/assets.c build/assets.h build/vehicle_geometry.h build/font_advance.bin &: tools/build_assets.py tools/vehicle_details.py tools/city_art.py tools/city_environment.py tools/city_mesh_assets.py $(wildcard art/city/*.png) tools/overhead_assets.py tools/overhead_materials.py $(wildcard art/overhead/*.png) art/overhead/materials.json art/materials/vehicle-materials.png art/materials/vehicle-materials.json $(wildcard art/*.png) | build
 	python3 tools/build_assets.py
 
 build/%.o: src/%.c build/assets.h build/vehicle_geometry.h build/story_limits.h build/story_visuals.h $(wildcard src/*.h) platform/platform.h | build
@@ -46,7 +46,7 @@ build/arm9.elf: $(ARM9_OBJECTS)
 	$(NDS_CC) -mthumb -mcpu=arm946e-s $(LINK) -T $(NDS_CRT)/ds_arm9.mem -T $(NDS_CRT)/ds_arm9.ld -Wl,-Map,build/arm9.map -o $@ $^ -Wl,--start-group $(NDS_TOOLS_ROOT)/lib/libnds9.a -lc -lm -lgcc -Wl,--end-group
 build/arm7.elf: build/start7.o build/runtime7.o build/arm7.o
 	$(NDS_CC) -mthumb -mcpu=arm7tdmi $(LINK) -T $(NDS_CRT)/ds_arm7.ld -Wl,-Map,build/arm7.map -o $@ $^ -Wl,--start-group $(NDS_TOOLS_ROOT)/lib/libnds7.a -lc -lgcc -Wl,--end-group
-build/nitro/story.bin build/story_limits.h build/story_visuals.h &: tools/build_story_assets.py tools/story_script.py story/rising_tide.txt story/staging.json story/cast.json $(wildcard art/story/*.png) | build
+build/nitro/story.bin build/story_limits.h build/story_visuals.h &: tools/build_story_assets.py tools/story_script.py story/rising_tide.txt story/staging.json story/cast.json $(wildcard art/story/*.png) $(wildcard art/story/*.json) build/font_advance.bin | build
 	python3 tools/build_story_assets.py
 
 build/Coastline.nds: build/arm9.elf build/arm7.elf platform/finalize_rom.py build/nitro/story.bin

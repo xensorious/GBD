@@ -35,10 +35,14 @@ def remove_export_matte(tile):
  tile.putdata(pixels)
  return tile
 ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'build/nitro';OUT.mkdir(parents=True,exist_ok=True)
-portrait_size=int(CATALOG['portrait_size'])
-assert portrait_size==192-24, 'Portraits fill the screen below the scene header'
+portrait_width=int(CATALOG['portrait_width']);portrait_height=int(CATALOG['portrait_height'])
+background_width,background_height=512,324
+assert (portrait_width,portrait_height)==(256,264)
 backgrounds,scenes=load_story(ROOT)
 nbg=len(backgrounds)
+tall=json.loads((ROOT/'art/story/tall-scenes.json').read_text())['backgrounds']
+tall_by_name={b['name']:b for b in tall}
+compiled_backgrounds=[dict(b,**{k:v for k,v in tall_by_name.get(b['name'],{}).items() if k!='name'}) for b in backgrounds]
 assert 0<len(POSES)<=64
 assets=[];portraits=[];sources=[[None]*len(PEOPLE) for _ in POSES]
 for spec in CATALOG['sheets']:
@@ -62,7 +66,16 @@ for row in sources:
    source_ids[key]=len(portraits);portraits.append(spec)
   ids.append(source_ids[key])
  portrait_map.append(ids)
-for idx,spec in enumerate(backgrounds+portraits):
+fullbody_map=[[-1]*len(PEOPLE) for _ in POSES]
+for spec in CATALOG.get('fullbody_overrides',[]):
+ actor=PEOPLE.index(spec['character']);pose=POSES.index(spec['pose'])
+ source={k:v for k,v in spec.items() if k not in ('character','pose')}
+ key=json.dumps(source,sort_keys=True)
+ if key not in source_ids:source_ids[key]=len(portraits);portraits.append(source)
+ fullbody_map[pose][actor]=source_ids[key]
+fullbody_ids={v for row in fullbody_map for v in row if v>=0}
+background_scales=[]
+for idx,spec in enumerate(compiled_backgrounds+portraits):
  sheet=Image.open(ROOT/'art/story'/spec['sheet']).convert('RGB' if idx<nbg else 'RGBA')
  if 'bounds' in spec:box=tuple(spec['bounds'])
  else:
@@ -70,15 +83,21 @@ for idx,spec in enumerate(backgrounds+portraits):
   box=(round(n%cols*sheet.width/cols),round(n//cols*sheet.height/rows),round((n%cols+1)*sheet.width/cols),round((n//cols+1)*sheet.height/rows))
  assert 0<=box[0]<box[2]<=sheet.width and 0<=box[1]<box[3]<=sheet.height,(spec,box,sheet.size)
  tile=sheet.crop(box)
- if idx<nbg:tile=tile.resize((512,216),Image.Resampling.LANCZOS)
+ if idx<nbg:
+  # Reframe older close shots with a consistent lens, preserving aspect ratio.
+  # The standing-height paintings already include the new foreground floor.
+  scale=tile.width*background_height/(tile.height*background_width)
+  background_scales.append(scale)
+  centering=(0.25,0.5) if spec['name']=='LIGHTHOUSE' else (0.5,0.5)
+  tile=ImageOps.fit(tile,(background_width,background_height),Image.Resampling.LANCZOS,centering=centering)
  else:
   if spec.get('remove_export_matte'):tile=remove_export_matte(tile)
   tile=isolate_portrait(tile)
   # Prepare the final speaking size directly from the original source. Runtime
   # draws this canvas 1:1; only secondary actors and small UI portraits shrink.
   bounds=tile.getchannel('A').point(lambda a:255 if a>=96 else 0).getbbox();assert bounds,(idx,spec)
-  figure=ImageOps.contain(tile.crop(bounds),(portrait_size-4,portrait_size-2),Image.Resampling.LANCZOS)
-  tile=Image.new('RGBA',(portrait_size,portrait_size));tile.alpha_composite(figure,((portrait_size-figure.width)//2,portrait_size-figure.height))
+  figure=ImageOps.contain(tile.crop(bounds),(portrait_width-4,portrait_height-2),Image.Resampling.LANCZOS)
+  tile=Image.new('RGBA',(portrait_width,portrait_height));tile.alpha_composite(figure,((portrait_width-figure.width)//2,portrait_height-figure.height))
  # Palette zero is transparent only for people; backgrounds retain all 256 colors.
  q=tile.convert('RGB').quantize(colors=256 if idx<nbg else 255,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.FLOYDSTEINBERG)
  p=q.getpalette();palette=[0]*256
@@ -106,12 +125,16 @@ for idx,(w,h,payload) in enumerate(assets):
 struct.pack_into('<8s6I',data,0,b'CSTORY02',event_table,len(scenes),asset_table,len(assets),len(data),0)
 (OUT/'story.bin').write_bytes(data)
 line_count=sum(len(s['lines']) for s in scenes)
-(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'portrait_size':portrait_size,'people':len(PEOPLE),'portrait_map':portrait_map,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
-limits={'BACKGROUNDS':nbg,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_size,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count}
-(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items()))
+(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
+limits={'BACKGROUNDS':nbg,'BACKGROUND_WIDTH':background_width,'BACKGROUND_HEIGHT':background_height,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_width,'PORTRAIT_WIDTH':portrait_width,'PORTRAIT_HEIGHT':portrait_height,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count}
+advances=(ROOT/'build/font_advance.bin').read_bytes();assert len(advances)==96
+(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n')
 def cstring(value):return json.dumps(value,ensure_ascii=True)
 visuals='/* Generated visual catalog; included by the dialogue renderer only. */\n'
 visuals+='static const uint8_t story_portraits[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in portrait_map)+'};\n'
+visuals+='static const int16_t story_fullbodies[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in fullbody_map)+'};\n'
+visuals+='static const uint8_t story_fullbody_background[STORY_BACKGROUNDS] = {'+','.join(str(int(b['name'] in tall_by_name and tall_by_name[b['name']].get('full_body',False))) for b in backgrounds)+'};\n'
+visuals+='static const uint16_t story_ground_y[STORY_BACKGROUNDS] = {'+','.join(str(tall_by_name.get(b['name'],{}).get('ground_y',284)) for b in backgrounds)+'};\n'
 visuals+='static const char*const story_locations[STORY_BACKGROUNDS] = {'+','.join(cstring(b.get('location','')) for b in backgrounds)+'};\n'
 visuals+='static const char*const story_subjects[STORY_BACKGROUNDS][2] = {'+','.join('{'+','.join(cstring(x[1]) for x in list(b['subjects'].values())[:2])+'}' for b in backgrounds)+'};\n'
 (ROOT/'build/story_visuals.h').write_text(visuals)

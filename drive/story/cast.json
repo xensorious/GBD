@@ -1,5 +1,5 @@
 {
-  "portrait_size": 168,
+  "portrait_size": 256,
   "people": [
     [
       "NIA",
@@ -217,6 +217,65 @@
         1254
       ],
       "remove_export_matte": true
+    }
+  ],
+  "portrait_width": 256,
+  "portrait_height": 264,
+  "fullbody_overrides": [
+    {
+      "character": "NIA",
+      "pose": "DEFAULT",
+      "sheet": "nia-fullbody-approved-source.png",
+      "bounds": [
+        0,
+        750,
+        512,
+        1536
+      ]
+    },
+    {
+      "character": "NIA",
+      "pose": "CASUAL",
+      "sheet": "nia-fullbody-approved-source.png",
+      "bounds": [
+        512,
+        750,
+        1024,
+        1536
+      ]
+    },
+    {
+      "character": "NIA",
+      "pose": "GEAR",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        140,
+        0,
+        570,
+        1000
+      ]
+    },
+    {
+      "character": "NIA",
+      "pose": "QUIET",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        590,
+        0,
+        985,
+        1000
+      ]
+    },
+    {
+      "character": "NIA",
+      "pose": "ANNOYED",
+      "sheet": "nia-fullbody-expressions-source.png",
+      "bounds": [
+        985,
+        0,
+        1518,
+        1000
+      ]
     }
   ]
 }
