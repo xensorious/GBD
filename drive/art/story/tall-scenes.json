@@ -1,0 +1,194 @@
+{
+  "backgrounds": [
+    {
+      "name": "GARAGE",
+      "sheet": "tall-garage.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "MEET",
+      "sheet": "tall-meet.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "NIA_KITCHEN",
+      "sheet": "tall-nia-kitchen.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "DINER",
+      "sheet": "tall-diner.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "GREENHOUSE",
+      "sheet": "tall-greenhouse.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "ROOFTOP",
+      "sheet": "tall-rooftop.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "NIGHTGARAGE",
+      "sheet": "tall-nightgarage.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    },
+    {
+      "name": "EPILOGUE",
+      "sheet": "tall-epilogue.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "full_body": true,
+      "ground_y": 284
+    }
+  ],
+  "provenance": {
+    "purpose": "Standing eye-level replacements for the 288px continuous story world, with floor space for Nia. Backgrounds absent from this file retain their original art and upper-body staging.",
+    "generation": "ImageGen, 2026-10-21. Each original source scene was provided as an atlas reference; generated source images are retained unchanged. No people are painted into these replacements.",
+    "normalization": "Crop each retained source atlas using the listed pixel bounds, then PIL.ImageOps.fit to 512x324 with LANCZOS. No floor pixels were stretched, painted procedurally, or repeated.",
+    "ground_y": "World viewport coordinate. With source crop_y=18, ground_y=284 corresponds to source_y=302.",
+    "sources": [
+      {
+        "file": "tall-source-scenes-a.png",
+        "generated_image": "exec-c2b84ef1-70cc-4b25-b9f8-c42542e7addb.png",
+        "sha256": "c498488f4406edb0bb7d89be67dfc888d492296f15dc6391d80314a62fb1f5ee",
+        "crops": [
+          {
+            "name": "GARAGE",
+            "output": "tall-garage.png",
+            "bounds": [
+              0,
+              0,
+              788,
+              499
+            ]
+          },
+          {
+            "name": "MEET",
+            "output": "tall-meet.png",
+            "bounds": [
+              788,
+              0,
+              1576,
+              499
+            ]
+          },
+          {
+            "name": "NIA_KITCHEN",
+            "output": "tall-nia-kitchen.png",
+            "bounds": [
+              0,
+              499,
+              788,
+              998
+            ]
+          },
+          {
+            "name": "DINER",
+            "output": "tall-diner.png",
+            "bounds": [
+              788,
+              499,
+              1576,
+              998
+            ]
+          }
+        ]
+      },
+      {
+        "file": "tall-source-scenes-b.png",
+        "generated_image": "exec-37ecdd1e-3825-468e-91fd-a7818761bbdf.png",
+        "sha256": "7033d3c943477f93f97fc5c6f75d5c94b69fb27c772768c3336d141f8fc85ca2",
+        "crops": [
+          {
+            "name": "GREENHOUSE",
+            "output": "tall-greenhouse.png",
+            "bounds": [
+              0,
+              0,
+              788,
+              490
+            ]
+          },
+          {
+            "name": "ROOFTOP",
+            "output": "tall-rooftop.png",
+            "bounds": [
+              788,
+              0,
+              1576,
+              490
+            ]
+          },
+          {
+            "name": "NIGHTGARAGE",
+            "output": "tall-nightgarage.png",
+            "bounds": [
+              0,
+              490,
+              788,
+              998
+            ]
+          },
+          {
+            "name": "EPILOGUE",
+            "output": "tall-epilogue.png",
+            "bounds": [
+              788,
+              490,
+              1576,
+              998
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
