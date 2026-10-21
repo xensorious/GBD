@@ -1,0 +1,1285 @@
+{
+  "source_commit": "f21e72173e675e962ebc55d2f7bd9d2acc9b1515",
+  "rom_sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+  "rom_bytes": 9741824,
+  "scope": "Focused character replacement preview; not a new full driving-release validation.",
+  "physical_delta_or_ds_tested": false,
+  "full_driving_release_matrix_rerun": false,
+  "reports": {
+    "story-assets-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 9741824,
+        "sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2146228
+          },
+          "arm7": {
+            "offset": 2162688,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "archive_matches_nitrofs": true,
+      "archive_bytes": 7562304,
+      "scenes": 125,
+      "lines": 923,
+      "backgrounds": 54,
+      "people": 14,
+      "portraits": 51,
+      "portrait_size": 168,
+      "all_portraits_used": true,
+      "no_large_atlas_fragments": true,
+      "one_event_new_backgrounds": 19,
+      "new_place_events": 62,
+      "authored_shots": 393,
+      "compiled_directions_match_source": true,
+      "subjects_in_final_frame": true,
+      "shot_local_companions": true,
+      "longest_line": 143,
+      "methods": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "all_character_sprites": true,
+      "portrait_alpha_masks_valid": true,
+      "resident_end": "0x2378e18",
+      "resident_headroom_bytes": 29160,
+      "itcm_headroom_bytes": 488,
+      "shared_scratch_bytes": 307200,
+      "story_scratch_required_bytes": 279680,
+      "art": [
+        {
+          "id": 0,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "5baed8f4644b58ec5c746eab551137e6e5e3a130f15604608298c54db687b23e"
+        },
+        {
+          "id": 1,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "0410027173464124dddd6674387ab3e685f87a098eb6902b7b5df9515d06b411"
+        },
+        {
+          "id": 2,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "fa58b10524265c38eb6d04b39309905f2ba40aa71ffd167b11afd61977e3d745"
+        },
+        {
+          "id": 3,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "e10de38b1e1e8da912b2d77203e9727a4574606ca1faed83d1385cec865f3774"
+        },
+        {
+          "id": 4,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "409eeb6d08eeca061ffbdbd180318397146a22e7a4af1f18190d3427d295cdf9"
+        },
+        {
+          "id": 5,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "7e893104dabd972fcb6966bc84762092995c4af134c778297d3e9963084d1248"
+        },
+        {
+          "id": 6,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "936415f5d5144010feb6d54cda0f229551bc5face4afcaff96683a80226569a6"
+        },
+        {
+          "id": 7,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "06542c5fd0faba51804df8af402b995ecd44692b01ff1f0fa70ad271fa00aad3"
+        },
+        {
+          "id": 8,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "2369cfe613f103ecf9b889446141157d61cce8ef4f247ac9aa200e30e016fb88"
+        },
+        {
+          "id": 9,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "bf2641107c458a1f66e9ff3d7b07d5a3686cdba5e027f11938729c1ca3b380af"
+        },
+        {
+          "id": 10,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "a18922f0e8cd3eeb68afd33f02c46115231f2796e81a52080904a4a2dc27dbcc"
+        },
+        {
+          "id": 11,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "824a2896a235d186f26fa46e9b411bc659db2ac5f368cd1e33953ebd851af93a"
+        },
+        {
+          "id": 12,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "57be065ffd7c9bb017e09c35487cb9882cd6133da9d4f664d31598cbe2021f3b"
+        },
+        {
+          "id": 13,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "b3f4a72cd1304710b42f945bd398c3db1ef313bf998df0dd08325d5ea4d95d77"
+        },
+        {
+          "id": 14,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "c0efef820ebd787307f198391494c0bce5f735ce1ad08a618fb678589c68c8eb"
+        },
+        {
+          "id": 15,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "d5a8efce359cf1d1a5ac245c52365fd246a2427d63bba22cb4ade442cad39748"
+        },
+        {
+          "id": 16,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "01745e094c5583cf69e71d223ac37934b5e917c90716d731edd90bf6247ddbeb"
+        },
+        {
+          "id": 17,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "16f9fd25ddab01ee4d1ac8c3f398b0d378b0c91e91d81208da0aed61d7c6f313"
+        },
+        {
+          "id": 18,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "7f02c6d7bcf53f0b5a66e01a09092fc1ae336fda65e881e60f90a61eed5e40fb"
+        },
+        {
+          "id": 19,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "306bcb8f88e1a639a2ad8562eedbda736614cd1daab0fa869a67c926b1335df2"
+        },
+        {
+          "id": 20,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "e824b7a9f629c40b03837a1d37859312c75fd368d0585cf02711220aaf428b4b"
+        },
+        {
+          "id": 21,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "2cbe5ecc0c04ad6d92ad36741417d9d7653a6220e1a5884e15e65683cb9d04b3"
+        },
+        {
+          "id": 22,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "7bb81b040ad82f9d61f6b917eee35167c39cc13990ed88590f35c615eeeba8cb"
+        },
+        {
+          "id": 23,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "358b35bb94e2b88542dfb6c16d596bcef41938b072f06247921c1fb5cf5ab270"
+        },
+        {
+          "id": 24,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "efd056bb66ef1bef69e34521dceb6c8f624fed831a82215715424a9d78f5057e"
+        },
+        {
+          "id": 25,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "e4d598b529d6f2088dd30217429f1c2990f267a912d180ced9b73bcef61b62ec"
+        },
+        {
+          "id": 26,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "71c7bee956d0d96fd0f5d277fccb04597a0b5738c3a12eaa003185471ffcd256"
+        },
+        {
+          "id": 27,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "6b191cc462fcaa6b7d2cb2595fefdabd37b7adbeaa17611b046f263298a2e10c"
+        },
+        {
+          "id": 28,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "119444f6bffb0d0b5450fdd6b2594fee6ca266a989ebe50d2a45bd9798112e75"
+        },
+        {
+          "id": 29,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "fcb17bbb60d4c2803cb64c63e919cd61a01568d7d3bd3ecacdf2c5ff5615b588"
+        },
+        {
+          "id": 30,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "6f0e2eb7caccfdddbd16aa1e3bf18520bb6059a76be652fcbf6bdec166653ab6"
+        },
+        {
+          "id": 31,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "33ebce8e60e922e17abb8d25c5ebebb691f0e321a43ead585abdb569ce73d299"
+        },
+        {
+          "id": 32,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "aaafbc4798a8bd9157d8596a618ae6c6eb15f80baa1749a3c87cf34eaf99aac5"
+        },
+        {
+          "id": 33,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "96a6fee50b05000497dd0befb7999d0ab82cc126786f3d54f8d78dfd4a221769"
+        },
+        {
+          "id": 34,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "c8129e204cdd699986ef8e1f9a4ab917975fa01f355e392401039193d79d5ebf"
+        },
+        {
+          "id": 35,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "b2d82a8df2d88f5b1535141bb5cbd9dcd770fc76373e002bfe489ea031450dd3"
+        },
+        {
+          "id": 36,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "a413e9b33ad4c47a8f64561373dfc9a9f9ec97154d2b69907534629bf4c96fcd"
+        },
+        {
+          "id": 37,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "d82baa8d87af6eafba48565edaefae672a37e9290d78a758d8d158e24b030ebb"
+        },
+        {
+          "id": 38,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "c65cedb1f1a39be6575fee1b3c722b4b983bfc85f5bb6b7f5884074638fc6e77"
+        },
+        {
+          "id": 39,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "22eef1499b6ee3a668faa81ea2f2034823b886dfebcd8018ccb8a7998d361041"
+        },
+        {
+          "id": 40,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "5580d0bff67b7414ec7f85d78f8418e76ea2ad606da3524202ab96550eb20270"
+        },
+        {
+          "id": 41,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "d96d0bc75dd160b721d74dd4dcfb5c9c8f44568627269f785a094f05e7d7f133"
+        },
+        {
+          "id": 42,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "e959f82f7151404f16c6c959dbcbf3e21d076206085805cc8423eb22ae331863"
+        },
+        {
+          "id": 43,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "fc797cdf7aac6b9975e30dc187467da647cb512bf46b63d46ff494a0944cc269"
+        },
+        {
+          "id": 44,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "948bec4b5ef09b68c9d008cf1d6f516a08b39f0865d4ee8a9b3fe56d39d6847f"
+        },
+        {
+          "id": 45,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "22c02ad1cbd80a289d235d592d1a13d4bfb43ad2874f88a14ce663788fd9be99"
+        },
+        {
+          "id": 46,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "15bf29f8e3d3f68fa21a4ad44cf1dbf310ee4b75756d33bea8aca49be006b570"
+        },
+        {
+          "id": 47,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "d6a158e594417ecbee5c56a31f10f4470c4f42b047bd1fc85383fb2b0c759a46"
+        },
+        {
+          "id": 48,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "a1e4909445ef972c35bb132f0806e639b8e797a7f0c0b573c79e2c07f225fd6b"
+        },
+        {
+          "id": 49,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "b9c973293e1773305b6693adf4d82f9781798763b7ce37be21d8ddf06a6c5a28"
+        },
+        {
+          "id": 50,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "4ae0479ece7336694a4d40c2b4e146a6bbfa185aad096a613cd614d82c1566f4"
+        },
+        {
+          "id": 51,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "6f693072e538cb3f1761cc7f8df68af2dbfb39753ade5fa30494ed6a37947496"
+        },
+        {
+          "id": 52,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "c72308c81fb22c3f3c2beb49a4ab952be4b481cd339da584e0f1befa613b94d6"
+        },
+        {
+          "id": 53,
+          "width": 512,
+          "height": 216,
+          "transparent": false,
+          "sha256": "935ce3f682a0058257991299571a4e302f006a48d912aa25485d453f10a97b59"
+        },
+        {
+          "id": 54,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "6156e4f0fbdb2c431d90a49819166a0d9fed3bc7b905f5b831d54c8d894b87da"
+        },
+        {
+          "id": 55,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "156a8364bd55f898bc092fcd5093566ba9b20b2b06e0308cd01aa0ac5fa4c201"
+        },
+        {
+          "id": 56,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "b35fd89d48252a129315372634a19e1298e3db62ea72776a2dcc8530b2aa6db9"
+        },
+        {
+          "id": 57,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "1d7bca9c68027c9f26a673c478ae753ee9496163396c3785cd223ad74988bc93"
+        },
+        {
+          "id": 58,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "f3c18fcd39c4266aa612775cf24af89b210a7018c645462272cf969602fdf183"
+        },
+        {
+          "id": 59,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "aeed2d5b4d9d038fc030fbbcfa8be93ea494435876cd6059c434352d795dd1f0"
+        },
+        {
+          "id": 60,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "22e562e6269378f4d7b54212dfb200baeb4bbf1d78c5ed477151069c71c81872"
+        },
+        {
+          "id": 61,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "7ced607e566eb2e889333a8e1f1923787f005bf644c67e04225d8079631c6366"
+        },
+        {
+          "id": 62,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "86c93bc8f968dceed44bd799aa7271344716c18984df3c784a9b6a4734109ced"
+        },
+        {
+          "id": 63,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "02b7f4de584c347fafdb661f4106e013b4ee53f7b75cb2ea3db0eb8566e78f0d"
+        },
+        {
+          "id": 64,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "3b4e7ae890e529634463a078fcedffdc017726c08a115b7815fcb6302b2de792"
+        },
+        {
+          "id": 65,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "cbab5d58c5d23ec20ce2da61c95a7daf58417c249e54b05c673748a1fbba7601"
+        },
+        {
+          "id": 66,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "bf3648b90505a44a9a6f72ed4665ceb34a0a36a20b9c3efb2ed5e93eafbb0e76"
+        },
+        {
+          "id": 67,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "0e56f61b732c1a0ef243f65f9e602a1a5871e17c6efe83d16e647369b87c7da5"
+        },
+        {
+          "id": 68,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "fc325be5742f1f5508f5ed6820a2c2031e70f0c8bc09b9e70eca4f8e7ae47e75"
+        },
+        {
+          "id": 69,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "ae773c217fb4ceca0b365fbcbfc465491effc5286030c2d2d25ff51cbe0ff3d7"
+        },
+        {
+          "id": 70,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "1b06f871e8a46096813d0c0eb4c1e6968aece252b5abedb863c569b4fe6d9aad"
+        },
+        {
+          "id": 71,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "56c4392aad8ca398fa5c0b4a01724af36ced8d2980a46658ed77e34c12698749"
+        },
+        {
+          "id": 72,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "f0cc572831a7f6f6c952506dc0c2b78db668d40f7097ad3d776a51e621e10119"
+        },
+        {
+          "id": 73,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "7ecfbf988f77e1a79c7d021589c8013f1b677f6673b8581bf1bc2ccb163da86e"
+        },
+        {
+          "id": 74,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "53c07e65b9eda139456545c3a5654996d889a11c4cc00b394c6b6f9ce31ab802"
+        },
+        {
+          "id": 75,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "01e15a5ea4489d011929701ff7e4001679af2db593dc0ad6dac75f4064ea5190"
+        },
+        {
+          "id": 76,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "bcf59ddef838b2e3773f2675519448cb8c4c441fb043ab6ba5ac9410d12426db"
+        },
+        {
+          "id": 77,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "67c217bb8485ee02eda249c9adb0ebdc55dd1f62fa8340480860f0981e9f0361"
+        },
+        {
+          "id": 78,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "17bc89af5d001489bd01fca23f58acd9f2241b811ba49929adc3a34ac579b6b6"
+        },
+        {
+          "id": 79,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "ee88e0adbf65157736a184996ce80c5f1150337a56a961c6e0bd9d8de8c5d57c"
+        },
+        {
+          "id": 80,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "77fa920bee3574bbf7511ecfa200fdcd84abb94409eb3a5c923a70ce6af55ac5"
+        },
+        {
+          "id": 81,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "0368d0e62409f9252ef504b05c4661a9dff5fc370888b1fbb8bdec6359e08b77"
+        },
+        {
+          "id": 82,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "72348a69830acf28a3d2bcc2e485455973864e271270c99f7c3adb3a06684d91"
+        },
+        {
+          "id": 83,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "408bac6eed95131b3aa749be8c894a48749d8d6038a3a0921be114d1ea99e3a5"
+        },
+        {
+          "id": 84,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "3f2a654f633e5b7c64f4db0c4279f9551a4534aeccc069fa390fc5672315432c"
+        },
+        {
+          "id": 85,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "86c1450413058fc36704dd97eadaa9bd29f8c8f183e6626c8e784e617bff117a"
+        },
+        {
+          "id": 86,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "20f5f2b099e3fd47aeaaccd955874fd6ddce5527899a32cefd7601d32ed8ef37"
+        },
+        {
+          "id": 87,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "41e57dd06e652cbbd1b07f172bc6c6504aa4ce1b45ad31265ef0d8495e64033e"
+        },
+        {
+          "id": 88,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "ed81381bfad6477136f0e966cf1ead3becfb10a715c65d2f41db611cf6061203"
+        },
+        {
+          "id": 89,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "af1f6fe2a3959b73045fbb942cefb4dc0d49d8c3a76648ba7368ab4ad08d28e9"
+        },
+        {
+          "id": 90,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "0ac05fc887faa23d80706b49a7ca7f931d6ddda2d6f8c4ac28f3a5deb4b98303"
+        },
+        {
+          "id": 91,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "ce63850991bf690e5b15ac73e6b76acc6a3a14a8f0a38265ac3a842abd49a57c"
+        },
+        {
+          "id": 92,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "57f412fef8d2a829aa7e387833b52d5bdd0d5adafe86ceb70d9d16d43cfca670"
+        },
+        {
+          "id": 93,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "bb5c492bcadfe68ddb086ebfc286adbac0dd994658f20045d12a49886f8f9ce6"
+        },
+        {
+          "id": 94,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "dfb23f85a6e2d938af082a244ed2c1f48817612be3af4878cb87fc0a6b19ca53"
+        },
+        {
+          "id": 95,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "1b3c27a166e76e972bf4eebcd9822f7e92befbe5b1047c675931a0ac9c066b5f"
+        },
+        {
+          "id": 96,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "9bc98648f53dbdb44982f26f40b619627dc817286416e000ce105406b436b69c"
+        },
+        {
+          "id": 97,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "d86dfa4eccfce251c10534fe565060a25f9620a2f7ad2f57936a69f79d2f9fd7"
+        },
+        {
+          "id": 98,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "3be8a0830ae4e470389532d049b3143d13b97f44522d3a7de0ad3be4bec85ed2"
+        },
+        {
+          "id": 99,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "7d15878f1e18afea4cbcb5a6339be3a08678583dfecc2be93a59baa5995296aa"
+        },
+        {
+          "id": 100,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "2788214378e909ff2b10aa2b8ba438fb11ef0dd9558a84b5eae3fd687a4c8004"
+        },
+        {
+          "id": 101,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "d1cefb40d3137f0211e9520148f2c3b7d2296c5e821f3673dbdbdc4a2d16bafc"
+        },
+        {
+          "id": 102,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "8efa4973831b5b2c732483324d7c515cbe0557f70fc74efcdb9d646d709eeec3"
+        },
+        {
+          "id": 103,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "b486dfe21518a33992a3e804b06395e1581a5038c822336b72dc8948c4179bd6"
+        },
+        {
+          "id": 104,
+          "width": 168,
+          "height": 168,
+          "transparent": true,
+          "sha256": "89a06e7efe0a15f965ff1d7fd9606912c3326360be4efdb90bdbb01d68dac1c3"
+        }
+      ],
+      "pose_count": 5,
+      "extended_pose_lead_lines": 1,
+      "extended_pose_companion_lines": 1
+    },
+    "campaign-native-results.json": {
+      "sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+      "checks": 21484,
+      "sanitizers_passed": true,
+      "all_scenes": 125,
+      "dialogue_lines": 923,
+      "result": "story: 21484 checks; all 125 scenes / 923 lines, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
+    },
+    "native-portrait-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 9741824,
+        "sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2146228
+          },
+          "arm7": {
+            "offset": 2162688,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "portrait_size": 168,
+      "native_speaking_pixels": true,
+      "reduced_secondary_and_thumbnail_pixels": true,
+      "clipping_opacity_lighting": true,
+      "sanitizers_passed": true,
+      "shared_scratch_bytes": 307200,
+      "required_scratch_bytes": 279680,
+      "result": "dialogue pixels: 1424 checks; native 1:1 pixels, depth/thumbnail reductions, clipping, opacity, lighting and two-background/two-portrait cache isolation pass"
+    },
+    "character-replacement-results.json": {
+      "baseline_ref": "65b963f794ac405bf06f36420a2ae6ce27a1a45a",
+      "archive_sha256": "f99dc232df005f848802558f626adc26a9b4f13023a00ab7b81697a152c55059",
+      "portrait_size": 168,
+      "portraits": 51,
+      "nia_poses": [
+        "DEFAULT",
+        "CASUAL",
+        "GEAR",
+        "QUIET",
+        "ANNOYED"
+      ],
+      "all_previous_nia_portraits_replaced": true,
+      "imported_alpha_matches_approved_source": true,
+      "other_actor_pose_payloads_preserved": 65,
+      "names_and_story_preserved": true,
+      "changed_backgrounds": [
+        "LIGHTHOUSE",
+        "MEMORIES"
+      ],
+      "workshop_family_photo_shots": [
+        {
+          "scene": "D25",
+          "focus": 0,
+          "subject_x": 115
+        }
+      ],
+      "fifth_pose_compiled_occurrences": [
+        {
+          "scene": "D01",
+          "line": 2,
+          "role": "speaker",
+          "portrait": 50,
+          "flags": 1
+        },
+        {
+          "scene": "D01",
+          "line": 3,
+          "role": "companion",
+          "portrait": 50,
+          "flags": 16
+        },
+        {
+          "scene": "D05",
+          "line": 7,
+          "role": "companion",
+          "portrait": 50,
+          "flags": 16
+        }
+      ],
+      "portrait_masks": [
+        {
+          "pose": "DEFAULT",
+          "opaque_pixels": 12314,
+          "components": [
+            12314
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            30,
+            2,
+            138,
+            168
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "opaque_pixels": 11959,
+          "components": [
+            11959
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            33,
+            2,
+            134,
+            168
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "opaque_pixels": 11966,
+          "components": [
+            11966
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            32,
+            2,
+            136,
+            168
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "opaque_pixels": 11074,
+          "components": [
+            11074
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            38,
+            2,
+            129,
+            168
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "opaque_pixels": 12094,
+          "components": [
+            12094
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            19,
+            2,
+            148,
+            168
+          ]
+        }
+      ],
+      "source_overrides": [
+        {
+          "pose": "DEFAULT",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            0,
+            430,
+            627
+          ],
+          "crop_sha256": "24e1d019983ac1bb73adcf3dbae127127682ad5eb1e0808475c8e723db20020a",
+          "source_components": [
+            165825,
+            1,
+            1,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            420,
+            617
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            430,
+            0,
+            836,
+            627
+          ],
+          "crop_sha256": "11e6a74bef624fd3881c6a2220e1619a95707c799596764d7b762576c4c1dcc1",
+          "source_components": [
+            160705,
+            3
+          ],
+          "alpha_bounds": [
+            8,
+            8,
+            378,
+            617
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            836,
+            0,
+            1254,
+            627
+          ],
+          "crop_sha256": "8dacfe4a81e42c8f24a6767f68d4872abafb9f9babba2b3d314889b275ad18f1",
+          "source_components": [
+            161335,
+            3,
+            2,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            406,
+            617
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            627,
+            407,
+            1254
+          ],
+          "crop_sha256": "151dd65e4c3868dfcac79c245a1ce06abf1accf0e0456942fefce65458a22773",
+          "source_components": [
+            151199,
+            18
+          ],
+          "alpha_bounds": [
+            65,
+            2,
+            407,
+            616
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            400,
+            627,
+            900,
+            1254
+          ],
+          "crop_sha256": "8098a282fd15b47d80fb357501d73d7178f00e1c85a872cae22aab0970d67e35",
+          "source_components": [
+            163435,
+            5,
+            3
+          ],
+          "alpha_bounds": [
+            0,
+            5,
+            479,
+            616
+          ]
+        }
+      ]
+    },
+    "character-emulator-opening.json": {
+      "rom_sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+      "case": "D01",
+      "new_profile_completed_with_buttons": true,
+      "completed_frontier": 1,
+      "fresh_process_save_reload": true,
+      "touch_controls_used": false,
+      "screenshots": [
+        "story-d01-2.png",
+        "story-d01-3.png",
+        "story-d01-5.png",
+        "story-d01-clear.png",
+        "story-d01-map.png"
+      ],
+      "physical_delta_or_ds_tested": false
+    },
+    "character-emulator-fixtures.json": {
+      "rom_sha256": "544e349487f94e90274c65dd53e61987c7f8341ba9de72397dce37c08fa3bda2",
+      "rom_bytes": 9741824,
+      "fixture_note": "Explicitly manufactured visual-review battery profiles. These runs are not evidence of emulator-earned progression through D01-D23/D24. Each requested case advances through actual joypad input and read-only emulated RAM.",
+      "template": "build/native-portraits/emulator-save/Coastline.dsv",
+      "template_sha256": "a10661f85683a61502c67beb2f0508908d87dcffb04eb9709c4cdcf6556b7210",
+      "emulator": "DeSmuME 0.9.11 svn0 x64 NOSSE libretro, interpreter mode",
+      "cases": [
+        {
+          "case": "D24",
+          "manufactured_progress": 23,
+          "save_directory": "build/character-integration/visual-fixture-D24",
+          "initial_battery_sha256": "3529cf46453ccbab7c6a833f7e23200c9615b567dfbeb659402079533f3534ac",
+          "initial_profile_sha256": "ac740ede4df9697e9976a7301a71a47fe4529e4570052e55de4b91c182e84f04",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "tests/campaign.py",
+            "--emulator-only",
+            "--case",
+            "D24",
+            "--save-dir",
+            "/workspace/GBD/drive/build/character-integration/visual-fixture-D24",
+            "--output",
+            "/workspace/GBD/drive/build/character-integration"
+          ],
+          "returncode": 0,
+          "seconds": 22.64,
+          "log": "build/character-integration/emulator-d24.log",
+          "completed": true,
+          "emulated_scene_completed": true,
+          "autosave_assertions_passed": true,
+          "archive_failure_assertions_passed": true,
+          "screenshots": [
+            {
+              "path": "build/character-integration/story-d24-0.png",
+              "sha256": "10e4f615e3bd92a453addece974746fa45ab4b09cfb93ddf59bc10f5df4348d9",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d24-10.png",
+              "sha256": "bfefd12ed7faa05c5c43f1e8f9162c76ab66acf414e5eb987ac53651c088afdb",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d24-3.png",
+              "sha256": "de1bb5929e82c13058dc3b28bf1e91488b6cb1e2ef2e5d74d43b0abc2d5c0b27",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d24-4.png",
+              "sha256": "8d4b6ea955496629bc632ba1d2528633f899f1788a870cc0515caac5f77a0aed",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d24-6.png",
+              "sha256": "5e21417ae2337fda0f6e60ee63e7423cba78e250d596866d2e4ece87ae811f14",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d24-map.png",
+              "sha256": "ce2227e355033fc66ca4f8f674400499604c1c1dc3bcc36a3b343707d1cc0e0d",
+              "size": [
+                256,
+                384
+              ]
+            }
+          ],
+          "visual_review": {
+            "focus_screenshot": "story-d24-3.png",
+            "story_line_index": 3,
+            "review": "The lighthouse photograph is clearly visible at the left of the top screen, unobscured by actors. It shows the revised father and young Nia; the original dialogue and photo caption are legible.",
+            "game_frame": 239,
+            "passed": true
+          }
+        },
+        {
+          "case": "D25",
+          "manufactured_progress": 24,
+          "save_directory": "build/character-integration/visual-fixture-D25",
+          "initial_battery_sha256": "537644d19d12741c659e75369b0aeb5a11a4163da1eb2432a5e7abe005cf42a0",
+          "initial_profile_sha256": "ac9fe1dc780802a1de1ea298b4aa5e6f111d6bcdcc3ea883fbfcea470cd2aa1b",
+          "command": [
+            "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "tests/campaign.py",
+            "--emulator-only",
+            "--case",
+            "D25",
+            "--save-dir",
+            "/workspace/GBD/drive/build/character-integration/visual-fixture-D25",
+            "--output",
+            "/workspace/GBD/drive/build/character-integration"
+          ],
+          "returncode": 0,
+          "seconds": 24.56,
+          "log": "build/character-integration/emulator-d25.log",
+          "completed": true,
+          "emulated_scene_completed": true,
+          "autosave_assertions_passed": true,
+          "archive_failure_assertions_passed": true,
+          "screenshots": [
+            {
+              "path": "build/character-integration/story-d25-0.png",
+              "sha256": "c2b7cd77509d522ebad489f2d46c72c81e2afa08b73cd0bbd9083861f1c67e8f",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-3.png",
+              "sha256": "31fc4195df9b80ad39aa764d8554c982b020c5569a9ca807b87a024e8cafab2c",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-4.png",
+              "sha256": "d0c4367c2ca68e9cca3e4505bc83251b16f199d3ff41e2bd563ab5a6b1823e90",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-6.png",
+              "sha256": "1fe473dcae61589dfb5e0472c6577318923c38318734e93e2ba54fff8bc53a2e",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-7.png",
+              "sha256": "055be8fb46802d5e46c5d9f437eed4c42bfd90e84918dedf62c81dcb0bd423b3",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-8.png",
+              "sha256": "1edca2d9f0133fc6ec1c92fe8e22c8672dbf91cceebb42edb9c4c547ebadaf63",
+              "size": [
+                256,
+                384
+              ]
+            },
+            {
+              "path": "build/character-integration/story-d25-map.png",
+              "sha256": "db62058089bab6562cd8c6d6133c295bcd8462b82af892371eee0bd249495f95",
+              "size": [
+                256,
+                384
+              ]
+            }
+          ],
+          "visual_review": {
+            "focus_screenshot": "story-d25-8.png",
+            "story_line_index": 8,
+            "review": "The workshop sign and revised framed father/young-Nia photograph are both visible in the top screen. The camera now includes the photo. Nia appears in the lower-screen thumbnail with the new design; caption and dialogue remain legible.",
+            "game_frame": 491,
+            "passed": true
+          }
+        }
+      ],
+      "rom_unchanged": true,
+      "screenshots_visually_reviewed": true,
+      "read_only_emulated_ram": true,
+      "joypad_input_only": true,
+      "test_assertions_note": "The existing campaign harness asserts initial fixture progress, successful completion/autosave, return to the story map and zero archive load failures. The batteries are explicitly manufactured visual fixtures."
+    }
+  }
+}
