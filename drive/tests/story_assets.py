@@ -2,17 +2,52 @@
 """Independently check cartridge archive offsets, art masks and resident budgets."""
 import argparse,hashlib,json,struct,sys
 from pathlib import Path
+from PIL import Image
 from inspect_rom import inspect
 from game_snapshot import find_symbol
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
-from story_script import load_story,CAST,PEOPLE,POSES
+from story_script import load_story,CAST,PEOPLE,POSES,CATALOG
 source_backgrounds,source_scenes=load_story(ROOT)
 manifest=json.loads((ROOT/'build/story-manifest.json').read_text());nbg=len(source_backgrounds);portrait_map=manifest['portrait_map'];portraits_seen=set();background_events={}
 expected_lines=sum(len(e['lines']) for e in source_scenes)
-portrait_size=manifest['portrait_size'];assert portrait_size==168
-scratch_required=2*512*216+2*portrait_size*portrait_size+4*256*2
+portrait_width=manifest['portrait_width'];portrait_height=manifest['portrait_height']
+background_width=manifest['background_width'];background_height=manifest['background_height']
+assert (portrait_width,portrait_height)==(256,264)
+assert (background_width,background_height)==(512,324)
+scratch_required=background_width*background_height+2*portrait_width*portrait_height+3*256*2
+assert scratch_required==302592
 assert scratch_required<=307200
+fullbody_map=manifest['fullbody_map']
+assert len(portrait_map)==len(fullbody_map)==len(POSES)==5
+assert all(len(row)==len(PEOPLE) for row in portrait_map+fullbody_map)
+ordinary_ids={value for row in portrait_map for value in row}
+fullbody_ids={value for row in fullbody_map for value in row if value>=0}
+assert ordinary_ids==set(range(51)) and len(fullbody_ids)==manifest['fullbody_portraits']==5
+assert not ordinary_ids&fullbody_ids
+assert ordinary_ids|fullbody_ids==set(range(manifest['portraits']))
+nia=PEOPLE.index('NIA')
+assert len({row[nia] for row in fullbody_map})==5
+assert all(value>=0 if actor==nia else value==-1 for row in fullbody_map for actor,value in enumerate(row))
+assert (CATALOG['portrait_width'],CATALOG['portrait_height'])==(portrait_width,portrait_height)
+fullbody_sources=CATALOG['fullbody_overrides']
+assert len(fullbody_sources)==5 and {spec['character'] for spec in fullbody_sources}=={'NIA'}
+assert {spec['pose'] for spec in fullbody_sources}==set(POSES)
+for spec in fullbody_sources:
+ with Image.open(ROOT/'art/story'/spec['sheet']) as image:
+  assert 'A' in image.getbands(),spec
+  left,top,right,bottom=spec['bounds'];assert 0<=left<right<=image.width and 0<=top<bottom<=image.height,spec
+  mask=image.crop(spec['bounds']).getchannel('A').point(lambda value:255 if value>=96 else 0)
+  assert mask.getbbox() and 0<mask.tobytes().count(0)<len(mask.tobytes())-1000,spec
+tall=json.loads((ROOT/'art/story/tall-scenes.json').read_text())
+fullbody_backgrounds=set(manifest['fullbody_backgrounds'])
+assert fullbody_backgrounds=={spec['name'] for spec in tall['backgrounds'] if spec.get('full_body')}
+assert len(fullbody_backgrounds)==8
+assert fullbody_backgrounds<={spec['name'] for spec in source_backgrounds}
+for spec in tall['backgrounds']:
+ assert spec['full_body'] is True and spec['ground_y']==284
+ with Image.open(ROOT/'art/story'/spec['sheet']) as image:assert image.size==(512,324)
+fullbody_occurrences=[]
 p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'build/story-release');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 rom=ROOT/'build/Coastline.nds';r=rom.read_bytes();fat,size=struct.unpack_from('<II',r,0x48);assert size==8
 start,end=struct.unpack_from('<II',r,fat);archive=r[start:end];assert archive==(ROOT/'build/nitro/story.bin').read_bytes()
@@ -39,10 +74,15 @@ for event in range(events):
   background_events.setdefault(bg,set()).add(event)
   if speaker<len(PEOPLE):portraits_seen.add(portrait_map[pose][speaker])
   if method==0 and companion<len(PEOPLE):portraits_seen.add(portrait_map[companion_pose][companion])
+  if method==0 and source_backgrounds[bg]['name'] in fullbody_backgrounds:
+   for role,actor,selected in (('lead',speaker,pose),('companion',companion,companion_pose)):
+    if actor<len(PEOPLE) and (role=='lead' or speaker>=len(PEOPLE)) and fullbody_map[selected][actor]>=0:
+     fullbody_occurrences.append({'event':source_scenes[event]['id'],'line':line,'role':role,'portrait':fullbody_map[selected][actor]})
   extended_leads+=speaker==PEOPLE.index('NIA') and pose==4
   extended_companions+=method==0 and speaker<len(PEOPLE) and companion==PEOPLE.index('NIA') and companion_pose==4
 assert lines==expected_lines and methods==set(range(4)) and speakers==set(range(len(CAST))) and backgrounds==set(range(nbg))
-assert portraits_seen==set(range(manifest['portraits']))
+assert portraits_seen==ordinary_ids
+assert {entry['portrait'] for entry in fullbody_occurrences}==fullbody_ids
 assert extended_leads and extended_companions
 shot_count=0
 for scene in source_scenes:
@@ -68,7 +108,8 @@ for key,subjects in important.items():
 art=[]
 for i in range(assets):
  offset,w,h,size,kind=struct.unpack_from('<IHHII',archive,asset_table+i*16);assert size==w*h and offset+512+size<=len(archive)
- assert (w,h)==((512,216) if i<nbg else (portrait_size,portrait_size))
+ assert (w,h)==((background_width,background_height) if i<nbg else (portrait_width,portrait_height))
+ assert kind==int(i>=nbg)
  palette=struct.unpack_from('<256H',archive,offset);pixels=archive[offset+512:offset+512+size]
  if kind:
   assert palette[0]==0 and 100<pixels.count(0)<size-1000
@@ -87,6 +128,7 @@ for i in range(assets):
  art.append({'id':i,'width':w,'height':h,'transparent':bool(kind),'sha256':hashlib.sha256(pixels).hexdigest()})
 elf=ROOT/'build/arm9.elf';main_end=find_symbol(elf,'__bss_end__');itcm_end=find_symbol(elf,'__itcm_end')
 assert main_end<0x02380000 and itcm_end<=0x01008000
-result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_size':portrait_size,'all_portraits_used':True,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'art':art}
+result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'all_authored_upper_body_portraits_used':True,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':sorted(fullbody_backgrounds),'fullbody_occurrences':fullbody_occurrences,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'background_cache_slots':1,'actor_cache_slots':2,'art':art}
 result.update({'pose_count':len(POSES),'extended_pose_lead_lines':extended_leads,'extended_pose_companion_lines':extended_companions})
+result['all_portraits_used']=True # Authored upper-body IDs and all dynamic full-body IDs are covered above.
 (a.output/'story-assets-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

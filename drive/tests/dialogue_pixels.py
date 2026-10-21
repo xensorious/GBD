@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Check the real portrait blitter and archive cache under ASan/UBSan."""
-import argparse,json,subprocess
+"""Check native rectangular actors, the scene seam and cache under ASan/UBSan."""
+import argparse,json,subprocess,sys
 from pathlib import Path
 from inspect_rom import inspect
 
@@ -14,11 +14,16 @@ command=['gcc','-std=c11','-O2','-g','-Wall','-Wextra','-Werror','-pedantic',
          '-I',str(ROOT/'src'),'-I',str(ROOT/'build'),str(ROOT/'tests/dialogue_pixels.c')]
 command.extend(str(ROOT/name) for name in ('src/gfx.c','src/story_io.c','build/assets.c'))
 subprocess.run(command+['-Wl,--gc-sections','-o',str(target)],check=True,cwd=ROOT)
-run=subprocess.run([str(target)],check=True,cwd=ROOT,capture_output=True,text=True)
+run=subprocess.run([str(target)],cwd=ROOT,capture_output=True,text=True)
 print(run.stdout,end='')
+if run.stderr:print(run.stderr,end='',file=sys.stderr)
+run.check_returncode()
 manifest=json.loads((ROOT/'build/story-manifest.json').read_text())
-result={'rom':inspect(ROOT/'build/Coastline.nds'),'portrait_size':manifest['portrait_size'],
-        'native_speaking_pixels':True,'reduced_secondary_and_thumbnail_pixels':True,
-        'clipping_opacity_lighting':True,'sanitizers_passed':True,
-        'shared_scratch_bytes':307200,'required_scratch_bytes':279680,'result':run.stdout.strip()}
+result={'rom':inspect(ROOT/'build/Coastline.nds'),
+        'portrait_width':manifest['portrait_width'],'portrait_height':manifest['portrait_height'],
+        'native_speaking_pixels':True,'reduced_secondary_pixels':True,
+        'clipping_opacity_lighting':True,'continuous_lcd_seam':True,
+        'lower_96_ui_rows_reserved':True,'sanitizers_passed':True,
+        'background_cache_slots':1,'actor_cache_slots':2,
+        'shared_scratch_bytes':307200,'required_scratch_bytes':302592,'result':run.stdout.strip()}
 (args.output/'native-portrait-results.json').write_text(json.dumps(result,indent=2)+'\n')
