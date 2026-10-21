@@ -141,6 +141,8 @@ static void extended_pose(Game*g,int companion){
  StoryState saved=story;
  story.phase=ST_READING;story.phase_tick=0;story.age=8;story.ticks=0;story.pause=0;story.revealed=story.page_end;
  story.current.focus&=(uint16_t)~STORY_FOCUS_MOVE;
+ /* A close scene keeps both actors visible while comparing each pose role. */
+ story.current.background=1;
  StoryLine extended=story.current,ordinary=extended;
  ordinary.pose_flags&=(uint8_t)~(companion?0xf0u:0x0fu);
  CHECK(story_pose(&extended,companion)==4&&story_pose(&ordinary,companion)==0);
