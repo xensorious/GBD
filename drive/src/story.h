@@ -45,6 +45,7 @@ void story_tick(Game*,const Input*);
 int story_read(unsigned offset,void*destination,unsigned bytes);
 int story_asset(int id,uint8_t*destination,uint16_t*palette,unsigned capacity,int*w,int*h);
 void story_draw(const Game*,uint16_t*top,uint16_t*bottom);
+void story_gallery_draw(const Game*,uint16_t*top,uint16_t*bottom);
 void story_render_release(void);
 int story_text_lines(const char*,int width);
 unsigned story_text_advance(unsigned character);

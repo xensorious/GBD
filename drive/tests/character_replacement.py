@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Check the Nia replacement against a named, pre-replacement art baseline.
+"""Check approved Nia art and the individual-cast wardrobe replacement.
 
 Run after ``make -C drive``. Portraits intentionally reexport at a native
 256x264 speaking frame; historical 168px packed hashes cannot establish source
 preservation across that change. Original catalog/background source files and
 specifications are pinned separately, alongside the approved Nia crop hashes.
-Both ordinary and additional full-body Nia imports use independent alpha
-oracles derived from their approved source images.
+Both ordinary and additional full-body imports use independent alpha oracles
+derived from pinned approved source crops. Native background and Nia payloads
+are also compared with the previous published cartridge, independently of IDs.
 """
 import argparse
 import hashlib
@@ -186,6 +187,102 @@ def check_masks(assets, first_portrait, ids, alpha_oracles, width, height):
     return masks
 
 
+def check_restyle_sources(catalog, manifest, assets, first_portrait, approval, width, height):
+    """Check active wardrobe bindings and alpha against separately pinned art."""
+    profiles = json.loads((ROOT / 'art/story/restyle/catalog.json').read_text())['characters']
+    drafts = json.loads((ROOT / 'art/story/new-cast/catalog.json').read_text())['characters']
+    people = [person[0] for person in catalog['people']]
+    assert len({profile['character'] for profile in profiles}) == len(profiles) == 13
+    assert {profile['character'] for profile in profiles} == set(approval['restyled_people'])
+    assert [person['id'] for person in drafts] == approval['draft_people']
+    assert len(profiles) == 13 and len(drafts) == 14
+    assert len(manifest['restyled_people']) == 13
+    assert set(manifest['restyled_people']) == set(approval['restyled_people'])
+    gallery = manifest['gallery']
+    assert manifest['gallery_count'] == len(gallery) == 28
+    assert [entry['id'] for entry in gallery] == people + approval['draft_people']
+    assert [entry['name'] for entry in gallery[:14]] == [person[1] for person in catalog['people']]
+    assert all(not entry['draft'] for entry in gallery[:14])
+    assert all(entry['draft'] for entry in gallery[14:])
+    expected_keys = {profile['character'] + '.' + pose for profile in profiles for pose in POSES[:4]}
+    expected_keys |= {'DRAFT.' + person['id'] for person in drafts}
+    assert set(approval['source_approvals']) == expected_keys, 'Reviewed art approval pins are incomplete'
+    results = []
+    source_imports = []
+    for profile in profiles:
+        actor = people.index(profile['character'])
+        assert actor != 0, 'The wardrobe replacement must not target Nia'
+        assert profile['name'] == catalog['people'][actor][1]
+        assert profile['style'].isascii() and profile['description'].isascii()
+        assert len(profile['description']) <= 110
+        portraits = {spec['pose']: spec for spec in profile['portraits']}
+        assert len(profile['portraits']) == len(portraits) == 4 and set(portraits) == set(POSES[:4])
+        ids = []
+        for pose_index, pose in enumerate(POSES[:4]):
+            portrait = manifest['portrait_map'][pose_index][actor]
+            ids.append(portrait)
+            key = profile['character'] + '.' + pose
+            assert assets[first_portrait + portrait]['sha256'] != approval['previous_actor_payloads'][key], ('Wardrobe not replaced', key)
+            source_imports.append((key, portraits[pose], portrait))
+        assert len(set(ids)) == 4, ('Wardrobe/expressions share a portrait', profile['character'])
+        assert manifest['portrait_map'][4][actor] == ids[0], 'Unprovided fifth expression must use the new default'
+        assert gallery[actor]['portraits'] == ids + [ids[0]]
+        assert gallery[actor]['full_body'] == [False] * 5
+        assert gallery[actor]['style'] == profile['style'] and gallery[actor]['description'] == profile['description']
+    for index, person in enumerate(drafts, len(people)):
+        assert person['id'] not in people and person['age'] >= 18
+        entry = gallery[index]
+        assert person['full_body'] is True and entry['full_body'] == [True] * 5
+        assert entry['name'] == person['name'] and entry['style'] == person['style']
+        assert entry['description'] == person['description']
+        assert entry['style'].isascii() and entry['description'].isascii()
+        assert len(entry['description']) <= 110
+        assert len(set(entry['portraits'])) == 1
+        source_imports.append(('DRAFT.' + person['id'], person, entry['portraits'][0]))
+    assert len(source_imports) == 66
+    assert len({portrait for _, _, portrait in source_imports}) == 66
+    for key, spec, portrait in source_imports:
+        expected = approval['source_approvals'][key]
+        assert expected['sheet'] == spec['sheet'] and expected['bounds'] == spec['bounds'], ('Source selection changed', key)
+        path = ROOT / 'art/story' / spec['sheet']
+        assert digest(path.read_bytes()) == expected['source_sha256'], ('Approved source changed', key)
+        with Image.open(path) as opened:
+            assert 'A' in opened.getbands(), ('Source needs explicit alpha', key)
+            sheet = opened.convert('RGBA')
+        left, top, right, bottom = spec['bounds']
+        assert 0 <= left < right <= sheet.width and 0 <= top < bottom <= sheet.height, key
+        tile = sheet.crop(spec['bounds'])
+        assert digest(tile.tobytes()) == expected['rgba_sha256'], ('Approved crop pixels changed', key)
+        alpha = tile.getchannel('A')
+        assert alpha.getextrema()[0] == 0 and alpha.getextrema()[1] >= 240
+        areas, figure = components(alpha.point(lambda value: 255 if value >= 96 else 0).tobytes(), tile.width)
+        assert areas and areas[0] > 500
+        assert areas == expected['source_components'], ('Approved source components changed', key)
+        if len(areas) > 1 and areas[1] > 32:
+            # A hand can cross an atlas cell boundary. Only a separately
+            # reviewed and pinned crop may include a neighboring fragment;
+            # the independent oracle below retains the intended largest actor.
+            assert expected.get('discarded_fragment_review'), ('Unreviewed adjacent-cell fragment', key, areas[:5])
+        raw = alpha.tobytes()
+        isolated = bytearray(len(raw))
+        for at in figure:
+            isolated[at] = raw[at]
+        silhouette = Image.frombytes('L', tile.size, bytes(isolated))
+        trimmed = silhouette.crop(silhouette.getbbox())
+        scaled = ImageOps.contain(trimmed, (width - 4, height - 2), Image.Resampling.LANCZOS)
+        native = Image.new('L', (width, height))
+        native.paste(scaled, ((width - scaled.width) // 2, height - scaled.height))
+        actual = assets[first_portrait + portrait]
+        assert (actual['width'], actual['height'], actual['kind']) == (width, height, 1)
+        mask = bytes(value >= 96 for value in native.tobytes())
+        errors = sum(bool(pixel) != bool(wanted) for pixel, wanted in zip(actual['pixels'], mask))
+        assert len(actual['pixels']) == len(mask) and errors == 0, ('New portrait alpha differs from approved crop', key, errors)
+        results.append({'key': key, 'portrait': portrait, 'source_sha256': expected['source_sha256'],
+                        'crop_sha256': expected['rgba_sha256'], 'source_alpha_mismatches': errors,
+                        'source_components': areas[:5]})
+    return results
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline', type=Path,
@@ -197,6 +294,7 @@ def main():
     parser.add_argument('--output', type=Path, default=ROOT / 'build/character-replacement')
     args = parser.parse_args()
     baseline = json.loads(args.baseline.read_text())
+    approval = json.loads((ROOT / 'tests/fixtures/cast-restyle-approval.json').read_text())
     catalog = json.loads(args.metadata.read_text())
     backgrounds, scenes = load_story(ROOT)
     names = [background['name'] for background in backgrounds]
@@ -210,7 +308,9 @@ def main():
     assert catalog['portrait_size'] == manifest['portrait_size'] == width
     assert (catalog['portrait_width'], catalog['portrait_height']) == (width, height)
     assert (manifest['portrait_width'], manifest['portrait_height']) == (width, height)
-    assert manifest['portraits'] == 56 and manifest['fullbody_portraits'] == 5
+    assert catalog['people'] == approval['story_people']
+    assert manifest['portraits'] == 76 and manifest['ordinary_portraits'] == 57
+    assert manifest['fullbody_portraits'] == 5
     assert manifest['people'] == len(catalog['people'])
     preserved_source_files = preserve_sources(catalog, backgrounds, baseline)
     assert len(scenes) == len(baseline['story_events']) == 125
@@ -233,31 +333,28 @@ def main():
         '<8s6I', data)
     assert magic == b'CSTORY02' and event_count == 125 and total == len(data) and not unused
     assert digest(data) == manifest['archive_sha256']
-    assert asset_count == manifest['assets'] == len(backgrounds) + 56
+    assert asset_count == manifest['assets'] == len(backgrounds) + 76
     assets = read_assets(data, asset_table, asset_count)
     for asset in assets[len(backgrounds):]:
         assert (asset['width'], asset['height'], asset['kind']) == (width, height, 1)
     for asset in assets[:len(backgrounds)]:
         assert (asset['width'], asset['height'], asset['kind']) == (512, 324, 0)
+    for index, name in enumerate(names):
+        assert assets[index]['sha256'] == approval['background_payloads'][name], ('Background payload changed', name)
     portrait_map = manifest['portrait_map']
     assert len(portrait_map) == 5
     assert all(len(row) == len(catalog['people']) for row in portrait_map)
-    assert {value for row in portrait_map for value in row} == set(range(51))
-    assert portrait_map == baseline['source_preservation']['ordinary_portrait_map'], 'Original portrait source mapping changed'
+    assert {value for row in portrait_map for value in row} == set(range(57))
     hashes = {}
-    preserved = 0
     for pose_index, pose in enumerate(POSES):
         for actor_index, (actor, _) in enumerate(catalog['people']):
             asset = assets[len(backgrounds) + portrait_map[pose_index][actor_index]]
             key = actor + '.' + pose
             hashes[key] = asset['sha256']
             if actor == 'NIA':
+                assert asset['sha256'] == approval['nia_payloads'][pose], ('Nia native portrait changed', pose)
                 if pose in baseline['poses']:
                     assert asset['sha256'] != baseline['portraits'][key], ('Nia art unchanged', pose)
-            else:
-                # Source sheets and selection specs are pinned above. Reexport
-                # at256x264 intentionally changes every old168px payload.
-                preserved += 1
     nia_ids = [row[0] for row in portrait_map]
     assert len(set(nia_ids)) == len({hashes['NIA.' + pose] for pose in POSES}) == 5
     sources, alpha_oracles = source_overrides(catalog, width, height)
@@ -267,19 +364,30 @@ def main():
     assert all(len(row) == len(catalog['people']) for row in fullbody_map)
     assert all(row[actor] == -1 for row in fullbody_map for actor in range(1, len(catalog['people'])))
     fullbody_ids = [row[0] for row in fullbody_map]
-    assert set(fullbody_ids) == set(range(51, 56)), 'Full bodies must be five additional Nia-only records'
+    assert set(fullbody_ids) == set(range(57, 62)), 'Story full bodies must be five additional Nia-only records'
     assert not set(fullbody_ids) & {value for row in portrait_map for value in row}
     fullbody_sources, fullbody_alpha = source_overrides(catalog, width, height, fullbody=True)
     fullbody_masks = check_masks(assets, len(backgrounds), fullbody_ids, fullbody_alpha, width, height)
     assert len({assets[len(backgrounds) + index]['sha256'] for index in fullbody_ids}) == 5
     for ordinary, full in zip(nia_ids, fullbody_ids):
         assert assets[len(backgrounds) + ordinary]['sha256'] != assets[len(backgrounds) + full]['sha256']
+    for pose, full in zip(POSES, fullbody_ids):
+        assert assets[len(backgrounds) + full]['sha256'] == approval['nia_fullbody_payloads'][pose], ('Nia native full body changed', pose)
     assert catalog['fullbody_overrides'] == baseline['fullbody_replacement']['overrides']
     for source in fullbody_sources:
         expected = baseline['fullbody_replacement']['crops'][source['pose']]
         assert source['sha256'] == expected['source_sha256'], ('Unapproved full-body source', source['pose'])
         assert source['crop'] == tuple(expected['bounds']), ('Full-body crop changed', source['pose'])
         assert source['crop_sha256'] == expected['rgba_sha256'], ('Full-body crop pixels changed', source['pose'])
+    gallery = manifest['gallery']
+    assert gallery[0]['portraits'] == fullbody_ids and gallery[0]['full_body'] == [True] * 5
+    draft_ids = {entry['portraits'][0] for entry in gallery[14:]}
+    assert draft_ids == set(range(62, 76))
+    assert not draft_ids & {value for row in portrait_map for value in row}
+    assert not draft_ids & set(fullbody_ids)
+    gallery_ids = {portrait for entry in gallery for portrait in entry['portraits']}
+    assert gallery_ids | set(nia_ids) == set(range(manifest['portraits']))
+    new_sources = check_restyle_sources(catalog, manifest, assets, len(backgrounds), approval, width, height)
 
     occurrences = []
     for event, scene in enumerate(scenes):
@@ -318,15 +426,25 @@ def main():
     result = {'baseline_ref': baseline['baseline_ref'], 'archive_sha256': digest(data),
               'source_preservation_ref': baseline['source_preservation']['baseline_ref'],
               'portrait_size': width, 'portrait_width': width, 'portrait_height': height,
-              'portraits': 56, 'ordinary_portraits': 51, 'fullbody_portraits': 5, 'nia_poses': POSES,
+              'portraits': manifest['portraits'], 'ordinary_portraits': manifest['ordinary_portraits'],
+              'fullbody_portraits': 5, 'nia_poses': POSES,
               'all_previous_nia_portraits_replaced': True,
               'imported_alpha_matches_approved_source': True,
               'fullbody_alpha_matches_approved_source': True,
-              'other_actor_pose_sources_preserved': preserved,
+              'nia_native_payloads_preserved': 10,
+              'background_native_payloads_preserved': len(backgrounds),
+              'native_payload_baseline_ref': approval['baseline_ref'],
+              'restyled_people': approval['restyled_people'],
+              'new_draft_people': approval['draft_people'],
+              'new_portrait_imports': new_sources,
+              'new_portrait_alpha_matches_approved_sources': True,
+              'draft_portraits_excluded_from_story': True,
+              'gallery_covers_all_wardrobe_and_draft_portraits': True,
               'original_source_files_preserved': preserved_source_files,
               'original_background_source_specs_preserved': len(backgrounds),
               'names_and_story_preserved': True,
               'intentional_reexport': baseline['native_render_frame']['reason'],
+              'intentional_wardrobe_replacement': approval['reason'],
               'workshop_family_photo_shots': family_shots,
               'fifth_pose_compiled_occurrences': occurrences, 'portrait_masks': masks,
               'fullbody_masks': fullbody_masks, 'source_overrides': sources,

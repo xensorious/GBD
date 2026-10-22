@@ -3,8 +3,9 @@
 #include "game.h"
 #define CAREER_CHAPTERS 5
 #define CAREER_EVENTS 25
+#define CAREER_CAST_MODAL 6
 /* Transient menu state. Persistent story frontier lives in the profile. */
-typedef struct {uint8_t tab,chapter,event,modal,page,garage_return,drive_column;uint32_t revision;} CareerUI;
+typedef struct {uint8_t tab,chapter,event,modal,page,garage_return,drive_column,gallery_pose;uint32_t revision;} CareerUI;
 typedef struct {const char *name,*subtitle,*surface,*premise,*mini,*boss,*mini_style,*boss_style;uint16_t accent;} CareerChapter;
 extern CareerUI campaign;
 extern const CareerChapter career_chapters[CAREER_CHAPTERS];

@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "purpose": "Fourteen unassigned test-roster characters. No story lines, relationships or progression are assigned.",
+  "characters": [
+    {
+      "id": "LEXI",
+      "name": "Lexi",
+      "age": 24,
+      "style": "Bubblegum glam / Y2K",
+      "description": "Pink layers, tinted shades and playful, camera-ready confidence.",
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        630
+      ],
+      "full_body": true
+    },
+    {
+      "id": "NYX",
+      "name": "Nyx",
+      "age": 27,
+      "style": "Midnight goth",
+      "description": "Black lace, violet braids and a quiet, unhurried stare.",
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        630
+      ],
+      "full_body": true
+    },
+    {
+      "id": "KIT",
+      "name": "Kit",
+      "age": 23,
+      "style": "Punk / DIY",
+      "description": "Plaid, metal studs and a grin that starts arguments.",
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        0,
+        630,
+        627,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "SIENNA",
+      "name": "Sienna",
+      "age": 26,
+      "style": "Girly pop / maximalist",
+      "description": "Bright layers, huge earrings and unapologetic optimism.",
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        627,
+        630,
+        1254,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "BEAU",
+      "name": "Beau",
+      "age": 28,
+      "style": "Campus jock",
+      "description": "Team colors and the urge to turn everything into a contest.",
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        615
+      ],
+      "full_body": true
+    },
+    {
+      "id": "MILES",
+      "name": "Miles",
+      "age": 25,
+      "style": "Rich kid / prep",
+      "description": "Polished knitwear, expensive shoes and effortless entitlement.",
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        615
+      ],
+      "full_body": true
+    },
+    {
+      "id": "TESS",
+      "name": "Tess",
+      "age": 22,
+      "style": "Skater / grunge",
+      "description": "Oversized skate layers, scuffed denim and a defiant smirk.",
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        0,
+        615,
+        627,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "AKIRA",
+      "name": "Akira",
+      "age": 30,
+      "style": "Urban techwear",
+      "description": "Graphite technical layers; quiet, exact and difficult to read.",
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        627,
+        615,
+        1254,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "ZOE",
+      "name": "Zoe",
+      "age": 24,
+      "style": "Alt indie / art kid",
+      "description": "Teal hair, painted overalls and restless creative curiosity.",
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        632
+      ],
+      "full_body": true
+    },
+    {
+      "id": "DANTE",
+      "name": "Dante",
+      "age": 33,
+      "style": "Rockabilly / hot rod",
+      "description": "Rockabilly prints, rolled denim and a dry, knowing smile.",
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        632
+      ],
+      "full_body": true
+    },
+    {
+      "id": "PIPER",
+      "name": "Piper",
+      "age": 29,
+      "style": "Coastal bohemian",
+      "description": "Loose linen, a straw hat and no interest in rushing.",
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        0,
+        624,
+        627,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "SOL",
+      "name": "Sol",
+      "age": 31,
+      "style": "Rave / reflective streetwear",
+      "description": "Reflective rave layers and a mischievous, knowing look.",
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        627,
+        632,
+        1254,
+        1254
+      ],
+      "full_body": true
+    },
+    {
+      "id": "CASS",
+      "name": "Cass",
+      "age": 35,
+      "style": "Luxe street / bold tailoring",
+      "description": "Sculpted streetwear, warm gold and commanding confidence.",
+      "sheet": "new-cast/source-d.png",
+      "bounds": [
+        230,
+        0,
+        850,
+        1024
+      ],
+      "full_body": true
+    },
+    {
+      "id": "ORION",
+      "name": "Orion",
+      "age": 38,
+      "style": "Boutique street / tailored",
+      "description": "A purple turban, tailored streetwear and an easy warmth.",
+      "sheet": "new-cast/source-d.png",
+      "bounds": [
+        850,
+        0,
+        1320,
+        1024
+      ],
+      "full_body": true
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "new-cast/source-a.png",
+      "generated_path": "/workspace/generated_images/exec-d3e29a6c-e4f5-41d8-a783-7ed597c88320.png",
+      "sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "new-cast/source-b.png",
+      "generated_path": "/workspace/generated_images/exec-780b0968-d52a-43c1-92ce-c174ddf664f7.png",
+      "sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "new-cast/source-c.png",
+      "generated_path": "/workspace/generated_images/exec-7a3ef977-b27a-4706-854d-ebaa7c4e5563.png",
+      "sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+      "size": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "new-cast/source-d.png",
+      "generated_path": "/workspace/generated_images/exec-7bda3ce5-3cb9-4776-a7ca-f48ecf98fab6.png",
+      "sha256": "233ae4e558ac942ba51cdafbe6616325553b06ac305378343eba5aaa5dfb19fa",
+      "size": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "copied_without_pixel_changes": true
+    }
+  ],
+  "extraction": {
+    "method": "Explicit bounds, then largest four-connected alpha component at threshold96, matching the story importer.",
+    "note": "Zoe and Piper have slightly overlapping source rows; component isolation removes the neighboring figure fragments without changing either complete figure.",
+    "original_sources_retained": true
+  },
+  "review": [
+    {
+      "id": "LEXI",
+      "source_components": [
+        76624,
+        2,
+        2,
+        1,
+        1
+      ],
+      "alpha_content_bounds": [
+        223,
+        6,
+        468,
+        623
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 76624
+    },
+    {
+      "id": "NYX",
+      "source_components": [
+        67251,
+        1,
+        1
+      ],
+      "alpha_content_bounds": [
+        186,
+        4,
+        365,
+        626
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 67251
+    },
+    {
+      "id": "KIT",
+      "source_components": [
+        78695,
+        22,
+        3,
+        2,
+        1
+      ],
+      "alpha_content_bounds": [
+        213,
+        4,
+        456,
+        617
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 78695
+    },
+    {
+      "id": "SIENNA",
+      "source_components": [
+        95117,
+        1
+      ],
+      "alpha_content_bounds": [
+        140,
+        4,
+        448,
+        610
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 95117
+    },
+    {
+      "id": "BEAU",
+      "source_components": [
+        74702,
+        3,
+        1,
+        1,
+        1
+      ],
+      "alpha_content_bounds": [
+        244,
+        6,
+        494,
+        605
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 74702
+    },
+    {
+      "id": "MILES",
+      "source_components": [
+        62915
+      ],
+      "alpha_content_bounds": [
+        195,
+        8,
+        413,
+        607
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 62915
+    },
+    {
+      "id": "TESS",
+      "source_components": [
+        93502,
+        4,
+        2,
+        2,
+        2
+      ],
+      "alpha_content_bounds": [
+        233,
+        20,
+        465,
+        618
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 93502
+    },
+    {
+      "id": "AKIRA",
+      "source_components": [
+        78680,
+        2,
+        2,
+        1,
+        1
+      ],
+      "alpha_content_bounds": [
+        181,
+        8,
+        406,
+        621
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 78680
+    },
+    {
+      "id": "ZOE",
+      "source_components": [
+        92950,
+        183,
+        4,
+        3,
+        2
+      ],
+      "alpha_content_bounds": [
+        209,
+        7,
+        495,
+        629
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 92950
+    },
+    {
+      "id": "DANTE",
+      "source_components": [
+        77589
+      ],
+      "alpha_content_bounds": [
+        163,
+        8,
+        393,
+        628
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 77589
+    },
+    {
+      "id": "PIPER",
+      "source_components": [
+        102690,
+        178,
+        27,
+        24,
+        8
+      ],
+      "alpha_content_bounds": [
+        178,
+        3,
+        496,
+        619
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 102690
+    },
+    {
+      "id": "SOL",
+      "source_components": [
+        103874,
+        7,
+        2,
+        1,
+        1
+      ],
+      "alpha_content_bounds": [
+        150,
+        3,
+        441,
+        614
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 103874
+    },
+    {
+      "id": "CASS",
+      "source_components": [
+        268757,
+        3
+      ],
+      "alpha_content_bounds": [
+        37,
+        10,
+        595,
+        991
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 268757
+    },
+    {
+      "id": "ORION",
+      "source_components": [
+        242838
+      ],
+      "alpha_content_bounds": [
+        21,
+        5,
+        432,
+        1012
+      ],
+      "all_extremities_visible": true,
+      "figure_pixels": 242838
+    }
+  ]
+}

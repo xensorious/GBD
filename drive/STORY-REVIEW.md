@@ -2,9 +2,11 @@
 
 The campaign still has 125 event nodes and the same saved completion record.
 This edition contains 923 messages on 929 dialogue pages, 54 panoramic
-backgrounds, fourteen named people and 56 transparent portrait records. These
-comprise the existing 51 upper-body portraits re-exported from their original
-sources and five additional full-body Nia poses. Sixty-one scenes have expanded
+backgrounds and fourteen named story characters. The 76 transparent portrait
+records comprise 57 upper-body portraits, five approved full-body Nia poses and
+fourteen additional full-body character studies. The new studies are unassigned
+concepts in Cast Studio, bringing its review roster to 28 without changing story
+speaker IDs or introducing new dialogue. Sixty-one scenes have expanded
 writing, and the ending has an additional extension. Sixty-two events visit the new
 settings; all 36 new locations appear in the script.
 Nineteen of the new backgrounds are used in only one event.
@@ -84,11 +86,13 @@ moves ease toward the named object and hold; there is no idle side-to-side loop
 or speaker-number offset. Face conversations, directed inserts, radio and
 letterboxed narrative shots remain mixed throughout the story.
 
-The twelve principal characters have default, casual, work/race-day and
-reflective variants. Nia's five approved replacement poses also include a
-skeptical, palm-up wrench expression. Eli and Vale retain their own portraits.
-Reflective variants retain each character's casual wardrobe, so a change of
-expression does not also remove a racing suit in the same conversation. Image
+Thirteen existing characters now have individually styled default, casual,
+work/race-day and reflective variants, including new variants for Eli and Vale.
+The styles follow each person rather than a shared team uniform: skate and Y2K
+layers, punk workwear, romantic goth, varsity clothes, coastal glamour, techwear
+and the older characters' own lived-in wardrobes. Nia's approved five upper-body
+and five full-body poses remain unchanged, including the skeptical palm-up wrench
+expression. Reflective variants retain each character's casual wardrobe. Image
 extraction isolates the intended actor before normalization and indexed-color
 conversion; stray pieces of adjacent atlas portraits must not appear above a
 head or beside a shoulder. All actors are prepared on a native 256x264 canvas
@@ -96,11 +100,20 @@ directly from the source art, rather than enlarged from earlier exports.
 
 Eight 512x324 replacement backgrounds provide standing floor space:
 GARAGE, MEET, NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE.
-Only Nia uses full-body poses, and only in those settings. Other cast members
-and the remaining close scenes use their upper-body portraits. Original
+Within story scenes, only Nia uses full-body poses, and only in those settings.
+Other cast members and the remaining close scenes use their upper-body portraits.
+Cast Studio also displays the fourteen new full-body studies, outside the story. Original
 background sources remain intact; older close shots are fitted to the taller
 view with their aspect ratios preserved. The workshop and lighthouse family
 images retain their authored content and upper-body staging.
+
+Career → Office → Cast studio is an additive review browser for all 28 people.
+D-pad directions change the selected person, L/R or A cycles their available
+variants, and B returns to the Office. New studies are marked as concepts; no
+story scenes, relationships, unlock requirements or rewards are attached to them.
+Nia has five reviewed poses, the other existing characters have four, and each
+new study has one. The browser leases and releases the same graphics storage as
+dialogue, without changing the save format or story record.
 
 All art is inside the ROM. One 512x324 background cache, two 256x264 actor
 slots and their three palettes require 302,592 bytes of the existing
@@ -118,25 +131,29 @@ changes no dialogue or heritage references; none specify her appearance.
 
 ## Verification
 
-The native campaign suite passes 38,448 sanitizer checks across all 125 scenes,
-923 messages and 929 pages. It checks exact font wrapping, page reveal and
-advance rules, text fit and screen guards, asset masks, saves, replay, abort
-and camera pause/hold behavior. The archive
-check compares every message, cast, outfit and camera target against the source,
-requires all backgrounds and authored upper-body portrait cues to be used,
-checks the five full-body variants, and retains the RAM and ITCM
-bounds. The 4,387 pixel checks cover the continuous LCD seam, reserved lower
-dialogue area, native actor pixels and cache limits. The archive check also rejects
-large detached atlas fragments in encoded portraits.
+The focused cast build passes 38,508 native campaign checks through all 125
+scenes, 923 messages and 929 pages, plus 4,447 dialogue pixel checks. The Cast
+Studio suite passes 2,202,587 checks across 28 people and 71 available portrait
+variants, covering input, guarded drawing, unchanged saves and cache release.
 
-The earlier story cartridge tour earned the first six events with controller
-input, verified autosaves and three independent profiles, replayed and aborted,
-then returned to both driving modes. That broader tour was not rerun for this
-layout. The current continuous-scene capture suite visits D01, D04, D05, D24
-and S17, capturing 49 pages including an actual page flip in S17. Its later-scene
-batteries are explicitly labelled review fixtures rather than claimed earned
-progression. Actual emulator captures are used for the story previews.
-Catalog sheets are labelled indexed asset previews and are
-not represented as emulator screenshots. Physical Delta
-or DS testing is not claimed. Free Roam performance is verified separately;
-its optimization and visual-equivalence results are in PERFORMANCE.json.
+An actual DeSmuME tour visits all 71 gallery variants, ignores touch input and
+returns to both driving modes. The D01, D04, D05, D24 and S17 story sample also
+passes, including a real two-page message. Later-scene batteries are labelled
+review fixtures rather than earned progression. Indexed asset sheets and actual
+emulator captures are identified separately.
+
+All 54 encoded background payloads and ten Nia portrait payloads match the
+preceding native archive exactly. Sixty-six new portrait alpha oracles report
+zero mismatches. The other thirteen characters are intentional active-art
+replacements; their original atlases remain as provenance. The approved Nia
+source/crop hashes, story text and staging specifications stay pinned.
+Authored portrait references and gallery availability are checked separately;
+this does not claim every archive record is visibly shown by the unchanged story.
+
+The focused download's VALIDATION.json records the exact ROM and underlying
+reports. The earlier broader cartridge tour earned the first six events with
+controller input, verified autosaves and three independent profiles, replayed
+and aborted, then returned to both driving modes. That full release matrix was
+not rerun for this cast build. Physical Delta or DS testing is not claimed.
+Free Roam performance was measured separately; its optimization results are in
+PERFORMANCE.json.

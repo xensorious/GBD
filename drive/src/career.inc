@@ -82,7 +82,7 @@ void career_point(int chapter,int event,int*x,int*y){
 }
 int career_status(const Game*g,int chapter,int event){return story_status(g,chapter,event);}
 int career_journal_open(const Game*g,int chapter,int row){static const uint8_t limits[5]={0,6,12,18,25};int done=story_completed(g)-chapter*25;return row>=0&&row<5&&done>=limits[row];}
-int career_rows(int tab){return tab==0?4:tab==2?3:tab==4?4:5;}
+int career_rows(int tab){return tab==0?4:tab==2?3:5;}
 void career_reset(void){memset(&campaign,0,sizeof campaign);campaign.revision=1;}
 void career_enter(Game*g){
  int done=story_completed(g);g->mode=M_STORY;g->cursor=0;campaign.tab=0;campaign.chapter=(uint8_t)(done<125?done/25:4);campaign.event=(uint8_t)(done<125?done%25:24);
@@ -92,6 +92,15 @@ static void career_message(Game*g,const char*text){size_t n=strlen(text);if(n>=s
 void campaign_tick(Game*g,const Input*in){
  if(!in->pressed)return;
  if(in->pressed&K_B){if(campaign.modal)campaign.modal=0;else{g->mode=M_DRIVE;g->cursor=2;}campaign.revision++;return;}
+ if(campaign.modal==CAREER_CAST_MODAL){
+  static const uint8_t poses[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
+  int direction=horizontal(in)+vertical(in);
+  if(direction){campaign.page=(uint8_t)((campaign.page+STORY_GALLERY_COUNT+direction)%STORY_GALLERY_COUNT);campaign.gallery_pose=0;}
+  int pose=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
+  if(in->pressed&K_A)pose++;
+  if(pose){unsigned count=poses[campaign.page];campaign.gallery_pose=(uint8_t)((campaign.gallery_pose+count+pose)%count);}
+  campaign.revision++;return;
+ }
  if(campaign.modal){
   int d=horizontal(in)+vertical(in);if(d)campaign.page=(uint8_t)((campaign.page+3+d)%3);
   if(in->pressed&K_A)campaign.page=(uint8_t)((campaign.page+1)%3);
@@ -113,7 +122,8 @@ void campaign_tick(Game*g,const Input*in){
  if(in->pressed&K_A){
   if((campaign.tab==0&&g->cursor==3)||(campaign.tab==4&&g->cursor==0)){
    campaign.garage_return=1;g->mode=M_GARAGE;g->garage_tab=0;g->cursor=0;g->selection=g->save.selected_vehicle;refresh_vehicle(g);
-  }else if(campaign.tab==4&&g->cursor==2){career_enter(g);g->cursor=1;}
+  }else if(campaign.tab==4&&g->cursor==4){campaign.modal=CAREER_CAST_MODAL;campaign.page=campaign.gallery_pose=0;}
+  else if(campaign.tab==4&&g->cursor==2){career_enter(g);g->cursor=1;}
   else if(campaign.tab==1){
    if(!career_journal_open(g,campaign.chapter,g->cursor)){career_message(g,"This journal entry opens later in the story.");return;}
    campaign.modal=2;campaign.page=0;

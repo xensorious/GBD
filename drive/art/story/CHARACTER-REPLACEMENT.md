@@ -1,4 +1,4 @@
-# Nia: installed character replacement
+# Nia approval and the character wardrobe update
 
 `nia-replacement.png` is the approved 1254x1254 RGBA five-pose source, copied
 without regeneration from `exec-bb2ca7c9-76ab-4dee-8eff-d9230ce6839f.png`.
@@ -22,25 +22,35 @@ a smaller portrait export.
 | QUIET | 0, 627, 407, 1254 |
 | ANNOYED | 400, 627, 900, 1254 |
 
-The existing shared cast atlases remain unchanged. Overrides replace Nia's
-four earlier expressions before archive IDs are assigned. All 51 existing
-upper-body portraits are re-exported at the higher native resolution directly
-from their original sources, preserving their design, wardrobe and expressions.
+The original shared cast atlases remain unchanged as provenance. Nia's source
+overrides still replace her earlier expressions before archive IDs are assigned.
+The thirteen other story characters now use four newly illustrated variants each
+from `restyle/catalog.json`: default, casual, work and reflective. The reflective
+variant keeps the casual wardrobe. These active replacements provide distinct
+styles and expressions without changing names or dialogue IDs. They are
+prepared directly from their new source paintings at the same native resolution.
 
 `nia-fullbody-approved-source.png` supplies the approved DEFAULT and CASUAL
 standing poses. `nia-fullbody-expressions-source.png` extends the approved
 GEAR, QUIET and ANNOYED gestures to complete standing figures. Extraction
 bounds are in `story/cast.json`; `nia-fullbody.json` records expression-source
-provenance, bounds and visual review. These five additions bring the archive
-to 56 portrait records. They preserve Nia's approved face, hair, clothing,
+provenance, bounds and visual review. Nia's five upper-body and five full-body
+imports retain their approved source and encoded pixels. They preserve her face, hair, clothing,
 tattoos and barefoot design, with complete hands, tools and feet.
 
-Only Nia has full-body art. It is selected for FACE shots in the eight
+Only Nia has full-body art used by the story. It is selected for FACE shots in the eight
 floor-compatible settings listed in `tall-scenes.json`: GARAGE, MEET,
 NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE. Other cast
 members and all remaining close settings retain upper-body portraits. The
 512x324 standing backgrounds have real floor space and place Nia's feet at
 world row 284. Original background source images remain unchanged.
+
+`new-cast/catalog.json` adds fourteen default full-body character studies.
+They appear in Career → Office → Cast studio alongside the fourteen existing
+characters, with concept labels and no story roles. The archive now contains
+76 portraits: 57 upper-body records, five Nia full-body records and fourteen new
+studies. These concepts do not extend `story/cast.json`'s story actor list, so
+YOU/NARRATOR IDs, dialogue encoding and saved progression remain unchanged.
 
 The continuous scene is 256x288 across the top LCD and the upper half of the
 bottom LCD. The lower 96 rows provide three dialogue rows. A native actor
@@ -62,3 +72,9 @@ prints are scenery and do not identify relatives. Calder is her father's
 friend, Vale a customer/neighbor and Jules part of the crew. No named character
 is established as her sibling, parent or romantic partner. Her name, dialogue,
 plot and existing saved progression are preserved.
+
+The focused cast verification compares all ten encoded Nia payloads and all
+54 backgrounds with the preceding native archive, byte for byte. All 66 new
+portrait alpha oracles match their imported source silhouettes. Nia's old
+approval pins remain independent of the new wardrobe approvals. The story's
+923 messages, 929 pages, cast IDs and relationship text remain unchanged.

@@ -1,0 +1,1355 @@
+{
+  "version": 1,
+  "purpose": "Active wardrobe and expression replacements; story identities and approved Nia art remain unchanged.",
+  "characters": [
+    {
+      "character": "KADE",
+      "name": "Kade",
+      "style": "Varsity / rich kid",
+      "description": "Varsity colors, polished casual wear and competitive swagger.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/kade-source.png",
+          "bounds": [
+            0,
+            0,
+            650,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/kade-source.png",
+          "bounds": [
+            650,
+            0,
+            1254,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/kade-source.png",
+          "bounds": [
+            0,
+            628,
+            650,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/kade-source.png",
+          "bounds": [
+            650,
+            628,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            44,
+            1,
+            629,
+            628
+          ],
+          "opaque_source_pixels": 235909,
+          "native_components": [
+            41032,
+            4,
+            2,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            40,
+            5,
+            580,
+            628
+          ],
+          "opaque_source_pixels": 205594,
+          "native_components": [
+            36287,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            82,
+            0,
+            611,
+            626
+          ],
+          "opaque_source_pixels": 220255,
+          "native_components": [
+            38456,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            53,
+            0,
+            558,
+            626
+          ],
+          "opaque_source_pixels": 193472,
+          "native_components": [
+            33780,
+            2,
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "character": "JULES",
+      "name": "Jules",
+      "style": "Skater / courier",
+      "description": "Skate layers, a battered courier bag and a quick grin.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/jules-source.png",
+          "bounds": [
+            0,
+            0,
+            650,
+            658
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/jules-source.png",
+          "bounds": [
+            650,
+            0,
+            1254,
+            658
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/jules-source.png",
+          "bounds": [
+            0,
+            658,
+            690,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/jules-source.png",
+          "bounds": [
+            650,
+            658,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            103,
+            10,
+            600,
+            657
+          ],
+          "opaque_source_pixels": 216194,
+          "native_components": [
+            35403,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            27,
+            7,
+            578,
+            658
+          ],
+          "opaque_source_pixels": 207727,
+          "native_components": [
+            33713,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            77,
+            1,
+            673,
+            596
+          ],
+          "opaque_source_pixels": 201577,
+          "native_components": [
+            36097,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            99,
+            0,
+            520,
+            596
+          ],
+          "opaque_source_pixels": 174835,
+          "native_components": [
+            33750,
+            1,
+            1,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ASTER",
+      "name": "Aster",
+      "style": "Quiet luxury",
+      "description": "Sculpted tailoring, warm gold and calm, unmistakable authority.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/aster-source.png",
+          "bounds": [
+            0,
+            0,
+            690,
+            627
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/aster-source.png",
+          "bounds": [
+            690,
+            0,
+            1254,
+            627
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/aster-source.png",
+          "bounds": [
+            0,
+            627,
+            690,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/aster-source.png",
+          "bounds": [
+            690,
+            627,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            42,
+            2,
+            643,
+            625
+          ],
+          "opaque_source_pixels": 195184,
+          "native_components": [
+            34283,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            34,
+            2,
+            512,
+            625
+          ],
+          "opaque_source_pixels": 177054,
+          "native_components": [
+            31313,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            100,
+            2,
+            663,
+            627
+          ],
+          "opaque_source_pixels": 214113,
+          "native_components": [
+            37608,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            49,
+            3,
+            465,
+            627
+          ],
+          "opaque_source_pixels": 173040,
+          "native_components": [
+            30543,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "character": "CALDER",
+      "name": "Calder",
+      "style": "Harbor heritage",
+      "description": "Weathered harbor layers and warmth behind a dry joke.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/calder-source.png",
+          "bounds": [
+            0,
+            0,
+            635,
+            618
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/calder-source.png",
+          "bounds": [
+            635,
+            0,
+            1254,
+            618
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/calder-source.png",
+          "bounds": [
+            0,
+            618,
+            635,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/calder-source.png",
+          "bounds": [
+            635,
+            618,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            4,
+            11,
+            627,
+            613
+          ],
+          "opaque_source_pixels": 236410,
+          "native_components": [
+            38758,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            12,
+            9,
+            613,
+            613
+          ],
+          "opaque_source_pixels": 228245,
+          "native_components": [
+            40072,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            18,
+            5,
+            621,
+            628
+          ],
+          "opaque_source_pixels": 241424,
+          "native_components": [
+            42167,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            7,
+            8,
+            609,
+            628
+          ],
+          "opaque_source_pixels": 237964,
+          "native_components": [
+            41846,
+            0
+          ]
+        }
+      ],
+      "source_note": "Broad outer elbows approach the source canvas edges; both hands and all facial features remain intact."
+    },
+    {
+      "character": "VOSS",
+      "name": "Voss",
+      "style": "Old money",
+      "description": "Old-money tailoring and the practiced smile of a negotiator.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/voss-source.png",
+          "bounds": [
+            0,
+            0,
+            650,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/voss-source.png",
+          "bounds": [
+            650,
+            0,
+            1254,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/voss-source.png",
+          "bounds": [
+            0,
+            628,
+            650,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/voss-source.png",
+          "bounds": [
+            650,
+            628,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            45,
+            5,
+            607,
+            625
+          ],
+          "opaque_source_pixels": 217555,
+          "native_components": [
+            38740,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            35,
+            5,
+            564,
+            625
+          ],
+          "opaque_source_pixels": 216816,
+          "native_components": [
+            38778,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            28,
+            2,
+            624,
+            616
+          ],
+          "opaque_source_pixels": 237261,
+          "native_components": [
+            42449,
+            2,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            52,
+            6,
+            562,
+            618
+          ],
+          "opaque_source_pixels": 205431,
+          "native_components": [
+            37546,
+            4,
+            3,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MINA",
+      "name": "Mina",
+      "style": "Y2K / girly pop",
+      "description": "Playful Y2K layers, bright camera charms and open curiosity.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/mina-source.png",
+          "bounds": [
+            0,
+            0,
+            610,
+            629
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/mina-source.png",
+          "bounds": [
+            610,
+            0,
+            1254,
+            629
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/mina-source.png",
+          "bounds": [
+            0,
+            629,
+            610,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/mina-source.png",
+          "bounds": [
+            610,
+            629,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            113,
+            4,
+            546,
+            627
+          ],
+          "opaque_source_pixels": 187463,
+          "native_components": [
+            33037,
+            4,
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            41,
+            7,
+            640,
+            628
+          ],
+          "opaque_source_pixels": 226875,
+          "native_components": [
+            40073,
+            7,
+            3,
+            3,
+            2
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            38,
+            2,
+            576,
+            625
+          ],
+          "opaque_source_pixels": 202762,
+          "native_components": [
+            35732,
+            5,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            67,
+            1,
+            596,
+            625
+          ],
+          "opaque_source_pixels": 227967,
+          "native_components": [
+            40065,
+            5,
+            3,
+            3,
+            2
+          ]
+        }
+      ],
+      "source_note": "The raised CASUAL fingertips lightly touch the original right canvas edge; no major hand or face loss."
+    },
+    {
+      "character": "ROOK",
+      "name": "Rook",
+      "style": "Punk / moto",
+      "description": "Patched leather, worn plaid and a challenging, crooked grin.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/rook-source.png",
+          "bounds": [
+            0,
+            0,
+            690,
+            633
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/rook-source.png",
+          "bounds": [
+            640,
+            0,
+            1254,
+            633
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/rook-source.png",
+          "bounds": [
+            0,
+            633,
+            640,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/rook-source.png",
+          "bounds": [
+            640,
+            633,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            22,
+            6,
+            676,
+            632
+          ],
+          "opaque_source_pixels": 261072,
+          "native_components": [
+            38732,
+            2,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            15,
+            10,
+            580,
+            632
+          ],
+          "opaque_source_pixels": 252585,
+          "native_components": [
+            44757,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            99,
+            0,
+            610,
+            621
+          ],
+          "opaque_source_pixels": 230912,
+          "native_components": [
+            41136,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            34,
+            3,
+            581,
+            621
+          ],
+          "opaque_source_pixels": 241138,
+          "native_components": [
+            43262,
+            2,
+            2,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MARISOL",
+      "name": "Marisol",
+      "style": "Coastal glam",
+      "description": "Coastal silk, gold jewelry and a confident, welcoming smile.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/marisol-source.png",
+          "bounds": [
+            0,
+            0,
+            690,
+            624
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/marisol-source.png",
+          "bounds": [
+            690,
+            0,
+            1254,
+            624
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/marisol-source.png",
+          "bounds": [
+            0,
+            624,
+            660,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/marisol-source.png",
+          "bounds": [
+            660,
+            624,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            101,
+            7,
+            674,
+            623
+          ],
+          "opaque_source_pixels": 193830,
+          "native_components": [
+            35010,
+            2,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            16,
+            6,
+            484,
+            623
+          ],
+          "opaque_source_pixels": 194213,
+          "native_components": [
+            34920,
+            13,
+            3,
+            3,
+            2
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            122,
+            0,
+            601,
+            630
+          ],
+          "opaque_source_pixels": 216468,
+          "native_components": [
+            37303,
+            3,
+            3,
+            2,
+            1
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            56,
+            3,
+            525,
+            630
+          ],
+          "opaque_source_pixels": 204959,
+          "native_components": [
+            35692,
+            4,
+            2,
+            2,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "character": "IMANI",
+      "name": "Imani",
+      "style": "Alt / workwear punk",
+      "description": "Punk details, purple accents and a sharp, expressive gaze.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/imani-source.png",
+          "bounds": [
+            0,
+            0,
+            650,
+            648
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/imani-source.png",
+          "bounds": [
+            650,
+            0,
+            1254,
+            648
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/imani-source.png",
+          "bounds": [
+            0,
+            648,
+            650,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/imani-source.png",
+          "bounds": [
+            650,
+            648,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            120,
+            6,
+            599,
+            648
+          ],
+          "opaque_source_pixels": 192770,
+          "native_components": [
+            32018,
+            0
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            25,
+            19,
+            574,
+            647
+          ],
+          "opaque_source_pixels": 190111,
+          "native_components": [
+            33056,
+            0
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            106,
+            0,
+            625,
+            606
+          ],
+          "opaque_source_pixels": 193942,
+          "native_components": [
+            36154,
+            0
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            21,
+            0,
+            463,
+            606
+          ],
+          "opaque_source_pixels": 179647,
+          "native_components": [
+            33519,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "character": "REN",
+      "name": "Ren",
+      "style": "Techwear / soft goth",
+      "description": "Precise monochrome layers, silver hair and a measured gaze.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/ren-source.png",
+          "bounds": [
+            0,
+            0,
+            640,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/ren-source.png",
+          "bounds": [
+            640,
+            0,
+            1254,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/ren-source.png",
+          "bounds": [
+            0,
+            628,
+            640,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/ren-source.png",
+          "bounds": [
+            640,
+            628,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            33,
+            1,
+            612,
+            628
+          ],
+          "opaque_source_pixels": 210694,
+          "native_components": [
+            36715,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            31,
+            2,
+            590,
+            626
+          ],
+          "opaque_source_pixels": 228981,
+          "native_components": [
+            40353,
+            6,
+            3,
+            1,
+            1
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            115,
+            0,
+            576,
+            626
+          ],
+          "opaque_source_pixels": 198217,
+          "native_components": [
+            34658,
+            2,
+            2,
+            2,
+            1
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            51,
+            4,
+            541,
+            626
+          ],
+          "opaque_source_pixels": 213091,
+          "native_components": [
+            37659,
+            4,
+            3,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SABLE",
+      "name": "Sable",
+      "style": "Romantic goth",
+      "description": "Romantic goth layers, copper curls and an unexpected dry wit.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/sable-source.png",
+          "bounds": [
+            0,
+            0,
+            680,
+            620
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/sable-source.png",
+          "bounds": [
+            680,
+            0,
+            1254,
+            620
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/sable-source.png",
+          "bounds": [
+            0,
+            620,
+            680,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/sable-source.png",
+          "bounds": [
+            680,
+            620,
+            1254,
+            1254
+          ]
+        }
+      ],
+      "review": [
+        {
+          "pose": "DEFAULT",
+          "content_bounds": [
+            59,
+            2,
+            647,
+            617
+          ],
+          "opaque_source_pixels": 188948,
+          "native_components": [
+            34110,
+            5,
+            4,
+            4,
+            3
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "content_bounds": [
+            38,
+            5,
+            478,
+            617
+          ],
+          "opaque_source_pixels": 191443,
+          "native_components": [
+            34860,
+            7,
+            6,
+            5,
+            4
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "content_bounds": [
+            127,
+            3,
+            553,
+            626
+          ],
+          "opaque_source_pixels": 179377,
+          "native_components": [
+            31572,
+            9,
+            8,
+            4,
+            4
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "content_bounds": [
+            92,
+            12,
+            487,
+            627
+          ],
+          "opaque_source_pixels": 174086,
+          "native_components": [
+            31472,
+            7,
+            3,
+            3,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ELI",
+      "name": "Eli",
+      "style": "Vintage diner / retro knit",
+      "description": "Vintage diner stripes and a generous, easy laugh.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            25,
+            0,
+            660,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            665,
+            0,
+            1254,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            25,
+            628,
+            665,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            700,
+            628,
+            1220,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VALE",
+      "name": "Mrs. Vale",
+      "style": "Bohemian / garden workwear",
+      "description": "Floral layers, garden textures and a knowing, curious smile.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            5,
+            0,
+            680,
+            627
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            685,
+            0,
+            1254,
+            623
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            60,
+            620,
+            670,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            685,
+            620,
+            1220,
+            1254
+          ]
+        }
+      ]
+    }
+  ],
+  "source_reviews": [
+    "recovered.json",
+    "elders.json"
+  ]
+}

@@ -1,27 +1,37 @@
 # Coastline cartridge validation
 
-`python3 drive/tests/dialogue_pixels.py` passes 4,387 checks of native 256x264
-actor canvases against an independent screen-pixel oracle, including clipping,
-fades, lighting, smaller secondary actors and badges. It checks the continuous
-256x288 scene across the LCD seam and reserves the lower 96 rows for dialogue.
-ASan/UBSan also checks that one 512x324 background, two actor slots and their
-palettes use 302,592 bytes within the existing 307,200-byte driving scratch
-lease without corrupting the protected actor or palette. Run after
-`make -C drive`; no character source art is replaced by this check.
+Run the focused cast checks after `make -C drive` against the final ROM:
 
-`python3 drive/tests/campaign.py` passes 38,448 checks through all 125 scenes,
-923 authored messages and 929 dialogue pages. Six messages split across two
-three-row pages. Tests verify exact font wrapping and text coverage, page
-reveal/advance rules, unchanged shot and speaker until the final page, pause,
-replay, abort, saved progress, profile migration and scratch restoration.
-`python3 drive/tests/story_assets.py` checks the 54 backgrounds and 56 portrait
-records, including the 51 upper-body portraits re-exported from original art,
-five Nia-only full-body poses and eight floor-compatible background overrides.
+- `python3 drive/tests/dialogue_pixels.py` compares native 256x264 actor canvases
+  with an independent pixel oracle, including clipping, fades, lighting, reduced
+  secondary portraits, the continuous 256x288 LCD seam and lower 96 dialogue rows.
+  ASan/UBSan guards the shared 302,592-byte one-background/two-actor lease inside
+  the existing 307,200-byte driving cache.
+- `python3 drive/tests/campaign.py --native-only` traverses all 125 scenes,
+  923 messages and 929 pages. It checks exact font wrapping, reveal/advance rules,
+  stable shot/speaker across pages, pause, replay, abort, progress and saves.
+- `python3 drive/tests/story_assets.py` checks the 54 backgrounds and 76 portrait
+  records: 57 upper-body portraits, five approved Nia full-body poses and fourteen
+  concept-only full-body studies. Authored references and gallery availability
+  are checked separately; unused review poses are not claimed as story content.
+- `python3 drive/tests/character_replacement.py` retains Nia's source/crop
+  approvals and checks the intentional restyles against their own sources. The
+  previous native archive pins all 54 backgrounds and ten Nia payloads.
+- `python3 drive/tests/cast_gallery.py` checks the 28-person Cast Studio browser,
+  pose cycling, unchanged saves/story record, guarded drawing and cache release.
 
-`python3 drive/tests/continuous_story.py` captures 49 actual-cartridge dialogue
-pages across D01, D04, D05, D24 and S17, including a page flip in S17 and pause
-and resume in D01. Controller input drives the emulator; RAM is observed read
-only. These saves are labelled visual fixtures rather than earned progression.
+`python3 drive/tests/continuous_story.py` is the actual-cartridge scene runner
+for D01, D04, D05, D24 and S17, including a real page flip and pause/resume.
+Controller input drives DeSmuME; RAM is read only. Later-scene batteries are
+labelled review fixtures, not earned progression. The focused bundle's
+VALIDATION.json identifies reports for its exact ROM. The focused cast build
+passes 38,508 campaign checks, 4,447 dialogue pixel checks and 2,202,587 Cast
+Studio checks. Its actual DeSmuME gallery tour reviews all 71 variants, passive
+touch and returns to both driving modes; the five-scene story sample also passes.
+All 66 new portrait alpha oracles match their sources, while the 54 encoded
+backgrounds and ten Nia payloads match the preceding native archive exactly.
+The broader driving release matrix was not rerun, and physical Delta/DS testing
+is not claimed.
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
 GCC AddressSanitizer and UndefinedBehaviorSanitizer. Twelve suites cover driving,

@@ -43,6 +43,13 @@ nbg=len(backgrounds)
 tall=json.loads((ROOT/'art/story/tall-scenes.json').read_text())['backgrounds']
 tall_by_name={b['name']:b for b in tall}
 compiled_backgrounds=[dict(b,**{k:v for k,v in tall_by_name.get(b['name'],{}).items() if k!='name'}) for b in backgrounds]
+def optional_catalog(relative):
+ path=ROOT/'art/story'/relative
+ return json.loads(path.read_text()) if path.exists() else {'characters':[]}
+restyles=optional_catalog('restyle/catalog.json')['characters']
+drafts=optional_catalog('new-cast/catalog.json')['characters']
+restyle_by_id={person['character']:person for person in restyles}
+assert len(restyle_by_id)==len(restyles) and 'NIA' not in restyle_by_id
 assert 0<len(POSES)<=64
 assets=[];portraits=[];sources=[[None]*len(PEOPLE) for _ in POSES]
 for spec in CATALOG['sheets']:
@@ -51,6 +58,11 @@ for spec in CATALOG['sheets']:
 for spec in CATALOG.get('overrides',[]):
  actor=PEOPLE.index(spec['character']);pose=POSES.index(spec['pose'])
  sources[pose][actor]={k:v for k,v in spec.items() if k not in ('character','pose')}
+for person in restyles:
+ actor=PEOPLE.index(person['character'])
+ assert {p['pose'] for p in person['portraits']}==set(POSES[:4]),person['character']
+ for spec in person['portraits']:
+  sources[POSES.index(spec['pose'])][actor]={k:v for k,v in spec.items() if k not in ('character','pose')}
 for row in sources:
  for i,value in enumerate(row):
   if value is None:row[i]=sources[0][i]
@@ -66,6 +78,7 @@ for row in sources:
    source_ids[key]=len(portraits);portraits.append(spec)
   ids.append(source_ids[key])
  portrait_map.append(ids)
+ordinary_ids={value for row in portrait_map for value in row}
 fullbody_map=[[-1]*len(PEOPLE) for _ in POSES]
 for spec in CATALOG.get('fullbody_overrides',[]):
  actor=PEOPLE.index(spec['character']);pose=POSES.index(spec['pose'])
@@ -74,7 +87,26 @@ for spec in CATALOG.get('fullbody_overrides',[]):
  if key not in source_ids:source_ids[key]=len(portraits);portraits.append(source)
  fullbody_map[pose][actor]=source_ids[key]
 fullbody_ids={v for row in fullbody_map for v in row if v>=0}
-background_scales=[]
+gallery=[]
+for actor,(identifier,name) in enumerate(CATALOG['people']):
+ profile=restyle_by_id.get(identifier,{})
+ ids=[fullbody_map[p][actor] if fullbody_map[p][actor]>=0 else portrait_map[p][actor] for p in range(len(POSES))]
+ gallery.append({'id':identifier,'name':name,'style':profile.get('style','Coastal workshop'),
+  'description':profile.get('description',"Sunline's mechanic. Her approved look and expressions are preserved."),
+  'draft':False,'portraits':ids,'full_body':[fullbody_map[p][actor]>=0 for p in range(len(POSES))]})
+for person in drafts:
+ assert person['id'] not in PEOPLE and person['full_body'] is True
+ source={key:person[key] for key in ('sheet','bounds')}
+ key=json.dumps(source,sort_keys=True)
+ assert key not in source_ids,person['id']
+ portrait=len(portraits);source_ids[key]=portrait;portraits.append(source)
+ gallery.append({'id':person['id'],'name':person['name'],'style':person['style'],
+  'description':person['description'],'draft':True,'portraits':[portrait]*len(POSES),'full_body':[True]*len(POSES)})
+assert len({person['id'] for person in gallery})==len(gallery)
+assert len(portraits)<256
+for person in gallery:
+ assert all(person[key].isascii() for key in ('name','style','description')),person['id']
+gallery_pose_counts=[len(set(person['portraits'])) for person in gallery]
 for idx,spec in enumerate(compiled_backgrounds+portraits):
  sheet=Image.open(ROOT/'art/story'/spec['sheet']).convert('RGB' if idx<nbg else 'RGBA')
  if 'bounds' in spec:box=tuple(spec['bounds'])
@@ -86,8 +118,6 @@ for idx,spec in enumerate(compiled_backgrounds+portraits):
  if idx<nbg:
   # Reframe older close shots with a consistent lens, preserving aspect ratio.
   # The standing-height paintings already include the new foreground floor.
-  scale=tile.width*background_height/(tile.height*background_width)
-  background_scales.append(scale)
   centering=(0.25,0.5) if spec['name']=='LIGHTHOUSE' else (0.5,0.5)
   tile=ImageOps.fit(tile,(background_width,background_height),Image.Resampling.LANCZOS,centering=centering)
  else:
@@ -125,14 +155,20 @@ for idx,(w,h,payload) in enumerate(assets):
 struct.pack_into('<8s6I',data,0,b'CSTORY02',event_table,len(scenes),asset_table,len(assets),len(data),0)
 (OUT/'story.bin').write_bytes(data)
 line_count=sum(len(s['lines']) for s in scenes)
-(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
-limits={'BACKGROUNDS':nbg,'BACKGROUND_WIDTH':background_width,'BACKGROUND_HEIGHT':background_height,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_width,'PORTRAIT_WIDTH':portrait_width,'PORTRAIT_HEIGHT':portrait_height,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count}
+(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'ordinary_portraits':len(ordinary_ids),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'gallery':gallery,'gallery_count':len(gallery),'restyled_people':list(restyle_by_id),'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
+limits={'BACKGROUNDS':nbg,'BACKGROUND_WIDTH':background_width,'BACKGROUND_HEIGHT':background_height,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_width,'PORTRAIT_WIDTH':portrait_width,'PORTRAIT_HEIGHT':portrait_height,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count,'GALLERY_COUNT':len(gallery)}
 advances=(ROOT/'build/font_advance.bin').read_bytes();assert len(advances)==96
-(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n')
+(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n#define STORY_GALLERY_POSE_COUNTS_INITIALIZER {'+','.join(map(str,gallery_pose_counts))+'}\n')
 def cstring(value):return json.dumps(value,ensure_ascii=True)
 visuals='/* Generated visual catalog; included by the dialogue renderer only. */\n'
 visuals+='static const uint8_t story_portraits[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in portrait_map)+'};\n'
 visuals+='static const int16_t story_fullbodies[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in fullbody_map)+'};\n'
+for field in ('names','styles','descriptions'):
+ key={'names':'name','styles':'style','descriptions':'description'}[field]
+ visuals+='static const char*const story_gallery_'+field+'[STORY_GALLERY_COUNT] = {'+','.join(cstring(person[key]) for person in gallery)+'};\n'
+visuals+='static const int16_t story_gallery_portraits[STORY_GALLERY_COUNT][STORY_POSES] = {'+','.join('{'+','.join(map(str,person['portraits']))+'}' for person in gallery)+'};\n'
+visuals+='static const uint8_t story_gallery_fullbody[STORY_GALLERY_COUNT][STORY_POSES] = {'+','.join('{'+','.join(str(int(value)) for value in person['full_body'])+'}' for person in gallery)+'};\n'
+visuals+='static const uint8_t story_gallery_draft[STORY_GALLERY_COUNT] = {'+','.join(str(int(person['draft'])) for person in gallery)+'};\n'
 visuals+='static const uint8_t story_fullbody_background[STORY_BACKGROUNDS] = {'+','.join(str(int(b['name'] in tall_by_name and tall_by_name[b['name']].get('full_body',False))) for b in backgrounds)+'};\n'
 visuals+='static const uint16_t story_ground_y[STORY_BACKGROUNDS] = {'+','.join(str(tall_by_name.get(b['name'],{}).get('ground_y',284)) for b in backgrounds)+'};\n'
 visuals+='static const char*const story_locations[STORY_BACKGROUNDS] = {'+','.join(cstring(b.get('location','')) for b in backgrounds)+'};\n'

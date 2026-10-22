@@ -231,3 +231,50 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   }
  }
 }
+
+/* The cast studio is a view of the same streamed illustrations, not a story
+ * scene. Browsing never writes dialogue state, progression or a saved profile. */
+void story_gallery_draw(const Game*g,uint16_t*top,uint16_t*bottom){
+ (void)g;
+ Surface image={top,256,192},menu={bottom,256,192};
+ static const uint8_t pose_counts[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
+ static const char*const pose_names[STORY_POSES]={"Signature","Off duty","On shift","Reflective","Skeptical"};
+ int entry=limit(campaign.page,0,STORY_GALLERY_COUNT-1);
+ int count=pose_counts[entry];
+ int pose=limit(campaign.gallery_pose,0,count-1);
+ int okay=lease(),bg=okay?background(0):-1;
+ int slot=bg>=0?person(story_gallery_portraits[entry][pose],-1):-1;
+ if(bg>=0){
+  const int cx=(STORY_BACKGROUND_WIDTH-256)/2,cy=(STORY_BACKGROUND_HEIGHT-STORY_SCENE_HEIGHT)/2;
+  for(int y=0;y<STORY_SCENE_HEIGHT;y++){
+   const uint8_t*source=back[bg]+(cy+y)*STORY_BACKGROUND_WIDTH+cx;
+   uint16_t*dest=y<192?top+y*256:bottom+(y-192)*256;
+   for(int x=0;x<256;x++)dest[x]=back_palette[bg][source[x]];
+  }
+  scene_overlay(&image,&menu,0,0,256,STORY_SCENE_HEIGHT,C(3,10,20),44);
+ }else{
+  gfx_rect(&image,0,0,256,192,C(8,18,31));
+  gfx_rect(&menu,0,0,256,STORY_DIALOG_Y,C(8,18,31));
+ }
+ if(slot>=0){
+  int floor=story_gallery_fullbody[entry][pose]?story_ground_y[0]:STORY_SCENE_HEIGHT;
+  if(story_gallery_fullbody[entry][pose])contact_shadow(&image,&menu,128,floor,27,256);
+  scene_actor(&image,&menu,slot,0,floor-STORY_PORTRAIT_HEIGHT,STORY_PORTRAIT_WIDTH,STORY_PORTRAIT_HEIGHT,256,256);
+ }else text_center(&image,84,"Portrait unavailable",C(240,182,117));
+ overlay(&image,5,5,246,16,C(3,10,20),170);
+ gfx_text_small(&image,11,9,"SUNLINE / CAST STUDIO",C(231,238,225));
+ gfx_text_small(&image,story_gallery_draft[entry]?206:190,9,story_gallery_draft[entry]?"CONCEPT":"RISING TIDE",C(159,214,204));
+
+ gfx_rect(&menu,0,STORY_DIALOG_Y,256,192-STORY_DIALOG_Y,C(5,14,26));
+ panel(&menu,5,100,246,86);
+ gfx_rect(&menu,11,105,234,16,C(9,30,39));
+ gfx_text(&menu,15,106,story_gallery_names[entry],C(245,217,151));
+ char position[20];snprintf(position,sizeof position,"%d / %d",entry+1,STORY_GALLERY_COUNT);
+ gfx_text_small(&menu,207,109,position,C(141,187,185));
+ gfx_text_small(&menu,15,124,story_gallery_styles[entry],C(157,219,207));
+ gfx_wrap(&menu,15,138,story_gallery_descriptions[entry],226,14,2,C(235,239,226));
+ gfx_text_small(&menu,15,174,pose_names[pose],C(245,217,151));
+ for(int n=0;n<count;n++)gfx_rect(&menu,239-(count-1-n)*9,175,5,3,n==pose?C(245,217,151):C(68,108,119));
+ story_visual_stats[3]=(uint32_t)((STORY_BACKGROUND_WIDTH-256)/2);
+ story_visual_stats[4]=ST_FACE;
+}

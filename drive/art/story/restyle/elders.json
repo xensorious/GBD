@@ -1,0 +1,127 @@
+{
+  "characters": [
+    {
+      "character": "ELI",
+      "name": "Eli",
+      "style": "Vintage diner / retro knit",
+      "description": "A warm diner owner with bowling-shirt stripes, a crooked smile and expressive hands.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            25,
+            0,
+            660,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            665,
+            0,
+            1254,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            25,
+            628,
+            665,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/eli-source.png",
+          "bounds": [
+            700,
+            628,
+            1220,
+            1254
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VALE",
+      "name": "Mrs. Vale",
+      "style": "Bohemian / garden workwear",
+      "description": "A knowing neighbor in botanical prints, layered beads and well-used gardening clothes.",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            5,
+            0,
+            680,
+            627
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            685,
+            0,
+            1254,
+            623
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            60,
+            620,
+            670,
+            1254
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "sheet": "restyle/vale-source.png",
+          "bounds": [
+            685,
+            620,
+            1220,
+            1254
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "restyle/eli-source.png",
+      "sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+      "generated_path": "/workspace/generated_images/exec-d96822a9-f27e-4846-8e4e-7c0a745752a7.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "copied_without_pixel_changes": true,
+      "art_review": "Reference identity retained; four individual outfits/expressions; complete heads, hands, clothing and props. QUIET retains the CASUAL wardrobe."
+    },
+    {
+      "sheet": "restyle/vale-source.png",
+      "sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+      "generated_path": "/workspace/generated_images/exec-e3fb4c73-e8ec-4f67-86de-27459f35a0e0.png",
+      "size": [
+        1254,
+        1254
+      ],
+      "copied_without_pixel_changes": true,
+      "art_review": "Reference identity retained; four individual outfits/expressions; complete heads, hands, clothing and props. QUIET retains the CASUAL wardrobe."
+    }
+  ],
+  "extraction": "ImageGen transparent source retained unchanged. Use explicit bounds and largest connected alpha>=96 component, as in the story importer. Vale top-left and bottom-left hair/basket occupy a few shared Y rows without touching; overlapping source crops preserve both complete figures, and component isolation removes the neighboring sliver.",
+  "generation_tool": "image_gen.imagegen",
+  "approved_reference": "art/story/neighbors.png"
+}

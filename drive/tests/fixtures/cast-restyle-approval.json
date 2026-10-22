@@ -1,0 +1,1723 @@
+{
+  "baseline_ref": "4ff5886f1d95f41648bcb035a7451efb5b5702e7",
+  "baseline_rom_sha256": "6ea7d8b06fa397919ef1586a5e7f6458c2e087280e4098c1960982524d10fb15",
+  "baseline_archive_sha256": "fa9eef590ec49aed4fd8dabe439370cd3016f4f0fd80e5513fb647abf3a439ea",
+  "reason": "The character wardrobe overhaul replaces 13 existing non-Nia actors and adds 14 unassigned gallery concepts. Story text, actor IDs, Nia art and all background payloads remain unchanged.",
+  "story_people": [
+    [
+      "NIA",
+      "Nia"
+    ],
+    [
+      "JULES",
+      "Jules"
+    ],
+    [
+      "CALDER",
+      "Calder"
+    ],
+    [
+      "IMANI",
+      "Imani"
+    ],
+    [
+      "MARISOL",
+      "Marisol"
+    ],
+    [
+      "KADE",
+      "Kade"
+    ],
+    [
+      "ROOK",
+      "Rook"
+    ],
+    [
+      "REN",
+      "Ren"
+    ],
+    [
+      "ASTER",
+      "Aster"
+    ],
+    [
+      "SABLE",
+      "Sable"
+    ],
+    [
+      "VOSS",
+      "Voss"
+    ],
+    [
+      "MINA",
+      "Mina"
+    ],
+    [
+      "ELI",
+      "Eli"
+    ],
+    [
+      "VALE",
+      "Mrs. Vale"
+    ]
+  ],
+  "restyled_people": [
+    "JULES",
+    "CALDER",
+    "IMANI",
+    "MARISOL",
+    "KADE",
+    "ROOK",
+    "REN",
+    "ASTER",
+    "SABLE",
+    "VOSS",
+    "MINA",
+    "ELI",
+    "VALE"
+  ],
+  "draft_people": [
+    "LEXI",
+    "NYX",
+    "KIT",
+    "SIENNA",
+    "BEAU",
+    "MILES",
+    "TESS",
+    "AKIRA",
+    "ZOE",
+    "DANTE",
+    "PIPER",
+    "SOL",
+    "CASS",
+    "ORION"
+  ],
+  "background_payloads": {
+    "GARAGE": "c053566a15387e2c34cb8bc0244a83fb983888a8a238008b5ba6c545105fde44",
+    "MARINA": "4e1c34be34b93d837e9fd1a815a40e8fb857af5367581e036a4397a2ec6f01b4",
+    "MEET": "4735c0ae2e9f21e0b035e9a0a9e94ba6c6aaebb10b3f3e87bb79ba143a9216d1",
+    "FOUNDRY": "169d746c85aa06413a75f8ce0d6916fc51144eb95a29ba42510df8a0765a8547",
+    "PADDOCK": "57cf02fc3cafe5db0ee7e893c525298802c946c62cced3adf77f0172a0ec2875",
+    "FINALE": "cfb4a3e3bc27227ebb9dc64e70e622a3a5d9a1805058b54ae70c0cf81d3d1ec4",
+    "BENCH": "f6099b524cf7b9c5de3decc6a940030a5ed55d28adba9eb635510d642eae45b6",
+    "NOTES": "ed785255b970b1667be86404dded97b962d213306f36ec2725f98b5883292072",
+    "PAPERS": "b990c9ffcd25ee7c724badd6d64fae805ec3c9ef646f455be975d35227ddc59c",
+    "PITWALL": "93d896cd05f0d4ada1e663c67c040fa9752fd6b08025574218f69744e66d9512",
+    "OFFICE": "af1de764714d6be23ff9fa5fb3501b3c353e75eb195d89d3ce2e6f5a12d6d2c1",
+    "START": "902058d615b35402c862b5a29425503084ea078510d2cb7a6e3a2bd624612755",
+    "CORNER": "47a49f7ef9b3f3c03de6e8111f43cccc51bfe12b47034999f694793944b73e2d",
+    "AWNING": "d9eb2834b310fe546c2d726a5faff9817220058009fadda5bf008c32ab813b7f",
+    "MEMORIES": "f72f2f8c6fbcaf2260e24ddb84ecbf80d2e391dcf3e04c2956a7eb539d1ddbaf",
+    "NIGHTGARAGE": "4e8ed46054898f659781ac94ea3998758d54067ae0f95c36699d97b54251827b",
+    "NIGHTFINAL": "f5dc6b94cb78446d5c0358f2a689f830b371dc06dd6e6279e2ab706f96781d7e",
+    "RAIN": "6fc277bad915684e0d54ea69ad7d46ad3b747cf339602ca509b231777d38bb8f",
+    "NIA_KITCHEN": "6990da7c86738b795311bb0f6fd66f3b631f14fa8dc05b735004b79db3f96b1f",
+    "MINA_BEDROOM": "8cfaeadf93e2d9246ca80c2c831ba4db41740e88957b44e8e8854dd3caabf64a",
+    "JULES_ROOM": "f835a09a494e122f9a68b8ed246498a2384da75c01675443d7e0cc21f7e1dee8",
+    "LAUNDROMAT": "965e0ff8228eb61d4e7f682f49a907cb7b94c12785447fe9a0a0134c4bb08e6b",
+    "DINER": "83497199609fa6401279761bed8a112d26f035f9b4c219ce517b6b3995f7b24d",
+    "BUSSTOP": "8318c9da0d629e0783459a78baae52de162458193459b2b411e9757faa5b995c",
+    "BAR": "f42f03127d667ecf356a75afb8f5fe53e8318f1e335cb668686529388d535e9d",
+    "CLUB": "507af043288569e7adb909f7023a615643ffc944bfe6e317e9dd31c21eba0ac7",
+    "HARBOR_BATHROOM": "e2dca6389c71aba7b624e6b1d1310c7354119f419baa77bc2ca1a018ac6086fb",
+    "FERRY": "4ac0b78bfb7264909936b26caf8dce1b799b96cbce4aeda14c7a49a816e46f76",
+    "FISHMARKET": "57acd6a08189c7d7bee380aef94da98dad0402e5f6e8809ba7a65114c09fc615",
+    "WAITING_ROOM": "1a91c9a6263d46a75a2e7071859b4d118d8337eb3b07c80110f5affe5d136d7e",
+    "ROOFTOP": "d113ee1550db40bfb866cbebfa163b9f6a6fbb367d1c9fa62a40c19b0d9fa580",
+    "RECORD_SHOP": "920d4f20a1ff5bb41ebd11daa589615c2e3346311654cbdbf9b48486e0218036",
+    "PRINTSHOP": "db5e1662e4e3fbafaff21e85d0501715f5354ad5c828899c4c51ac05f6af4f65",
+    "BRIDGE_CAFE": "8030b001c37d2234d9c17ce678c65c5a5619e5d79a111d0918485a067bde5576",
+    "OLD_WORKSHOP": "f8b3adb31c1ade3a773d41d9222c39a5ea311b58395272b827986ba8a06976c4",
+    "BLACKOUT": "c1b85dcb65e886c8ce694a71a8f0b23b5f9e2117659e10d92598549f125e0844",
+    "MOTEL_ROOM": "006bcbc5e2a485199ae00e9463d062616c583a3287aaeb266a1591b80362cd41",
+    "MOTEL_LOT": "4255b9da6ed1e1bc5696afc3eb55e27f44276731656698c76223177c3bda8d67",
+    "SERVICE_STATION": "3c49f56c47326facd5b55a386ef00df1459310ec261c45fcd67574e095ff5313",
+    "ROAD_BATHROOM": "914022362b9d7c2e113d9947f594a0897ed5014daccd4680ec0a18dc4d4ea05d",
+    "TRAIN_PLATFORM": "a293546967cb44af3ab92e187a127cf2db68a3bf25037e139516fd410299a907",
+    "CREW_VAN": "12e46af36230610258061a2c19a66f6e6d9bb19c4e26bc08fd83e943b3ce77d0",
+    "BRIEFING": "d390f12fe3c92095c415273ded44abfc886888cf5c4225d687986a3c1a463389",
+    "MEDIA_ROOM": "69c0f092d68336f665ec9819ba2de20d28f232ee632f287339edc960185798c0",
+    "CAFETERIA": "f5c593dd725e7189df9d73a323797922b5c95e2dbb448f1c7968b1f869fe06d7",
+    "STEWARDS": "4d8c85bd54960f39931356243b3a3d3bfad73e9c98d64387bc7e969d5f3eb84e",
+    "LOCKER_ROOM": "a269bec3c341ae6e840a2a30a8c689bd07ad5abd5ca0524b315a5366a918087f",
+    "VOLUNTEERS": "c947d50dc3253749538892ba2ddc3659673a25fbdf44eb26297e9a6050fcb42f",
+    "SKY_LOUNGE": "69bb34ef2c2550ab29494f7e8f9b9dbc1668ce25ccc07e6763514e1da2de05a2",
+    "EMPTY_STANDS": "e21471bd32bcb5ab94c87591a5f22c6b41be8cdd79948beed2691191eb205270",
+    "GREENHOUSE": "ceab27da4946f490b61ab4a51ceb5afc3e39ab55c39b70262fcc59e80aabf008",
+    "LIGHTHOUSE": "6bc3ec000bce269845c8cd0e7cf5a766cc9d04260a4112d5be7146f5a3a35161",
+    "GALLERY": "b5482c9e721c49603180f5dfdc0f2b6188028fe03e7963dd130723a5de9b5fbd",
+    "EPILOGUE": "925cee0f8a4d79388710193d79816dafd411c40aee72ad15b49bd4b502378c89"
+  },
+  "nia_payloads": {
+    "DEFAULT": "e23b9b268f2769ad6b109c198ef191755797c0e8a58a92394e897e51d742f652",
+    "CASUAL": "aa46c57e5331962d5df597e1847795fefd3f4e04594375c6ac9b834ecbbe9e75",
+    "GEAR": "cbd0b366e8ba81a2b924cffbd9694291d37f3241eb62491eda6a003a198d869a",
+    "QUIET": "0d4a12dabdb9f996be2201f5471d141e86449003b4a8b7665d98e01cc811e370",
+    "ANNOYED": "5c2693053d46a69289126a87cf229a263fe71b3664328862e48b151c77348775"
+  },
+  "nia_fullbody_payloads": {
+    "DEFAULT": "15504ffe4a7511378ead5d5f92241ec50bee5a1db44a5a48628fd10809c10663",
+    "CASUAL": "32deecfa258aaca1b76a85db8a8231634fd99a08b649d52355590ad9a1664dde",
+    "GEAR": "669da0d8d5f7476f258b21958d2d3e7251b9aab659a8fcffae8b1e9927669ffe",
+    "QUIET": "1abb90b9315ec38a3775944abc3035a6373e45bfe27653aa649c0e8be7789ca4",
+    "ANNOYED": "dbfe5cbcd219759bd65be615e0b63abcec040fda2f2296a01d55af4c71af5997"
+  },
+  "previous_actor_payloads": {
+    "NIA.DEFAULT": "e23b9b268f2769ad6b109c198ef191755797c0e8a58a92394e897e51d742f652",
+    "NIA.CASUAL": "aa46c57e5331962d5df597e1847795fefd3f4e04594375c6ac9b834ecbbe9e75",
+    "NIA.GEAR": "cbd0b366e8ba81a2b924cffbd9694291d37f3241eb62491eda6a003a198d869a",
+    "NIA.QUIET": "0d4a12dabdb9f996be2201f5471d141e86449003b4a8b7665d98e01cc811e370",
+    "NIA.ANNOYED": "5c2693053d46a69289126a87cf229a263fe71b3664328862e48b151c77348775",
+    "JULES.DEFAULT": "215b4cdc68a118136627d6971c19ba3b184e87c3874f5785f5cefff614d723ad",
+    "JULES.CASUAL": "95ff8d0758f59ac9aee26325c1448e476d9405a042ed34fdf7ad668efa32738d",
+    "JULES.GEAR": "0bf05cdc0744b2f793b3afd270c2e463b931ae35a796d40063ec0f344c027fde",
+    "JULES.QUIET": "1d532ad2c4bf8b9069f7bbeb84b6886ee68eba58f8bd9cf8dbb2fc5bd7cf9807",
+    "JULES.ANNOYED": "215b4cdc68a118136627d6971c19ba3b184e87c3874f5785f5cefff614d723ad",
+    "CALDER.DEFAULT": "0b24de0e5e32bc1b3193434066459efd919ad54755eb8e90d8baf4a758e7ea0f",
+    "CALDER.CASUAL": "22fa161d713bfc7a57cd47b6c908f482fa3e714d12e10b8b2a584cf5850e68fc",
+    "CALDER.GEAR": "100d2be1393f75df5598f35bc82743f0bd513b4860ad287eda396d0ea4db05d5",
+    "CALDER.QUIET": "5bca81a64d6a2d45b412256796a540485075fbf8bdc6150992fe3d26ba6bac38",
+    "CALDER.ANNOYED": "0b24de0e5e32bc1b3193434066459efd919ad54755eb8e90d8baf4a758e7ea0f",
+    "IMANI.DEFAULT": "ca44345b25db604661be96d544ce526f1738ccc3f53105f0befb2868d15c1550",
+    "IMANI.CASUAL": "acee28e3cc14bfc72eec6a53046b5f2b857c5b12ed50b24314317c412792d8ef",
+    "IMANI.GEAR": "70c1dad85eb3f9b21f9bfd4706df8f123cb727b278679d4e6d6fb16764e5c5cb",
+    "IMANI.QUIET": "687dd1d13cdd382a8268b68b464f8e74c7a453a0e4f55721a987882b6e3cc4fb",
+    "IMANI.ANNOYED": "ca44345b25db604661be96d544ce526f1738ccc3f53105f0befb2868d15c1550",
+    "MARISOL.DEFAULT": "d7a33f71bc8f57113f796ab5aa024e2d309d6fa6b25fdba539f25557553d8711",
+    "MARISOL.CASUAL": "6ac69325a6501226a74ffa09c22ec6fe52d35da01c38d1e760e2faf9dabf1c7c",
+    "MARISOL.GEAR": "0d0bf48f1df17bf0ab5fa23b33ebab6a42db506f73b4c89b5600630c3f80b0f7",
+    "MARISOL.QUIET": "8b4a2bc007d6f213d317838bdc4a7550f32008107e8e900a0df2a51cc7f61e37",
+    "MARISOL.ANNOYED": "d7a33f71bc8f57113f796ab5aa024e2d309d6fa6b25fdba539f25557553d8711",
+    "KADE.DEFAULT": "0790ebb132ee25a5a422b970dcc11ffdf3432f4a147f23e48d1039124ea37377",
+    "KADE.CASUAL": "5b420227189e17918bc0030148a01002f4b888c8f3dab4d372ce4ab1625e9771",
+    "KADE.GEAR": "a4b0981abb5c550726f28d6c3795f21c4200e5dc98eb7eaa6ff9f72a607203b4",
+    "KADE.QUIET": "c37d656142b78ba0bb72706204abea01e062ce11afa1ac7b3812910bb72f9cf8",
+    "KADE.ANNOYED": "0790ebb132ee25a5a422b970dcc11ffdf3432f4a147f23e48d1039124ea37377",
+    "ROOK.DEFAULT": "a1dd75bfdaa712be3d693c23219acf88fcf268132e2bd8ab370e0cb0107f9631",
+    "ROOK.CASUAL": "5e37b64de8a0a04242bc0553e9e436386c407b3ab7f5f4b62dbe3a26f1056012",
+    "ROOK.GEAR": "5f9c1e40713708b76bc2c86d8e62885a594b6ec07817d96dfe07fb6b2cbab12d",
+    "ROOK.QUIET": "4d6f0ba72d41f6060b7feb5a689bced738d92586eb30f4ba9b63709d86cac258",
+    "ROOK.ANNOYED": "a1dd75bfdaa712be3d693c23219acf88fcf268132e2bd8ab370e0cb0107f9631",
+    "REN.DEFAULT": "b9fe3b8d57b1f728c4e2875cd2614b2965add7c2e5e05b88b6c7ad8330687f20",
+    "REN.CASUAL": "26dcac9d1800a91d9f76c20cff9471b9e926ee8a713ea68c00588cc14fc99967",
+    "REN.GEAR": "0b9944d8aac7754eaf990eb8457b4fb61f41c8b009b3bfecdcf9dc980f346a25",
+    "REN.QUIET": "be6d8c011545b81eecd313d2dc2c1c687fb3d7ff275b1ee650e1f22e8a5a2dd5",
+    "REN.ANNOYED": "b9fe3b8d57b1f728c4e2875cd2614b2965add7c2e5e05b88b6c7ad8330687f20",
+    "ASTER.DEFAULT": "619ab79dacf112730478b59679bcf0f0b2e37f02b85a34d515429eb9d6cc9cf3",
+    "ASTER.CASUAL": "8c56c20b83e737bb2714ba0f583a8ed752a53a369f2c007fae9961fd891457e0",
+    "ASTER.GEAR": "b78d716c565de6e604ead0444dc865156727a292e6b8af7ca76140e2f844af12",
+    "ASTER.QUIET": "e7277ba159c5fe85a4f12f4478509c302499f109897cdcf2b64df8d3fcd4325f",
+    "ASTER.ANNOYED": "619ab79dacf112730478b59679bcf0f0b2e37f02b85a34d515429eb9d6cc9cf3",
+    "SABLE.DEFAULT": "9cd966b513fb12820ff3f05f1f60b32794cb42e9f4291ba12ba0291d30763ecd",
+    "SABLE.CASUAL": "bf6fce3ff392ca5a150d438fd6a3d86a32a6518f32f5ddb79c6369df1d393950",
+    "SABLE.GEAR": "d8028c4d8a5a37c8ccc45b8eabe2729d675d96bb63ab26bdc007dd1f176874de",
+    "SABLE.QUIET": "2ed647051b0a79e9143550012d5c374f5c280c0bc491c4659e2b29b730d8fee8",
+    "SABLE.ANNOYED": "9cd966b513fb12820ff3f05f1f60b32794cb42e9f4291ba12ba0291d30763ecd",
+    "VOSS.DEFAULT": "6bb578ccfb1db935b61c795d66068576c5ae63bfebf5ed0a6ad848017f960401",
+    "VOSS.CASUAL": "eee6ccefb7be3f4db53e6e0824d8d3725166776d746cf73e7d8acf766c4b95fd",
+    "VOSS.GEAR": "6bcefa56f93542fc2719d79cf2b56edf1e2d0281cbc7792908c1bf047e81b48e",
+    "VOSS.QUIET": "4b2cbf056a30a6e8b76418e3a0bacc4bf128a7eb3f5cc54dcd29847b78d398b9",
+    "VOSS.ANNOYED": "6bb578ccfb1db935b61c795d66068576c5ae63bfebf5ed0a6ad848017f960401",
+    "MINA.DEFAULT": "e6e03afa0ce05e4b767a8effcc08c22565c9b78064b5ca66b738135efdab7979",
+    "MINA.CASUAL": "7d282a61d2dcf790ef17968d4b64de34d91b59330541847950d9521f55caa2b9",
+    "MINA.GEAR": "15fc34e90856d212a84d224df80dd6f5562e4b4eadd3a388b5d16e4ae4da1f4a",
+    "MINA.QUIET": "e72ff97b0d9374a57c6cb5a4a5e4f6808dc83a1472c38babd0ec6744f5d77ed3",
+    "MINA.ANNOYED": "e6e03afa0ce05e4b767a8effcc08c22565c9b78064b5ca66b738135efdab7979",
+    "ELI.DEFAULT": "336c722621f082fe6d6e9db414439874dd9fa937051e590ddb7c1743b2d88fa0",
+    "ELI.CASUAL": "336c722621f082fe6d6e9db414439874dd9fa937051e590ddb7c1743b2d88fa0",
+    "ELI.GEAR": "336c722621f082fe6d6e9db414439874dd9fa937051e590ddb7c1743b2d88fa0",
+    "ELI.QUIET": "336c722621f082fe6d6e9db414439874dd9fa937051e590ddb7c1743b2d88fa0",
+    "ELI.ANNOYED": "336c722621f082fe6d6e9db414439874dd9fa937051e590ddb7c1743b2d88fa0",
+    "VALE.DEFAULT": "087ad2a98490c0e4d91c140650ce139a5d46956e3b7dbd9bf794bb972c45f732",
+    "VALE.CASUAL": "087ad2a98490c0e4d91c140650ce139a5d46956e3b7dbd9bf794bb972c45f732",
+    "VALE.GEAR": "087ad2a98490c0e4d91c140650ce139a5d46956e3b7dbd9bf794bb972c45f732",
+    "VALE.QUIET": "087ad2a98490c0e4d91c140650ce139a5d46956e3b7dbd9bf794bb972c45f732",
+    "VALE.ANNOYED": "087ad2a98490c0e4d91c140650ce139a5d46956e3b7dbd9bf794bb972c45f732"
+  },
+  "source_approvals": {
+    "KADE.DEFAULT": {
+      "sheet": "restyle/kade-source.png",
+      "bounds": [
+        0,
+        0,
+        650,
+        628
+      ],
+      "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+      "rgba_sha256": "9c44cd42cf86d098589e6a2ad88d242c31d43004aec668362168289f9dd1f7b0",
+      "source_components": [
+        235909,
+        7,
+        6,
+        4,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "KADE.CASUAL": {
+      "sheet": "restyle/kade-source.png",
+      "bounds": [
+        650,
+        0,
+        1254,
+        628
+      ],
+      "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+      "rgba_sha256": "a9259b7485d6208b396a96d99c47fa70380c7240febae14d004a691f43e7b37c",
+      "source_components": [
+        205594,
+        3,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "KADE.GEAR": {
+      "sheet": "restyle/kade-source.png",
+      "bounds": [
+        0,
+        628,
+        650,
+        1254
+      ],
+      "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+      "rgba_sha256": "2daf9e5603a37117603ef95121aee65e184ec85305b8f555a96cdb6755bfecdb",
+      "source_components": [
+        220255,
+        5,
+        3,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "KADE.QUIET": {
+      "sheet": "restyle/kade-source.png",
+      "bounds": [
+        650,
+        628,
+        1254,
+        1254
+      ],
+      "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+      "rgba_sha256": "cc38600ec1237dc71aee1a3fca48479129d4acc7e9ae327f6c261f5370c4eaf7",
+      "source_components": [
+        193472,
+        4,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "JULES.DEFAULT": {
+      "sheet": "restyle/jules-source.png",
+      "bounds": [
+        0,
+        0,
+        650,
+        658
+      ],
+      "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+      "rgba_sha256": "57410e8f09002ad2902c0231e21fa72cc60fc9e8d7cfdbec2418f51d43c15618",
+      "source_components": [
+        216194,
+        2,
+        1
+      ]
+    },
+    "JULES.CASUAL": {
+      "sheet": "restyle/jules-source.png",
+      "bounds": [
+        650,
+        0,
+        1254,
+        658
+      ],
+      "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+      "rgba_sha256": "78a71b9f1327de71c56e007fad2530198f809e533c52cc10031d915c593a34c2",
+      "source_components": [
+        207727,
+        1
+      ]
+    },
+    "JULES.GEAR": {
+      "sheet": "restyle/jules-source.png",
+      "bounds": [
+        0,
+        658,
+        690,
+        1254
+      ],
+      "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+      "rgba_sha256": "a2e58b2d16d930f3aea7a6b784732da7382790190f789b548ba379fd5df22d37",
+      "source_components": [
+        201577
+      ]
+    },
+    "JULES.QUIET": {
+      "sheet": "restyle/jules-source.png",
+      "bounds": [
+        650,
+        658,
+        1254,
+        1254
+      ],
+      "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+      "rgba_sha256": "bb29b1f679f1d1137dc3db02cec7184fd9597e5e57eab022c3872edb950d5ffb",
+      "source_components": [
+        174835,
+        384,
+        223
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only the adjacent portrait hand/sleeve flecks at the left crop edge are discarded; Jules remains complete."
+    },
+    "ASTER.DEFAULT": {
+      "sheet": "restyle/aster-source.png",
+      "bounds": [
+        0,
+        0,
+        690,
+        627
+      ],
+      "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+      "rgba_sha256": "13673be5e4fc2bc8c0c56fd347238d2a3cfbe5fe6d8a9cc09c328c62adf815f8",
+      "source_components": [
+        195184
+      ]
+    },
+    "ASTER.CASUAL": {
+      "sheet": "restyle/aster-source.png",
+      "bounds": [
+        690,
+        0,
+        1254,
+        627
+      ],
+      "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+      "rgba_sha256": "ba97ecacc8a99de64bcf4e48102043b0d10f1106847cddee31d270959328d177",
+      "source_components": [
+        177054
+      ]
+    },
+    "ASTER.GEAR": {
+      "sheet": "restyle/aster-source.png",
+      "bounds": [
+        0,
+        627,
+        690,
+        1254
+      ],
+      "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+      "rgba_sha256": "9cc29c60464c9d485b2b0cd78851c077f5ab64d81a77b0561be87a81a25055fb",
+      "source_components": [
+        214113
+      ]
+    },
+    "ASTER.QUIET": {
+      "sheet": "restyle/aster-source.png",
+      "bounds": [
+        690,
+        627,
+        1254,
+        1254
+      ],
+      "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+      "rgba_sha256": "24d429406c6ec4c783b2caa357e1520182c380a79603cb83a2d8d5c759e7ccf3",
+      "source_components": [
+        173040
+      ]
+    },
+    "CALDER.DEFAULT": {
+      "sheet": "restyle/calder-source.png",
+      "bounds": [
+        0,
+        0,
+        635,
+        618
+      ],
+      "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+      "rgba_sha256": "1f2730154503fafe58feb1a8c1368a2ba693f7f1faa943e388e40d50cc392a9d",
+      "source_components": [
+        236410
+      ]
+    },
+    "CALDER.CASUAL": {
+      "sheet": "restyle/calder-source.png",
+      "bounds": [
+        635,
+        0,
+        1254,
+        618
+      ],
+      "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+      "rgba_sha256": "d29e0120d12fdd8c09659468c0d44b4250a3069c65450991d6359b9a303d85e2",
+      "source_components": [
+        228245
+      ]
+    },
+    "CALDER.GEAR": {
+      "sheet": "restyle/calder-source.png",
+      "bounds": [
+        0,
+        618,
+        635,
+        1254
+      ],
+      "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+      "rgba_sha256": "bb1f955229ed308f408e8286a2fcffc4327a947337df8530c493fd43cc728ad1",
+      "source_components": [
+        241424
+      ]
+    },
+    "CALDER.QUIET": {
+      "sheet": "restyle/calder-source.png",
+      "bounds": [
+        635,
+        618,
+        1254,
+        1254
+      ],
+      "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+      "rgba_sha256": "1e7aa201a86849dc61b43f16a871bec074def908c74793f8279fc241f27cc0fb",
+      "source_components": [
+        237964
+      ]
+    },
+    "VOSS.DEFAULT": {
+      "sheet": "restyle/voss-source.png",
+      "bounds": [
+        0,
+        0,
+        650,
+        628
+      ],
+      "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+      "rgba_sha256": "e8ff73b540cfe3e2daab8079b4f04de4fc96a29f785fa815d454d0e96605259f",
+      "source_components": [
+        217555,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "VOSS.CASUAL": {
+      "sheet": "restyle/voss-source.png",
+      "bounds": [
+        650,
+        0,
+        1254,
+        628
+      ],
+      "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+      "rgba_sha256": "efdf49fdc14eb3164412f3fa67b3f2e2de2c5516f2325d34e9ce48a43dbc0b51",
+      "source_components": [
+        216816,
+        2,
+        2,
+        1,
+        1,
+        1
+      ]
+    },
+    "VOSS.GEAR": {
+      "sheet": "restyle/voss-source.png",
+      "bounds": [
+        0,
+        628,
+        650,
+        1254
+      ],
+      "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+      "rgba_sha256": "6941ea043f0c05df4830f4c87d62bf13f852f637bb69044681cbccae7c99c103",
+      "source_components": [
+        237261,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "VOSS.QUIET": {
+      "sheet": "restyle/voss-source.png",
+      "bounds": [
+        650,
+        628,
+        1254,
+        1254
+      ],
+      "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+      "rgba_sha256": "203d293d2971e6cdf03db82b61e25f71e04b4bb27ebc49463b9ed3f11421cc8e",
+      "source_components": [
+        205431,
+        3,
+        2,
+        1,
+        1,
+        1
+      ]
+    },
+    "MINA.DEFAULT": {
+      "sheet": "restyle/mina-source.png",
+      "bounds": [
+        0,
+        0,
+        610,
+        629
+      ],
+      "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+      "rgba_sha256": "6534ebe129feb781953f8c5420ce07b5e27f418f9b48d24e0c996ba2acac05ef",
+      "source_components": [
+        187463,
+        10,
+        6,
+        5,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MINA.CASUAL": {
+      "sheet": "restyle/mina-source.png",
+      "bounds": [
+        610,
+        0,
+        1254,
+        629
+      ],
+      "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+      "rgba_sha256": "de8ec12ad4aa21e9c1fed80e8a8e352adcb11686e32816e7adda997c67be739d",
+      "source_components": [
+        226875,
+        6,
+        4,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MINA.GEAR": {
+      "sheet": "restyle/mina-source.png",
+      "bounds": [
+        0,
+        629,
+        610,
+        1254
+      ],
+      "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+      "rgba_sha256": "c097a9ed15f760b56c553a0fd30d1780eee935151216f5bbade144ef5df8d1e6",
+      "source_components": [
+        202762,
+        13,
+        8,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MINA.QUIET": {
+      "sheet": "restyle/mina-source.png",
+      "bounds": [
+        610,
+        629,
+        1254,
+        1254
+      ],
+      "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+      "rgba_sha256": "fa834f0344974e55167122c884a8d9dd8e1e4cef699d46725f5c7ec52ecc7fd1",
+      "source_components": [
+        227967,
+        16,
+        9,
+        9,
+        6,
+        5,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "ROOK.DEFAULT": {
+      "sheet": "restyle/rook-source.png",
+      "bounds": [
+        0,
+        0,
+        690,
+        633
+      ],
+      "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+      "rgba_sha256": "7ed7b7ce53f583d331271204562a49625c523bf279db066560ac720897508877",
+      "source_components": [
+        261072,
+        4892,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only a strip of the adjacent red shirt at the right crop edge is discarded; the complete gesturing hand is retained."
+    },
+    "ROOK.CASUAL": {
+      "sheet": "restyle/rook-source.png",
+      "bounds": [
+        640,
+        0,
+        1254,
+        633
+      ],
+      "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+      "rgba_sha256": "dba618edb0afca2d434d5fb884ff56472104f7612250df345f236870afb69fae",
+      "source_components": [
+        252585,
+        1648,
+        4,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only the adjacent default portrait hand at the left crop edge is discarded; the casual body and hands remain complete."
+    },
+    "ROOK.GEAR": {
+      "sheet": "restyle/rook-source.png",
+      "bounds": [
+        0,
+        633,
+        640,
+        1254
+      ],
+      "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+      "rgba_sha256": "f66a310250d78ab9d341653ca2e6bbf720499c5ec0376e9bee313728f0171fd3",
+      "source_components": [
+        230912,
+        15,
+        4,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "ROOK.QUIET": {
+      "sheet": "restyle/rook-source.png",
+      "bounds": [
+        640,
+        633,
+        1254,
+        1254
+      ],
+      "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+      "rgba_sha256": "d8d529429fa622a5e725a5d1f575e214d756af3827dc7d5c46db3b94b15c4f60",
+      "source_components": [
+        241138,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MARISOL.DEFAULT": {
+      "sheet": "restyle/marisol-source.png",
+      "bounds": [
+        0,
+        0,
+        690,
+        624
+      ],
+      "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+      "rgba_sha256": "f5f24ba3496bcb9e85df3deb0cfeccd8de533486e39f5912e3d38f619d01c75e",
+      "source_components": [
+        193830,
+        5,
+        5,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MARISOL.CASUAL": {
+      "sheet": "restyle/marisol-source.png",
+      "bounds": [
+        690,
+        0,
+        1254,
+        624
+      ],
+      "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+      "rgba_sha256": "db41ae4cdca940f28778219b6ddd95a041b1afe8a825f9b17cf1a5af948f75d2",
+      "source_components": [
+        194213,
+        39,
+        9,
+        8,
+        6,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only tiny isolated atlas-edge flecks are discarded; hair, raised hand and tied blouse remain complete."
+    },
+    "MARISOL.GEAR": {
+      "sheet": "restyle/marisol-source.png",
+      "bounds": [
+        0,
+        624,
+        660,
+        1254
+      ],
+      "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+      "rgba_sha256": "86edd0b7d1273fb0cfbe87c800d4e133b528b219e299518ebe4990451471048b",
+      "source_components": [
+        216468,
+        21,
+        8,
+        5,
+        4,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "MARISOL.QUIET": {
+      "sheet": "restyle/marisol-source.png",
+      "bounds": [
+        660,
+        624,
+        1254,
+        1254
+      ],
+      "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+      "rgba_sha256": "cf5518efdba35ff6e4ddea6a348fb29dbbe5ecd7c12ff46dfc645ae0aef9ec9c",
+      "source_components": [
+        204959,
+        13,
+        7,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "IMANI.DEFAULT": {
+      "sheet": "restyle/imani-source.png",
+      "bounds": [
+        0,
+        0,
+        650,
+        648
+      ],
+      "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+      "rgba_sha256": "78f490cecbd1086dac0a402b2e9ecd86242c77bfe272a414678db4601cfd6e3b",
+      "source_components": [
+        192770
+      ]
+    },
+    "IMANI.CASUAL": {
+      "sheet": "restyle/imani-source.png",
+      "bounds": [
+        650,
+        0,
+        1254,
+        648
+      ],
+      "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+      "rgba_sha256": "ba85f3da8682086e421368b74dcd4fed7dcf188e4f1f6c0713a3e07040d45f9f",
+      "source_components": [
+        190111,
+        1
+      ]
+    },
+    "IMANI.GEAR": {
+      "sheet": "restyle/imani-source.png",
+      "bounds": [
+        0,
+        648,
+        650,
+        1254
+      ],
+      "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+      "rgba_sha256": "da36731ea6753f625d2e7264c56b8a754a48d3e77f7df57c6e6342a730d72d36",
+      "source_components": [
+        193942,
+        84
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only a thin previous-row edge fleck above the head is discarded; all workwear and tools remain complete."
+    },
+    "IMANI.QUIET": {
+      "sheet": "restyle/imani-source.png",
+      "bounds": [
+        650,
+        648,
+        1254,
+        1254
+      ],
+      "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+      "rgba_sha256": "ce43d5e5060e883eeac8ebeb68f1d21e8900e05613126d4e8c5dfa0702620eb5",
+      "source_components": [
+        179647,
+        1,
+        1
+      ]
+    },
+    "REN.DEFAULT": {
+      "sheet": "restyle/ren-source.png",
+      "bounds": [
+        0,
+        0,
+        640,
+        628
+      ],
+      "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+      "rgba_sha256": "d082fec2bb28183f8ae601aeb2361bb0b7c7e74a985799cba35e847426433f82",
+      "source_components": [
+        210694,
+        4,
+        3,
+        3,
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    "REN.CASUAL": {
+      "sheet": "restyle/ren-source.png",
+      "bounds": [
+        640,
+        0,
+        1254,
+        628
+      ],
+      "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+      "rgba_sha256": "858cea9866ad7536f76332b38fb76f8c99454e4217edd051ea98402255d5ea4e",
+      "source_components": [
+        228981,
+        3,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "REN.GEAR": {
+      "sheet": "restyle/ren-source.png",
+      "bounds": [
+        0,
+        628,
+        640,
+        1254
+      ],
+      "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+      "rgba_sha256": "4630e714d268919043cffc8ec61527a36c45c0f4072733e02bc6292629982ab1",
+      "source_components": [
+        198217,
+        6,
+        4,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "REN.QUIET": {
+      "sheet": "restyle/ren-source.png",
+      "bounds": [
+        640,
+        628,
+        1254,
+        1254
+      ],
+      "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+      "rgba_sha256": "daa8f1f8dc4403b5c14d7f80b55d959a1536069b8bb4bddef2c37e75c1506f5e",
+      "source_components": [
+        213091,
+        13,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "SABLE.DEFAULT": {
+      "sheet": "restyle/sable-source.png",
+      "bounds": [
+        0,
+        0,
+        680,
+        620
+      ],
+      "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+      "rgba_sha256": "447ef940862167b5aba53ecaf7e27574156b1d383ac7672f9bb7068f08b4a431",
+      "source_components": [
+        188948,
+        23,
+        6,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "SABLE.CASUAL": {
+      "sheet": "restyle/sable-source.png",
+      "bounds": [
+        680,
+        0,
+        1254,
+        620
+      ],
+      "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+      "rgba_sha256": "e2a54e2c76a1c4ed17646991e7174c523e310a7c4fdbd25641c4bd7456d3c605",
+      "source_components": [
+        191443,
+        11,
+        7,
+        6,
+        5,
+        4,
+        4,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "SABLE.GEAR": {
+      "sheet": "restyle/sable-source.png",
+      "bounds": [
+        0,
+        620,
+        680,
+        1254
+      ],
+      "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+      "rgba_sha256": "c97e4ab50025d2884e4200fc8ec41c15c79cd254a6ff919e9e4553f15bdb62f1",
+      "source_components": [
+        179377,
+        13,
+        12,
+        10,
+        10,
+        10,
+        7,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "SABLE.QUIET": {
+      "sheet": "restyle/sable-source.png",
+      "bounds": [
+        680,
+        620,
+        1254,
+        1254
+      ],
+      "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+      "rgba_sha256": "11325fb56b48ea256d0a35029884736ea27c015d244a0800bda846a62ee7a7cd",
+      "source_components": [
+        174086,
+        9,
+        6,
+        6,
+        6,
+        6,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "ELI.DEFAULT": {
+      "sheet": "restyle/eli-source.png",
+      "bounds": [
+        25,
+        0,
+        660,
+        628
+      ],
+      "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+      "rgba_sha256": "d3ff0e3b18fe677ce506904b20afe008ecf519605ec3c08a3e3d6c60a30062b8",
+      "source_components": [
+        219262,
+        2,
+        1,
+        1
+      ]
+    },
+    "ELI.CASUAL": {
+      "sheet": "restyle/eli-source.png",
+      "bounds": [
+        665,
+        0,
+        1254,
+        628
+      ],
+      "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+      "rgba_sha256": "933012af6eb475d152ba98a456b4fe79af45b27fde90f6a993b140c98bb463e2",
+      "source_components": [
+        212243,
+        17,
+        3,
+        1,
+        1
+      ]
+    },
+    "ELI.GEAR": {
+      "sheet": "restyle/eli-source.png",
+      "bounds": [
+        25,
+        628,
+        665,
+        1254
+      ],
+      "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+      "rgba_sha256": "7cad85023363dce57a41a3ec0b4f7781c23dd3c00085f550ab7ce1fa82eb2e53",
+      "source_components": [
+        224451,
+        4,
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    "ELI.QUIET": {
+      "sheet": "restyle/eli-source.png",
+      "bounds": [
+        700,
+        628,
+        1220,
+        1254
+      ],
+      "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+      "rgba_sha256": "fd502a0719c5fd2dfcb03942c67da7b2c61d8d6c6f327933c66122ca0af3fe14",
+      "source_components": [
+        190859,
+        6,
+        3,
+        3,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "VALE.DEFAULT": {
+      "sheet": "restyle/vale-source.png",
+      "bounds": [
+        5,
+        0,
+        680,
+        627
+      ],
+      "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+      "rgba_sha256": "ef696334faa725994980dc5224da750501b204fee0a461ccc6c3885dada0f2f1",
+      "source_components": [
+        212814,
+        41,
+        34,
+        8,
+        6,
+        4,
+        3,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only tiny neighboring-row edge flecks are discarded; the basket, hands and full portrait remain intact."
+    },
+    "VALE.CASUAL": {
+      "sheet": "restyle/vale-source.png",
+      "bounds": [
+        685,
+        0,
+        1254,
+        623
+      ],
+      "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+      "rgba_sha256": "ff4fe7edafa1797013fb3457151d0c7e04b8c86b63ef3445ed8d9e0e3fac4a50",
+      "source_components": [
+        200198,
+        6,
+        5,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "VALE.GEAR": {
+      "sheet": "restyle/vale-source.png",
+      "bounds": [
+        60,
+        620,
+        670,
+        1254
+      ],
+      "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+      "rgba_sha256": "a3bd7a541eaf2d7edb4915137e6b4e938972fe46d6fc96bc4a0f68839e4976f5",
+      "source_components": [
+        204693,
+        74,
+        6,
+        5,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only tiny previous-row edge flecks are discarded; plant pot, hands and garden clothing remain intact."
+    },
+    "VALE.QUIET": {
+      "sheet": "restyle/vale-source.png",
+      "bounds": [
+        685,
+        620,
+        1220,
+        1254
+      ],
+      "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+      "rgba_sha256": "a457d47730347078233071232507863bc475969a38a59f9a8329bf0092d47101",
+      "source_components": [
+        199370,
+        7,
+        6,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "DRAFT.LEXI": {
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        630
+      ],
+      "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+      "rgba_sha256": "1ad528875bc1364e3565dc1b64b41587216e89e2daf6715dead0a1d12d3d5376",
+      "source_components": [
+        76624,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "DRAFT.NYX": {
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        630
+      ],
+      "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+      "rgba_sha256": "df7e1a5a4c0bd3856a930feb07354611daf76772430d379b6b7eb4285c7a412f",
+      "source_components": [
+        67251,
+        1,
+        1
+      ]
+    },
+    "DRAFT.KIT": {
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        0,
+        630,
+        627,
+        1254
+      ],
+      "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+      "rgba_sha256": "b0c75373042b4d03de9f6196ed02cf2a14fc757e313433cabeb592ed585a1bd2",
+      "source_components": [
+        78695,
+        22,
+        3,
+        2,
+        1,
+        1,
+        1
+      ]
+    },
+    "DRAFT.SIENNA": {
+      "sheet": "new-cast/source-a.png",
+      "bounds": [
+        627,
+        630,
+        1254,
+        1254
+      ],
+      "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+      "rgba_sha256": "33bcdd529280ad9406d50e028a37f6d0549808c5b49cd6c894dd860728b675c6",
+      "source_components": [
+        95117,
+        1
+      ]
+    },
+    "DRAFT.BEAU": {
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        615
+      ],
+      "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+      "rgba_sha256": "9dd0dbd771780188ca094c95ecd4aca726594ea7f0062eb986eb0e2460b16b5e",
+      "source_components": [
+        74702,
+        3,
+        1,
+        1,
+        1
+      ]
+    },
+    "DRAFT.MILES": {
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        615
+      ],
+      "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+      "rgba_sha256": "398f8d8f4a48062257b293dc1454218112966de97c42f2de4be84ddee7f6d5ee",
+      "source_components": [
+        62915
+      ]
+    },
+    "DRAFT.TESS": {
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        0,
+        615,
+        627,
+        1254
+      ],
+      "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+      "rgba_sha256": "ec7beba80cf7dff326f5eb55dc78fe877c33d2e9f59eb61929ec5fab49422aa1",
+      "source_components": [
+        93502,
+        4,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    "DRAFT.AKIRA": {
+      "sheet": "new-cast/source-b.png",
+      "bounds": [
+        627,
+        615,
+        1254,
+        1254
+      ],
+      "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+      "rgba_sha256": "cf89eec1a6a6e884ca1dbc93fdcbe15ad619b4d16aaa2b66b4fe058f15df8ca3",
+      "source_components": [
+        78680,
+        2,
+        2,
+        1,
+        1
+      ]
+    },
+    "DRAFT.ZOE": {
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        0,
+        0,
+        627,
+        632
+      ],
+      "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+      "rgba_sha256": "94a1d28193f3753097add9e60b7004aa7e233362ab77a4082498c8c041c7b91a",
+      "source_components": [
+        92950,
+        183,
+        4,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only a tiny neighboring-row fragment below the figure is discarded; notebook, shoes and complete body remain intact."
+    },
+    "DRAFT.DANTE": {
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        627,
+        0,
+        1254,
+        632
+      ],
+      "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+      "rgba_sha256": "c8c4b439cd34bc7fe2ea3b7dce10155650e6458500cad99684d8ce0613a66457",
+      "source_components": [
+        77589
+      ]
+    },
+    "DRAFT.PIPER": {
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        0,
+        624,
+        627,
+        1254
+      ],
+      "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+      "rgba_sha256": "62439f1fb4413d5d5511b7f895c095ba953eea9a5dd1eaa6b53d44dcee2572c2",
+      "source_components": [
+        102690,
+        178,
+        27,
+        24,
+        8,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "discarded_fragment_review": "Viewed raw, retained and discarded alpha: only a tiny neighboring-row fragment above the hat is discarded; hat, limbs and sandals remain intact."
+    },
+    "DRAFT.SOL": {
+      "sheet": "new-cast/source-c.png",
+      "bounds": [
+        627,
+        632,
+        1254,
+        1254
+      ],
+      "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+      "rgba_sha256": "a0cab62ac4d5052c0b0517f18bedab3cb8561a7da414157893b2afdb2e4e60f3",
+      "source_components": [
+        103874,
+        7,
+        2,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "DRAFT.CASS": {
+      "sheet": "new-cast/source-d.png",
+      "bounds": [
+        230,
+        0,
+        850,
+        1024
+      ],
+      "source_sha256": "233ae4e558ac942ba51cdafbe6616325553b06ac305378343eba5aaa5dfb19fa",
+      "rgba_sha256": "78fa64173e2f4d98bcdbeac9b43fd7726fb9a5f3f6429797f40da03028d5be30",
+      "source_components": [
+        268757,
+        3
+      ]
+    },
+    "DRAFT.ORION": {
+      "sheet": "new-cast/source-d.png",
+      "bounds": [
+        850,
+        0,
+        1320,
+        1024
+      ],
+      "source_sha256": "233ae4e558ac942ba51cdafbe6616325553b06ac305378343eba5aaa5dfb19fa",
+      "rgba_sha256": "628e9c37343a8d0948124db47aecdc5019a4a487cfe36a3fd783c7e62b40d2f0",
+      "source_components": [
+        242838
+      ]
+    }
+  },
+  "component_review": {
+    "method": "Independent visual comparison of raw RGBA crop, largest retained actor and all discarded fragments. Output-only art was not edited.",
+    "reviewed_crops": [
+      "JULES.QUIET",
+      "ROOK.DEFAULT",
+      "ROOK.CASUAL",
+      "MARISOL.CASUAL",
+      "IMANI.GEAR",
+      "VALE.DEFAULT",
+      "VALE.GEAR",
+      "DRAFT.ZOE",
+      "DRAFT.PIPER"
+    ],
+    "issues_found": []
+  }
+}

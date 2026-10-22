@@ -109,7 +109,7 @@ static __attribute__((noinline)) void campaign_menu(Surface*s,const Game*g){
   gfx_text_small(s,12,164,"Proposals to shape the racing later.",t->muted);
  }else{
   char done[24]="";number(done,story_completed(g),sizeof done);append(done," / 125",sizeof done);
-  campaign_row(s,g,0,"Shared garage","OPEN");campaign_row(s,g,1,"Campaign record",done);campaign_row(s,g,2,"Continue the story","OPEN");campaign_row(s,g,3,"What this build includes","READ");
-  glass(s,5,135,246,50,0);gfx_text_small(s,13,140,"SAVED STORY PROGRESS",t->accent);gfx_wrap(s,13,153,"Finished scenes open the next event. Replays keep your record intact.",226,12,2,t->muted);
+  campaign_row(s,g,0,"Shared garage","OPEN");campaign_row(s,g,1,"Campaign record",done);campaign_row(s,g,2,"Continue the story","OPEN");campaign_row(s,g,3,"What this build includes","READ");campaign_row(s,g,4,"Cast studio","28 PEOPLE");
+  glass(s,5,158,246,27,0);gfx_text_small(s,13,164,"One shared garage. Your story stays saved.",t->muted);
  }
 }
