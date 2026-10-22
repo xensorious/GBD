@@ -1,0 +1,4693 @@
+{
+  "build": "Coastline individual cast and concept roster",
+  "source_revision": "fb25ec4022ea8a2e076fef3baef372d1f7a8fb0b",
+  "rom": {
+    "filename": "Coastline.nds",
+    "bytes": 16421376,
+    "sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453"
+  },
+  "roster": {
+    "story_characters": 14,
+    "restyled_existing_characters": 13,
+    "new_unassigned_characters": 14,
+    "gallery_characters": 28,
+    "gallery_pose_views": 71,
+    "archive_portraits": 76,
+    "approved_nia_payloads_unchanged": 10,
+    "story_and_save_formats_unchanged": true
+  },
+  "images": {
+    "Cast-Studio-Menu.png": {
+      "sha256": "5d70fc3e266866c794bbfe553274b2c67d14af03232764500381262666df9ffe",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    },
+    "Existing-Characters.png": {
+      "sha256": "aa6a95b381fd876afb1b4daef28223e9148f0738b6bf3d4e75403dc1e26b6b1a",
+      "kind": "indexed archive preview"
+    },
+    "Imani-In-Game.png": {
+      "sha256": "6336718454266e63cf8e07ba87342bcc37b0f1cdc568201dff05f0a117235639",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    },
+    "Lexi-In-Game.png": {
+      "sha256": "ff0b73025bc276019c85091f2b952942114a0487d9664837db681bd28e712e87",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    },
+    "New-Cast-In-Game.png": {
+      "sha256": "fc3918771a128b8654b7d367e1cddc6930931ccfcb8786f6360248d42babc70f",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    },
+    "New-Characters.png": {
+      "sha256": "5e95f9977be68f48159731ac07af8260d86debc0120213323678297d645a892d",
+      "kind": "indexed archive preview"
+    },
+    "Orion-In-Game.png": {
+      "sha256": "4bea040028b36674e1cefb28c9a0069384cc729f68d010ec1a5eb28c3ff69e65",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    },
+    "Outfits-and-Expressions.png": {
+      "sha256": "5010e0f20d0160b8f4823cd8cc4ec2a747eebda07eb529c57def139c0623abdc",
+      "kind": "indexed archive preview"
+    },
+    "Story-Cast-In-Game.png": {
+      "sha256": "e0ae488c047e4d6c26bffac5a0a4e940de6fb8a7296000fe5a852367fd61d1e2",
+      "kind": "actual DeSmuME capture or unscaled screen contact sheet"
+    }
+  },
+  "reports": {
+    "campaign-native-results.json": {
+      "sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+      "checks": 38508,
+      "sanitizers_passed": true,
+      "all_scenes": 125,
+      "dialogue_lines": 923,
+      "result": "story: 38508 checks; all 125 scenes / 923 lines / 929 dialogue pages, exact font wrapping and text coverage, page reveal/advance rules, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass"
+    },
+    "native-portrait-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 16421376,
+        "sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2152920
+          },
+          "arm7": {
+            "offset": 2169344,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "native_speaking_pixels": true,
+      "reduced_secondary_pixels": true,
+      "clipping_opacity_lighting": true,
+      "continuous_lcd_seam": true,
+      "lower_96_ui_rows_reserved": true,
+      "sanitizers_passed": true,
+      "background_cache_slots": 1,
+      "actor_cache_slots": 2,
+      "shared_scratch_bytes": 307200,
+      "required_scratch_bytes": 302592,
+      "result": "dialogue pixels: 4447 checks; rectangular native 1:1 pixels, depth reductions, clipping, opacity, lighting, continuous LCD seam, reserved lower UI and one-background/two-actor cache isolation pass"
+    },
+    "cast-gallery-native-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 16421376,
+        "sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2152920
+          },
+          "arm7": {
+            "offset": 2169344,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "checks": 2202587,
+      "sanitizers_passed": true,
+      "characters": 28,
+      "pose_views": 71,
+      "story_ids_unchanged": true,
+      "saved_state_unchanged": true,
+      "native_pixels": true,
+      "dual_lcd_seam": true,
+      "exact_cache_restoration": [
+        "story",
+        "endless_drive",
+        "free_roam"
+      ],
+      "result": "cast gallery: 2202587 checks; all 28 identities / 71 pose views, native pixels across LCDs, button navigation, unchanged saved/story state, bounds and exact story/highway/city cache restoration pass"
+    },
+    "cast-gallery-cartridge-results.json": {
+      "rom_sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+      "characters": 28,
+      "pose_views": 71,
+      "fresh_profile": true,
+      "button_only": true,
+      "touch_ignored": true,
+      "emulated_ram_read_only": true,
+      "saved_state_unchanged_while_browsing": true,
+      "story_state_unchanged_while_browsing": true,
+      "return_highway": true,
+      "return_city": true,
+      "archive_failures": 0,
+      "captures": [
+        {
+          "entry": 0,
+          "pose": 0,
+          "name": "Nia",
+          "image": "cast-00-0.png"
+        },
+        {
+          "entry": 0,
+          "pose": 1,
+          "name": "Nia",
+          "image": "cast-00-1.png"
+        },
+        {
+          "entry": 0,
+          "pose": 2,
+          "name": "Nia",
+          "image": "cast-00-2.png"
+        },
+        {
+          "entry": 0,
+          "pose": 3,
+          "name": "Nia",
+          "image": "cast-00-3.png"
+        },
+        {
+          "entry": 0,
+          "pose": 4,
+          "name": "Nia",
+          "image": "cast-00-4.png"
+        },
+        {
+          "entry": 1,
+          "pose": 0,
+          "name": "Jules",
+          "image": "cast-01-0.png"
+        },
+        {
+          "entry": 1,
+          "pose": 1,
+          "name": "Jules",
+          "image": "cast-01-1.png"
+        },
+        {
+          "entry": 1,
+          "pose": 2,
+          "name": "Jules",
+          "image": "cast-01-2.png"
+        },
+        {
+          "entry": 1,
+          "pose": 3,
+          "name": "Jules",
+          "image": "cast-01-3.png"
+        },
+        {
+          "entry": 2,
+          "pose": 0,
+          "name": "Calder",
+          "image": "cast-02-0.png"
+        },
+        {
+          "entry": 2,
+          "pose": 1,
+          "name": "Calder",
+          "image": "cast-02-1.png"
+        },
+        {
+          "entry": 2,
+          "pose": 2,
+          "name": "Calder",
+          "image": "cast-02-2.png"
+        },
+        {
+          "entry": 2,
+          "pose": 3,
+          "name": "Calder",
+          "image": "cast-02-3.png"
+        },
+        {
+          "entry": 3,
+          "pose": 0,
+          "name": "Imani",
+          "image": "cast-03-0.png"
+        },
+        {
+          "entry": 3,
+          "pose": 1,
+          "name": "Imani",
+          "image": "cast-03-1.png"
+        },
+        {
+          "entry": 3,
+          "pose": 2,
+          "name": "Imani",
+          "image": "cast-03-2.png"
+        },
+        {
+          "entry": 3,
+          "pose": 3,
+          "name": "Imani",
+          "image": "cast-03-3.png"
+        },
+        {
+          "entry": 4,
+          "pose": 0,
+          "name": "Marisol",
+          "image": "cast-04-0.png"
+        },
+        {
+          "entry": 4,
+          "pose": 1,
+          "name": "Marisol",
+          "image": "cast-04-1.png"
+        },
+        {
+          "entry": 4,
+          "pose": 2,
+          "name": "Marisol",
+          "image": "cast-04-2.png"
+        },
+        {
+          "entry": 4,
+          "pose": 3,
+          "name": "Marisol",
+          "image": "cast-04-3.png"
+        },
+        {
+          "entry": 5,
+          "pose": 0,
+          "name": "Kade",
+          "image": "cast-05-0.png"
+        },
+        {
+          "entry": 5,
+          "pose": 1,
+          "name": "Kade",
+          "image": "cast-05-1.png"
+        },
+        {
+          "entry": 5,
+          "pose": 2,
+          "name": "Kade",
+          "image": "cast-05-2.png"
+        },
+        {
+          "entry": 5,
+          "pose": 3,
+          "name": "Kade",
+          "image": "cast-05-3.png"
+        },
+        {
+          "entry": 6,
+          "pose": 0,
+          "name": "Rook",
+          "image": "cast-06-0.png"
+        },
+        {
+          "entry": 6,
+          "pose": 1,
+          "name": "Rook",
+          "image": "cast-06-1.png"
+        },
+        {
+          "entry": 6,
+          "pose": 2,
+          "name": "Rook",
+          "image": "cast-06-2.png"
+        },
+        {
+          "entry": 6,
+          "pose": 3,
+          "name": "Rook",
+          "image": "cast-06-3.png"
+        },
+        {
+          "entry": 7,
+          "pose": 0,
+          "name": "Ren",
+          "image": "cast-07-0.png"
+        },
+        {
+          "entry": 7,
+          "pose": 1,
+          "name": "Ren",
+          "image": "cast-07-1.png"
+        },
+        {
+          "entry": 7,
+          "pose": 2,
+          "name": "Ren",
+          "image": "cast-07-2.png"
+        },
+        {
+          "entry": 7,
+          "pose": 3,
+          "name": "Ren",
+          "image": "cast-07-3.png"
+        },
+        {
+          "entry": 8,
+          "pose": 0,
+          "name": "Aster",
+          "image": "cast-08-0.png"
+        },
+        {
+          "entry": 8,
+          "pose": 1,
+          "name": "Aster",
+          "image": "cast-08-1.png"
+        },
+        {
+          "entry": 8,
+          "pose": 2,
+          "name": "Aster",
+          "image": "cast-08-2.png"
+        },
+        {
+          "entry": 8,
+          "pose": 3,
+          "name": "Aster",
+          "image": "cast-08-3.png"
+        },
+        {
+          "entry": 9,
+          "pose": 0,
+          "name": "Sable",
+          "image": "cast-09-0.png"
+        },
+        {
+          "entry": 9,
+          "pose": 1,
+          "name": "Sable",
+          "image": "cast-09-1.png"
+        },
+        {
+          "entry": 9,
+          "pose": 2,
+          "name": "Sable",
+          "image": "cast-09-2.png"
+        },
+        {
+          "entry": 9,
+          "pose": 3,
+          "name": "Sable",
+          "image": "cast-09-3.png"
+        },
+        {
+          "entry": 10,
+          "pose": 0,
+          "name": "Voss",
+          "image": "cast-10-0.png"
+        },
+        {
+          "entry": 10,
+          "pose": 1,
+          "name": "Voss",
+          "image": "cast-10-1.png"
+        },
+        {
+          "entry": 10,
+          "pose": 2,
+          "name": "Voss",
+          "image": "cast-10-2.png"
+        },
+        {
+          "entry": 10,
+          "pose": 3,
+          "name": "Voss",
+          "image": "cast-10-3.png"
+        },
+        {
+          "entry": 11,
+          "pose": 0,
+          "name": "Mina",
+          "image": "cast-11-0.png"
+        },
+        {
+          "entry": 11,
+          "pose": 1,
+          "name": "Mina",
+          "image": "cast-11-1.png"
+        },
+        {
+          "entry": 11,
+          "pose": 2,
+          "name": "Mina",
+          "image": "cast-11-2.png"
+        },
+        {
+          "entry": 11,
+          "pose": 3,
+          "name": "Mina",
+          "image": "cast-11-3.png"
+        },
+        {
+          "entry": 12,
+          "pose": 0,
+          "name": "Eli",
+          "image": "cast-12-0.png"
+        },
+        {
+          "entry": 12,
+          "pose": 1,
+          "name": "Eli",
+          "image": "cast-12-1.png"
+        },
+        {
+          "entry": 12,
+          "pose": 2,
+          "name": "Eli",
+          "image": "cast-12-2.png"
+        },
+        {
+          "entry": 12,
+          "pose": 3,
+          "name": "Eli",
+          "image": "cast-12-3.png"
+        },
+        {
+          "entry": 13,
+          "pose": 0,
+          "name": "Mrs. Vale",
+          "image": "cast-13-0.png"
+        },
+        {
+          "entry": 13,
+          "pose": 1,
+          "name": "Mrs. Vale",
+          "image": "cast-13-1.png"
+        },
+        {
+          "entry": 13,
+          "pose": 2,
+          "name": "Mrs. Vale",
+          "image": "cast-13-2.png"
+        },
+        {
+          "entry": 13,
+          "pose": 3,
+          "name": "Mrs. Vale",
+          "image": "cast-13-3.png"
+        },
+        {
+          "entry": 14,
+          "pose": 0,
+          "name": "Lexi",
+          "image": "cast-14-0.png"
+        },
+        {
+          "entry": 15,
+          "pose": 0,
+          "name": "Nyx",
+          "image": "cast-15-0.png"
+        },
+        {
+          "entry": 16,
+          "pose": 0,
+          "name": "Kit",
+          "image": "cast-16-0.png"
+        },
+        {
+          "entry": 17,
+          "pose": 0,
+          "name": "Sienna",
+          "image": "cast-17-0.png"
+        },
+        {
+          "entry": 18,
+          "pose": 0,
+          "name": "Beau",
+          "image": "cast-18-0.png"
+        },
+        {
+          "entry": 19,
+          "pose": 0,
+          "name": "Miles",
+          "image": "cast-19-0.png"
+        },
+        {
+          "entry": 20,
+          "pose": 0,
+          "name": "Tess",
+          "image": "cast-20-0.png"
+        },
+        {
+          "entry": 21,
+          "pose": 0,
+          "name": "Akira",
+          "image": "cast-21-0.png"
+        },
+        {
+          "entry": 22,
+          "pose": 0,
+          "name": "Zoe",
+          "image": "cast-22-0.png"
+        },
+        {
+          "entry": 23,
+          "pose": 0,
+          "name": "Dante",
+          "image": "cast-23-0.png"
+        },
+        {
+          "entry": 24,
+          "pose": 0,
+          "name": "Piper",
+          "image": "cast-24-0.png"
+        },
+        {
+          "entry": 25,
+          "pose": 0,
+          "name": "Sol",
+          "image": "cast-25-0.png"
+        },
+        {
+          "entry": 26,
+          "pose": 0,
+          "name": "Cass",
+          "image": "cast-26-0.png"
+        },
+        {
+          "entry": 27,
+          "pose": 0,
+          "name": "Orion",
+          "image": "cast-27-0.png"
+        }
+      ]
+    },
+    "cast-gallery-visual-review.json": {
+      "rom_sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+      "method": "Actual 256\u00d7384 DeSmuME captures; contact sheets retain each LCD tile unscaled.",
+      "default_screens_reviewed": [
+        "cast-00-0.png",
+        "cast-01-0.png",
+        "cast-02-0.png",
+        "cast-03-0.png",
+        "cast-04-0.png",
+        "cast-05-0.png",
+        "cast-06-0.png",
+        "cast-07-0.png",
+        "cast-08-0.png",
+        "cast-09-0.png",
+        "cast-10-0.png",
+        "cast-11-0.png",
+        "cast-12-0.png",
+        "cast-13-0.png",
+        "cast-14-0.png",
+        "cast-15-0.png",
+        "cast-16-0.png",
+        "cast-17-0.png",
+        "cast-18-0.png",
+        "cast-19-0.png",
+        "cast-20-0.png",
+        "cast-21-0.png",
+        "cast-22-0.png",
+        "cast-23-0.png",
+        "cast-24-0.png",
+        "cast-25-0.png",
+        "cast-26-0.png",
+        "cast-27-0.png"
+      ],
+      "individual_extra_frames_reviewed": [
+        "cast-01-0.png",
+        "cast-03-1.png",
+        "cast-06-0.png"
+      ],
+      "contact_sheets": [
+        "cast-studio-story-contact.png",
+        "cast-studio-new-contact.png"
+      ],
+      "observations": {
+        "distinct_identities": "All 14 existing and 14 concept identities have distinguishable faces, hair, wardrobes, silhouettes and poses. Their styles remain clear at native LCD resolution.",
+        "full_bodies": "Nia and the 14 concept bodies retain complete heads, hands and feet. Shoes and feet contact the floor above the browser UI.",
+        "upper_body": "The 13 restyled story actors use close portraits ending at the lower illustration edge, without floating torsos above the floor.",
+        "ui": "Name, count, style, two-row description and outfit label fit the reserved lower 96 rows, without character overlap.",
+        "seam": "Backgrounds and actors continue across logical rows 191/192, without duplicated or blank bands."
+      },
+      "issues_found": []
+    },
+    "story-assets-results.json": {
+      "rom": {
+        "title": "COASTLINE",
+        "game_code": "KCWE",
+        "bytes": 16421376,
+        "sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+        "executables": {
+          "arm9": {
+            "offset": 16384,
+            "entry": "0x2000800",
+            "load": "0x2000000",
+            "bytes": 2152920
+          },
+          "arm7": {
+            "offset": 2169344,
+            "entry": "0x2380000",
+            "load": "0x2380000",
+            "bytes": 10136
+          }
+        }
+      },
+      "archive_matches_nitrofs": true,
+      "archive_bytes": 14236160,
+      "scenes": 125,
+      "lines": 923,
+      "backgrounds": 54,
+      "people": 14,
+      "portraits": 76,
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "background_width": 512,
+      "background_height": 324,
+      "authored_portrait_references_valid": true,
+      "authored_unique_ordinary_portraits": 53,
+      "ordinary_portraits": 57,
+      "gallery_people": 28,
+      "new_gallery_only_people": 14,
+      "draft_portraits_excluded_from_story": true,
+      "all_portraits_have_story_or_gallery_use": true,
+      "fullbody_portraits": 5,
+      "fullbody_backgrounds": [
+        "DINER",
+        "EPILOGUE",
+        "GARAGE",
+        "GREENHOUSE",
+        "MEET",
+        "NIA_KITCHEN",
+        "NIGHTGARAGE",
+        "ROOFTOP"
+      ],
+      "fullbody_occurrences": [
+        {
+          "event": "D01",
+          "line": 2,
+          "role": "lead",
+          "portrait": 61
+        },
+        {
+          "event": "D01",
+          "line": 3,
+          "role": "companion",
+          "portrait": 61
+        },
+        {
+          "event": "D01",
+          "line": 4,
+          "role": "lead",
+          "portrait": 59
+        },
+        {
+          "event": "D01",
+          "line": 7,
+          "role": "lead",
+          "portrait": 59
+        },
+        {
+          "event": "D03",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D04",
+          "line": 0,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "D04",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D04",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "D04",
+          "line": 5,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "D04",
+          "line": 6,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "D04",
+          "line": 7,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "D05",
+          "line": 2,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D05",
+          "line": 9,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D06",
+          "line": 8,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "D07",
+          "line": 2,
+          "role": "companion",
+          "portrait": 57
+        },
+        {
+          "event": "D07",
+          "line": 3,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "D09",
+          "line": 0,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D09",
+          "line": 1,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "D09",
+          "line": 2,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D09",
+          "line": 6,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "D09",
+          "line": 7,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "D09",
+          "line": 8,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "D09",
+          "line": 9,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "D09",
+          "line": 10,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D14",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D14",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "D14",
+          "line": 6,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D14",
+          "line": 8,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D19",
+          "line": 3,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "D21",
+          "line": 0,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D21",
+          "line": 3,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D21",
+          "line": 7,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "D21",
+          "line": 8,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "D25",
+          "line": 1,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "D25",
+          "line": 2,
+          "role": "companion",
+          "portrait": 57
+        },
+        {
+          "event": "D25",
+          "line": 7,
+          "role": "companion",
+          "portrait": 57
+        },
+        {
+          "event": "C09",
+          "line": 0,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 3,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 7,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 8,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "C09",
+          "line": 9,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C14",
+          "line": 3,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "C24",
+          "line": 0,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "C24",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C24",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "C24",
+          "line": 5,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "C24",
+          "line": 6,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "C24",
+          "line": 7,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "C24",
+          "line": 8,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "C24",
+          "line": 9,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "B02",
+          "line": 7,
+          "role": "companion",
+          "portrait": 57
+        },
+        {
+          "event": "B02",
+          "line": 8,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "B03",
+          "line": 1,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "B03",
+          "line": 2,
+          "role": "companion",
+          "portrait": 57
+        },
+        {
+          "event": "B03",
+          "line": 3,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "B15",
+          "line": 5,
+          "role": "lead",
+          "portrait": 57
+        },
+        {
+          "event": "B24",
+          "line": 1,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "B24",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "B24",
+          "line": 6,
+          "role": "companion",
+          "portrait": 60
+        },
+        {
+          "event": "B24",
+          "line": 7,
+          "role": "lead",
+          "portrait": 58
+        },
+        {
+          "event": "S23",
+          "line": 1,
+          "role": "lead",
+          "portrait": 60
+        },
+        {
+          "event": "S23",
+          "line": 2,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "S23",
+          "line": 7,
+          "role": "companion",
+          "portrait": 58
+        },
+        {
+          "event": "S23",
+          "line": 9,
+          "role": "lead",
+          "portrait": 58
+        }
+      ],
+      "no_large_atlas_fragments": true,
+      "one_event_new_backgrounds": 19,
+      "new_place_events": 62,
+      "authored_shots": 393,
+      "compiled_directions_match_source": true,
+      "subjects_in_final_frame": true,
+      "shot_local_companions": true,
+      "longest_line": 143,
+      "methods": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "all_character_sprites": true,
+      "portrait_alpha_masks_valid": true,
+      "resident_end": "0x237a838",
+      "resident_headroom_bytes": 22472,
+      "itcm_headroom_bytes": 488,
+      "shared_scratch_bytes": 307200,
+      "story_scratch_required_bytes": 302592,
+      "background_cache_slots": 1,
+      "actor_cache_slots": 2,
+      "art": [
+        {
+          "id": 0,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "00a5496911cf6c4af29d65a1fdba4a31a348c8c71479a2fa53add1ccd0d8855a"
+        },
+        {
+          "id": 1,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "21a4f88a72ca1085bcfb410fbd45a09a1b7ba6f7f6e10e7c4622e15fd48596af"
+        },
+        {
+          "id": 2,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c456f5703899c3426e9f8f9a394552edd1e347ff10ad2067572800fe651b31f7"
+        },
+        {
+          "id": 3,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "a7d77aab0f0383ca68e3c6f0a972483960e8a024fb0448536a18d9d872bdc908"
+        },
+        {
+          "id": 4,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b066ffaa2db59605e79992e73212b6ff3f6185afb49e9204540f02ec984fdd12"
+        },
+        {
+          "id": 5,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d269f08435b70713e91d7ee0d9562ccfcfbbec065a1f8f35aa4b1b1c8e085580"
+        },
+        {
+          "id": 6,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "63e72a8be5f9d60c065b27823f985bd802d8337b6bdf753274d5c50adecc7f59"
+        },
+        {
+          "id": 7,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c98eda189568a423f8a9a6df2fd8e69dfe473f7a59ceca0ca0be7eb9f3bf5c25"
+        },
+        {
+          "id": 8,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "edceb451f14741804629bc7f40dc8dc19521962c682a4b396a079303b541c00d"
+        },
+        {
+          "id": 9,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b2965f6046268553e009ffd9cb1492c7c9eb8c6d58206a8b5a86e241606926e4"
+        },
+        {
+          "id": 10,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e8bb7732758681ad37afdbf0fc27aff7442e22fb256508f08f0ff34a9711a8a0"
+        },
+        {
+          "id": 11,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6be3c29dab1b131bf8f5e807abafee9176c3d20112cc9a2f8e5d4fcf26c0f8c7"
+        },
+        {
+          "id": 12,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "361d87cf6c869a2e4ff7cc39e0e27eea9643be80589bf49166401b6107c4598f"
+        },
+        {
+          "id": 13,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "759d0f8579dd5ebb3580defb3e19e77548348aeab344b1944ef0ae4aed610f47"
+        },
+        {
+          "id": 14,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "efa658b00aca6e4e9cf3809d647b3d5b7d44b3d71ffa00bec074bdc3146189ce"
+        },
+        {
+          "id": 15,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "a66de5a8b9e1831f1233f157f439b8dbb96f9e53eb0f6679e1d82d86a7bb2260"
+        },
+        {
+          "id": 16,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6d0fb924b947eb6623bfccd07be3ed17120a23ccf1b056232e3ebe465f07828f"
+        },
+        {
+          "id": 17,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "2d709f8ebb78d1cbc50b9a59fef3a76ecb5cbd933c051a033be8e36d7544423e"
+        },
+        {
+          "id": 18,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "f2059ac179fb6e1eb73b01ed658a6cfa845dd3e86a69dd622834c849974daab3"
+        },
+        {
+          "id": 19,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "92ef9ad217d4e8ad8c72e76c5f62584fc796bd8ca3769481113c9070d2b4aaf5"
+        },
+        {
+          "id": 20,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "5370a4ffe1a07bee9723713c76c2e2d778ec95bfbad52465306029d3b6336e52"
+        },
+        {
+          "id": 21,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "ea2955a496b86852a87b5b96008b0f926cda5f01de8bb245a5b6be8b652c16fb"
+        },
+        {
+          "id": 22,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "9d3a959e8097466b7db748b74847bd34bbad37e9d8f33cbd0464e380f1c92d04"
+        },
+        {
+          "id": 23,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e716aa6ab1e6e9eb47b045ccc8566322021265f7c3612be1475764b6d619a7de"
+        },
+        {
+          "id": 24,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d8d973bf73b35ff3d6e8ffb54f4d98f80652c87d938598db9fd16a195399c87b"
+        },
+        {
+          "id": 25,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "44e4275674d27785b7468eebee98716fe12468839aa22bf5e045d8037baa3990"
+        },
+        {
+          "id": 26,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "220547c956766a7b2a0353a0af9fc8e938c11165ef17617088abe681a3efc8fd"
+        },
+        {
+          "id": 27,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b99ebe4f446d1e1d40980dc5af18174819c360e440cf7f0026a90f696f710362"
+        },
+        {
+          "id": 28,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "ebca1482b1c03d164cad0714661b2d1269de89d5202513a69882050adf5f7b4a"
+        },
+        {
+          "id": 29,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "326223372b5fda9af25955e88c025a81dfa050c64f9d23b9ebc9f1efc021c699"
+        },
+        {
+          "id": 30,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "0d62e5bddb23b3ee231cb9d0808b04cf5f0a210fc2be030259c7bd41d02b3fed"
+        },
+        {
+          "id": 31,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b06e3af025a42c9ab4e3a0e307e4e4e0cbd52249d7317260cebed70280ecb243"
+        },
+        {
+          "id": 32,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "b9792edaaef36e8e019582ce3399831da3a450c5b6642d103f23a5a89f36f210"
+        },
+        {
+          "id": 33,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "fc1fa245b6e7c71b6741a9aa534a7d789be640b1d00d5d5a233efe88f9eff082"
+        },
+        {
+          "id": 34,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c14b6da0254bc10793cf472b6e2f172568bab2a4da5d486dd1da248b52888d5c"
+        },
+        {
+          "id": 35,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "0a4f25ed9a83063f60f9fce0f092bee53fc912773b15f3821584c06c08467b0d"
+        },
+        {
+          "id": 36,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "386203d4f0613da37ba319383244deda16414476d8072182a8e05378008ceadb"
+        },
+        {
+          "id": 37,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "1f6f45afd8bca914bb78f7a551ad5961d99f2424db0b095beccab77c002a1934"
+        },
+        {
+          "id": 38,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "2f9f0c17ab35662c3a4806bbf5a102d5a58c1a14023572d5f33367867088af26"
+        },
+        {
+          "id": 39,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "32c4f5f1a7c23472a3b065cd2745fc400154ff54492bd41320227e32ba157e9d"
+        },
+        {
+          "id": 40,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "fbb9a9fae0666491e5453e25748039b211c22485afbf61bce117bcbce448cfe4"
+        },
+        {
+          "id": 41,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "afed89364da8e851b60eef14865592ba4fccdef30b1fe19642b3d33d533b5322"
+        },
+        {
+          "id": 42,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "13f620e670bff846556fccd21dc200b3aaaa070e254a8157489fd79a73bf52c4"
+        },
+        {
+          "id": 43,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "c0d8cab1a0c61f3e37fa6b0bdd02a12c49a089c8bd4283d1fd22bd9b7994a1d0"
+        },
+        {
+          "id": 44,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "f0cc991fe29207ecf6bfe26d78e43a9ce0f54f67a3fe0d9d09cb97330ed8652e"
+        },
+        {
+          "id": 45,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7e8ce23883aab2640b55be4da21217e383b60cc0ea929655f33a97281bb95efb"
+        },
+        {
+          "id": 46,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7c2ec9c462cc0b1c3aadfb3017b63b6f9854013797c3fc25e505a8ccf964c8b2"
+        },
+        {
+          "id": 47,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d7ac24077e50f447782efd3dff01f79d38b9a6b7699e64259253658ca68f036a"
+        },
+        {
+          "id": 48,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "cd710d7411493aa554f750814d37cc8c00a019009c41fc5dc6c8eee8a0c138f6"
+        },
+        {
+          "id": 49,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "4960903dd18c703ae2452f63bfadc708203fae874266e8c31248f65491b628db"
+        },
+        {
+          "id": 50,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "7433ad5fe67adcc69aea220d8ee3ada22ec5abd2c253cc55fd0cab25b7ce2644"
+        },
+        {
+          "id": 51,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "6cac3f10b062ac80ef3b5b3efd7835b7af699b7d2c30735132fb623cf1ac8f97"
+        },
+        {
+          "id": 52,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "d4eee44f60e2797a17eeba6b064b1dfb94610fe14b6bf1a69ff18e79392144fd"
+        },
+        {
+          "id": 53,
+          "width": 512,
+          "height": 324,
+          "transparent": false,
+          "sha256": "e258a02cd337a2d0c93dfc08b41071be41425ee5c99cffbfb92533b92fa103da"
+        },
+        {
+          "id": 54,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "10cb517c37d50c0b82f8eca52c5cad3a881062ac32d388c32eb671f4127c8b39"
+        },
+        {
+          "id": 55,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b31c9733ad41a37c20f54575826c1c2414f1e6f54ac89e41aa81883b286a4472"
+        },
+        {
+          "id": 56,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a9a878c524097b950c4355b65c46fccb213262a9c73f1118f5019c7efa88e37a"
+        },
+        {
+          "id": 57,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4c3c84a97c07e3b9b36a1c151dab8173994358f466d67512768bb8f8ee81befe"
+        },
+        {
+          "id": 58,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4438dde8a1daca6824cbd66e23088cace9a53f7d4c5b5e3fc920618f42e38649"
+        },
+        {
+          "id": 59,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a5a0f10d12cd02679098a6b93e66ad45e30314727c15bab29bfe756bf1f5ab87"
+        },
+        {
+          "id": 60,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b554c5703c764f5c03a7475068423229a76d68d4750b268d4c9ceffdcd71989f"
+        },
+        {
+          "id": 61,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "18b6275e91793a4e0e1fc7fbd47ae0e83a8072c153251bc50a00b1b80b1dadad"
+        },
+        {
+          "id": 62,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "e7205aae1fa5b2c73778789dde90581909afb6ced29f43bb918c9c1fb3b8283b"
+        },
+        {
+          "id": 63,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2240d78a18ee0df74977990d343fcc484528ff9430264d4dfb896e8410060057"
+        },
+        {
+          "id": 64,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "6b4e01622075148ebc4b01a34bf0123546987de5e28900d9edd00345850b54ab"
+        },
+        {
+          "id": 65,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "c7e8cc2df71b4db40392c2298a374df3ff895de71c4ab9dcb8d7c25a522cc0db"
+        },
+        {
+          "id": 66,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "7cc9ce762328a982ac788151e5d75e5fd58219305d56710085fc00ecdbbe67df"
+        },
+        {
+          "id": 67,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "9a6c30eb8598d99870bbe70344fbed5fd41bb863aab26b556b2a8997c6a0d62a"
+        },
+        {
+          "id": 68,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0751d683c9dd8c765a507164f9d16a568873f03e9101ac347a42052dea2f0579"
+        },
+        {
+          "id": 69,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0d43c04ef952bb5e83532efd8f5ef4e52ed6455693b0234f552447e419fc2c8c"
+        },
+        {
+          "id": 70,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "e4873b19b5c44468bb41a49382ebec06117d5c90928c8d3b18faf70f32b6c42c"
+        },
+        {
+          "id": 71,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8bf71323a99598a9c7b19d2092975d559c2caec30be336a4946c680bbac8ef23"
+        },
+        {
+          "id": 72,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "71bac245befa284e542fc46cf9a82c32288552fd93aabba8bb3e827862035161"
+        },
+        {
+          "id": 73,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "8a9a46391f1e86fc198ee7acc8a4e008eb69f668a62169c2356de47796a00f5c"
+        },
+        {
+          "id": 74,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "114b89880bd66bbd70896d07c402e136fbc272682e933116d3a0259578c5c934"
+        },
+        {
+          "id": 75,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "3886d89e9030dd5942e77e3891a4ee396d7abd152378755714cc4453cc097fbe"
+        },
+        {
+          "id": 76,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b173b9c425aa2aea0bc49efdb26c53b5c6e1c0f06e4d2dd5550f244fa3e840f1"
+        },
+        {
+          "id": 77,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "32c522cc4bbca2d52d7b11ad59e0281045b90370dc7d598af2973a61e6cc11bd"
+        },
+        {
+          "id": 78,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a9d92aad5576fe2f69ca622d2a749e0251f220b93aec41e4854ed7a707649d4e"
+        },
+        {
+          "id": 79,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2667927236bd6d42519cce933ecb96cd1393ce6adb3197b8a3fc75583b2681f8"
+        },
+        {
+          "id": 80,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "650111c26395e886f459fd72ad15c95eed56dc2e0ee74f445927b6924320e82c"
+        },
+        {
+          "id": 81,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "29519ca64a11f110ba65fd23c0d53cdd94b088681835a28c50eb6d59bb702e67"
+        },
+        {
+          "id": 82,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "7ea3b5c10d9b93583451af6f3a5d2a40f5f6ed3c526717d66c8ffa6531c687f3"
+        },
+        {
+          "id": 83,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a8d2c478e119b20cb9f10dbe3d270d605e2b6f3504f6e2b1a168f30f25fae7a4"
+        },
+        {
+          "id": 84,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "45e8d5c229bd51aa0b8e3b4bd185857814236105f0ba365357f326077ad0535b"
+        },
+        {
+          "id": 85,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4f5483127d5c1bcaea7dbfc07354852db2643f9b88648b675bb055b2902e9a36"
+        },
+        {
+          "id": 86,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "6b47e395369d80ce4272cc1212bf9c591beb7ad6c29e81ab5ac9044703792c1a"
+        },
+        {
+          "id": 87,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "c3d388d91040db5d6629a63c5650f00643f1d530e93e5dc393ff908ac32d1957"
+        },
+        {
+          "id": 88,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "fbd07dff01628a638367dbf94aca89182231e786271d8c244883f2f3f7d70c2d"
+        },
+        {
+          "id": 89,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "613b4f7971568bd84f4a53abb97ca719d71b099a875f7e970635070d9ae5e141"
+        },
+        {
+          "id": 90,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "389835d5deb605546ff5c70c2c301f8dbfea2a9231ec5c6428768b42eda9e6a2"
+        },
+        {
+          "id": 91,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "6d6afb325f29c0a20b46a0999d6baaf88f856b5be77e0442de9b5dd51fe02e61"
+        },
+        {
+          "id": 92,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "70a0c5a8cf0ee4601124975692a474236465514e887c80fd6ab3d2566032da2f"
+        },
+        {
+          "id": 93,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2bf0c41d4d78cc2d29d02fe324422c92dd813122c84d68b1b7c36e6ee7f9d373"
+        },
+        {
+          "id": 94,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "80edc471e65dc344ffe4300459aec89cd83e6f46cc28bfbf5d912927cccb6ee9"
+        },
+        {
+          "id": 95,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2d1b4607cadd6ba7223606eeb6ca596c231b06a0fcf52eaa86df3d70933935cc"
+        },
+        {
+          "id": 96,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "54c1b50e538db97396d493eff7dc86a54a6f71045849866d132c166cb2418717"
+        },
+        {
+          "id": 97,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4ed3fa654e3c24e65a85accb2ddf702573573f01334abe37fea6a48826d0bf31"
+        },
+        {
+          "id": 98,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "5d42764bbdaa291b0e4489582240105f1135de62cd7b9769ffa358adac1b8ffb"
+        },
+        {
+          "id": 99,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "5b6af350e005b3d257ae0406905f2b4ae12b8883abf0fbbbdcc21206aa685497"
+        },
+        {
+          "id": 100,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "51d123216db3ea3445761af53e5fb66c1c9a050ce97fcea63ca193cfc5ba9318"
+        },
+        {
+          "id": 101,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "de5cde3b9fecaaa2af75f02eb1b63f3d59ff2572a0010e26cb35e4d22e547c11"
+        },
+        {
+          "id": 102,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "d15433962fdc201239ef029103aaf9e628a323beb2e0634b5e10ba52356bc356"
+        },
+        {
+          "id": 103,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "7853eb2aea7c9deba78695c2b5152f1e6ede5683dd546d06491dc98b3b7a9373"
+        },
+        {
+          "id": 104,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "fe5b5a8acd3f3b7458e8ee9f56a4f2225307eaf309830522b3ff9126f334e187"
+        },
+        {
+          "id": 105,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "85065185557b1093229a1c51b0f738a350297877c0ef3774fa35853dfe09edf7"
+        },
+        {
+          "id": 106,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "a36b1ffd88f9a071a8c86ebd400b92f14597951dcf780e98d3f702d379176cbd"
+        },
+        {
+          "id": 107,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "6ac9190c4111f1f7cb2a30188e21c48ff4b71a8c6a447a3e6a4564b982b59e91"
+        },
+        {
+          "id": 108,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0ddcde3815bf25068d4388e3de606e32c11679a9bb9a1e251d3799e873e99e72"
+        },
+        {
+          "id": 109,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "f9e9a52a760092843fb8dce0dce13432294fb0654b5110146892616ef422a16a"
+        },
+        {
+          "id": 110,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "577c68eaabf26179d1a39b55b424876c98f69d6bf78efe3e3c9cb3b7d3d5df8a"
+        },
+        {
+          "id": 111,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "083e7d102e2a67debc285f6c32d4d295c9fbea11bb608b5ecc05fa9d09823e22"
+        },
+        {
+          "id": 112,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "2075baee2baba52ef10637b99b0b93c902ef55563e63dbc55ac5fafac0594afb"
+        },
+        {
+          "id": 113,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "ccf70e854df1308140ed95835739c140c7a5474837e677a0f1830fcbb0f2ed7c"
+        },
+        {
+          "id": 114,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "d4eb13e2b6f00d79b3b9f193ed2a74156dd1676901566db642ab03a8eae65538"
+        },
+        {
+          "id": 115,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "4d69f3fba205be34b44de56aea6b09237354834362e33637ab07bfaf55c831a6"
+        },
+        {
+          "id": 116,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "dd54ecbe6bc2ebf325d0897f4a0c871eba1ad47b6574528374196b31f613a74e"
+        },
+        {
+          "id": 117,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "b556bf62d562bce237128343c8b1d96a2d694034e1d3369570d43a731f062ea3"
+        },
+        {
+          "id": 118,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "e16a4187ed68a0bd77cdd10b15f4cc9891de431516d84a14c92e32673bee3787"
+        },
+        {
+          "id": 119,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "3e0a6783e6ed8b7b9c0046be9f4d48253ea249657045f84536712b38fb4810f7"
+        },
+        {
+          "id": 120,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "807b766632d4d58e3e7b0a862f0a32cb29d08ee56fc8c3ed72b5728c5e2b5e2e"
+        },
+        {
+          "id": 121,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "54634d3a3e13db33f8040505957e7ffe65453afcf3c899de6e736013810b4a09"
+        },
+        {
+          "id": 122,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "127426fbbfe70e3c1b6f267b740011c1f7897bdc878f46f87aad5d8187711752"
+        },
+        {
+          "id": 123,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "6cf1d61613ff52b87bf283298af1482656febb602b2470bdd11b821689a1c396"
+        },
+        {
+          "id": 124,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "3f8b5abbfdeb32eee7784daeb289429d70254145ac436511af3a86b381f219e0"
+        },
+        {
+          "id": 125,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "0ebe6bb4d31063102d78873b6c59e293fe6470b195ef9926db91a8a28b0ee077"
+        },
+        {
+          "id": 126,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "99bfaeba98a9d0b23b1cd0c4268760ebe878fbba67711b7a558c2f2915e8cf94"
+        },
+        {
+          "id": 127,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "c38a131df20fd891d69f891cf0ef641fec337e15b4d2b2727f2a45e21b0509e3"
+        },
+        {
+          "id": 128,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "51ddb9ece36946396891c8a22defa8ec43ee4c9aca6e56e356aff5254694da97"
+        },
+        {
+          "id": 129,
+          "width": 256,
+          "height": 264,
+          "transparent": true,
+          "sha256": "3b198dc69326849cf8b9f18affabceff01f52408581d7b0e9bd90fc039f14597"
+        }
+      ],
+      "pose_count": 5,
+      "extended_pose_lead_lines": 1,
+      "extended_pose_companion_lines": 1,
+      "all_portraits_used": true
+    },
+    "character-replacement-results.json": {
+      "baseline_ref": "65b963f794ac405bf06f36420a2ae6ce27a1a45a",
+      "archive_sha256": "ee0f8ea7adc6900038804be2b3f182b7b70a26529bba0aaf6c75ffdcfded86df",
+      "source_preservation_ref": "b4a95c8d16ddfd9c15530efdb0398693139913e4",
+      "portrait_size": 256,
+      "portrait_width": 256,
+      "portrait_height": 264,
+      "portraits": 76,
+      "ordinary_portraits": 57,
+      "fullbody_portraits": 5,
+      "nia_poses": [
+        "DEFAULT",
+        "CASUAL",
+        "GEAR",
+        "QUIET",
+        "ANNOYED"
+      ],
+      "all_previous_nia_portraits_replaced": true,
+      "imported_alpha_matches_approved_source": true,
+      "fullbody_alpha_matches_approved_source": true,
+      "nia_native_payloads_preserved": 10,
+      "background_native_payloads_preserved": 54,
+      "native_payload_baseline_ref": "4ff5886f1d95f41648bcb035a7451efb5b5702e7",
+      "restyled_people": [
+        "JULES",
+        "CALDER",
+        "IMANI",
+        "MARISOL",
+        "KADE",
+        "ROOK",
+        "REN",
+        "ASTER",
+        "SABLE",
+        "VOSS",
+        "MINA",
+        "ELI",
+        "VALE"
+      ],
+      "new_draft_people": [
+        "LEXI",
+        "NYX",
+        "KIT",
+        "SIENNA",
+        "BEAU",
+        "MILES",
+        "TESS",
+        "AKIRA",
+        "ZOE",
+        "DANTE",
+        "PIPER",
+        "SOL",
+        "CASS",
+        "ORION"
+      ],
+      "new_portrait_imports": [
+        {
+          "key": "KADE.DEFAULT",
+          "portrait": 5,
+          "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+          "crop_sha256": "9c44cd42cf86d098589e6a2ad88d242c31d43004aec668362168289f9dd1f7b0",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            235909,
+            7,
+            6,
+            4,
+            2
+          ]
+        },
+        {
+          "key": "KADE.CASUAL",
+          "portrait": 19,
+          "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+          "crop_sha256": "a9259b7485d6208b396a96d99c47fa70380c7240febae14d004a691f43e7b37c",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            205594,
+            3,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "KADE.GEAR",
+          "portrait": 33,
+          "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+          "crop_sha256": "2daf9e5603a37117603ef95121aee65e184ec85305b8f555a96cdb6755bfecdb",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            220255,
+            5,
+            3,
+            3,
+            2
+          ]
+        },
+        {
+          "key": "KADE.QUIET",
+          "portrait": 47,
+          "source_sha256": "ee15e8739e0eca103c62c548d633bbc3440b51186ec4a66b23023ee85d7d2e6e",
+          "crop_sha256": "cc38600ec1237dc71aee1a3fca48479129d4acc7e9ae327f6c261f5370c4eaf7",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            193472,
+            4,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "JULES.DEFAULT",
+          "portrait": 1,
+          "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+          "crop_sha256": "57410e8f09002ad2902c0231e21fa72cc60fc9e8d7cfdbec2418f51d43c15618",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            216194,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "JULES.CASUAL",
+          "portrait": 15,
+          "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+          "crop_sha256": "78a71b9f1327de71c56e007fad2530198f809e533c52cc10031d915c593a34c2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            207727,
+            1
+          ]
+        },
+        {
+          "key": "JULES.GEAR",
+          "portrait": 29,
+          "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+          "crop_sha256": "a2e58b2d16d930f3aea7a6b784732da7382790190f789b548ba379fd5df22d37",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            201577
+          ]
+        },
+        {
+          "key": "JULES.QUIET",
+          "portrait": 43,
+          "source_sha256": "8b5c4c2bc9fea01d7c85d4e894b7f3ddf9bb4f0fbd36e50d154699507514a6ce",
+          "crop_sha256": "bb29b1f679f1d1137dc3db02cec7184fd9597e5e57eab022c3872edb950d5ffb",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            174835,
+            384,
+            223
+          ]
+        },
+        {
+          "key": "ASTER.DEFAULT",
+          "portrait": 8,
+          "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+          "crop_sha256": "13673be5e4fc2bc8c0c56fd347238d2a3cfbe5fe6d8a9cc09c328c62adf815f8",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            195184
+          ]
+        },
+        {
+          "key": "ASTER.CASUAL",
+          "portrait": 22,
+          "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+          "crop_sha256": "ba97ecacc8a99de64bcf4e48102043b0d10f1106847cddee31d270959328d177",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            177054
+          ]
+        },
+        {
+          "key": "ASTER.GEAR",
+          "portrait": 36,
+          "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+          "crop_sha256": "9cc29c60464c9d485b2b0cd78851c077f5ab64d81a77b0561be87a81a25055fb",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            214113
+          ]
+        },
+        {
+          "key": "ASTER.QUIET",
+          "portrait": 50,
+          "source_sha256": "2adf6d724c8dd9b8f9b4af2cae4220a9b4231fcace1a6d469ac5145fe50403b0",
+          "crop_sha256": "24d429406c6ec4c783b2caa357e1520182c380a79603cb83a2d8d5c759e7ccf3",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            173040
+          ]
+        },
+        {
+          "key": "CALDER.DEFAULT",
+          "portrait": 2,
+          "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+          "crop_sha256": "1f2730154503fafe58feb1a8c1368a2ba693f7f1faa943e388e40d50cc392a9d",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            236410
+          ]
+        },
+        {
+          "key": "CALDER.CASUAL",
+          "portrait": 16,
+          "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+          "crop_sha256": "d29e0120d12fdd8c09659468c0d44b4250a3069c65450991d6359b9a303d85e2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            228245
+          ]
+        },
+        {
+          "key": "CALDER.GEAR",
+          "portrait": 30,
+          "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+          "crop_sha256": "bb1f955229ed308f408e8286a2fcffc4327a947337df8530c493fd43cc728ad1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            241424
+          ]
+        },
+        {
+          "key": "CALDER.QUIET",
+          "portrait": 44,
+          "source_sha256": "a595c1666912222f6a7dd8947f26ab74bf8bc9793675d3182464e11756ff12aa",
+          "crop_sha256": "1e7aa201a86849dc61b43f16a871bec074def908c74793f8279fc241f27cc0fb",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            237964
+          ]
+        },
+        {
+          "key": "VOSS.DEFAULT",
+          "portrait": 10,
+          "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+          "crop_sha256": "e8ff73b540cfe3e2daab8079b4f04de4fc96a29f785fa815d454d0e96605259f",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            217555,
+            3,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "VOSS.CASUAL",
+          "portrait": 24,
+          "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+          "crop_sha256": "efdf49fdc14eb3164412f3fa67b3f2e2de2c5516f2325d34e9ce48a43dbc0b51",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            216816,
+            2,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "VOSS.GEAR",
+          "portrait": 38,
+          "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+          "crop_sha256": "6941ea043f0c05df4830f4c87d62bf13f852f637bb69044681cbccae7c99c103",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            237261,
+            2,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "VOSS.QUIET",
+          "portrait": 52,
+          "source_sha256": "7c1da8236391eb879dc0c5ad541b3fa0890bec40458fc85ec9b546744dce7df5",
+          "crop_sha256": "203d293d2971e6cdf03db82b61e25f71e04b4bb27ebc49463b9ed3f11421cc8e",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            205431,
+            3,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "MINA.DEFAULT",
+          "portrait": 11,
+          "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+          "crop_sha256": "6534ebe129feb781953f8c5420ce07b5e27f418f9b48d24e0c996ba2acac05ef",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            187463,
+            10,
+            6,
+            5,
+            2
+          ]
+        },
+        {
+          "key": "MINA.CASUAL",
+          "portrait": 25,
+          "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+          "crop_sha256": "de8ec12ad4aa21e9c1fed80e8a8e352adcb11686e32816e7adda997c67be739d",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            226875,
+            6,
+            4,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "MINA.GEAR",
+          "portrait": 39,
+          "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+          "crop_sha256": "c097a9ed15f760b56c553a0fd30d1780eee935151216f5bbade144ef5df8d1e6",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            202762,
+            13,
+            8,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "MINA.QUIET",
+          "portrait": 53,
+          "source_sha256": "8ae199567b08859dd4969eb20096028b459ec72f4633fd7e121fb30d246edc83",
+          "crop_sha256": "fa834f0344974e55167122c884a8d9dd8e1e4cef699d46725f5c7ec52ecc7fd1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            227967,
+            16,
+            9,
+            9,
+            6
+          ]
+        },
+        {
+          "key": "ROOK.DEFAULT",
+          "portrait": 6,
+          "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+          "crop_sha256": "7ed7b7ce53f583d331271204562a49625c523bf279db066560ac720897508877",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            261072,
+            4892,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "ROOK.CASUAL",
+          "portrait": 20,
+          "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+          "crop_sha256": "dba618edb0afca2d434d5fb884ff56472104f7612250df345f236870afb69fae",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            252585,
+            1648,
+            4,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "ROOK.GEAR",
+          "portrait": 34,
+          "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+          "crop_sha256": "f66a310250d78ab9d341653ca2e6bbf720499c5ec0376e9bee313728f0171fd3",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            230912,
+            15,
+            4,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "ROOK.QUIET",
+          "portrait": 48,
+          "source_sha256": "c2217d0a4a422bd5a3e9930980756e4a10d13270f384878719e98c1e51ba72f6",
+          "crop_sha256": "d8d529429fa622a5e725a5d1f575e214d756af3827dc7d5c46db3b94b15c4f60",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            241138,
+            3,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "MARISOL.DEFAULT",
+          "portrait": 4,
+          "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+          "crop_sha256": "f5f24ba3496bcb9e85df3deb0cfeccd8de533486e39f5912e3d38f619d01c75e",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            193830,
+            5,
+            5,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "MARISOL.CASUAL",
+          "portrait": 18,
+          "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+          "crop_sha256": "db41ae4cdca940f28778219b6ddd95a041b1afe8a825f9b17cf1a5af948f75d2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            194213,
+            39,
+            9,
+            8,
+            6
+          ]
+        },
+        {
+          "key": "MARISOL.GEAR",
+          "portrait": 32,
+          "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+          "crop_sha256": "86edd0b7d1273fb0cfbe87c800d4e133b528b219e299518ebe4990451471048b",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            216468,
+            21,
+            8,
+            5,
+            4
+          ]
+        },
+        {
+          "key": "MARISOL.QUIET",
+          "portrait": 46,
+          "source_sha256": "10de93b22f54ac7b4da19a2e993a0cb114b9868f867b9e0629a9aadda7cbf502",
+          "crop_sha256": "cf5518efdba35ff6e4ddea6a348fb29dbbe5ecd7c12ff46dfc645ae0aef9ec9c",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            204959,
+            13,
+            7,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "IMANI.DEFAULT",
+          "portrait": 3,
+          "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+          "crop_sha256": "78f490cecbd1086dac0a402b2e9ecd86242c77bfe272a414678db4601cfd6e3b",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            192770
+          ]
+        },
+        {
+          "key": "IMANI.CASUAL",
+          "portrait": 17,
+          "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+          "crop_sha256": "ba85f3da8682086e421368b74dcd4fed7dcf188e4f1f6c0713a3e07040d45f9f",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            190111,
+            1
+          ]
+        },
+        {
+          "key": "IMANI.GEAR",
+          "portrait": 31,
+          "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+          "crop_sha256": "da36731ea6753f625d2e7264c56b8a754a48d3e77f7df57c6e6342a730d72d36",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            193942,
+            84
+          ]
+        },
+        {
+          "key": "IMANI.QUIET",
+          "portrait": 45,
+          "source_sha256": "d2821d1d8085267e09ac07dd2b0ad16338cbab92503b34f3452384ecc0b39b9d",
+          "crop_sha256": "ce43d5e5060e883eeac8ebeb68f1d21e8900e05613126d4e8c5dfa0702620eb5",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            179647,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "REN.DEFAULT",
+          "portrait": 7,
+          "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+          "crop_sha256": "d082fec2bb28183f8ae601aeb2361bb0b7c7e74a985799cba35e847426433f82",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            210694,
+            4,
+            3,
+            3,
+            2
+          ]
+        },
+        {
+          "key": "REN.CASUAL",
+          "portrait": 21,
+          "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+          "crop_sha256": "858cea9866ad7536f76332b38fb76f8c99454e4217edd051ea98402255d5ea4e",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            228981,
+            3,
+            2,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "REN.GEAR",
+          "portrait": 35,
+          "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+          "crop_sha256": "4630e714d268919043cffc8ec61527a36c45c0f4072733e02bc6292629982ab1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            198217,
+            6,
+            4,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "REN.QUIET",
+          "portrait": 49,
+          "source_sha256": "5df05e96cfce337b07843f58fa06b5d0c182b52639635b3556abff7514d4345d",
+          "crop_sha256": "daa8f1f8dc4403b5c14d7f80b55d959a1536069b8bb4bddef2c37e75c1506f5e",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            213091,
+            13,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "SABLE.DEFAULT",
+          "portrait": 9,
+          "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+          "crop_sha256": "447ef940862167b5aba53ecaf7e27574156b1d383ac7672f9bb7068f08b4a431",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            188948,
+            23,
+            6,
+            3,
+            3
+          ]
+        },
+        {
+          "key": "SABLE.CASUAL",
+          "portrait": 23,
+          "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+          "crop_sha256": "e2a54e2c76a1c4ed17646991e7174c523e310a7c4fdbd25641c4bd7456d3c605",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            191443,
+            11,
+            7,
+            6,
+            5
+          ]
+        },
+        {
+          "key": "SABLE.GEAR",
+          "portrait": 37,
+          "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+          "crop_sha256": "c97e4ab50025d2884e4200fc8ec41c15c79cd254a6ff919e9e4553f15bdb62f1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            179377,
+            13,
+            12,
+            10,
+            10
+          ]
+        },
+        {
+          "key": "SABLE.QUIET",
+          "portrait": 51,
+          "source_sha256": "05c9822441fea1ec69a577d66a508b5f37c9fcf089a98842f19b312afae5718c",
+          "crop_sha256": "11325fb56b48ea256d0a35029884736ea27c015d244a0800bda846a62ee7a7cd",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            174086,
+            9,
+            6,
+            6,
+            6
+          ]
+        },
+        {
+          "key": "ELI.DEFAULT",
+          "portrait": 12,
+          "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+          "crop_sha256": "d3ff0e3b18fe677ce506904b20afe008ecf519605ec3c08a3e3d6c60a30062b8",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            219262,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "ELI.CASUAL",
+          "portrait": 26,
+          "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+          "crop_sha256": "933012af6eb475d152ba98a456b4fe79af45b27fde90f6a993b140c98bb463e2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            212243,
+            17,
+            3,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "ELI.GEAR",
+          "portrait": 40,
+          "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+          "crop_sha256": "7cad85023363dce57a41a3ec0b4f7781c23dd3c00085f550ab7ce1fa82eb2e53",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            224451,
+            4,
+            2,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "ELI.QUIET",
+          "portrait": 54,
+          "source_sha256": "4e665b9ecc620b0028f399b41d266cf83f56d4cb8acb5540b331f36e5caa69f7",
+          "crop_sha256": "fd502a0719c5fd2dfcb03942c67da7b2c61d8d6c6f327933c66122ca0af3fe14",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            190859,
+            6,
+            3,
+            3,
+            2
+          ]
+        },
+        {
+          "key": "VALE.DEFAULT",
+          "portrait": 13,
+          "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+          "crop_sha256": "ef696334faa725994980dc5224da750501b204fee0a461ccc6c3885dada0f2f1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            212814,
+            41,
+            34,
+            8,
+            6
+          ]
+        },
+        {
+          "key": "VALE.CASUAL",
+          "portrait": 27,
+          "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+          "crop_sha256": "ff4fe7edafa1797013fb3457151d0c7e04b8c86b63ef3445ed8d9e0e3fac4a50",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            200198,
+            6,
+            5,
+            3,
+            2
+          ]
+        },
+        {
+          "key": "VALE.GEAR",
+          "portrait": 41,
+          "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+          "crop_sha256": "a3bd7a541eaf2d7edb4915137e6b4e938972fe46d6fc96bc4a0f68839e4976f5",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            204693,
+            74,
+            6,
+            5,
+            2
+          ]
+        },
+        {
+          "key": "VALE.QUIET",
+          "portrait": 55,
+          "source_sha256": "11fa14151aa4ed70b7cb907dbc24295900ca8ea82e67580aad90ffeae082cb57",
+          "crop_sha256": "a457d47730347078233071232507863bc475969a38a59f9a8329bf0092d47101",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            199370,
+            7,
+            6,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "DRAFT.LEXI",
+          "portrait": 62,
+          "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+          "crop_sha256": "1ad528875bc1364e3565dc1b64b41587216e89e2daf6715dead0a1d12d3d5376",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            76624,
+            2,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.NYX",
+          "portrait": 63,
+          "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+          "crop_sha256": "df7e1a5a4c0bd3856a930feb07354611daf76772430d379b6b7eb4285c7a412f",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            67251,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.KIT",
+          "portrait": 64,
+          "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+          "crop_sha256": "b0c75373042b4d03de9f6196ed02cf2a14fc757e313433cabeb592ed585a1bd2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            78695,
+            22,
+            3,
+            2,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.SIENNA",
+          "portrait": 65,
+          "source_sha256": "7772d233fe9c63d4a5272ee7ae582a10bc598e87310da0cb230172d60e6bd971",
+          "crop_sha256": "33bcdd529280ad9406d50e028a37f6d0549808c5b49cd6c894dd860728b675c6",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            95117,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.BEAU",
+          "portrait": 66,
+          "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+          "crop_sha256": "9dd0dbd771780188ca094c95ecd4aca726594ea7f0062eb986eb0e2460b16b5e",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            74702,
+            3,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.MILES",
+          "portrait": 67,
+          "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+          "crop_sha256": "398f8d8f4a48062257b293dc1454218112966de97c42f2de4be84ddee7f6d5ee",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            62915
+          ]
+        },
+        {
+          "key": "DRAFT.TESS",
+          "portrait": 68,
+          "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+          "crop_sha256": "ec7beba80cf7dff326f5eb55dc78fe877c33d2e9f59eb61929ec5fab49422aa1",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            93502,
+            4,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "key": "DRAFT.AKIRA",
+          "portrait": 69,
+          "source_sha256": "596fac4ebac81143b2bd371d2b771eaf4f0facdad3cd106e7f9d01abee9fb799",
+          "crop_sha256": "cf89eec1a6a6e884ca1dbc93fdcbe15ad619b4d16aaa2b66b4fe058f15df8ca3",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            78680,
+            2,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.ZOE",
+          "portrait": 70,
+          "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+          "crop_sha256": "94a1d28193f3753097add9e60b7004aa7e233362ab77a4082498c8c041c7b91a",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            92950,
+            183,
+            4,
+            3,
+            2
+          ]
+        },
+        {
+          "key": "DRAFT.DANTE",
+          "portrait": 71,
+          "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+          "crop_sha256": "c8c4b439cd34bc7fe2ea3b7dce10155650e6458500cad99684d8ce0613a66457",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            77589
+          ]
+        },
+        {
+          "key": "DRAFT.PIPER",
+          "portrait": 72,
+          "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+          "crop_sha256": "62439f1fb4413d5d5511b7f895c095ba953eea9a5dd1eaa6b53d44dcee2572c2",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            102690,
+            178,
+            27,
+            24,
+            8
+          ]
+        },
+        {
+          "key": "DRAFT.SOL",
+          "portrait": 73,
+          "source_sha256": "f628605a34311dcc74a3149be7baa4cb48a5bff8a1276d1343e0c98e62c64eba",
+          "crop_sha256": "a0cab62ac4d5052c0b0517f18bedab3cb8561a7da414157893b2afdb2e4e60f3",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            103874,
+            7,
+            2,
+            1,
+            1
+          ]
+        },
+        {
+          "key": "DRAFT.CASS",
+          "portrait": 74,
+          "source_sha256": "233ae4e558ac942ba51cdafbe6616325553b06ac305378343eba5aaa5dfb19fa",
+          "crop_sha256": "78fa64173e2f4d98bcdbeac9b43fd7726fb9a5f3f6429797f40da03028d5be30",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            268757,
+            3
+          ]
+        },
+        {
+          "key": "DRAFT.ORION",
+          "portrait": 75,
+          "source_sha256": "233ae4e558ac942ba51cdafbe6616325553b06ac305378343eba5aaa5dfb19fa",
+          "crop_sha256": "628e9c37343a8d0948124db47aecdc5019a4a487cfe36a3fd783c7e62b40d2f0",
+          "source_alpha_mismatches": 0,
+          "source_components": [
+            242838
+          ]
+        }
+      ],
+      "new_portrait_alpha_matches_approved_sources": true,
+      "draft_portraits_excluded_from_story": true,
+      "gallery_covers_all_wardrobe_and_draft_portraits": true,
+      "original_source_files_preserved": 20,
+      "original_background_source_specs_preserved": 54,
+      "names_and_story_preserved": true,
+      "intentional_reexport": "Intentional native 256x264 speaking-frame reexport of original source art, plus five additional approved Nia full bodies; historical 168px packed payload hashes are retained only as provenance.",
+      "intentional_wardrobe_replacement": "The character wardrobe overhaul replaces 13 existing non-Nia actors and adds 14 unassigned gallery concepts. Story text, actor IDs, Nia art and all background payloads remain unchanged.",
+      "workshop_family_photo_shots": [
+        {
+          "scene": "D25",
+          "focus": 0,
+          "subject_x": 115
+        }
+      ],
+      "fifth_pose_compiled_occurrences": [
+        {
+          "scene": "D01",
+          "line": 2,
+          "role": "speaker",
+          "portrait": 56,
+          "flags": 1
+        },
+        {
+          "scene": "D01",
+          "line": 3,
+          "role": "companion",
+          "portrait": 56,
+          "flags": 16
+        },
+        {
+          "scene": "D05",
+          "line": 7,
+          "role": "companion",
+          "portrait": 56,
+          "flags": 16
+        }
+      ],
+      "portrait_masks": [
+        {
+          "pose": "DEFAULT",
+          "opaque_pixels": 30564,
+          "components": [
+            30563,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            43,
+            2,
+            213,
+            264
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "opaque_pixels": 29689,
+          "components": [
+            29689
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            48,
+            2,
+            207,
+            264
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "opaque_pixels": 29717,
+          "components": [
+            29716,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            46,
+            2,
+            210,
+            264
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "opaque_pixels": 27445,
+          "components": [
+            27444,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            56,
+            2,
+            199,
+            264
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "opaque_pixels": 29986,
+          "components": [
+            29985,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            26,
+            2,
+            229,
+            264
+          ]
+        }
+      ],
+      "fullbody_masks": [
+        {
+          "pose": "DEFAULT",
+          "opaque_pixels": 14478,
+          "components": [
+            14478
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            74,
+            2,
+            182,
+            264
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "opaque_pixels": 14112,
+          "components": [
+            14112
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            79,
+            2,
+            176,
+            264
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "opaque_pixels": 14464,
+          "components": [
+            14462,
+            1,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            78,
+            2,
+            177,
+            264
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "opaque_pixels": 13090,
+          "components": [
+            13090
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            81,
+            2,
+            176,
+            264
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "opaque_pixels": 14412,
+          "components": [
+            14411,
+            1
+          ],
+          "source_alpha_mismatches": 0,
+          "bounds": [
+            62,
+            2,
+            193,
+            264
+          ]
+        }
+      ],
+      "source_overrides": [
+        {
+          "pose": "DEFAULT",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            0,
+            430,
+            627
+          ],
+          "crop_sha256": "24e1d019983ac1bb73adcf3dbae127127682ad5eb1e0808475c8e723db20020a",
+          "source_components": [
+            165825,
+            1,
+            1,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            420,
+            617
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            430,
+            0,
+            836,
+            627
+          ],
+          "crop_sha256": "11e6a74bef624fd3881c6a2220e1619a95707c799596764d7b762576c4c1dcc1",
+          "source_components": [
+            160705,
+            3
+          ],
+          "alpha_bounds": [
+            8,
+            8,
+            378,
+            617
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            836,
+            0,
+            1254,
+            627
+          ],
+          "crop_sha256": "8dacfe4a81e42c8f24a6767f68d4872abafb9f9babba2b3d314889b275ad18f1",
+          "source_components": [
+            161335,
+            3,
+            2,
+            1,
+            1
+          ],
+          "alpha_bounds": [
+            24,
+            7,
+            406,
+            617
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            0,
+            627,
+            407,
+            1254
+          ],
+          "crop_sha256": "151dd65e4c3868dfcac79c245a1ce06abf1accf0e0456942fefce65458a22773",
+          "source_components": [
+            151199,
+            18
+          ],
+          "alpha_bounds": [
+            65,
+            2,
+            407,
+            616
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "source": "art/story/nia-replacement.png",
+          "sha256": "a0a6fbb4f55e6d6e16345e97e807c73517753db754607ef5497e464a9e840824",
+          "crop": [
+            400,
+            627,
+            900,
+            1254
+          ],
+          "crop_sha256": "8098a282fd15b47d80fb357501d73d7178f00e1c85a872cae22aab0970d67e35",
+          "source_components": [
+            163435,
+            5,
+            3
+          ],
+          "alpha_bounds": [
+            0,
+            5,
+            479,
+            616
+          ]
+        }
+      ],
+      "fullbody_source_overrides": [
+        {
+          "pose": "DEFAULT",
+          "source": "art/story/nia-fullbody-approved-source.png",
+          "sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+          "crop": [
+            0,
+            750,
+            512,
+            1536
+          ],
+          "crop_sha256": "23e357c5f2b68e3cfac31ce42cad9559030550cfedc95cd730228b0ada68fac4",
+          "source_components": [
+            116823
+          ],
+          "alpha_bounds": [
+            143,
+            4,
+            450,
+            748
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "source": "art/story/nia-fullbody-approved-source.png",
+          "sha256": "c82147538ae646d368d4f02bee7612e7f473e2dbd5c2738ffb94546fdf3b9c06",
+          "crop": [
+            512,
+            750,
+            1024,
+            1536
+          ],
+          "crop_sha256": "26f978af0bcf03d4528b942429c3309ab0546db1c0bb637ae1d5ff81e44cde23",
+          "source_components": [
+            111348
+          ],
+          "alpha_bounds": [
+            94,
+            9,
+            366,
+            746
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            140,
+            0,
+            570,
+            1000
+          ],
+          "crop_sha256": "6cfb640c6f3df6b7673437dd3d0be6c8737947b36eb54a4c7db42c2e15389ace",
+          "source_components": [
+            191894,
+            8,
+            6,
+            4,
+            3
+          ],
+          "alpha_bounds": [
+            37,
+            14,
+            397,
+            971
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            590,
+            0,
+            985,
+            1000
+          ],
+          "crop_sha256": "162883ea30575d80f68e2d4f7a8882bc469b42fce1c38feab2f5ed923da1d85d",
+          "source_components": [
+            174496,
+            29,
+            13,
+            9,
+            7
+          ],
+          "alpha_bounds": [
+            35,
+            14,
+            389,
+            970
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "source": "art/story/nia-fullbody-expressions-source.png",
+          "sha256": "40be862f4ab47c7fe1bb3f9812e7d010ba31740e87f91359151e6e704dfb5229",
+          "crop": [
+            985,
+            0,
+            1518,
+            1000
+          ],
+          "crop_sha256": "d9fb2a8c2bef4f8033d63b09ba45544a0199f0b73185267b78b764dc2f35fa0a",
+          "source_components": [
+            191248,
+            15,
+            6,
+            5,
+            5
+          ],
+          "alpha_bounds": [
+            5,
+            15,
+            483,
+            968
+          ]
+        }
+      ]
+    },
+    "cast-discarded-component-review.json": {
+      "reviewed_crops": {
+        "JULES.QUIET": "Viewed raw, retained and discarded alpha: only the adjacent portrait hand/sleeve flecks at the left crop edge are discarded; Jules remains complete.",
+        "ROOK.DEFAULT": "Viewed raw, retained and discarded alpha: only a strip of the adjacent red shirt at the right crop edge is discarded; the complete gesturing hand is retained.",
+        "ROOK.CASUAL": "Viewed raw, retained and discarded alpha: only the adjacent default portrait hand at the left crop edge is discarded; the casual body and hands remain complete.",
+        "MARISOL.CASUAL": "Viewed raw, retained and discarded alpha: only tiny isolated atlas-edge flecks are discarded; hair, raised hand and tied blouse remain complete.",
+        "IMANI.GEAR": "Viewed raw, retained and discarded alpha: only a thin previous-row edge fleck above the head is discarded; all workwear and tools remain complete.",
+        "VALE.DEFAULT": "Viewed raw, retained and discarded alpha: only tiny neighboring-row edge flecks are discarded; the basket, hands and full portrait remain intact.",
+        "VALE.GEAR": "Viewed raw, retained and discarded alpha: only tiny previous-row edge flecks are discarded; plant pot, hands and garden clothing remain intact.",
+        "DRAFT.ZOE": "Viewed raw, retained and discarded alpha: only a tiny neighboring-row fragment below the figure is discarded; notebook, shoes and complete body remain intact.",
+        "DRAFT.PIPER": "Viewed raw, retained and discarded alpha: only a tiny neighboring-row fragment above the hat is discarded; hat, limbs and sandals remain intact."
+      },
+      "issues_found": [],
+      "contact_sheet": "cast-discarded-components.png"
+    },
+    "story-scenes/continuous-story-results.json": {
+      "rom_sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+      "cases": [
+        "D01",
+        "D04",
+        "D05",
+        "D24",
+        "S17"
+      ],
+      "lcd_dimensions": [
+        256,
+        384
+      ],
+      "scene_rows": [
+        0,
+        288
+      ],
+      "lcd_seam_y": 192,
+      "dialogue_rows": [
+        288,
+        384
+      ],
+      "button_only": true,
+      "emulated_ram_read_only": true,
+      "fixture_note": "Save frontiers are native codec visual fixtures, not earned progression.",
+      "pagination_note": "S17 exercises an authored line across the three-row dialogue pages.",
+      "page_flips": 1,
+      "scenes": [
+        {
+          "scene": "D01",
+          "authored_lines": 8,
+          "pages": 8,
+          "page_flips": 0,
+          "pause_resume_checked": true,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D01",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 50,
+              "length": 50,
+              "speaker": 0,
+              "companion": 255,
+              "background": 6,
+              "background_name": "BENCH",
+              "stage": 1,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 28
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-00-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 40,
+              "length": 40,
+              "speaker": 14,
+              "companion": 255,
+              "background": 6,
+              "background_name": "BENCH",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d01-01-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 84,
+              "length": 84,
+              "speaker": 0,
+              "companion": 255,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 4,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 4,
+                  "full_body": true,
+                  "portrait": 61
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-02-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 24,
+              "length": 24,
+              "speaker": 14,
+              "companion": 0,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 4,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 4,
+                  "full_body": true,
+                  "portrait": 61
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-03-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 0,
+              "companion": 255,
+              "background": 0,
+              "background_name": "GARAGE",
+              "stage": 0,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": true,
+                  "portrait": 59
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-04-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 72,
+              "length": 72,
+              "speaker": 11,
+              "companion": 0,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 2,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 0,
+                  "full_body": false,
+                  "portrait": 11
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-05-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 18,
+              "length": 18,
+              "speaker": 14,
+              "companion": 11,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 0,
+                  "full_body": false,
+                  "portrait": 11
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d01-06-page-1.png"
+            },
+            {
+              "scene": "D01",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 69,
+              "length": 69,
+              "speaker": 0,
+              "companion": 11,
+              "background": 2,
+              "background_name": "MEET",
+              "stage": 0,
+              "pose": 2,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 2,
+                  "full_body": true,
+                  "portrait": 59
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d01-07-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D04",
+          "authored_lines": 10,
+          "pages": 10,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D04",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 78,
+              "length": 78,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 58
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-00-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 56,
+              "length": 56,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 58
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-01-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 58
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-02-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 79,
+              "length": 79,
+              "speaker": 0,
+              "companion": 255,
+              "background": 8,
+              "background_name": "PAPERS",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-03-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 31,
+              "length": 31,
+              "speaker": 14,
+              "companion": 255,
+              "background": 8,
+              "background_name": "PAPERS",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": false,
+              "image": "continuous-d04-04-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 110,
+              "length": 110,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 60
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d04-05-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 20,
+              "length": 20,
+              "speaker": 14,
+              "companion": 0,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 60
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-06-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 54,
+              "length": 54,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": true,
+                  "portrait": 60
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-07-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 96,
+              "length": 96,
+              "speaker": 14,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d04-08-page-1.png"
+            },
+            {
+              "scene": "D04",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 0,
+              "companion": 255,
+              "background": 18,
+              "background_name": "NIA_KITCHEN",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d04-09-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D05",
+          "authored_lines": 10,
+          "pages": 10,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D05",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 44,
+              "length": 44,
+              "speaker": 12,
+              "companion": 11,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 26
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d05-00-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 24,
+              "length": 24,
+              "speaker": 14,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 26
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-01-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 64,
+              "length": 64,
+              "speaker": 0,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 58
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-02-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 77,
+              "length": 77,
+              "speaker": 11,
+              "companion": 0,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 11,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 25
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-03-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 14,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d05-04-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 95,
+              "length": 95,
+              "speaker": 12,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 26
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-05-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 23,
+              "length": 23,
+              "speaker": 0,
+              "companion": 255,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-06-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 35,
+              "length": 35,
+              "speaker": 12,
+              "companion": 0,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 4,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 26
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d05-07-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 60,
+              "length": 60,
+              "speaker": 14,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 12,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 26
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-08-page-1.png"
+            },
+            {
+              "scene": "D05",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 98,
+              "length": 98,
+              "speaker": 0,
+              "companion": 12,
+              "background": 22,
+              "background_name": "DINER",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": true,
+                  "portrait": 58
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d05-09-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "D24",
+          "authored_lines": 11,
+          "pages": 11,
+          "page_flips": 0,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "D24",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 89,
+              "length": 89,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-00-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 39,
+              "length": 39,
+              "speaker": 0,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                },
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-01-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 54,
+              "length": 54,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 14
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-02-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 30,
+              "length": 30,
+              "speaker": 14,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-d24-03-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 101,
+              "length": 101,
+              "speaker": 0,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 42
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-04-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 100,
+              "length": 100,
+              "speaker": 2,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 44
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-05-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 70,
+              "length": 70,
+              "speaker": 0,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 42
+                },
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 44
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-06-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 97,
+              "length": 97,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 44
+                },
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 42
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-07-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 39,
+              "length": 39,
+              "speaker": 14,
+              "companion": 2,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 44
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-08-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 9,
+              "page": 0,
+              "start": 0,
+              "end": 99,
+              "length": 99,
+              "speaker": 2,
+              "companion": 0,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 3,
+              "expected_actors": [
+                {
+                  "actor": 2,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 16
+                },
+                {
+                  "actor": 0,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 42
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-d24-09-page-1.png"
+            },
+            {
+              "scene": "D24",
+              "line": 10,
+              "page": 0,
+              "start": 0,
+              "end": 41,
+              "length": 41,
+              "speaker": 0,
+              "companion": 255,
+              "background": 51,
+              "background_name": "LIGHTHOUSE",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 0,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 14
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-d24-10-page-1.png"
+            }
+          ]
+        },
+        {
+          "scene": "S17",
+          "authored_lines": 9,
+          "pages": 10,
+          "page_flips": 1,
+          "pause_resume_checked": false,
+          "text_preserved": true,
+          "page_directions_preserved": true,
+          "archive_failures": 0,
+          "captures": [
+            {
+              "scene": "S17",
+              "line": 0,
+              "page": 0,
+              "start": 0,
+              "end": 119,
+              "length": 119,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-s17-00-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 1,
+              "page": 0,
+              "start": 0,
+              "end": 45,
+              "length": 45,
+              "speaker": 14,
+              "companion": 9,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-01-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 2,
+              "page": 0,
+              "start": 0,
+              "end": 65,
+              "length": 65,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-02-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 3,
+              "page": 0,
+              "start": 0,
+              "end": 67,
+              "length": 67,
+              "speaker": 14,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": true,
+              "image": "continuous-s17-03-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 4,
+              "page": 0,
+              "start": 0,
+              "end": 124,
+              "length": 142,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-04-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 4,
+              "page": 1,
+              "start": 124,
+              "end": 142,
+              "length": 142,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "placement": "scene_badge",
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-04-page-2.png"
+            },
+            {
+              "scene": "S17",
+              "line": 5,
+              "page": 0,
+              "start": 0,
+              "end": 42,
+              "length": 42,
+              "speaker": 14,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 1,
+              "pose": 0,
+              "companion_pose": 0,
+              "expected_actors": [],
+              "shot_start": false,
+              "image": "continuous-s17-05-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 6,
+              "page": 0,
+              "start": 0,
+              "end": 93,
+              "length": 93,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 3,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 3,
+                  "full_body": false,
+                  "portrait": 51
+                }
+              ],
+              "shot_start": true,
+              "image": "continuous-s17-06-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 7,
+              "page": 0,
+              "start": 0,
+              "end": 56,
+              "length": 56,
+              "speaker": 14,
+              "companion": 9,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 0,
+              "companion_pose": 1,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-07-page-1.png"
+            },
+            {
+              "scene": "S17",
+              "line": 8,
+              "page": 0,
+              "start": 0,
+              "end": 41,
+              "length": 41,
+              "speaker": 9,
+              "companion": 255,
+              "background": 27,
+              "background_name": "FERRY",
+              "stage": 0,
+              "pose": 1,
+              "companion_pose": 0,
+              "expected_actors": [
+                {
+                  "actor": 9,
+                  "pose": 1,
+                  "full_body": false,
+                  "portrait": 23
+                }
+              ],
+              "shot_start": false,
+              "image": "continuous-s17-08-page-1.png"
+            }
+          ]
+        }
+      ]
+    },
+    "package-gallery-results.json": {
+      "rom_sha256": "83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453",
+      "dimensions": [
+        2048,
+        2964
+      ],
+      "unique_portraits": 76,
+      "draft_portraits": 14,
+      "release_packager_executed": false
+    }
+  },
+  "limits": [
+    "No phone, Delta or physical DS test.",
+    "The complete driving release matrix was not rerun.",
+    "Later-story saves are manufactured review fixtures; Cast Studio uses a fresh profile."
+  ]
+}
