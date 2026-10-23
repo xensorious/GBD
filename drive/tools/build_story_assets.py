@@ -178,8 +178,15 @@ for idx,spec in enumerate(compiled_backgrounds+portraits):
  if idx<nbg:
   # Reframe older close shots with a consistent lens, preserving aspect ratio.
   # The standing-height paintings already include the new foreground floor.
-  centering=(0.25,0.5) if spec['name']=='LIGHTHOUSE' else (0.5,0.5)
-  tile=ImageOps.fit(tile,(background_width,background_height),Image.Resampling.LANCZOS,centering=centering)
+  if spec.get('plate'):
+   # One finished illustration occupies the two-LCD picture area. Prepare it
+   # directly from the source once, with no runtime zoom or character overlays.
+   painting=ImageOps.fit(tile,(256,288),Image.Resampling.LANCZOS)
+   tile=Image.new('RGB',(background_width,background_height),(5,10,16))
+   tile.paste(painting,((background_width-256)//2,(background_height-288)//2))
+  else:
+   centering=(0.25,0.5) if spec['name']=='LIGHTHOUSE' else (0.5,0.5)
+   tile=ImageOps.fit(tile,(background_width,background_height),Image.Resampling.LANCZOS,centering=centering)
  else:
   if spec.get('remove_export_matte'):tile=remove_export_matte(tile)
   tile=isolate_portrait(tile)

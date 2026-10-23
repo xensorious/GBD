@@ -42,7 +42,7 @@ static int read_line(int n,StoryLine*out){
  uint8_t h[8];if(n<0||n>=story.count||!story_read(story.offsets[n],h,sizeof h))return 0;
  memset(out,0,sizeof *out);out->speaker=h[0];out->companion=h[1];out->stage=h[2];out->background=h[3];
  out->focus=(uint16_t)(h[4]|h[5]<<8);out->length=h[6];out->pose_flags=h[7];
- if(out->speaker>=STORY_SPEAKERS||(out->companion>=STORY_PEOPLE&&out->companion!=255)||out->stage>3||out->background>=STORY_BACKGROUNDS||
+ if(out->speaker>=STORY_SPEAKERS||(out->companion>=STORY_PEOPLE&&out->companion!=255)||out->stage>ST_PLATE||out->background>=STORY_BACKGROUNDS||
     (out->focus&STORY_FOCUS_X)>256||(out->focus&~(STORY_FOCUS_MOVE|STORY_FOCUS_SUBJECT|STORY_FOCUS_X|STORY_FOCUS_POSE|STORY_FOCUS_COMPANION_POSE))||
     !out->length||out->length>=STORY_TEXT_MAX||story_pose(out,0)>=STORY_POSES||story_pose(out,1)>=STORY_POSES)return 0;
  return story_read(story.offsets[n]+8,out->text,out->length);

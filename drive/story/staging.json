@@ -1069,6 +1069,57 @@
           "One more chair by the door"
         ]
       }
+    },
+    {
+      "name": "NIA_POOL_EVENING",
+      "sheet": "baked-pages/pool.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "plate": true,
+      "subjects": {
+        "SCENE": [
+          256,
+          "A quiet poolside pause"
+        ]
+      },
+      "location": "Nia's apartment pool"
+    },
+    {
+      "name": "NIA_REPLAY_NIGHT",
+      "sheet": "baked-pages/replay.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "plate": true,
+      "subjects": {
+        "SCENE": [
+          256,
+          "Reviewing the longer loop"
+        ]
+      },
+      "location": "Nia's living room"
+    },
+    {
+      "name": "NIA_SOFA_PLAN",
+      "sheet": "baked-pages/couch.png",
+      "grid": [
+        1,
+        1
+      ],
+      "tile": 0,
+      "plate": true,
+      "subjects": {
+        "SCENE": [
+          256,
+          "The next five heats"
+        ]
+      },
+      "location": "Nia's living room"
     }
   ]
 }

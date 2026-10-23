@@ -1,0 +1,196 @@
+{
+  "version": 1,
+  "purpose": "Three standalone painted cutscene pages with Nia baked into the environment, replacing only D04-D06. No character sprite overlays.",
+  "replaced_events": [
+    "D04",
+    "D05",
+    "D06"
+  ],
+  "backgrounds": [
+    {
+      "name": "NIA_POOL_EVENING",
+      "sheet": "baked-pages/pool.png",
+      "source_sha256": "3dcf54c645ee1a15fb63302551da0667b53fec5f7c0d88417802f1dba5a28efb",
+      "generated_path": "/workspace/generated_images/exec-15443d08-65f5-437a-a764-ea0980d1ab43.png",
+      "copied_without_pixel_changes": true,
+      "native_payload_sha256": "0545232f743673bb49ecaf76e21d8ce72a220563c7c69005ca3327d96e784065",
+      "native_viewport_review": "Reviewed the exact native256x288 RGB555 painting: face, hands, narrative setting and intended crop retained; no overlaid sprite."
+    },
+    {
+      "name": "NIA_REPLAY_NIGHT",
+      "sheet": "baked-pages/replay.png",
+      "source_sha256": "eb7a08a01017c3f36599e04152495b3ae629630c5ba1d2a4d903dee73f57d132",
+      "generated_path": "/workspace/generated_images/exec-84adc950-6151-4787-bd91-fac8a4de4f9a.png",
+      "copied_without_pixel_changes": true,
+      "native_payload_sha256": "1b93ff4d0d9728df67f4346c10b7ec98da192b4b31a8d1d5c67316c78a54069b",
+      "native_viewport_review": "Reviewed the exact native256x288 RGB555 painting: face, hands, narrative setting and intended crop retained; no overlaid sprite."
+    },
+    {
+      "name": "NIA_SOFA_PLAN",
+      "sheet": "baked-pages/couch.png",
+      "source_sha256": "d48a5710e58d6952e59613df17f229c20562cdc7e8d68de6177349ee2b13760d",
+      "generated_path": "/workspace/generated_images/exec-3493530f-a3f2-4071-ba6d-8c00ddf78f9d.png",
+      "copied_without_pixel_changes": true,
+      "native_payload_sha256": "46454dfec75a364df0a570bf530fef7ddbcf82ad946b0964b0765f97266cf7f9",
+      "native_viewport_review": "Reviewed the exact native256x288 RGB555 painting: face, hands, narrative setting and intended crop retained; no overlaid sprite."
+    }
+  ],
+  "events": [
+    {
+      "id": "D04",
+      "background": "NIA_POOL_EVENING",
+      "messages": [
+        {
+          "speaker": "YOU",
+          "text": "I didn't expect a pool to be part of the debrief."
+        },
+        {
+          "speaker": "NIA",
+          "text": "It belongs to the apartment building. Five quiet minutes are the part I'm borrowing."
+        },
+        {
+          "speaker": "YOU",
+          "text": "You've been quiet since we left the garage."
+        },
+        {
+          "speaker": "NIA",
+          "text": "There was an envelope under the till. Lease renewal. Another month to decide whether that door stays open."
+        },
+        {
+          "speaker": "YOU",
+          "text": "I thought Sunline was yours."
+        },
+        {
+          "speaker": "NIA",
+          "text": "The tools are mine. The sign was Dad's. The building belongs to someone with a renewal date."
+        },
+        {
+          "speaker": "YOU",
+          "text": "Do you want to stay?"
+        },
+        {
+          "speaker": "NIA",
+          "text": "I want to answer that without a bill answering first."
+        },
+        {
+          "speaker": "YOU",
+          "text": "Then I'm entering tonight's heat."
+        },
+        {
+          "speaker": "NIA",
+          "text": "Finish it. Bring the car home straight. You don't have to save the whole month before dinner."
+        }
+      ]
+    },
+    {
+      "id": "D05",
+      "background": "NIA_REPLAY_NIGHT",
+      "messages": [
+        {
+          "speaker": "YOU",
+          "text": "I kept thinking last night would look better on a bigger screen."
+        },
+        {
+          "speaker": "NIA",
+          "text": "The club heat was tidy. Then Kade asked you to try the longer loop."
+        },
+        {
+          "speaker": "YOU",
+          "text": "A clean start, a handshake, nothing at stake. That was the agreement."
+        },
+        {
+          "speaker": "NIA",
+          "text": "You got the handshake. His taillights were gone by the second corner."
+        },
+        {
+          "speaker": "YOU",
+          "text": "Jules did warn me about the Foundry jacket."
+        },
+        {
+          "speaker": "NIA",
+          "text": "Watch your car here. Fast approach, late turn. Now you're correcting it all the way out."
+        },
+        {
+          "speaker": "YOU",
+          "text": "So the car wasn't the whole problem."
+        },
+        {
+          "speaker": "NIA",
+          "text": "No. That's good news. We can afford to fix a habit."
+        },
+        {
+          "speaker": "YOU",
+          "text": "One more replay?"
+        },
+        {
+          "speaker": "NIA",
+          "text": "One. Watch the exit this time, not the gap."
+        }
+      ]
+    },
+    {
+      "id": "D06",
+      "background": "NIA_SOFA_PLAN",
+      "messages": [
+        {
+          "speaker": "YOU",
+          "text": "You turned it off."
+        },
+        {
+          "speaker": "NIA",
+          "text": "You've learned everything that replay can teach you tonight."
+        },
+        {
+          "speaker": "YOU",
+          "text": "I want another run at Kade."
+        },
+        {
+          "speaker": "NIA",
+          "text": "Later. Calder has five short heats before Jules starts his courier round."
+        },
+        {
+          "speaker": "YOU",
+          "text": "Five entries. Five chances to make the same mistake."
+        },
+        {
+          "speaker": "NIA",
+          "text": "Five chances to stop making it. One reference mark, one clean exit. Then do it again."
+        },
+        {
+          "speaker": "YOU",
+          "text": "And the money?"
+        },
+        {
+          "speaker": "NIA",
+          "text": "Small entry money and ordinary jobs. Eli's saved us dinner; the diner owner doesn't accept missed meals."
+        },
+        {
+          "speaker": "YOU",
+          "text": "Practice, paid work, then dinner. No rescue mission."
+        },
+        {
+          "speaker": "NIA",
+          "text": "Now you're listening. Tomorrow, leave room on the windscreen. I have some tape."
+        }
+      ]
+    }
+  ],
+  "viewport": [
+    256,
+    288
+  ],
+  "archive_canvas": [
+    512,
+    324
+  ],
+  "archive_viewport_origin": [
+    128,
+    18
+  ],
+  "source_notes": [
+    "Pool reference uses a relaxed upright resting pose after the initial pool pose was rejected by image generation.",
+    "TV replay and dark-screen planning scenes share one apartment and preserve their corresponding reference settings."
+  ],
+  "existing_art_unchanged": true,
+  "reviewed": true
+}

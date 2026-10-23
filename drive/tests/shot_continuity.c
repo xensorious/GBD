@@ -52,7 +52,7 @@ static void open(Game*g,unsigned event){
  game_init(g,0x73686f74u);
  /* Native codec test profile: earned frontier is deliberately a review fixture. */
  g->save.reserved[0]=125;
- story_render_release();CHECK(story_open(g,0,(int)event));
+ story_render_release();CHECK(story_open(g,(int)event/25,(int)event%25));
  CHECK(story.replay&&story.count>3&&sizeof(StoryState)==488);
  CHECK(offsetof(StoryState,page_start)==485);
 }
@@ -77,6 +77,15 @@ static void capture_reply(Game*g,unsigned before_line,int first,int second){
  /* A direct render of the reply must not depend on a previous drawn frame. */
  story_render_release();draw(g);CHECK(same_scene(&reply,&screen));
  loaded_pair(first,second);cold_cases++;
+}
+static void capture_single_reply(Game*g,unsigned before_line,int portrait){
+ seek(g,before_line);CHECK(story.current.speaker==SC_NIA&&story_pose(&story.current,0)==4);
+ draw(g);CHECK(people_id[0]==portrait||people_id[1]==portrait);baseline=screen;
+ unsigned loads=story_visual_stats[2];
+ press(g,K_A);settle(g);CHECK(story.current.speaker==SC_YOU&&story.current.companion==SC_NIA&&story_pose(&story.current,1)==4);
+ draw(g);CHECK(same_scene(&baseline,&screen)&&story_visual_stats[2]==loads);reply=screen;reply_cases++;
+ story_render_release();draw(g);CHECK(same_scene(&reply,&screen));
+ CHECK(people_id[0]==portrait||people_id[1]==portrait);cold_cases++;
 }
 static void pause_replay_abort(Game*g,unsigned event,unsigned before_line,int first,int second){
  Save saved=g->save;
@@ -106,15 +115,16 @@ static void examples(void){
  open(&g,2);
  capture_reply(&g,2,story_quarter_portraits[1][1][SC_NIA],story_quarter_portraits[0][1][SC_VALE]);
 
- context="D05 pages 1 to 2, three-person scene";
- open(&g,4);
- capture_reply(&g,0,story_quarter_portraits[1][1][SC_MINA],story_quarter_portraits[0][1][SC_ELI]);
+ context="C16 pages 2 to 3, three-person scene";
+ open(&g,40);
+ capture_reply(&g,1,story_quarter_portraits[1][1][SC_MINA],story_quarter_portraits[0][1][SC_ELI]);
  /* The scene names three people; the already visible Mina/Eli pair must be
   * retained instead of substituting Nia merely because she is listed first. */
  CHECK(people_id[0]!=story_quarter_portraits[1][1][SC_NIA]&&people_id[1]!=story_quarter_portraits[1][1][SC_NIA]);
 
- context="D05 pages 8 to 9, skeptical pose retained";
- capture_reply(&g,7,story_quarter_portraits[1][4][SC_NIA],story_quarter_portraits[0][1][SC_ELI]);
+ context="D01 pages 3 to 4, skeptical pose retained";
+ open(&g,0);
+ capture_single_reply(&g,2,story_quarter_portraits[1][4][SC_NIA]);
 
  context="D14 pages 2 to 3, reply before a cut";
  open(&g,13);

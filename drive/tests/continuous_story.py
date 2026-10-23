@@ -72,6 +72,8 @@ def quarter_portrait_bounds(rom, manifest):
 def actor_expectations(line, manifest, grounded, floor, bounds,
                        scene_index=None, line_index=None, line_count=None):
     """Describe each visible figure without changing story or emulator state."""
+    if line.stage == 4:
+        return []  # The character is painted into this standalone illustration.
     people = manifest['people']
     pose = ((line.focus >> 9) & 3) | ((line.pose_flags & 15) << 2)
     companion_pose = ((line.focus >> 11) & 3) | ((line.pose_flags >> 4) << 2)
@@ -332,7 +334,7 @@ def main():
             DriveThrough(emulator, find_symbol(ROOT / 'build/arm9.elf', 'game'), args.output)
             emulator.run(30)
         args.template = fresh / 'Coastline.dsv'
-    cases = ['D01', 'D03', 'D04', 'D05', 'D24', 'S17']
+    cases = ['D01', 'D03', 'D04', 'D05', 'D06', 'D24', 'S17']
     results = []
     for case in cases:
         profile = Game()

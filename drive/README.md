@@ -3,7 +3,7 @@
 A native Nintendo DS driving game for Delta, with six complete interfaces,
 48 vehicles, five performance classes and permanent vehicle mastery and driver progression.
 **Drive** now opens three illustrated cards: **Endless Drive**, **Free Roam** and **Career**.
-Career now plays **125 story scenes with 923 dialogue messages on 929 pages**, original
+Career now plays **125 story scenes**, with original
 backgrounds and characters, varied cinematic staging, and saved level unlocks.
 Racing in Career is still a future step; see [CAREER-DRAFT.md](CAREER-DRAFT.md).
 Endless Drive keeps the chase-camera procedural highway. Free Roam introduces
@@ -54,17 +54,22 @@ the same cars, upgrades, finishes and economy.
 
 Scenes share a continuous 256x288 illustration: the top screen's 192 rows and
 the upper 96 rows of the bottom screen. The lower 96 rows hold the speaker and
-three dialogue rows. Six longer messages use a second page, keeping the same
+three dialogue rows. Longer messages use another page, keeping the same
 speaker, cast and shot until the final page advances.
 
 Scenes mix painted first-person conversations, transparent character sprites,
-directed object inserts, radio exchanges and letterboxed montages. Fifty-four
-paintings and 393 authored shot cues put the camera on the relevant people,
+directed object inserts, radio exchanges and letterboxed montages. Fifty-seven
+paintings and authored shot cues put the camera on the relevant people,
 paperwork, notebook, corner markers and other subjects. Pans settle on their
 target instead of looping sideways. Soft cuts and typewriter text suit the retro presentation. The
 ROM streams its artwork internally; it needs no external asset files.
+Three illustrated pages replace D04–D06: Nia beside the coastal pool at evening,
+reviewing car footage on a living-room television at night, and planning from
+the sofa. Nia is painted into each scene. These pages show the native 256x288
+central crop of a 512x324 painting across both LCDs, with no actor, badge, title,
+caption or letterbox overlay. The lower 96 rows retain the dialogue.
 The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
-motel, washrooms, gallery and other places away from the grid. Nineteen new
+motel, washrooms, gallery and other places away from the grid. Several
 locations appear in only one event. The cast archive has 218 portrait records:
 the preceding 76 portraits plus 142 authored left/right three-quarter full-body
 views for all 71 available poses across the 28-person roster. Thirteen existing
@@ -84,7 +89,8 @@ player replies. Each person has a fixed full-body size across poses and facings;
 Nia remains the native-size reference and Mrs. Vale is shorter with a comparable
 head size. Pair framing uses the actual silhouettes at their individual heights,
 so a wide gesture does not unnecessarily shrink both people. Close scenes retain
-their upper-body framing. The dialogue, names and cast relationships are preserved. Original
+their upper-body framing. The other 122 encoded scenes, names and cast relationships
+are preserved. Original
 source atlases remain as provenance; active costumes come from the new per-person
 artwork in `art/story/restyle/catalog.json` and `art/story/quarter/catalog.json`.
 One background cache, two actor slots and their palettes use 302,592 bytes of
@@ -115,15 +121,12 @@ left/right facing, Y compares the original portrait, and B returns to the Office
 It uses the same continuous illustration area and lower-half browser,
 with no touch controls or additional large graphics cache.
 
-The directional build passes 38,934 native campaign checks, 4,873 dialogue
-pixel checks, 4,390,873 Cast Studio checks and 247,173,511 standing-staging
-checks. The staging suite covers 2,145 real-art configurations on all eight
-floors. DeSmuME visits 213 gallery views, returns to both driving modes and
-verifies passive touch input. The six-scene story sample passes 60 messages
-across 61 pages, including a real page flip and pause/resume.
-All 54 background and 76 legacy portrait payloads remain byte-identical to the
-published cast build; 142 new source alpha oracles and reviewed native payload
-hashes pass. [Review images and exact-ROM evidence](previews/consistent-proportions/README.md)
+Focused validation covers the complete campaign, native dialogue pixels,
+Cast Studio, individual standing proportions and the three illustrated pages.
+The page renderer is checked against the native painting crop, including the
+LCD seam, dialogue boundary, static camera and pause/replay behavior. Asset checks
+preserve all 218 portrait payloads and the preceding 54 background payloads,
+and allow scene changes only in D04–D06. [Review images and exact-ROM evidence](previews/illustrated-story-pages/README.md)
 record the focused results. The full driving release matrix was not rerun, and
 physical Delta/DS testing is not claimed.
 

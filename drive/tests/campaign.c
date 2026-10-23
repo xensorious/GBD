@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 extern volatile uint32_t story_visual_stats[5];
-static unsigned checks,lines_seen,pages_seen,expected_pages,stages[4],extended_roles[2];
+static unsigned checks,lines_seen,pages_seen,expected_pages,stages[ST_PLATE+1],extended_roles[2],companion_fixture_passed;
 #define CHECK(x) do{checks++;if(!(x)){fprintf(stderr,"story:%d: %s\n",__LINE__,#x);exit(1);}}while(0)
 static void press(Game*g,unsigned key){Input in={key,key};game_update(g,&in);}
 static void tick(Game*g){Input in={0,0};game_update(g,&in);}
@@ -82,7 +82,7 @@ static void finish(Game*g,int render){
   if(story.phase==ST_READING){
    if(story.line!=observed){
     if(observed!=~0u)CHECK(story.previous.pose_flags==previous_flags);
-    observed=story.line;lines_seen++;stages[story.current.stage]++;
+    observed=story.line;lines_seen++;CHECK(story.current.stage<=ST_PLATE);stages[story.current.stage]++;
     previous_flags=story.current.pose_flags;
     CHECK(story.current.speaker<STORY_SPEAKERS&&story.current.background<STORY_BACKGROUNDS&&story.current.length>0&&story.current.length<STORY_TEXT_MAX);
     CHECK(story_pose(&story.current,0)<STORY_POSES&&story_pose(&story.current,1)<STORY_POSES);
@@ -181,6 +181,18 @@ static void directed_camera(void){
  for(int t=0;t<20;t++){tick(&g);draw(&g);CHECK(story_visual_stats[3]==x);}
  press(&g,K_DOWN);press(&g,K_DOWN);press(&g,K_A);CHECK(g.mode==M_STORY&&!story_completed(&g));draw(&g);
 }
+static void companion_pose_fixture(void){
+ /* The new illustrated D05 no longer authors a fifth-expression companion.
+  * Keep codec/drawing coverage as an explicit fixture, without forcing a new
+  * expression into unrelated dialogue merely to satisfy the regression. */
+ Game g;game_init(&g,28);CHECK(story_open(&g,0,0));
+ memset(&story.current,0,sizeof story.current);
+ story.current.speaker=SC_JULES;story.current.companion=SC_NIA;story.current.stage=ST_FACE;
+ story.current.background=1;story.current.focus=128;story.current.pose_flags=0x10;
+ strcpy(story.current.text,"Companion pose fixture.");story.current.length=(uint8_t)strlen(story.current.text);
+ story.previous=story.current;story.page_start=story.page_index=0;story.page_end=story.current.length;
+ CHECK(story_pose(&story.current,1)==4);extended_pose(&g,1);companion_fixture_passed=1;
+}
 int main(void){
  screen.before=screen.middle=screen.after=0xabc12345u;
  CHECK(STORY_PORTRAIT_WIDTH==256&&STORY_PORTRAIT_HEIGHT==264);
@@ -198,6 +210,7 @@ int main(void){
  compatibility();
  pagination_rules();
  directed_camera();
+ companion_pose_fixture();
  Game g;game_init(&g,123);CHECK(!story_open(&g,0,1));CHECK(story_completed(&g)==0&&g.mode==M_HOME);
  CHECK(story_open(&g,0,0));draw(&g);
  for(int t=0;t<70;t++){Input held={K_A,0};game_update(&g,&held);}CHECK(!story.line&&!story_completed(&g));
@@ -215,7 +228,7 @@ int main(void){
   CHECK(campaign.chapter==(index+1<125?(index+1)/25:4));CHECK(campaign.event==(index+1<125?(index+1)%25:24));
   CHECK(career_journal_open(&g,index/25,0));
  }
- CHECK(lines_seen==STORY_LINES&&pages_seen==expected_pages&&pages_seen>=lines_seen&&extended_roles[0]&&extended_roles[1]);unsigned campaign_pages=pages_seen;for(int method=0;method<4;method++)CHECK(stages[method]>0);
+ CHECK(lines_seen==STORY_LINES&&pages_seen==expected_pages&&pages_seen>=lines_seen&&extended_roles[0]&&companion_fixture_passed);unsigned campaign_pages=pages_seen;for(int method=0;method<=ST_PLATE;method++)CHECK(stages[method]>0);
  for(int ch=0;ch<5;ch++)for(int ev=0;ev<25;ev++)CHECK(story_status(&g,ch,ev)==2);
  Save completed=g.save;CHECK(story_open(&g,0,5)&&story.replay);finish(&g,1);CHECK(!memcmp(&completed,&g.save,sizeof completed));press(&g,K_B);CHECK(campaign.chapter==0&&campaign.event==5);
  for(int skin=SKIN_FUSION;skin<SKIN_STORAGE_LIMIT;skin++){
@@ -224,6 +237,6 @@ int main(void){
   CHECK(story_open(&g,4,24));for(int t=0;t<18;t++)tick(&g);press(&g,K_A);draw(&g);press(&g,K_B);draw(&g);press(&g,K_DOWN);press(&g,K_DOWN);press(&g,K_A);draw(&g);
  }
  CHECK(!story_visual_stats[0]);g.mode=M_GARAGE;g.cursor=0;draw(&g);g.mode=M_DRIVE;g.cursor=0;press(&g,K_A);draw(&g);CHECK(g.mode==M_RUN);
- printf("story: %u checks; all 125 scenes / %u lines / %u dialogue pages, exact font wrapping and text coverage, page reveal/advance rules, four staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks,(unsigned)STORY_LINES,campaign_pages);
+ printf("story: %u checks; all 125 scenes / %u lines / %u dialogue pages, exact font wrapping and text coverage, page reveal/advance rules, five staging methods, fifth poses for lead/companion/previous-line cuts, replay/abort/held-input rules, saved frontier0..125, v6-to-v7 rich-profile migration, three independent profiles and scratch restoration pass\n",checks,(unsigned)STORY_LINES,campaign_pages);
  return 0;
 }

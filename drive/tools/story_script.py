@@ -2,7 +2,8 @@
 
 Every shot names an actual feature of its painting. Cast is physical presence,
 not a list of everybody who happens to speak later in the episode. A dash means
-an insert without actors. Radio callers are never placed in the scenery.
+an insert without overlaid actors. PLATE scenes already contain their painted
+characters and always use a dash. Radio callers are never placed in the scenery.
 """
 from pathlib import Path
 import json
@@ -11,7 +12,7 @@ CATALOG = json.loads((Path(__file__).resolve().parents[1]/'story/cast.json').rea
 PEOPLE = [p[0] for p in CATALOG['people']]
 CAST = PEOPLE + ['YOU','NARRATOR']
 POSES = CATALOG['poses']
-STAGES = ['FACE','PAN','RADIO','MONTAGE']
+STAGES = ['FACE','PAN','RADIO','MONTAGE','PLATE']
 
 def character(token):
     name, _, pose = token.partition('.')

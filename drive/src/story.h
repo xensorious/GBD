@@ -19,7 +19,7 @@
 #define STORY_FOCUS_POSE (3u<<9)
 #define STORY_FOCUS_COMPANION_POSE (3u<<11)
 enum StoryPhase {ST_FADEIN,ST_READING,ST_SHOT,ST_ENDING,ST_CLEAR};
-enum StoryStage {ST_FACE,ST_PAN,ST_RADIO,ST_MONTAGE};
+enum StoryStage {ST_FACE,ST_PAN,ST_RADIO,ST_MONTAGE,ST_PLATE};
 enum StoryCast {SC_NIA,SC_JULES,SC_CALDER,SC_IMANI,SC_MARISOL,SC_KADE,SC_ROOK,SC_REN,SC_ASTER,SC_SABLE,SC_VOSS,SC_MINA,SC_ELI,SC_VALE,SC_YOU,SC_NARRATOR,SC_NONE=255};
 /* Byte seven used to be the always-zero high byte of the text length.
  * Its two nibbles extend the lead/companion pose indices without growing a line. */

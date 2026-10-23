@@ -3,6 +3,7 @@
 # > changes a shot before the next message. Named subjects live in staging.json.
 # Physical cast is local to a shot; radio voices never appear in the scenery.
 # Inserts use a named object. MOVE eases to it once; HOLD stays on it.
+# PLATE uses a finished painting with its characters baked in; no sprite cast.
 # Narration is fiction, not evidence of racing gameplay.
 
 @ D01 BENCH PAN JACK - MOVE
@@ -44,52 +45,41 @@ YOU: You're Calder?
 CALDER.CASUAL: Depends who's asking. If you scratch that loaner, I'm the one Nia phones.
 
 
-@ D04 NIA_KITCHEN FACE TABLE NIA.CASUAL HOLD
-YOU: Two streets from the garage, and you're still repairing a toaster over dinner.
-NIA.CASUAL: It was making a noise I understood. The envelope wasn't.
-YOU: The one under the till?
-> PAPERS PAN LEASE - MOVE
-NIA.CASUAL: Lease renewal. Another month to decide whether that door is worth keeping open.
-YOU: I thought the garage was yours.
-> NIA_KITCHEN FACE TABLE NIA.QUIET HOLD
-NIA.QUIET: The tools are. The sign was Dad's. The building belongs to somebody who doesn't eat dinner with a screwdriver.
+@ D04 NIA_POOL_EVENING PLATE SCENE - HOLD
+YOU: I didn't expect a pool to be part of the debrief.
+NIA.CASUAL: It belongs to the apartment building. Five quiet minutes are the part I'm borrowing.
+YOU: You've been quiet since we left the garage.
+NIA.CASUAL: There was an envelope under the till. Lease renewal. Another month to decide whether that door stays open.
+YOU: I thought Sunline was yours.
+NIA.CASUAL: The tools are mine. The sign was Dad's. The building belongs to someone with a renewal date.
 YOU: Do you want to stay?
-NIA.QUIET: I want to answer that without a bill answering for me.
-> NIA_KITCHEN PAN ORANGES - MOVE
-YOU: Then put me down for tonight's heat. And give me the toaster before the oranges taste of solder.
-NIA.CASUAL: No heroics. Finish, come home, eat something. It's a better plan than we've had all week.
+NIA.CASUAL: I want to answer that without a bill answering first.
+YOU: Then I'm entering tonight's heat.
+NIA.CASUAL: Finish it. Bring the car home straight. You don't have to save the whole month before dinner.
 
-
-@ D05 DINER FACE BOOTH ELI.CASUAL,MINA.CASUAL,NIA.CASUAL HOLD
-ELI.CASUAL: Kitchen's closed. Yours is under the warmer.
-YOU: I didn't order anything.
-NIA.CASUAL: I did. You missed dinner while helping Calder with the barriers.
-MINA.CASUAL: He keeps doing that. Someone should photograph it before he learns to charge.
-> DINER PAN COUNTER - MOVE
-YOU: Is this going on a tab?
-ELI.CASUAL: Already paid. Nia doesn't get to decide you're part of a crew and then forget you need feeding.
-NIA.CASUAL: I'm sitting right here.
-> DINER FACE BOOTH NIA.ANNOYED,ELI.CASUAL HOLD
-ELI.CASUAL: Good. Your soup's getting cold too.
-YOU: Is every person in Saltblock allowed to tell you what to do?
-NIA.CASUAL: Only the ones who remember me shorter than the counter. That leaves you several years to practice.
-
-
-@ D06 MEET FACE GRID KADE,JULES HOLD
-KADE: You kept a tidy line in that last heat. Want to try the longer loop before they take the barriers down?
-JULES: That jacket's from the Foundry clubs. Careful. They consider braking a personal insult.
-YOU: One exhibition. Nothing on the line.
-KADE: Fine by me. A clean start and a handshake at the end.
-> CORNER MONTAGE EXIT - MOVE
-NARRATOR: EXHIBITION. By the second corner, Kade's taillights are two bends ahead.
-> CORNER FACE EXIT KADE,JULES HOLD
-YOU: I couldn't even stay close enough to see what he was doing.
-> NOTES PAN FILM - MOVE
-NIA: I reviewed it over breakfast. You arrived fast, turned late, and spent the whole exit correcting it.
+@ D05 NIA_REPLAY_NIGHT PLATE SCENE - HOLD
+YOU: I kept thinking last night would look better on a bigger screen.
+NIA.CASUAL: The club heat was tidy. Then Kade asked you to try the longer loop.
+YOU: A clean start, a handshake, nothing at stake. That was the agreement.
+NIA.CASUAL: You got the handshake. His taillights were gone by the second corner.
+YOU: Jules did warn me about the Foundry jacket.
+NIA.CASUAL: Watch your car here. Fast approach, late turn. Now you're correcting it all the way out.
 YOU: So the car wasn't the whole problem.
-> GARAGE FACE CAR NIA,JULES HOLD
-NIA: No. Which is good news. We can afford to fix a habit.
-JULES: Calder has five short heats before my courier run. We can use all five.
+NIA.CASUAL: No. That's good news. We can afford to fix a habit.
+YOU: One more replay?
+NIA.CASUAL: One. Watch the exit this time, not the gap.
+
+@ D06 NIA_SOFA_PLAN PLATE SCENE - HOLD
+YOU: You turned it off.
+NIA.CASUAL: You've learned everything that replay can teach you tonight.
+YOU: I want another run at Kade.
+NIA.CASUAL: Later. Calder has five short heats before Jules starts his courier round.
+YOU: Five entries. Five chances to make the same mistake.
+NIA.CASUAL: Five chances to stop making it. One reference mark, one clean exit. Then do it again.
+YOU: And the money?
+NIA.CASUAL: Small entry money and ordinary jobs. Eli's saved us dinner; the diner owner doesn't accept missed meals.
+YOU: Practice, paid work, then dinner. No rescue mission.
+NIA.CASUAL: Now you're listening. Tomorrow, leave room on the windscreen. I have some tape.
 
 @ D07 NOTES PAN FILM - MOVE
 YOU: You put tape on the windscreen.

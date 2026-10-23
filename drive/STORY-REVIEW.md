@@ -1,15 +1,14 @@
 # Rising Tide: life between races
 
 The campaign still has 125 event nodes and the same saved completion record.
-This edition contains 923 messages on 929 dialogue pages, 54 panoramic
-backgrounds and fourteen named story characters. The 218 transparent portrait
+This edition contains 57 panoramic backgrounds and fourteen named story
+characters. The 218 transparent portrait
 records retain the preceding 76 illustrations and add 142 authored left/right
 three-quarter full-body views for 71 available poses. The new studies are unassigned
 concepts in Cast Studio, bringing its review roster to 28 without changing story
-speaker IDs or introducing new dialogue. Sixty-one scenes have expanded
-writing, and the ending has an additional extension. Sixty-two events visit the new
-settings; all 36 new locations appear in the script.
-Nineteen of the new backgrounds are used in only one event.
+speaker IDs. D04–D06 now use three painted pages with Nia included in the artwork
+and dialogue written for those settings. The other 122 encoded scenes remain
+byte-identical, as do all existing portrait and background payloads.
 
 Career remains a cutscene prototype. Finishing a scene saves its completion and
 opens the next node. Narrated results are fiction, not a racing simulation or
@@ -22,8 +21,10 @@ completed nodes can be replayed to see the expanded scenes.
 | Place and events | What changes there |
 | --- | --- |
 | Mrs. Vale's greenhouse / D.03, D.20, B.24 | A neighbor who pays in oranges becomes an actual person. Repairs, ordinary favors and the clubs' guarantee acquire a community behind them. |
-| Nia's kitchen / D.04, D.09, C.09, C.24 | Two streets from Sunline, she can admit that her father's sign, her own wishes and the rent are different questions. It is not a bedroom secretly added above the garage. |
-| Eli's diner / D.05, D.21, C.16, B.13, S.15 | A recurring place to eat, mark a paid bill, welcome a rival and return between rounds. Eli has his own business; he isn't a free money source. |
+| Coastal pool / D.04 | An evening conversation uses a complete painting of Nia beside the water. |
+| Nia's living room / D.05, D.06 | Car footage on the television leads into a conversation and plan from the sofa. Nia belongs to each painted composition. |
+| Nia's kitchen / D.09, C.09, C.24 | Two streets from Sunline, she can admit that her father's sign, her own wishes and the rent are different questions. It is not a bedroom secretly added above the garage. |
+| Eli's diner / D.21, C.16, B.13, S.15 | A recurring place to eat, mark a paid bill, welcome a rival and return between rounds. Eli has his own business; he isn't a free money source. |
 | Mina's bedroom / D.10 | Her results are still on a takeaway menu. The photographs matter beyond their usefulness to the racing crew, and she asks before publishing friends' pictures. |
 | Jules's flat / D.17, B.08 | The invoices behind his jokes establish why a real payment date matters in the later contract debate. The second visit pays off a repaired delivery bike and a bill paid. |
 | Sunline's roof / D.14, S.23 | The first borrowed chairs become a later conversation about meaningful stakes, wages, personal work and who gets to decide what Sunline is. |
@@ -46,8 +47,8 @@ completed nodes can be replayed to see the expanded scenes.
 
 ## Continuity retained
 
-Kade's D.06 and B.02 exhibitions remain scripted story defeats that lead into
-specific practice blocks. They do not remove cash or parts. Jules, Imani, Kade,
+Kade's early exhibitions lead into specific practice blocks. These scripted
+story results do not remove cash or parts. Jules, Imani, Kade,
 Ren and Sable remain the event-12 rivals; Calder, Marisol, Rook, Aster and Voss
 remain the chapter finals. The intended routes are closed street circuits for
 D–B and permanent road courses for A–S.
@@ -75,16 +76,24 @@ from the garage, and the roof is reached by an exterior ladder.
 
 One logical 256x288 scene spans the top screen's 192 rows and the bottom
 screen's upper 96 rows. The lower 96 rows contain the speaker and three
-dialogue rows. Six messages split into two pages without changing their text;
+dialogue rows. Longer messages split into pages without changing their text;
 the speaker, cast, expressions and shot stay in place until the final page.
 Pressing A reveals the current page, then advances its page or message. Pause and
 resume retain the current page.
 
-The script has 393 authored shot cues. Each names a real visual subject and the
+Authored shot cues name a real visual subject and the
 people physically present. A radio caller is not placed in the room. Camera
 moves ease toward the named object and hold; there is no idle side-to-side loop
 or speaker-number offset. Face conversations, directed inserts, radio and
 letterboxed narrative shots remain mixed throughout the story.
+
+D04, D05 and D06 use the new `PLATE` staging method (`ST_PLATE = 4`), with
+NIA_POOL_EVENING, NIA_REPLAY_NIGHT and NIA_SOFA_PLAN respectively. Their artwork
+and source approvals are recorded in `art/story/baked-pages/catalog.json`.
+Each 512x324 painting contains Nia and supplies its native 256x288 viewport at
+x=128, y=18. The top LCD shows the first 192 rows and the lower LCD shows the
+next 96 rows above the dialogue. The camera holds this composition without
+actor sprites, portrait badges, titles, captions or letterbox bars.
 
 Thirteen existing characters now have individually styled default, casual,
 work/race-day and reflective variants, including new variants for Eli and Vale.
@@ -136,50 +145,35 @@ in the workshop and the keepsake at the lighthouse now depict the same
 dark-haired father and fully clothed younger Nia. The D25 workshop insert pans
 to the sign and family photo. Calder remains her father's friend; no other
 named cast member is a parent, sibling or romantic partner. The replacement
-changes no dialogue or heritage references; none specify her appearance.
+changes no heritage references; none specify her appearance.
 
 ## Verification
 
-The final directional build passes 38,934 native campaign checks through all 125
-scenes, 923 messages and 929 pages, plus 4,873 dialogue pixel checks. The Cast
-Studio suite passes 4,390,873 checks across 28 people, 71 pose choices and 213
-direction/comparison views, covering input, guarded drawing, unchanged saves
-and cache release. Standing staging passes 247,173,511 ASan/UBSan checks across
-2,145 real-art pair configurations and all eight floor backgrounds. Of those
-configurations, 783 retain their individual reference sizes and 1,362 use a shared camera
-reduction. All opaque pixels remain visible, without overlap. Another 2,054
-comparisons verify fixed framing across pose changes for all 91 character pairs.
+The campaign suite traverses all 125 scenes and checks pagination, pause,
+replay, abort, progress and saves. Dialogue-pixel and Cast Studio suites cover
+the shared graphics cache, guarded drawing and browser controls. Standing and
+player-reply regressions retain individual character heights, stable facing,
+held poses and framing across speaker changes in the existing scenes.
 
-The exact-ROM DeSmuME tour captures all 213 gallery views: 142 authored
-directions and 71 original comparisons. It ignores touch, preserves save/story
-state, returns to both driving modes and reports zero archive errors. D01, D03, D04,
-D05, D24 and S17 pass across 60 messages and 61 pages, including one real page
-flip and pause/resume. Later-scene batteries are labelled review fixtures
-rather than earned progression. Indexed asset sheets and actual emulator
-captures are identified separately.
+`python3 drive/tests/plate_render.py`, run from the repository's parent, checks
+the new native painting crop, LCD seam and dialogue boundary. It exercises the
+three painted scenes through rendering, pause/replay, cache restoration and progression,
+without adding portrait or shot overlays.
 
-The player-reply regression passes 1,930 sanitized checks, including the reported
-D01 page 7 and D03 page 4, multi-person shots, held skeptical poses, cold caches,
-pause/replay/abort and the previous half of a scene fade. The preceding renderer
-fails the exact D01 visual comparison. All 95 paired player replies receive
-explicit visual cues without changing the 923 encoded dialogue records.
+The asset validators pin all 218 existing portrait payloads and 54 preceding
+background payloads. Only the three approved backgrounds are appended, for
+57 backgrounds in total. The scene allowance permits rewritten encoded data
+for D04–D06 only and requires their new `PLATE` artwork; the other 122 scenes
+must remain byte-identical. Existing Nia approvals, portrait alpha oracles,
+direction matrices and gallery bindings remain covered. Source/crop and native
+palette/pixel hashes retain the reviewed art and individual proportions.
 
-The directional asset validator pins all 54 backgrounds and all 76 preceding
-portrait payloads to the published cast-overhaul ROM, byte for byte. It checks
-142 independent source alpha masks, both directional matrices, the unchanged
-923 encoded message/shot records and all legacy gallery bindings. Direction and
-complete figures are reviewed in 28 source/retained/discarded/ROM contact pages.
-Every reviewed source, crop and native palette/pixel payload has a pinned hash;
-79 crops with larger discarded components have explicit review notes.
-The character replacement check also retains Nia's earlier source/crop
-approvals and all 66 wardrobe/concept alpha oracles.
-Authored portrait references and gallery availability are checked separately;
-this does not claim every archive record is visibly shown by the unchanged story.
-
-The [focused preview](previews/consistent-proportions/README.md) records the exact ROM
+The [focused preview](previews/illustrated-story-pages/README.md) records the exact ROM
 and underlying reports. The earlier broader cartridge tour earned the first six
 events with controller input, verified autosaves and three independent profiles,
 replayed and aborted, then returned to both driving modes. That full release
-matrix was not rerun for this cast build. Physical Delta or DS testing is not claimed.
+matrix was not rerun for this update. Later-scene batteries are labelled review
+fixtures rather than earned progression, and indexed sheets are distinct from
+actual emulator captures. Physical Delta or DS testing is not claimed.
 Free Roam performance was measured separately; its optimization results are in
 PERFORMANCE.json.

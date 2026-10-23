@@ -254,13 +254,14 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  if(okay&&line->stage==ST_FACE){
   lead=person(face_id,paired||quarter_pair?other_id:-1);
   if((paired||quarter_pair)&&other<STORY_PEOPLE&&other!=face)companion=person(other_id,face_id);
- }else if(okay&&speaking)lead=person(face_id,-1);
+ }else if(okay&&speaking&&line->stage!=ST_PLATE)lead=person(face_id,-1);
  if(okay){
-  int target=(int)(line->focus&STORY_FOCUS_X)*256;
+  int target=(line->stage==ST_PLATE?(STORY_BACKGROUND_WIDTH-256)/2:(int)(line->focus&STORY_FOCUS_X))*256;
   if(last_background!=line->background){camera_q8=target;last_background=line->background;camera_line=-1;}
   int camera_shot=(int)story.line*2+(line==&story.previous);
   if(camera_line!=camera_shot){if(!(line->focus&STORY_FOCUS_MOVE))camera_q8=target;camera_line=camera_shot;}
-  if(!story.pause){int difference=target-camera_q8;camera_q8+=difference/10;if(difference<10&&difference>-10)camera_q8=target;}
+  if(line->stage==ST_PLATE)camera_q8=target;
+  else if(!story.pause){int difference=target-camera_q8;camera_q8+=difference/10;if(difference<10&&difference>-10)camera_q8=target;}
   int view_width=line->stage==ST_MONTAGE?276:256;
   int view_height=view_width*STORY_SCENE_HEIGHT/256;
   int cx=limit(camera_q8/256,0,STORY_BACKGROUND_WIDTH-view_width),cy=(STORY_BACKGROUND_HEIGHT-view_height)/2;
@@ -293,7 +294,7 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   }
   /* Insert/radio speakers remain framed portraits, not people standing at a
    * distant location. Their badge uses the illustration area, not text width. */
-  if(line->stage!=ST_FACE&&speaking&&lead>=0){
+  if(line->stage!=ST_FACE&&line->stage!=ST_PLATE&&speaking&&lead>=0){
    Surface lower={bottom,256,STORY_DIALOG_Y};
    gfx_card(&lower,202,31,49,54,C(10,26,37),C(71,112,119));
    scene_actor(&image,&dialog,lead,204,225,45,47,256,brightness);
@@ -303,12 +304,14 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   gfx_rect(&image,0,0,256,192,C(8,18,31));gfx_rect(&dialog,0,0,256,STORY_DIALOG_Y,C(8,18,31));
   text_center(&image,84,"Scene artwork unavailable",C(240,182,117));
  }
- char title[70];snprintf(title,sizeof title,"%s.%02d  /  %s",game_class_name(story.chapter),story.event+1,career_event_name(story.chapter,story.event));
- overlay(&image,5,quarter_pair?3:5,246,quarter_pair?12:16,C(3,10,20),150);gfx_text_small(&image,11,quarter_pair?5:9,title,C(231,238,225));
+ if(line->stage!=ST_PLATE){
+  char title[70];snprintf(title,sizeof title,"%s.%02d  /  %s",game_class_name(story.chapter),story.event+1,career_event_name(story.chapter,story.event));
+  overlay(&image,5,quarter_pair?3:5,246,quarter_pair?12:16,C(3,10,20),150);gfx_text_small(&image,11,quarter_pair?5:9,title,C(231,238,225));
+ }
  if(line->stage==ST_MONTAGE)scene_text(&image,&dialog,82,277,"STORY MONTAGE",C(232,210,161));
  if(line->stage==ST_RADIO)scene_text(&image,&dialog,11,277,"SUNLINE / CREW RADIO",C(154,214,209));
  const char*subject=subject_name(line->background,(line->focus&STORY_FOCUS_SUBJECT)!=0);
- if(subject&&line->stage!=ST_FACE){
+ if(subject&&line->stage!=ST_FACE&&line->stage!=ST_PLATE){
   int y=(line->stage==ST_MONTAGE||line->stage==ST_RADIO)?258:275;
   scene_overlay(&image,&dialog,5,y-3,limit(gfx_text_width(subject)+10,0,246),13,C(3,10,20),150);
   scene_text(&image,&dialog,10,y,subject,C(220,220,195));

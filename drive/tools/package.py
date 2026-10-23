@@ -36,14 +36,25 @@ assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 a
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
 quarter_count=manifest.get('quarter_portraits',0)
 assert quarter_count in (0,142)
-assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==76+quarter_count
+baked_events=story_assets.get('baked_page_events',[])
+assert baked_events in ([],['D04','D05','D06'])
+assert story_assets['backgrounds']==manifest['backgrounds']==54+len(baked_events) and story_assets['portraits']==manifest['portraits']==76+quarter_count
+plate_render=None
+if baked_events:
+    plate_render=report('plate-render-results.json')
+    assert plate_render['sanitizers_passed'] and plate_render['levels']==baked_events and plate_render['baked_backgrounds']==3
+    assert plate_render['separate_actor_loads']==0 and plate_render['portrait_overlays'] is False
+    assert plate_render['native_scene_pixels']==256*288 and plate_render['title_caption_and_bars_absent']
+    assert all(plate_render[key] for key in ('static_camera','pause_resume','cold_cache_pixels','legacy_scene_cache_restoration','normal_progression','save_format_unchanged'))
 if quarter_count:
     quarter_assets=report('quarter-assets-results.json');quarter_staging=report('quarter-staging-results.json')
     assert quarter_assets['legacy_background_payloads_preserved']==54 and quarter_assets['legacy_portrait_payloads_preserved']==76
     assert quarter_assets['independent_source_alpha_oracles_passed']==quarter_count and quarter_assets['quarter_maps_valid']
     assert quarter_assets['source_and_native_visual_reviews']==quarter_count and quarter_assets['alpha_extraction_uses_source_alpha_only']
-    assert quarter_assets['encoded_story_events_preserved']==125 and quarter_assets['encoded_story_lines_preserved']==923
-    assert quarter_assets['archive_portraits']==218 and quarter_assets['archive_assets']==272 and quarter_assets['maximum_portrait_id']==217
+    assert quarter_assets['encoded_story_events_preserved']==125-len(baked_events)
+    assert quarter_assets['approved_replaced_events']==baked_events and quarter_assets['current_story_lines']==manifest['dialogue_lines']
+    assert quarter_assets['encoded_story_lines_preserved']==(893 if baked_events else 923)
+    assert quarter_assets['archive_portraits']==218 and quarter_assets['archive_assets']==272+len(baked_events) and quarter_assets['maximum_portrait_id']==217
     assert quarter_assets['original_gallery_bindings_preserved'] and quarter_assets['story_speaker_ids_preserved']
     assert quarter_staging['sanitizers_passed'] and quarter_staging['complete_directional_assets']
     assert quarter_staging['scope']=='real_directional_art' and quarter_staging['authored_directional_gallery_views']==142
@@ -214,7 +225,7 @@ shutil.copyfile(validation/'shadow-qa-results.json',DIST/'SHADOW-AUDIT.json')
     'afternoon_sunlight':sunlight,'sunlight_comparison':sunlight_comparison,
     'shadow_qa':shadow_qa,'career_preview':campaign,'career_native':campaign_native,'story_assets':story_assets,'story_autosave':story_autosave,
     'quarter_assets':quarter_assets if quarter_count else None,'quarter_staging':quarter_staging if quarter_count else None,
-    'shot_continuity':shot_continuity if quarter_count else None,
+    'shot_continuity':shot_continuity if quarter_count else None,'illustrated_pages':plate_render,
     'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
     'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the playable Career story scenes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 shutil.copyfile(ROOT/'CAREER-DRAFT.md',DIST/'CAREER-DRAFT.md')

@@ -69,6 +69,7 @@ const char*career_story(int chapter,int beat){return career_beats[chapter%5][bea
 const char*career_event_name(int chapter,int event){return career_names[chapter%5][event%25];}
 int career_event_kind(int event){return event==24?2:event==11?1:0;}
 const char*career_event_format(int chapter,int event){
+ if(chapter==0&&event>=3&&event<=5)return "ILLUSTRATED STORY / INTERLUDE";
  if(event==24)return "CHAPTER BOSS / CIRCUIT FINAL";
  if(event==11)return "MINI BOSS / RIVAL CIRCUIT";
  static const char*const street[5]={"CLUB CIRCUIT","CIRCUIT TIME TRIAL","CLEAN-RACE CHALLENGE","PRACTICE / CASH RUN","CLUB ENDURANCE"};

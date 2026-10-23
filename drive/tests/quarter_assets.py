@@ -19,6 +19,7 @@ from PIL import Image, ImageDraw, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from story_script import CATALOG, PEOPLE, POSES, load_story
+from baked_catalog import approved_baked_pages, check_baked_payloads, LEGACY_BACKGROUNDS
 
 BASELINE_REF = '3cb4900f97717e70cafa33ea4c54834560348d12'
 BASELINE_ROM_SHA = '83b7badf01773cb67ce61bcd0703bbe6745ff49238be0d4b851d0b9bb1a69453'
@@ -194,13 +195,15 @@ def main():
     catalog = json.loads((ROOT / 'art/story/quarter/catalog.json').read_text())
     current = (ROOT / 'build/nitro/story.bin').read_bytes()
     records, scenes = archive(current)
-    assert sum(map(len, scenes)) == 923
     backgrounds, authored = load_story(ROOT)
+    baked = approved_baked_pages(ROOT, backgrounds, authored)
+    baked_payloads = check_baked_payloads(baked, records)
+    assert sum(map(len, scenes)) == manifest['dialogue_lines'] == sum(len(scene['lines']) for scene in authored)
     first = len(backgrounds)
-    assert first == 54 and manifest['people'] == len(PEOPLE) == 14
+    assert first == LEGACY_BACKGROUNDS + len(baked['backgrounds']) and manifest['people'] == len(PEOPLE) == 14
     assert manifest['quarter_portraits'] == len(manifest['quarter_entries']) == QUARTER_PORTRAITS
     assert manifest['portraits'] == LEGACY_PORTRAITS + QUARTER_PORTRAITS == 218
-    assert len(records) == manifest['assets'] == 272
+    assert len(records) == manifest['assets'] == first + 218
     assert manifest['gallery_count'] == len(manifest['gallery']) == 28
     assert [entry['id'] for entry in manifest['gallery'][:14]] == PEOPLE
     assert CATALOG['people'] == [[entry['id'], entry['name']] for entry in manifest['gallery'][:14]]
@@ -256,10 +259,19 @@ def main():
     approval = json.loads(args.approval.read_text())
     assert approval['baseline_ref'] == BASELINE_REF and approval['baseline_rom_sha256'] == BASELINE_ROM_SHA
     assert len(approval['legacy_payloads']) == 130
-    assert [record['sha256'] for record in records[:130]] == approval['legacy_payloads'], 'A background or legacy portrait payload changed'
-    assert scenes == approval['legacy_scenes'], 'Encoded story text, speaker or shot cues changed'
+    legacy_records = records[:LEGACY_BACKGROUNDS] + records[first:first + LEGACY_PORTRAITS]
+    assert [record['sha256'] for record in legacy_records] == approval['legacy_payloads'], 'A background or legacy portrait payload changed'
+    unchanged_events = [index for index in range(len(scenes)) if index not in baked['event_indices']]
+    assert all(scenes[index] == approval['legacy_scenes'][index] for index in unchanged_events), 'An unapproved encoded story event changed'
+    assert all(scenes[index] != approval['legacy_scenes'][index] for index in baked['event_indices']), 'Approved illustrated scene was not replaced'
     for path, expected in approval['authored_files'].items():
+        if baked['events'] and path in ('story/rising_tide.txt', 'story/staging.json'):
+            # Exact encoded comparisons above constrain the other 122 events;
+            # the separate source fixture pins the preceding 54 background specs.
+            continue
         assert sha((ROOT / path).read_bytes()) == expected, ('Authored file changed', path)
+    source_baseline = json.loads((ROOT / 'tests/fixtures/character-replacement-baseline.json').read_text())
+    assert backgrounds[:LEGACY_BACKGROUNDS] == source_baseline['source_preservation']['background_specs'], 'A preceding background specification changed'
     for field, previous in approval['legacy_manifest'].items():
         assert manifest[field] == previous, ('Legacy asset bindings changed', field)
     assert set(approval['source_approvals']) == set(sources)
@@ -313,10 +325,14 @@ def main():
     result = {'rom_sha256': sha(rom), 'archive_sha256': sha(current),
               'baseline_ref': BASELINE_REF, 'baseline_rom_sha256': BASELINE_ROM_SHA,
               'legacy_background_payloads_preserved': 54, 'legacy_portrait_payloads_preserved': 76,
-              'encoded_story_events_preserved': 125, 'encoded_story_lines_preserved': sum(map(len, scenes)),
+              'encoded_story_events_preserved': len(unchanged_events),
+              'encoded_story_lines_preserved': sum(len(scenes[index]) for index in unchanged_events),
+              'approved_replaced_events': baked['events'], 'current_story_lines': sum(map(len, scenes)),
+              'baked_backgrounds_added': len(baked['backgrounds']), 'baked_scene_catalog_sha256': baked['catalog_sha256'],
+              'baked_native_payloads': baked_payloads,
               'story_speaker_ids_preserved': True, 'directions': ['LEFT', 'RIGHT'],
               'quarter_portraits': 142, 'characters': 28, 'archive_portraits': 218,
-              'archive_assets': 272, 'maximum_portrait_id': max(quarter_ids),
+              'archive_assets': len(records), 'maximum_portrait_id': max(quarter_ids),
               'independent_source_alpha_oracles_passed': len(imported),
               'source_and_native_visual_reviews': len(imported),
               'alpha_extraction_uses_source_alpha_only': True,

@@ -21,6 +21,7 @@ from PIL import Image, ImageOps
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from story_script import load_story
+from baked_catalog import approved_baked_pages, check_baked_payloads, LEGACY_BACKGROUNDS
 
 POSES = ['DEFAULT', 'CASUAL', 'GEAR', 'QUIET', 'ANNOYED']
 STORY_FIELDS = ('speaker', 'companion', 'text', 'background', 'stage', 'focus',
@@ -147,14 +148,19 @@ def source_overrides(catalog, width, height, fullbody=False):
     return result, alpha_oracles
 
 
-def preserve_sources(catalog, backgrounds, baseline):
+def preserve_sources(catalog, backgrounds, baseline, baked):
     """Pin authored inputs, independently of the intentionally new export size."""
     approved = baseline['source_preservation']
     assert catalog['sheets'] == approved['catalog_sheets'], 'Original cast source specs changed'
     assert catalog['overrides'] == approved['catalog_overrides'], 'Approved Nia source specs changed'
     assert catalog['poses'] == approved['catalog_poses'], 'Authored pose names/order changed'
-    assert backgrounds == approved['background_specs'], 'Original background source specs changed'
+    assert backgrounds[:LEGACY_BACKGROUNDS] == approved['background_specs'], 'Original background source specs changed'
+    assert len(backgrounds) == LEGACY_BACKGROUNDS + len(baked['backgrounds'])
     for relative, expected in approved['authored_files'].items():
+        if baked['events'] and relative in ('story/rising_tide.txt', 'story/staging.json'):
+            # Approved scene text is pinned by the baked catalog; the caller
+            # independently verifies all other 122 authored event digests.
+            continue
         assert digest((ROOT / relative).read_bytes()) == expected, ('Authored input changed', relative)
     for relative, expected in approved['source_files'].items():
         source = ROOT / relative
@@ -297,12 +303,13 @@ def main():
     approval = json.loads((ROOT / 'tests/fixtures/cast-restyle-approval.json').read_text())
     catalog = json.loads(args.metadata.read_text())
     backgrounds, scenes = load_story(ROOT)
+    baked = approved_baked_pages(ROOT, backgrounds, scenes)
     names = [background['name'] for background in backgrounds]
     manifest = json.loads((ROOT / 'build/story-manifest.json').read_text())
     assert catalog['people'] == baseline['people'], 'Character names or cast order changed'
     assert catalog['people'][0] == ['NIA', 'Nia']
     assert catalog['poses'] == POSES
-    assert names == baseline['background_order']
+    assert names[:LEGACY_BACKGROUNDS] == baseline['background_order']
     width, height = baseline['native_render_frame']['portrait_dimensions']
     assert (width, height) == (256, 264), 'Native speaking frame changed'
     assert catalog['portrait_size'] == manifest['portrait_size'] == width
@@ -314,11 +321,14 @@ def main():
     assert manifest['portraits'] == 76 + quarter_count and manifest['ordinary_portraits'] == 57
     assert manifest['fullbody_portraits'] == 5
     assert manifest['people'] == len(catalog['people'])
-    preserved_source_files = preserve_sources(catalog, backgrounds, baseline)
+    preserved_source_files = preserve_sources(catalog, backgrounds, baseline, baked)
     assert len(scenes) == len(baseline['story_events']) == 125
     for scene, expected in zip(scenes, baseline['story_events']):
         assert scene['id'] == expected['id']
-        assert story_digest(scene, names) == expected['sha256'], ('Story changed', scene['id'])
+        if scene['id'] not in baked['events']:
+            assert story_digest(scene, names) == expected['sha256'], ('Unapproved story change', scene['id'])
+        else:
+            assert story_digest(scene, names) != expected['sha256'], ('Illustrated event not replaced', scene['id'])
     family_shots = []
     for scene in scenes:
         for shot in scene['shots']:
@@ -342,11 +352,12 @@ def main():
     assert digest(data) == manifest['archive_sha256']
     assert asset_count == manifest['assets'] == len(backgrounds) + 76 + quarter_count
     assets = read_assets(data, asset_table, asset_count)
+    baked_payloads = check_baked_payloads(baked, assets)
     for asset in assets[len(backgrounds):]:
         assert (asset['width'], asset['height'], asset['kind']) == (width, height, 1)
     for asset in assets[:len(backgrounds)]:
         assert (asset['width'], asset['height'], asset['kind']) == (512, 324, 0)
-    for index, name in enumerate(names):
+    for index, name in enumerate(names[:LEGACY_BACKGROUNDS]):
         assert assets[index]['sha256'] == approval['background_payloads'][name], ('Background payload changed', name)
     portrait_map = manifest['portrait_map']
     assert len(portrait_map) == 5
@@ -444,7 +455,12 @@ def main():
               'imported_alpha_matches_approved_source': True,
               'fullbody_alpha_matches_approved_source': True,
               'nia_native_payloads_preserved': 10,
-              'background_native_payloads_preserved': len(backgrounds),
+              'background_native_payloads_preserved': LEGACY_BACKGROUNDS,
+              'baked_backgrounds_added': len(baked['backgrounds']),
+              'approved_replaced_events': baked['events'],
+              'authored_story_events_preserved': len(scenes) - len(baked['events']),
+              'baked_scene_catalog_sha256': baked['catalog_sha256'],
+              'baked_native_payloads': baked_payloads,
               'native_payload_baseline_ref': approval['baseline_ref'],
               'restyled_people': approval['restyled_people'],
               'new_draft_people': approval['draft_people'],
@@ -453,8 +469,8 @@ def main():
               'draft_portraits_excluded_from_story': True,
               'gallery_covers_all_wardrobe_and_draft_portraits': True,
               'original_source_files_preserved': preserved_source_files,
-              'original_background_source_specs_preserved': len(backgrounds),
-              'names_and_story_preserved': True,
+              'original_background_source_specs_preserved': LEGACY_BACKGROUNDS,
+              'names_and_unreplaced_story_preserved': True,
               'intentional_reexport': baseline['native_render_frame']['reason'],
               'intentional_wardrobe_replacement': approval['reason'],
               'workshop_family_photo_shots': family_shots,

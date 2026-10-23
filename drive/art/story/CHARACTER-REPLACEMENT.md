@@ -1,4 +1,4 @@
-# Nia approval and the character wardrobe update
+# Nia approvals, character wardrobes and illustrated pages
 
 `nia-replacement.png` is the approved 1254x1254 RGBA five-pose source, copied
 without regeneration from `exec-bb2ca7c9-76ab-4dee-8eff-d9230ce6839f.png`.
@@ -68,9 +68,20 @@ palettes use 302,592 bytes of the existing 307,200-byte scratch pool.
 The five-pose expression encoding fits the same eight-byte message header and
 200-byte StoryLine. StoryState remains 488 bytes; no save migration is needed.
 ANNOYED appears in D01's garage-keys exchange. Speaker, listener and transition
-paths retain the five-pose encoding. The unchanged 923 messages
-occupy 929 pages across 125 scenes; six messages split without changing shot,
-speaker or cast until their final page. Pagination uses existing state padding.
+paths retain the five-pose encoding. The 125 scene IDs remain unchanged;
+longer messages keep their shot, speaker and cast until their final page.
+Pagination uses existing state padding.
+
+`baked-pages/catalog.json` adds three scene paintings: NIA_POOL_EVENING for
+D04, NIA_REPLAY_NIGHT for D05 and NIA_SOFA_PLAN for D06. They depict Nia by a
+coastal pool, watching car footage on a living-room television, and planning
+from a sofa. Nia is part of each painting rather than an imported actor layer.
+The new `PLATE` method (`ST_PLATE = 4`) draws the native 256x288 central viewport
+at x=128, y=18 in each 512x324 background. It continues through the top LCD's
+192 rows and the bottom LCD's upper 96 rows, above the dialogue. No actor,
+portrait badge, title, caption or letterbox bars cover these pages. Only
+D04–D06 receive rewritten dialogue and staging; all other 122 encoded scenes
+remain byte-identical.
 
 Nia's only established blood relative is her unnamed father, who has no live
 cast sprite. `nia-family-workshop.png` and `nia-family-lighthouse.png` update
@@ -78,21 +89,25 @@ the two actual family photographs, depicting the same father with short dark
 brown hair and a fully clothed younger Nia in a blue T-shirt. Other incidental
 prints are scenery and do not identify relatives. Calder is her father's
 friend, Vale a customer/neighbor and Jules part of the crew. No named character
-is established as her sibling, parent or romantic partner. Her name, dialogue,
-plot and existing saved progression are preserved.
+is established as her sibling, parent or romantic partner. Her name,
+relationships and existing saved progression are preserved.
 
-The wardrobe verification compares all ten encoded Nia payloads and all
-54 backgrounds with the preceding native archive, byte for byte. All 66 wardrobe
-and concept portrait alpha oracles match their imported source silhouettes. Nia's old
-approval pins remain independent of the new wardrobe approvals. The story's
-923 messages, 929 pages, cast IDs and relationship text remain unchanged.
+The wardrobe verification compares all ten encoded Nia portrait payloads and
+the preceding 54 backgrounds with the earlier native archive, byte for byte.
+All 66 wardrobe and concept portrait alpha oracles remain tied to their source
+silhouettes. Nia's old approval pins remain independent of the wardrobe and
+painted-page approvals. Cast IDs and relationships remain unchanged.
 
 `tests/quarter_assets.py` checks that all 76 legacy portrait and 54 background
 payloads remain byte-identical to the published cast build at commit `3cb4900`.
 The fixture pins that ROM's full SHA-256. Independent alpha
 oracles cover all 142 new imports; the source/crop approvals preserve the reviewed
 artwork, and all 28 source/retained/discarded/ROM review pages have pinned hashes.
-The archive has 272 assets; its asset count and offsets use 32-bit fields, while
+The archive now has 275 assets: 57 backgrounds and the same 218 portraits.
+The three page paintings are appended, preserving all 54 earlier background
+and all 218 portrait payloads. The baked-page allowance validates only D04–D06
+as changed scenes and requires their approved `PLATE` sources. The asset count
+and offsets use 32-bit fields, while
 portrait IDs remain within 0–217. Left/right view selection does not mirror tattoos or other asymmetric
 features at runtime. Cast Studio starts with the right-facing view; X changes
 direction, Y compares the original art and L/R or A changes the pose.
@@ -103,5 +118,5 @@ all poses, directions and the studio. Nia is the native-size reference; Vale is
 portrait framing remains separate. Compiled camera fits compare pose-union
 alpha masks at their individual heights, preserving all opaque pixels without
 forcing taller people down to the shorter person's pixel height. Player replies
-retain the same authored on-screen cast and directions. The approved source art,
-indexed payloads and 923 encoded dialogue records are unchanged.
+retain the same authored on-screen cast and directions. The approved portrait
+source art, indexed portrait payloads and individual height fixes are unchanged.

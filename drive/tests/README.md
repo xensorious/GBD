@@ -1,6 +1,6 @@
 # Coastline cartridge validation
 
-Run the focused cast checks after `make -C drive` against the final ROM:
+Run the focused story and cast checks after `make -C drive` against the final ROM:
 
 - `python3 drive/tests/dialogue_pixels.py` compares native 256x264 actor canvases
   with an independent pixel oracle, including clipping, fades, lighting, reduced
@@ -8,9 +8,15 @@ Run the focused cast checks after `make -C drive` against the final ROM:
   ASan/UBSan guards the shared 302,592-byte one-background/two-actor lease inside
   the existing 307,200-byte driving cache.
 - `python3 drive/tests/campaign.py --native-only` traverses all 125 scenes,
-  923 messages and 929 pages. It checks exact font wrapping, reveal/advance rules,
+  messages and dialogue pages. It checks exact font wrapping, reveal/advance rules,
   stable shot/speaker across pages, pause, replay, abort, progress and saves.
-- `python3 drive/tests/story_assets.py` checks the 54 backgrounds and 218 portrait
+- `python3 drive/tests/plate_render.py` builds the sanitized native renderer test
+  for D04–D06's `PLATE` method. It compares the native 256x288 crop at x=128,
+  y=18 in each 512x324 painting across the LCD seam, with dialogue confined to
+  the lower 96 rows and no actor, badge, title, caption or letterbox overlay.
+  It also covers the static camera, pause/resume, cold caches, returning to an
+  existing actor scene and normal saved progression.
+- `python3 drive/tests/story_assets.py` checks the 57 backgrounds and 218 portrait
   records: the preceding 76 portraits and 142 authored directional full bodies.
   Authored references and gallery availability
   are checked separately; unused review poses are not claimed as story content.
@@ -20,7 +26,11 @@ Run the focused cast checks after `make -C drive` against the final ROM:
 - `python3 drive/tests/quarter_assets.py` pins all 76 old portrait payloads and
   54 backgrounds to the published cast-overhaul ROM. It checks all 142 explicit
   source/crop approvals against independent alpha masks, source direction maps,
-  complete gallery coverage and the unchanged 923 encoded dialogue/shot records.
+  complete gallery coverage and encoded scene preservation. The baked-page
+  allowance permits changes only to D04–D06, requires their new `PLATE` sources
+  and leaves the other 122 encoded scenes byte-identical. All 218 existing
+  portraits and 54 backgrounds retain their payloads; the three painted pages
+  are appended through `art/story/baked-pages/catalog.json`.
   Every frame has an explicit source/native visual review and a pinned complete
   native palette/pixel payload hash; large discarded
   components have separate notes. `--freeze-approval` creates pending review
@@ -41,21 +51,14 @@ Run the focused cast checks after `make -C drive` against the final ROM:
   pose cycling, unchanged saves/story record, guarded drawing and cache release.
 
 `python3 drive/tests/continuous_story.py` is the actual-cartridge scene runner
-for D01, D03, D04, D05, D24 and S17, including a real page flip and pause/resume.
+for the focused scene sample, including page handling and pause/resume.
 Controller input drives DeSmuME; RAM is read only. Later-scene batteries are
 labelled review fixtures, not earned progression. The focused bundle's
-VALIDATION.json identifies reports for its exact ROM. The final directional build
-passes 38,934 native campaign checks, 4,873 dialogue pixel checks, 4,390,873 Cast
-Studio checks and 247,173,511 real-art standing-staging checks across 2,145
-configurations on eight floors. The actual DeSmuME gallery tour captures 213
-views, confirms passive touch and returns to both driving modes. The six-scene
-story sample passes 60 messages on 61 pages, one real page flip and pause/resume;
-both tours report zero archive failures.
-All 142 quarter source alpha oracles and reviewed native payload hashes pass.
-All 54 backgrounds, 76 legacy portraits and 923 encoded message/shot records
-match the published cast build byte for byte. Nia's earlier approvals and all
-66 wardrobe/concept alpha oracles also pass. Results are in `build/proportions-update`
-and the [focused preview](../previews/consistent-proportions/README.md).
+VALIDATION.json identifies reports for its exact ROM. The [focused preview](../previews/illustrated-story-pages/README.md)
+records the three new paintings, native-crop comparisons and actual emulator
+captures. The existing gallery, individual-proportion, player-reply and alpha
+oracle checks remain part of focused validation; final report files provide
+their check totals and exact ROM hashes.
 The broader driving release matrix was not rerun, and physical Delta/DS testing is not claimed.
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
