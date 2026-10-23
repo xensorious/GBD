@@ -73,19 +73,24 @@ wardrobes and expressions, from Jules's skate layers and Mina's Y2K colors to
 Rook's punk workwear and Sable's romantic goth clothes. Each has default, casual,
 work and reflective variants; reflective poses keep the casual outfit. Nia's
 approved design and all ten of her existing portrait imports are preserved.
-Speaking actors use a native 256x264 canvas; secondary portraits and compact
-badges can shrink.
+Portrait artwork uses a 256x264 canvas. Nia and close portraits retain native
+pixels; full bodies use their individual uniform character scales. Secondary
+portraits and compact badges can shrink.
 Eight 512x324 backgrounds provide standing floor space in the garage, meet,
 kitchen, diner, greenhouse, rooftop, night garage and epilogue. People use
 three-quarter standing poses there and face their conversational partner. Their
-left/right places stay stable when the speaker changes. Close scenes retain
+left/right places stay stable when the speaker changes, including off-camera
+player replies. Each person has a fixed full-body size across poses and facings;
+Nia remains the native-size reference and Mrs. Vale is shorter with a comparable
+head size. Pair framing uses the actual silhouettes at their individual heights,
+so a wide gesture does not unnecessarily shrink both people. Close scenes retain
 their upper-body framing. The dialogue, names and cast relationships are preserved. Original
 source atlases remain as provenance; active costumes come from the new per-person
 artwork in `art/story/restyle/catalog.json` and `art/story/quarter/catalog.json`.
 One background cache, two actor slots and their palettes use 302,592 bytes of
 the existing 307,200-byte driving scratch pool. The directional views use the same
-slots. Partners stay at native scale when their silhouettes fit; wider pairs
-are reduced only enough to keep both complete figures inside the scene.
+slots. Partners keep their individual reference sizes when their silhouettes fit; wider
+pairs use one stable camera reduction that preserves their relative heights.
 Eli and Mrs. Vale make the neighborhood part of the story. The crew has private
 choices, paid work and relationships beyond the next race. These are illustrated
 cutscene settings; they do not add free-roaming interiors or Career races.
@@ -111,14 +116,14 @@ It uses the same continuous illustration area and lower-half browser,
 with no touch controls or additional large graphics cache.
 
 The directional build passes 38,934 native campaign checks, 4,873 dialogue
-pixel checks, 4,632,846 Cast Studio checks and 246,580,775 standing-staging
+pixel checks, 4,390,873 Cast Studio checks and 247,173,511 standing-staging
 checks. The staging suite covers 2,145 real-art configurations on all eight
 floors. DeSmuME visits 213 gallery views, returns to both driving modes and
-verifies passive touch input. The five-scene story sample passes 48 messages
-across 49 pages, including a real page flip and pause/resume.
+verifies passive touch input. The six-scene story sample passes 60 messages
+across 61 pages, including a real page flip and pause/resume.
 All 54 background and 76 legacy portrait payloads remain byte-identical to the
 published cast build; 142 new source alpha oracles and reviewed native payload
-hashes pass. [Review images and exact-ROM evidence](previews/three-quarter-cast/README.md)
+hashes pass. [Review images and exact-ROM evidence](previews/consistent-proportions/README.md)
 record the focused results. The full driving release matrix was not rerun, and
 physical Delta/DS testing is not claimed.
 

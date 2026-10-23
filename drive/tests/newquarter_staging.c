@@ -12,6 +12,9 @@ static uint16_t colors[2][256];
 static unsigned checks,native_pairs,reduced_pairs,quarter_views;
 #if STORY_QUARTER_AVAILABLE
 static unsigned real_pairs,real_native_pairs,real_reduced_pairs,floor_scenes;
+static unsigned envelope_views,stable_pose_comparisons,stable_character_pairs;
+static uint8_t stable_seen[STORY_PEOPLE][STORY_PEOPLE];
+static StandingActor stable_left[STORY_PEOPLE][STORY_PEOPLE],stable_right[STORY_PEOPLE][STORY_PEOPLE];
 #endif
 #define CHECK(v) do{checks++;if(!(v)){fprintf(stderr,"quarter staging:%d: %s\n",__LINE__,#v);exit(1);}}while(0)
 
@@ -32,6 +35,7 @@ static void fixture(int slot,int width){
  for(int y=2;y<STORY_PORTRAIT_HEIGHT;y++)for(int x=left;x<left+width;x++)figures[slot][y*STORY_PORTRAIT_WIDTH+x]=1;
  people[slot]=figures[slot];people_palette[slot]=colors[slot];
  people_left[slot]=(uint16_t)left;people_right[slot]=(uint16_t)(left+width);people_foot[slot]=128;
+ people_stage_left[slot]=people_left[slot];people_stage_right[slot]=people_right[slot];
 }
 static void check_figure(int slot,const StandingActor*at,int light){
  unsigned count=0;
@@ -96,6 +100,38 @@ static void gallery_inputs(void){
 #if STORY_QUARTER_AVAILABLE
 static uint8_t source[STORY_PORTRAIT_WIDTH*STORY_PORTRAIT_HEIGHT];
 static uint16_t palette[256];
+static void pose_envelopes(void){
+#if defined(STORY_POSE_ENVELOPES_AVAILABLE) && STORY_POSE_ENVELOPES_AVAILABLE
+ uint16_t actual[STORY_PORTRAITS][2];
+ for(int id=0;id<STORY_PORTRAITS;id++){
+  int w,h;CHECK(story_asset(STORY_BACKGROUNDS+id,source,palette,sizeof source,&w,&h));
+  CHECK(w==STORY_PORTRAIT_WIDTH&&h==STORY_PORTRAIT_HEIGHT);
+  int first=w,last=0;
+  for(int y=0;y<h;y++)for(int x=0;x<w;x++)if(source[y*w+x]){if(x<first)first=x;if(x+1>last)last=x+1;}
+  CHECK(first<last);actual[id][0]=(uint16_t)first;actual[id][1]=(uint16_t)last;
+  CHECK(story_pose_envelopes[id][0]<=first&&story_pose_envelopes[id][1]>=last&&story_pose_envelopes[id][1]<=w);
+  envelope_views++;
+ }
+ static const uint8_t counts[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
+ uint8_t directional[STORY_PORTRAITS];memset(directional,0,sizeof directional);
+ /* Derive each union independently from shipped pixels, not importer metadata. */
+ for(int entry=0;entry<STORY_GALLERY_COUNT;entry++)for(int facing=0;facing<2;facing++){
+  int first=STORY_PORTRAIT_WIDTH,last=0;
+  for(int pose=0;pose<counts[entry];pose++){
+   int id=story_gallery_quarters[entry][pose][facing];CHECK(id>=0&&id<STORY_PORTRAITS);
+   if(actual[id][0]<first)first=actual[id][0];
+   if(actual[id][1]>last)last=actual[id][1];
+  }
+  for(int pose=0;pose<counts[entry];pose++){
+   int id=story_gallery_quarters[entry][pose][facing];directional[id]=1;
+   CHECK(story_pose_envelopes[id][0]==first&&story_pose_envelopes[id][1]==last);
+  }
+ }
+ for(int id=0;id<STORY_PORTRAITS;id++)if(!directional[id])CHECK(story_pose_envelopes[id][0]==actual[id][0]&&story_pose_envelopes[id][1]==actual[id][1]);
+#else
+ CHECK(0); /* Complete directional testing requires the compiled pose envelopes. */
+#endif
+}
 static void gallery_pixels(void){
  Game g;game_init(&g,91);career_enter(&g);campaign.modal=CAREER_CAST_MODAL;
  static const uint8_t counts[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
@@ -106,9 +142,10 @@ static void gallery_pixels(void){
   CHECK(id>=0&&id<STORY_PORTRAITS&&story_asset(STORY_BACKGROUNDS+id,source,palette,sizeof source,&w,&h));
   CHECK(w==256&&h==264);clear_frame();render_game(&g,frame.top,frame.bottom);guards();
   unsigned pixels=0,lower=0;
-  for(int y=2;y<h;y++)for(int x=0;x<w;x++){
-   unsigned index=source[y*w+x];int yy=284-h+y;
-   if(index&&yy>=22){CHECK(pixel(x,yy)==palette[index]);pixels++;lower+=yy>=192;}
+  int width=story_character_scales[entry],height=h*width/w,x0=(w-width)/2;
+  for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+   unsigned index=source[(y*h/height)*w+x*w/width];int yy=284-height+y;
+   if(index&&yy>=22){CHECK(pixel(x0+x,yy)==palette[index]);pixels++;lower+=yy>=192;}
   }
   CHECK(pixels>1000&&lower>100);quarter_views++;
   CHECK(!memcmp(&saved,&g.save,sizeof saved)&&!memcmp(&before,&story,sizeof before));
@@ -128,7 +165,7 @@ static void paired_pixels(int slot,const StandingActor*at,int light){
   unsigned index=people[slot][sy*STORY_PORTRAIT_WIDTH+sx];
   if(!index)continue;
   int xx=at->x+x,yy=at->y+y;
-  CHECK(xx>=8&&xx<248&&yy>=15&&yy<STORY_SCENE_HEIGHT);
+  CHECK(xx>=STORY_STANDING_MARGIN&&xx<256-STORY_STANDING_MARGIN&&yy>=15&&yy<STORY_SCENE_HEIGHT);
   CHECK(pixel(xx,yy)==lit(people_palette[slot][index],light));
   if(xx<first)first=xx;
   if(xx>last)last=xx;
@@ -146,18 +183,34 @@ static void real_pair(Game*g,int left,int right,int left_pose,int right_pose,int
  CHECK(left_id>=76&&right_id>=76&&left_id<STORY_PORTRAITS&&right_id<STORY_PORTRAITS);
  CHECK(people_id[left_slot]==left_id&&people_id[right_slot]==right_id&&left_slot!=right_slot);
  StandingActor a,b;standing_pair(left_slot,right_slot,story_ground_y[bg],&a,&b);
- int span=people_right[left_slot]-people_left[left_slot]+people_right[right_slot]-people_left[right_slot];
+ int camera=story_pair_camera_scales[left][right];
+ int expected_left=story_character_scales[left]*camera/256,expected_right=story_character_scales[right]*camera/256;
  CHECK(a.floor==284&&b.floor==280&&a.y+a.height==a.floor&&b.y+b.height==b.floor);
- CHECK(a.width==b.width&&a.height==b.height&&a.width>0&&a.width<=256);
- CHECK(a.width*264-a.height*256>=0&&a.width*264-a.height*256<256);
- if(span+12<=240){CHECK(a.width==256&&a.height==264);real_native_pairs++;}
- else{CHECK(a.width<256&&a.height<264);real_reduced_pairs++;}
+ CHECK(a.width==expected_left&&b.width==expected_right&&a.width>0&&a.width<=256&&b.width>0&&b.width<=256);
+ CHECK(a.height==264*a.width/256&&b.height==264*b.width/256);
+ if(camera==256)real_native_pairs++;else real_reduced_pairs++;
+ if(left==SC_NIA&&right==SC_VALE){CHECK(camera==256&&a.width==256&&a.height==264&&b.width==196&&b.height==202);}
  int left_first=a.x+(people_left[left_slot]*a.width+255)/256;
  int left_last=a.x+(people_right[left_slot]*a.width+255)/256-1;
  int right_first=b.x+(people_left[right_slot]*b.width+255)/256;
  int right_last=b.x+(people_right[right_slot]*b.width+255)/256-1;
- CHECK(left_first==8&&right_last==247&&right_first-left_last-1>=12);
+ int stage_first=a.x+(people_stage_left[left_slot]*a.width+255)/256;
+ int stage_last=b.x+(people_stage_right[right_slot]*b.width+255)/256-1;
+ CHECK(stage_first==STORY_STANDING_MARGIN&&stage_last==255-STORY_STANDING_MARGIN&&left_first>=STORY_STANDING_MARGIN&&right_last<=255-STORY_STANDING_MARGIN);
  CHECK(a.center>=left_first&&a.center<=left_last&&b.center>=right_first&&b.center<=right_last);
+ /* Compare actual opaque samples, so hands at different world heights can
+  * share columns without forcing people to equal sizes or hiding a pixel. */
+ for(int y=0;y<a.height;y++)for(int x=0;x<a.width;x++){
+  if(!people[left_slot][y*264/a.height*256+x*256/a.width])continue;
+  int rx=a.x+x-b.x,ry=a.y+y-b.y;
+  if(rx>=0&&rx<b.width&&ry>=0&&ry<b.height)CHECK(!people[right_slot][ry*264/b.height*256+rx*256/b.width]);
+ }
+ if(stable_seen[left][right]){
+  const StandingActor*aa=&stable_left[left][right],*bb=&stable_right[left][right];
+  CHECK(a.x==aa->x&&a.width==aa->width&&a.height==aa->height&&a.y-a.floor==aa->y-aa->floor);
+  CHECK(b.x==bb->x&&b.width==bb->width&&b.height==bb->height&&b.y-b.floor==bb->y-bb->floor);
+  stable_pose_comparisons++;
+ }else{stable_seen[left][right]=1;stable_left[left][right]=a;stable_right[left][right]=b;stable_character_pairs++;}
  paired_pixels(left_slot,&a,256);paired_pixels(right_slot,&b,232);
  CHECK(!memcmp(&expected,&story,sizeof story)&&!memcmp(&saved,&g->save,sizeof saved));
  unsigned loads=story_visual_stats[2];
@@ -186,6 +239,7 @@ static void story_pairing(void){
     real_pair(&g,left,right,lp,rp,bg);
  }
  CHECK(floor_scenes==8&&real_pairs==2145&&real_native_pairs+real_reduced_pairs==real_pairs);
+ CHECK(stable_character_pairs==91&&stable_pose_comparisons==real_pairs-stable_character_pairs);
  /* Fifth expression, off-camera player, close composition and radio remain separate. */
  story.current.speaker=SC_NIA;story.current.companion=SC_MINA;line_pose(&story.current,4,3);
  clear_frame();render_game(&g,frame.top,frame.bottom);CHECK(people_id[0]==story_quarter_portraits[1][4][SC_NIA]||people_id[1]==story_quarter_portraits[1][4][SC_NIA]);
@@ -204,12 +258,13 @@ int main(int argc,char**argv){
  if(argc<2){
   CHECK(STORY_QUARTER_AVAILABLE);
 #if STORY_QUARTER_AVAILABLE
-  gallery_pixels();story_pairing();
+  pose_envelopes();gallery_pixels();story_pairing();
 #endif
  }
  printf("quarter staging: %u checks; %u native pairs / %u reduced pairs, stable inward-facing sides, grounded feet, reserved UI, packed orientation inputs and %u authored directional gallery views pass\n",checks,native_pairs,reduced_pairs,quarter_views);
 #if STORY_QUARTER_AVAILABLE
  if(argc<2)printf("real art: %u pairs across %u floor scenes; %u native / %u reduced pairs; both speakers retain positions, outfit pixels and cached portraits\n",real_pairs,floor_scenes,real_native_pairs,real_reduced_pairs);
+ if(argc<2)printf("stable poses: %u comparisons across %u character pairs; %u pixel-derived pose envelopes verified\n",stable_pose_comparisons,stable_character_pairs,envelope_views);
 #endif
  return 0;
 }

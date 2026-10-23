@@ -96,3 +96,12 @@ The archive has 272 assets; its asset count and offsets use 32-bit fields, while
 portrait IDs remain within 0–217. Left/right view selection does not mirror tattoos or other asymmetric
 features at runtime. Cast Studio starts with the right-facing view; X changes
 direction, Y compares the original art and L/R or A changes the pose.
+
+`proportions.json` assigns each character a fixed uniform full-body scale across
+all poses, directions and the studio. Nia is the native-size reference; Vale is
+196/256 as large, retaining a smaller body and a comparable head size. Close
+portrait framing remains separate. Compiled camera fits compare pose-union
+alpha masks at their individual heights, preserving all opaque pixels without
+forcing taller people down to the shorter person's pixel height. Player replies
+retain the same authored on-screen cast and directions. The approved source art,
+indexed payloads and 923 encoded dialogue records are unchanged.

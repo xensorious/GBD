@@ -50,12 +50,16 @@ static void native_portrait(void){
  CHECK(w==STORY_PORTRAIT_WIDTH&&h==STORY_PORTRAIT_HEIGHT);
  int floor=full?story_ground_y[0]:STORY_SCENE_HEIGHT;
  unsigned pixels=0,lower=0;
- /* The studio always draws its lead one-to-one. Check original indexed pixels
-  * directly on both LCDs; only the tiny top title can overlap a native pixel. */
- for(int y=0;y<h;y++)for(int x=0;x<w;x++){
-  unsigned index=portrait[y*w+x];int yy=y+floor-h;
+ /* Full bodies share the character's calibrated world size in every view.
+  * Close portraits keep their distinct camera crop. Sampling stays uniform. */
+ int width=w,height=h,x0=0;
+#if defined(STORY_CHARACTER_SCALES_AVAILABLE) && STORY_CHARACTER_SCALES_AVAILABLE
+ if(full){width=story_character_scales[entry];height=h*width/w;x0=(w-width)/2;}
+#endif
+ for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+  unsigned index=portrait[(y*h/height)*w+x*w/width];int yy=y+floor-height,xx=x0+x;
   if(!index||yy<22||yy>=STORY_SCENE_HEIGHT)continue;
-  uint16_t actual=yy<H?screen.top[yy*W+x]:screen.bottom[(yy-H)*W+x];
+  uint16_t actual=yy<H?screen.top[yy*W+xx]:screen.bottom[(yy-H)*W+xx];
   CHECK(actual==palette[index]);pixels++;lower+=yy>=H;
  }
  CHECK(pixels>1000&&lower>100);portraits_checked++;
@@ -137,6 +141,6 @@ static void driving_restore(int free_roam){
 
 int main(void){
  browsing();story_restore();driving_restore(0);driving_restore(1);
- printf("cast gallery: %u checks; all 28 identities / 71 outfits / %u directional views / %u total gallery views, native pixels across LCDs, button navigation, unchanged saved/story state, bounds and exact story/highway/city cache restoration pass\n",checks,directional_checked,portraits_checked);
+ printf("cast gallery: %u checks; all 28 identities / 71 outfits / %u directional views / %u total gallery views, character-scaled indexed pixels across LCDs, button navigation, unchanged saved/story state, bounds and exact story/highway/city cache restoration pass\n",checks,directional_checked,portraits_checked);
  return 0;
 }

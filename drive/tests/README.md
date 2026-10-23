@@ -28,27 +28,34 @@ Run the focused cast checks after `make -C drive` against the final ROM:
   the art. Alpha extraction uses the original alpha channel at threshold 96,
   keeps the largest connected figure and never color-keys red clothing.
 - `python3 drive/tests/newquarter_staging.py` checks stable speaker sides, shared
-  floors, silhouette fitting and the transient facing/comparison controls. Its
+  floors, silhouette fitting, individual character scales and the transient facing/comparison controls.
+  It verifies all 218 portrait-to-character scale bindings, 2,054 pose-stability
+  comparisons, no opaque figure overlap, and native-size Nia beside shorter Vale. Its
   `--geometry-only` mode is explicitly a pre-art check, not complete validation.
+- `python3 drive/tests/shot_continuity.py --prove-old-fails` advances actual
+  authored pages with buttons and compares the entire scene before/after player
+  replies. It covers D01 page 7, D03 page 4, multi-person shots, held poses,
+  cold caches, pause/replay/abort and previous-shot fades. The former renderer
+  must fail the exact D01 regression.
 - `python3 drive/tests/cast_gallery.py` checks the 28-person Cast Studio browser,
   pose cycling, unchanged saves/story record, guarded drawing and cache release.
 
 `python3 drive/tests/continuous_story.py` is the actual-cartridge scene runner
-for D01, D04, D05, D24 and S17, including a real page flip and pause/resume.
+for D01, D03, D04, D05, D24 and S17, including a real page flip and pause/resume.
 Controller input drives DeSmuME; RAM is read only. Later-scene batteries are
 labelled review fixtures, not earned progression. The focused bundle's
 VALIDATION.json identifies reports for its exact ROM. The final directional build
-passes 38,934 native campaign checks, 4,873 dialogue pixel checks, 4,632,846 Cast
-Studio checks and 246,580,775 real-art standing-staging checks across 2,145
+passes 38,934 native campaign checks, 4,873 dialogue pixel checks, 4,390,873 Cast
+Studio checks and 247,173,511 real-art standing-staging checks across 2,145
 configurations on eight floors. The actual DeSmuME gallery tour captures 213
-views, confirms passive touch and returns to both driving modes. The five-scene
-story sample passes 48 messages on 49 pages, one real page flip and pause/resume;
+views, confirms passive touch and returns to both driving modes. The six-scene
+story sample passes 60 messages on 61 pages, one real page flip and pause/resume;
 both tours report zero archive failures.
 All 142 quarter source alpha oracles and reviewed native payload hashes pass.
 All 54 backgrounds, 76 legacy portraits and 923 encoded message/shot records
 match the published cast build byte for byte. Nia's earlier approvals and all
-66 wardrobe/concept alpha oracles also pass. Results are in `build/quarter-update`
-and the [focused preview](../previews/three-quarter-cast/README.md).
+66 wardrobe/concept alpha oracles also pass. Results are in `build/proportions-update`
+and the [focused preview](../previews/consistent-proportions/README.md).
 The broader driving release matrix was not rerun, and physical Delta/DS testing is not claimed.
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with

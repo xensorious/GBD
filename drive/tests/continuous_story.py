@@ -50,6 +50,8 @@ def quarter_portrait_bounds(rom, manifest):
     magic, _, _, table, count, total, unused = struct.unpack_from('<8s6I', archive)
     assert magic == b'CSTORY02' and total == len(archive) and not unused
     result = {}
+    envelopes = manifest['pose_envelopes']
+    assert len(envelopes) == manifest['portraits']
     ids = {portrait for direction in manifest['quarter_map']
            for poses in direction for portrait in poses if portrait >= 0}
     for portrait in ids:
@@ -62,10 +64,13 @@ def quarter_portrait_bounds(rom, manifest):
         bounds = Image.frombytes('L', (width, height), mask).getbbox()
         assert bounds
         result[portrait] = (bounds[0], bounds[2])
+        left, right = envelopes[portrait]
+        assert 0 <= left <= bounds[0] < bounds[2] <= right <= width
     return result
 
 
-def actor_expectations(line, manifest, grounded, floor, bounds):
+def actor_expectations(line, manifest, grounded, floor, bounds,
+                       scene_index=None, line_index=None, line_count=None):
     """Describe each visible figure without changing story or emulator state."""
     people = manifest['people']
     pose = ((line.focus >> 9) & 3) | ((line.pose_flags & 15) << 2)
@@ -81,6 +86,15 @@ def actor_expectations(line, manifest, grounded, floor, bounds):
     if face >= people:
         return []
     other = line.companion if speaking else 255
+    if line.speaker == people and scene_index is not None and line_index is not None:
+        offsets, cues = manifest['stage_offsets'], manifest['reply_pairs']
+        begin, end = offsets[scene_index:scene_index + 2]
+        if 0 <= line_index < end - begin and (line_count is None or end - begin == line_count):
+            cue = cues[begin + line_index]
+            candidate, candidate_pose = ((cue >> 4) & 15) - 1, (cue >> 8) & 7
+            if ((cue & 15) == line.companion + 1 and ((cue >> 11) & 7) == selected and
+                    0 <= candidate < people and candidate != face and candidate_pose < 5):
+                other, companion_pose = candidate, candidate_pose
     distinct_other = other < people and other != face
     face_left = not distinct_other or face < other
     directions = manifest.get('quarter_map') if grounded and manifest.get('quarter_portraits') else None
@@ -92,22 +106,18 @@ def actor_expectations(line, manifest, grounded, floor, bounds):
         if quarter_other >= 0:
             actors.append((other, companion_pose, quarter_other))
             actors.sort()
-            span = sum(bounds[portrait][1] - bounds[portrait][0] for _, _, portrait in actors)
-            scale = 256 if span + 12 <= 240 else 228 * 256 // span
-            while sum((bounds[portrait][1] * scale + 255) // 256 -
-                      (bounds[portrait][0] * scale + 255) // 256
-                      for _, _, portrait in actors) > 228:
-                scale -= 1
-            width, height = 256 * scale // 256, 264 * scale // 256
-        else:
-            scale, width, height = 256, 256, 264
         result = []
+        paired = len(actors) == 2
+        profiles = manifest['proportions']
+        camera = profiles['pair_camera_scales'][actors[0][0]][actors[1][0]] if paired else 256
         for index, (actor, selected, portrait) in enumerate(actors):
-            paired = len(actors) == 2
+            scale = profiles['character_scales'][actor] * camera // 256
+            width, height = scale, 264 * scale // 256
             actor_floor = floor - (4 if paired and index else 0)
-            left, right = bounds[portrait]
-            x = ((8 - (left * width + 255) // 256) if index == 0 else
-                 (248 - (right * width + 255) // 256)) if paired else 0
+            left, right = manifest['pose_envelopes'][portrait] if paired else bounds[portrait]
+            margin = profiles['standing_margin']
+            x = ((margin - (left * width + 255) // 256) if index == 0 else
+                 (256 - margin - (right * width + 255) // 256)) if paired else (256 - width) // 2
             result.append({'actor': actor, 'pose': selected, 'full_body': True,
                            'portrait': portrait, 'placement': 'standing_pair' if paired else 'standing_single',
                            'side': ('left' if index == 0 else 'right') if paired else 'center',
@@ -115,6 +125,8 @@ def actor_expectations(line, manifest, grounded, floor, bounds):
                                      ('RIGHT' if face_left else 'LEFT'),
                            'floor_y': actor_floor, 'position': [x, actor_floor - height],
                            'frame_size': [width, height], 'scale_q8': scale,
+                           'camera_scale_q8': camera,
+                           'character_scale_q8': profiles['character_scales'][actor],
                            'native_scale': scale == 256})
         return result
     actors = [(face, selected)]
@@ -235,7 +247,8 @@ def run_case(args, manifest):
             background_name = background_names[state.current.background]
             grounded = background_name in manifest['fullbody_backgrounds']
             expected_actors = actor_expectations(state.current, manifest, grounded,
-                                                 floors.get(background_name, 284), bounds)
+                                                 floors.get(background_name, 284), bounds,
+                                                 expected, state.line, state.count)
             captures.append({'scene': args.case, 'line': state.line,
                              'page': state.page_index, 'start': state.page_start,
                              'end': state.page_end, 'length': state.current.length,
@@ -319,7 +332,7 @@ def main():
             DriveThrough(emulator, find_symbol(ROOT / 'build/arm9.elf', 'game'), args.output)
             emulator.run(30)
         args.template = fresh / 'Coastline.dsv'
-    cases = ['D01', 'D04', 'D05', 'D24', 'S17']
+    cases = ['D01', 'D03', 'D04', 'D05', 'D24', 'S17']
     results = []
     for case in cases:
         profile = Game()

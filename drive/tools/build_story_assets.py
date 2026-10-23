@@ -4,6 +4,7 @@ from pathlib import Path
 import hashlib,json,struct
 from PIL import Image,ImageOps
 from story_script import CAST,PEOPLE,POSES,CATALOG,STAGES,load_story
+from story_proportions import compile_proportions
 def isolate_portrait(tile):
  """Keep the actor, excluding disconnected fragments from adjacent atlas cells."""
  alpha=tile.getchannel('A');raw=alpha.tobytes();w,h=tile.size
@@ -138,6 +139,34 @@ assert len(portraits)<256
 for person in gallery:
  assert all(person[key].isascii() for key in ('name','style','description')),person['id']
 gallery_pose_counts=[len(set(person['portraits'])) for person in gallery]
+# Player replies do not change the people physically present in a shot. Store
+# the otherwise omitted partner beside the visual catalog, leaving dialogue and
+# save encoding untouched. In larger groups, retain the previously visible pair.
+reply_pairs=[];stage_offsets=[0]
+for scene in scenes:
+ last_shot=-1;visible=[];held_poses={}
+ for line in scene['lines']:
+  shot=scene['shots'][line['shot']]
+  if line['shot']!=last_shot:
+   last_shot=line['shot'];visible=[]
+   held_poses={PEOPLE.index(actor):pose for actor,pose in shot['poses'].items()}
+  speaker,companion=line['speaker'],line['companion'];cue=0
+  if line['stage']==0:
+   if speaker<len(PEOPLE):
+    visible=[speaker]+([companion] if companion<len(PEOPLE) and companion!=speaker else [])
+    held_poses[speaker]=line['pose']
+    if companion<len(PEOPLE):held_poses[companion]=line['companion_pose']
+   elif companion<len(PEOPLE):
+    others=[actor for actor in visible if actor!=companion]
+    if not others:others=[PEOPLE.index(actor) for actor in shot['present'] if PEOPLE.index(actor)!=companion]
+    if others:
+     other=others[0];other_pose=held_poses[other]
+     assert 0<=other_pose<8 and 0<=line['companion_pose']<8
+     cue=(companion+1)|((other+1)<<4)|(other_pose<<8)|(line['companion_pose']<<11)
+     visible=[companion,other];held_poses[companion]=line['companion_pose']
+  reply_pairs.append(cue)
+ stage_offsets.append(len(reply_pairs))
+assert len(reply_pairs)==sum(len(scene['lines']) for scene in scenes)
 for idx,spec in enumerate(compiled_backgrounds+portraits):
  sheet=Image.open(ROOT/'art/story'/spec['sheet']).convert('RGB' if idx<nbg else 'RGBA')
  if 'bounds' in spec:box=tuple(spec['bounds'])
@@ -169,6 +198,19 @@ for idx,spec in enumerate(compiled_backgrounds+portraits):
  if idx>=nbg:
   alpha=tile.getchannel('A').tobytes();pixels=bytearray(value+1 if alpha[i]>=96 else 0 for i,value in enumerate(pixels))
  assets.append((tile.width,tile.height,struct.pack('<256H',*palette)+pixels))
+# A character's arm gesture must not change the pair's camera scale. Union the
+# final pixel bounds for each authored character/direction once at build time.
+pose_envelopes=[]
+for w,h,payload in assets[nbg:]:
+ bounds=Image.frombytes('L',(w,h),payload[512:]).getbbox();assert bounds
+ pose_envelopes.append([bounds[0],bounds[2]])
+for person in quarters:
+ for facing in ('LEFT','RIGHT'):
+  ids=[quarter_sources[(person['character'],pose['pose'],facing)] for pose in person['portraits'] if pose['facing']==facing]
+  envelope=[min(pose_envelopes[i][0] for i in ids),max(pose_envelopes[i][1] for i in ids)]
+  for i in ids:pose_envelopes[i]=envelope[:]
+proportion_profile=json.loads((ROOT/'art/story/proportions.json').read_text())
+proportions=compile_proportions(proportion_profile,gallery,quarter_entries,assets,nbg,pose_envelopes,len(PEOPLE))
 # The table layout has a stable, bounded header. Individual records are streamed.
 event_table=64;asset_table=event_table+125*12;data=bytearray(asset_table+len(assets)*16)
 for index,scene in enumerate(scenes):
@@ -186,12 +228,21 @@ for idx,(w,h,payload) in enumerate(assets):
 struct.pack_into('<8s6I',data,0,b'CSTORY02',event_table,len(scenes),asset_table,len(assets),len(data),0)
 (OUT/'story.bin').write_bytes(data)
 line_count=sum(len(s['lines']) for s in scenes)
-(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'ordinary_portraits':len(ordinary_ids),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'gallery':gallery,'gallery_count':len(gallery),'restyled_people':list(restyle_by_id),'quarter_portraits':len(quarter_entries),'quarter_entries':quarter_entries,'quarter_map':quarter_map,'gallery_quarters':gallery_quarters,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
+(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'ordinary_portraits':len(ordinary_ids),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'gallery':gallery,'gallery_count':len(gallery),'restyled_people':list(restyle_by_id),'proportions':proportions,'pose_envelopes':pose_envelopes,'reply_pairs':reply_pairs,'stage_offsets':stage_offsets,'quarter_portraits':len(quarter_entries),'quarter_entries':quarter_entries,'quarter_map':quarter_map,'gallery_quarters':gallery_quarters,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
 limits={'BACKGROUNDS':nbg,'BACKGROUND_WIDTH':background_width,'BACKGROUND_HEIGHT':background_height,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_width,'PORTRAIT_WIDTH':portrait_width,'PORTRAIT_HEIGHT':portrait_height,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count,'GALLERY_COUNT':len(gallery)}
 advances=(ROOT/'build/font_advance.bin').read_bytes();assert len(advances)==96
 (ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n#define STORY_GALLERY_POSE_COUNTS_INITIALIZER {'+','.join(map(str,gallery_pose_counts))+'}\n#define STORY_QUARTER_AVAILABLE '+str(int(quarter_available))+'\n')
 def cstring(value):return json.dumps(value,ensure_ascii=True)
 visuals='/* Generated visual catalog; included by the dialogue renderer only. */\n'
+visuals+='#define STORY_POSE_ENVELOPES_AVAILABLE 1\n#define STORY_REPLY_PAIRS_AVAILABLE 1\n'
+visuals+='#define STORY_CHARACTER_SCALES_AVAILABLE 1\n#define STORY_STANDING_MARGIN '+str(proportions['standing_margin'])+'\n'
+visuals+='static const uint16_t story_character_scales[STORY_GALLERY_COUNT] = {'+','.join(map(str,proportions['character_scales']))+'};\n'
+visuals+='static const int8_t story_portrait_characters[STORY_PORTRAITS] = {'+','.join(map(str,proportions['portrait_characters']))+'};\n'
+visuals+='static const uint16_t story_portrait_scales[STORY_PORTRAITS] = {'+','.join(map(str,proportions['portrait_scales']))+'};\n'
+visuals+='static const uint16_t story_pair_camera_scales[STORY_PEOPLE][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in proportions['pair_camera_scales'])+'};\n'
+visuals+='static const uint16_t story_pose_envelopes[STORY_PORTRAITS][2] = {'+','.join('{'+','.join(map(str,row))+'}' for row in pose_envelopes)+'};\n'
+visuals+='static const uint16_t story_stage_offsets[STORY_TOTAL+1] = {'+','.join(map(str,stage_offsets))+'};\n'
+visuals+='static const uint16_t story_reply_pairs[STORY_LINES] = {'+','.join(map(str,reply_pairs))+'};\n'
 visuals+='static const uint8_t story_portraits[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in portrait_map)+'};\n'
 visuals+='static const int16_t story_fullbodies[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in fullbody_map)+'};\n'
 visuals+='static const int16_t story_quarter_portraits[2][STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join('{'+','.join(map(str,row))+'}' for row in direction)+'}' for direction in quarter_map)+'};\n'

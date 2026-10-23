@@ -103,10 +103,14 @@ GARAGE, MEET, NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE.
 Standing story scenes now use inward-facing three-quarter full bodies for the
 people present. Lower actor IDs keep the left place and higher IDs the right
 place even when the speaker changes. A shared floor and small depth offset keep
-both people grounded; listener lighting is restrained. Complete silhouettes
-remain at native scale when they fit, with only necessary reductions for wide
-poses. Remaining close scenes retain upper-body portraits. Cast Studio also
-displays the fourteen new studies, outside the story. Original
+both people grounded; listener lighting is restrained. Each character has a
+fixed visual size from `art/story/proportions.json`.
+Nia keeps a native 256x264 frame while Vale uses a proportional 196x202 frame;
+heads stay comparable while Vale stands shorter. Pair cameras are fixed across
+all poses and fit their actual silhouettes, with no opaque figure overlap.
+Player replies preserve the authored visible cast, facing and held poses,
+including conversations with three or four named people. Remaining close scenes
+retain upper-body portraits. Cast Studio also displays the fourteen new studies, outside the story. Original
 background sources remain intact; older close shots are fitted to the taller
 view with their aspect ratios preserved. The workshop and lighthouse family
 images retain their authored content and upper-body staging.
@@ -138,20 +142,27 @@ changes no dialogue or heritage references; none specify her appearance.
 
 The final directional build passes 38,934 native campaign checks through all 125
 scenes, 923 messages and 929 pages, plus 4,873 dialogue pixel checks. The Cast
-Studio suite passes 4,632,846 checks across 28 people, 71 pose choices and 213
+Studio suite passes 4,390,873 checks across 28 people, 71 pose choices and 213
 direction/comparison views, covering input, guarded drawing, unchanged saves
-and cache release. Standing staging passes 246,580,775 ASan/UBSan checks across
+and cache release. Standing staging passes 247,173,511 ASan/UBSan checks across
 2,145 real-art pair configurations and all eight floor backgrounds. Of those
-configurations, 766 fit at native scale and 1,379 require a reduction; both
-figures remain complete with at least twelve empty columns between them.
+configurations, 783 retain their individual reference sizes and 1,362 use a shared camera
+reduction. All opaque pixels remain visible, without overlap. Another 2,054
+comparisons verify fixed framing across pose changes for all 91 character pairs.
 
 The exact-ROM DeSmuME tour captures all 213 gallery views: 142 authored
 directions and 71 original comparisons. It ignores touch, preserves save/story
-state, returns to both driving modes and reports zero archive errors. D01, D04,
-D05, D24 and S17 pass across 48 messages and 49 pages, including one real page
+state, returns to both driving modes and reports zero archive errors. D01, D03, D04,
+D05, D24 and S17 pass across 60 messages and 61 pages, including one real page
 flip and pause/resume. Later-scene batteries are labelled review fixtures
 rather than earned progression. Indexed asset sheets and actual emulator
 captures are identified separately.
+
+The player-reply regression passes 1,930 sanitized checks, including the reported
+D01 page 7 and D03 page 4, multi-person shots, held skeptical poses, cold caches,
+pause/replay/abort and the previous half of a scene fade. The preceding renderer
+fails the exact D01 visual comparison. All 95 paired player replies receive
+explicit visual cues without changing the 923 encoded dialogue records.
 
 The directional asset validator pins all 54 backgrounds and all 76 preceding
 portrait payloads to the published cast-overhaul ROM, byte for byte. It checks
@@ -165,7 +176,7 @@ approvals and all 66 wardrobe/concept alpha oracles.
 Authored portrait references and gallery availability are checked separately;
 this does not claim every archive record is visibly shown by the unchanged story.
 
-The [focused preview](previews/three-quarter-cast/README.md) records the exact ROM
+The [focused preview](previews/consistent-proportions/README.md) records the exact ROM
 and underlying reports. The earlier broader cartridge tour earned the first six
 events with controller input, verified autosaves and three independent profiles,
 replayed and aborted, then returned to both driving modes. That full release

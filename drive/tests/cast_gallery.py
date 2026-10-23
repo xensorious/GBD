@@ -42,7 +42,7 @@ def native(output):
               'sanitizers_passed': True, 'characters': 28, 'pose_views': 71,
               'directional_views': directional, 'total_gallery_views': 71 + directional,
               'story_ids_unchanged': True, 'saved_state_unchanged': True,
-              'native_pixels': True, 'dual_lcd_seam': True,
+              'native_reference_pixels': True, 'uniform_character_scaling': True, 'dual_lcd_seam': True,
               'exact_cache_restoration': ['story', 'endless_drive', 'free_roam'],
               'result': run.stdout.strip()}
     (output / 'cast-gallery-native-results.json').write_text(
