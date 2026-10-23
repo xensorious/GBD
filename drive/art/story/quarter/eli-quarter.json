@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "ELI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            2,
+            494,
+            753
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            161,
+            2,
+            531,
+            717
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            534,
+            4,
+            959,
+            758
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            638,
+            2,
+            1079,
+            715
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            762,
+            495,
+            1517
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1175,
+            4,
+            1559,
+            717
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            641,
+            764,
+            956,
+            1522
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1681,
+            4,
+            2026,
+            717
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/eli-left.png",
+      "generated_path": "/workspace/generated_images/exec-28c982b4-12c4-487e-8c6d-1d037823d5d2.png",
+      "sha256": "5c8dfe61ebe748490bf6671e1ceb0a0b914a7a99d5e0af76559f864a563e3969",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/eli-right.png",
+      "generated_path": "/workspace/generated_images/exec-66f7f599-97e4-485b-b919-f54d7ca22ade.png",
+      "sha256": "d8d8f9467449c90cbcd13c231f6526c82e4d13ab8ccbf5d02cf2c810d3e8768a",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import argparse
 import ctypes as C
 import hashlib
 import json
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -33,6 +34,100 @@ class Story(C.LittleEndianStructure):
                  ('active', 'chapter', 'event', 'line', 'count', 'phase',
                   'phase_tick', 'replay', 'pause', 'cursor', 'failed',
                   'page_start', 'page_end', 'page_index')]
+
+
+def quarter_portrait_bounds(rom, manifest):
+    """Read silhouette extents from the archive actually shipped in the ROM."""
+    if not manifest.get('quarter_portraits'):
+        return {}
+    from PIL import Image
+    data = rom.read_bytes()
+    fat, size = struct.unpack_from('<II', data, 0x48)
+    assert size == 8
+    start, end = struct.unpack_from('<II', data, fat)
+    archive = data[start:end]
+    assert hashlib.sha256(archive).hexdigest() == manifest['archive_sha256']
+    magic, _, _, table, count, total, unused = struct.unpack_from('<8s6I', archive)
+    assert magic == b'CSTORY02' and total == len(archive) and not unused
+    result = {}
+    ids = {portrait for direction in manifest['quarter_map']
+           for poses in direction for portrait in poses if portrait >= 0}
+    for portrait in ids:
+        index = manifest['backgrounds'] + portrait
+        assert index < count
+        offset, width, height, pixels, kind = struct.unpack_from('<IHHII', archive, table + index * 16)
+        assert (width, height, pixels, kind) == (256, 264, 256 * 264, 1)
+        mask = archive[offset + 512:offset + 512 + pixels]
+        assert len(mask) == pixels
+        bounds = Image.frombytes('L', (width, height), mask).getbbox()
+        assert bounds
+        result[portrait] = (bounds[0], bounds[2])
+    return result
+
+
+def actor_expectations(line, manifest, grounded, floor, bounds):
+    """Describe each visible figure without changing story or emulator state."""
+    people = manifest['people']
+    pose = ((line.focus >> 9) & 3) | ((line.pose_flags & 15) << 2)
+    companion_pose = ((line.focus >> 11) & 3) | ((line.pose_flags >> 4) << 2)
+    speaking = line.speaker < people
+    if line.stage != 0:
+        return ([{'actor': line.speaker, 'pose': pose, 'full_body': False,
+                  'placement': 'scene_badge',
+                  'portrait': manifest['portrait_map'][pose][line.speaker]}]
+                if speaking else [])
+    face = line.speaker if speaking else line.companion
+    selected = pose if speaking else companion_pose
+    if face >= people:
+        return []
+    other = line.companion if speaking else 255
+    distinct_other = other < people and other != face
+    face_left = not distinct_other or face < other
+    directions = manifest.get('quarter_map') if grounded and manifest.get('quarter_portraits') else None
+    quarter = directions[1 if face_left else 0][selected][face] if directions else -1
+    quarter_other = (directions[0 if face_left else 1][companion_pose][other]
+                     if directions and distinct_other else -1)
+    if quarter >= 0:
+        actors = [(face, selected, quarter)]
+        if quarter_other >= 0:
+            actors.append((other, companion_pose, quarter_other))
+            actors.sort()
+            span = sum(bounds[portrait][1] - bounds[portrait][0] for _, _, portrait in actors)
+            scale = 256 if span + 12 <= 240 else 228 * 256 // span
+            while sum((bounds[portrait][1] * scale + 255) // 256 -
+                      (bounds[portrait][0] * scale + 255) // 256
+                      for _, _, portrait in actors) > 228:
+                scale -= 1
+            width, height = 256 * scale // 256, 264 * scale // 256
+        else:
+            scale, width, height = 256, 256, 264
+        result = []
+        for index, (actor, selected, portrait) in enumerate(actors):
+            paired = len(actors) == 2
+            actor_floor = floor - (4 if paired and index else 0)
+            left, right = bounds[portrait]
+            x = ((8 - (left * width + 255) // 256) if index == 0 else
+                 (248 - (right * width + 255) // 256)) if paired else 0
+            result.append({'actor': actor, 'pose': selected, 'full_body': True,
+                           'portrait': portrait, 'placement': 'standing_pair' if paired else 'standing_single',
+                           'side': ('left' if index == 0 else 'right') if paired else 'center',
+                           'facing': ('RIGHT' if index == 0 else 'LEFT') if paired else
+                                     ('RIGHT' if face_left else 'LEFT'),
+                           'floor_y': actor_floor, 'position': [x, actor_floor - height],
+                           'frame_size': [width, height], 'scale_q8': scale,
+                           'native_scale': scale == 256})
+        return result
+    actors = [(face, selected)]
+    if not grounded and distinct_other:
+        actors.append((other, companion_pose))
+    result = []
+    for actor, selected in actors:
+        fullbody = manifest['fullbody_map'][selected][actor]
+        result.append({'actor': actor, 'pose': selected,
+                       'full_body': grounded and fullbody >= 0,
+                       'portrait': fullbody if grounded and fullbody >= 0 else
+                                   manifest['portrait_map'][selected][actor]})
+    return result
 
 
 def contact_sheet(captures, output):
@@ -75,6 +170,9 @@ def run_case(args, manifest):
     authored_lines = [line for shot in scene['shots'] for line in shot['lines']]
     background_names = [item['name'] for item in
                         json.loads((ROOT / 'story/staging.json').read_text())['backgrounds']]
+    floors = {item['name']: item.get('ground_y', 284) for item in
+              json.loads((ROOT / 'art/story/tall-scenes.json').read_text())['backgrounds']}
+    bounds = quarter_portrait_bounds(rom, manifest)
     captures = []
     page_flips = 0
     pause_checked = False
@@ -136,25 +234,8 @@ def run_case(args, manifest):
             companion_pose = ((state.current.focus >> 11) & 3) | ((state.current.pose_flags >> 4) << 2)
             background_name = background_names[state.current.background]
             grounded = background_name in manifest['fullbody_backgrounds']
-            expected_actors = []
-            if state.current.stage == 0:
-                face = state.current.speaker if state.current.speaker < manifest['people'] else state.current.companion
-                selected = pose if state.current.speaker < manifest['people'] else companion_pose
-                actors = [(face, selected)]
-                if not grounded and state.current.speaker < manifest['people'] and state.current.companion != face:
-                    actors.append((state.current.companion, companion_pose))
-                for actor, selected in actors:
-                    if actor >= manifest['people']:
-                        continue
-                    fullbody = manifest['fullbody_map'][selected][actor]
-                    expected_actors.append({'actor': actor, 'pose': selected,
-                                            'full_body': grounded and fullbody >= 0,
-                                            'portrait': fullbody if grounded and fullbody >= 0 else
-                                                        manifest['portrait_map'][selected][actor]})
-            elif state.current.speaker < manifest['people']:
-                expected_actors.append({'actor': state.current.speaker, 'pose': pose,
-                                        'full_body': False, 'placement': 'scene_badge',
-                                        'portrait': manifest['portrait_map'][pose][state.current.speaker]})
+            expected_actors = actor_expectations(state.current, manifest, grounded,
+                                                 floors.get(background_name, 284), bounds)
             captures.append({'scene': args.case, 'line': state.line,
                              'page': state.page_index, 'start': state.page_start,
                              'end': state.page_end, 'length': state.current.length,

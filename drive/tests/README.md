@@ -10,13 +10,26 @@ Run the focused cast checks after `make -C drive` against the final ROM:
 - `python3 drive/tests/campaign.py --native-only` traverses all 125 scenes,
   923 messages and 929 pages. It checks exact font wrapping, reveal/advance rules,
   stable shot/speaker across pages, pause, replay, abort, progress and saves.
-- `python3 drive/tests/story_assets.py` checks the 54 backgrounds and 76 portrait
-  records: 57 upper-body portraits, five approved Nia full-body poses and fourteen
-  concept-only full-body studies. Authored references and gallery availability
+- `python3 drive/tests/story_assets.py` checks the 54 backgrounds and 218 portrait
+  records: the preceding 76 portraits and 142 authored directional full bodies.
+  Authored references and gallery availability
   are checked separately; unused review poses are not claimed as story content.
 - `python3 drive/tests/character_replacement.py` retains Nia's source/crop
   approvals and checks the intentional restyles against their own sources. The
   previous native archive pins all 54 backgrounds and ten Nia payloads.
+- `python3 drive/tests/quarter_assets.py` pins all 76 old portrait payloads and
+  54 backgrounds to the published cast-overhaul ROM. It checks all 142 explicit
+  source/crop approvals against independent alpha masks, source direction maps,
+  complete gallery coverage and the unchanged 923 encoded dialogue/shot records.
+  Every frame has an explicit source/native visual review and a pinned complete
+  native palette/pixel payload hash; large discarded
+  components have separate notes. `--freeze-approval` creates pending review
+  markers and 28 source/retained/discarded/ROM contact pages; it does not approve
+  the art. Alpha extraction uses the original alpha channel at threshold 96,
+  keeps the largest connected figure and never color-keys red clothing.
+- `python3 drive/tests/newquarter_staging.py` checks stable speaker sides, shared
+  floors, silhouette fitting and the transient facing/comparison controls. Its
+  `--geometry-only` mode is explicitly a pre-art check, not complete validation.
 - `python3 drive/tests/cast_gallery.py` checks the 28-person Cast Studio browser,
   pose cycling, unchanged saves/story record, guarded drawing and cache release.
 
@@ -24,17 +37,22 @@ Run the focused cast checks after `make -C drive` against the final ROM:
 for D01, D04, D05, D24 and S17, including a real page flip and pause/resume.
 Controller input drives DeSmuME; RAM is read only. Later-scene batteries are
 labelled review fixtures, not earned progression. The focused bundle's
-VALIDATION.json identifies reports for its exact ROM. The focused cast build
-passes 38,508 campaign checks, 4,447 dialogue pixel checks and 2,202,587 Cast
-Studio checks. Its actual DeSmuME gallery tour reviews all 71 variants, passive
-touch and returns to both driving modes; the five-scene story sample also passes.
-All 66 new portrait alpha oracles match their sources, while the 54 encoded
-backgrounds and ten Nia payloads match the preceding native archive exactly.
-The broader driving release matrix was not rerun, and physical Delta/DS testing
-is not claimed.
+VALIDATION.json identifies reports for its exact ROM. The final directional build
+passes 38,934 native campaign checks, 4,873 dialogue pixel checks, 4,632,846 Cast
+Studio checks and 246,580,775 real-art standing-staging checks across 2,145
+configurations on eight floors. The actual DeSmuME gallery tour captures 213
+views, confirms passive touch and returns to both driving modes. The five-scene
+story sample passes 48 messages on 49 pages, one real page flip and pause/resume;
+both tours report zero archive failures.
+All 142 quarter source alpha oracles and reviewed native payload hashes pass.
+All 54 backgrounds, 76 legacy portraits and 923 encoded message/shot records
+match the published cast build byte for byte. Nia's earlier approvals and all
+66 wardrobe/concept alpha oracles also pass. Results are in `build/quarter-update`
+and the [focused preview](../previews/three-quarter-cast/README.md).
+The broader driving release matrix was not rerun, and physical Delta/DS testing is not claimed.
 
 `python3 drive/tests/playthrough.py --native-only` builds portable rules with
-GCC AddressSanitizer and UndefinedBehaviorSanitizer. Twelve suites cover driving,
+GCC AddressSanitizer and UndefinedBehaviorSanitizer. Fifteen suites cover driving,
 score receipts, six-level parts, effective tuning, mastery/career/perks, traffic
 following and lane safety, thirteen-region road continuity, settings and v1/v2/v3/v4
 battery-save integrity. The handling suite verifies exact quarter-step combos
@@ -107,7 +125,7 @@ reloads the new battery file in another process. Source/ROM/ELF baselines are
 verified against published hashes, with reproducible setup via `setup_legacy.py`.
 The current profile is 708 bytes in RAM and 500 bytes on disk, inside independently checked 512-byte records in an 8 KiB three-profile bank.
 
-Packaging requires matching SHA-256 values for the final ROM, all twelve native
+Packaging requires matching SHA-256 values for the final ROM, all fifteen native
 suites, the stock playthrough, four interface tours, all five prior-release migration cases, and the opening
 and three-profile persistence checks. Images in the package come from this ROM's emulator output.
 The broader handling/scenery/expansion/transition tours remain supplemental;

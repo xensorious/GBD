@@ -38,18 +38,26 @@ provenance, bounds and visual review. Nia's five upper-body and five full-body
 imports retain their approved source and encoded pixels. They preserve her face, hair, clothing,
 tattoos and barefoot design, with complete hands, tools and feet.
 
-Only Nia has full-body art used by the story. It is selected for FACE shots in the eight
-floor-compatible settings listed in `tall-scenes.json`: GARAGE, MEET,
-NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE. Other cast
-members and all remaining close settings retain upper-body portraits. The
-512x324 standing backgrounds have real floor space and place Nia's feet at
-world row 284. Original background source images remain unchanged.
+The earlier Nia-only full bodies remain available as original comparison art.
+`quarter/catalog.json` adds separately authored LEFT and RIGHT three-quarter
+full-body views for every current pose: five for Nia, four for each other story
+character and one for each concept, in both directions (142 additions). Nia
+retains her plain opaque white bra top, shorts, hair, jewelry and physical-side
+tattoos; the tank-top reference does not replace her current outfit.
+
+Standing FACE shots use the new art in the eight floor-compatible settings from
+`tall-scenes.json`: GARAGE, MEET, NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP,
+NIGHTGARAGE and EPILOGUE. Partners face inward in stable left/right places; close
+settings retain upper-body portraits. The shared floor is world row 284, with a
+four-pixel depth offset for the right partner. Original background source images
+remain unchanged.
 
 `new-cast/catalog.json` adds fourteen default full-body character studies.
 They appear in Career → Office → Cast studio alongside the fourteen existing
 characters, with concept labels and no story roles. The archive now contains
-76 portraits: 57 upper-body records, five Nia full-body records and fourteen new
-studies. These concepts do not extend `story/cast.json`'s story actor list, so
+218 portraits: the original 57 upper-body records, five Nia full-body records,
+fourteen concepts and 142 authored directional full bodies. These concepts do not
+extend `story/cast.json`'s story actor list, so
 YOU/NARRATOR IDs, dialogue encoding and saved progression remain unchanged.
 
 The continuous scene is 256x288 across the top LCD and the upper half of the
@@ -73,8 +81,18 @@ friend, Vale a customer/neighbor and Jules part of the crew. No named character
 is established as her sibling, parent or romantic partner. Her name, dialogue,
 plot and existing saved progression are preserved.
 
-The focused cast verification compares all ten encoded Nia payloads and all
-54 backgrounds with the preceding native archive, byte for byte. All 66 new
-portrait alpha oracles match their imported source silhouettes. Nia's old
+The wardrobe verification compares all ten encoded Nia payloads and all
+54 backgrounds with the preceding native archive, byte for byte. All 66 wardrobe
+and concept portrait alpha oracles match their imported source silhouettes. Nia's old
 approval pins remain independent of the new wardrobe approvals. The story's
 923 messages, 929 pages, cast IDs and relationship text remain unchanged.
+
+`tests/quarter_assets.py` checks that all 76 legacy portrait and 54 background
+payloads remain byte-identical to the published cast build at commit `3cb4900`.
+The fixture pins that ROM's full SHA-256. Independent alpha
+oracles cover all 142 new imports; the source/crop approvals preserve the reviewed
+artwork, and all 28 source/retained/discarded/ROM review pages have pinned hashes.
+The archive has 272 assets; its asset count and offsets use 32-bit fields, while
+portrait IDs remain within 0–217. Left/right view selection does not mirror tattoos or other asymmetric
+features at runtime. Cast Studio starts with the right-facing view; X changes
+direction, Y compares the original art and L/R or A changes the pose.

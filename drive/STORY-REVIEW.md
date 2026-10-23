@@ -2,9 +2,9 @@
 
 The campaign still has 125 event nodes and the same saved completion record.
 This edition contains 923 messages on 929 dialogue pages, 54 panoramic
-backgrounds and fourteen named story characters. The 76 transparent portrait
-records comprise 57 upper-body portraits, five approved full-body Nia poses and
-fourteen additional full-body character studies. The new studies are unassigned
+backgrounds and fourteen named story characters. The 218 transparent portrait
+records retain the preceding 76 illustrations and add 142 authored left/right
+three-quarter full-body views for 71 available poses. The new studies are unassigned
 concepts in Cast Studio, bringing its review roster to 28 without changing story
 speaker IDs or introducing new dialogue. Sixty-one scenes have expanded
 writing, and the ending has an additional extension. Sixty-two events visit the new
@@ -100,16 +100,21 @@ directly from the source art, rather than enlarged from earlier exports.
 
 Eight 512x324 replacement backgrounds provide standing floor space:
 GARAGE, MEET, NIA_KITCHEN, DINER, GREENHOUSE, ROOFTOP, NIGHTGARAGE and EPILOGUE.
-Within story scenes, only Nia uses full-body poses, and only in those settings.
-Other cast members and the remaining close scenes use their upper-body portraits.
-Cast Studio also displays the fourteen new full-body studies, outside the story. Original
+Standing story scenes now use inward-facing three-quarter full bodies for the
+people present. Lower actor IDs keep the left place and higher IDs the right
+place even when the speaker changes. A shared floor and small depth offset keep
+both people grounded; listener lighting is restrained. Complete silhouettes
+remain at native scale when they fit, with only necessary reductions for wide
+poses. Remaining close scenes retain upper-body portraits. Cast Studio also
+displays the fourteen new studies, outside the story. Original
 background sources remain intact; older close shots are fitted to the taller
 view with their aspect ratios preserved. The workshop and lighthouse family
 images retain their authored content and upper-body staging.
 
 Career → Office → Cast studio is an additive review browser for all 28 people.
 D-pad directions change the selected person, L/R or A cycles their available
-variants, and B returns to the Office. New studies are marked as concepts; no
+variants. X changes facing, Y compares the original illustration, and B returns
+to the Office. New studies are marked as concepts; no
 story scenes, relationships, unlock requirements or rewards are attached to them.
 Nia has five reviewed poses, the other existing characters have four, and each
 new study has one. The browser leases and releases the same graphics storage as
@@ -131,29 +136,39 @@ changes no dialogue or heritage references; none specify her appearance.
 
 ## Verification
 
-The focused cast build passes 38,508 native campaign checks through all 125
-scenes, 923 messages and 929 pages, plus 4,447 dialogue pixel checks. The Cast
-Studio suite passes 2,202,587 checks across 28 people and 71 available portrait
-variants, covering input, guarded drawing, unchanged saves and cache release.
+The final directional build passes 38,934 native campaign checks through all 125
+scenes, 923 messages and 929 pages, plus 4,873 dialogue pixel checks. The Cast
+Studio suite passes 4,632,846 checks across 28 people, 71 pose choices and 213
+direction/comparison views, covering input, guarded drawing, unchanged saves
+and cache release. Standing staging passes 246,580,775 ASan/UBSan checks across
+2,145 real-art pair configurations and all eight floor backgrounds. Of those
+configurations, 766 fit at native scale and 1,379 require a reduction; both
+figures remain complete with at least twelve empty columns between them.
 
-An actual DeSmuME tour visits all 71 gallery variants, ignores touch input and
-returns to both driving modes. The D01, D04, D05, D24 and S17 story sample also
-passes, including a real two-page message. Later-scene batteries are labelled
-review fixtures rather than earned progression. Indexed asset sheets and actual
-emulator captures are identified separately.
+The exact-ROM DeSmuME tour captures all 213 gallery views: 142 authored
+directions and 71 original comparisons. It ignores touch, preserves save/story
+state, returns to both driving modes and reports zero archive errors. D01, D04,
+D05, D24 and S17 pass across 48 messages and 49 pages, including one real page
+flip and pause/resume. Later-scene batteries are labelled review fixtures
+rather than earned progression. Indexed asset sheets and actual emulator
+captures are identified separately.
 
-All 54 encoded background payloads and ten Nia portrait payloads match the
-preceding native archive exactly. Sixty-six new portrait alpha oracles report
-zero mismatches. The other thirteen characters are intentional active-art
-replacements; their original atlases remain as provenance. The approved Nia
-source/crop hashes, story text and staging specifications stay pinned.
+The directional asset validator pins all 54 backgrounds and all 76 preceding
+portrait payloads to the published cast-overhaul ROM, byte for byte. It checks
+142 independent source alpha masks, both directional matrices, the unchanged
+923 encoded message/shot records and all legacy gallery bindings. Direction and
+complete figures are reviewed in 28 source/retained/discarded/ROM contact pages.
+Every reviewed source, crop and native palette/pixel payload has a pinned hash;
+79 crops with larger discarded components have explicit review notes.
+The character replacement check also retains Nia's earlier source/crop
+approvals and all 66 wardrobe/concept alpha oracles.
 Authored portrait references and gallery availability are checked separately;
 this does not claim every archive record is visibly shown by the unchanged story.
 
-The focused download's VALIDATION.json records the exact ROM and underlying
-reports. The earlier broader cartridge tour earned the first six events with
-controller input, verified autosaves and three independent profiles, replayed
-and aborted, then returned to both driving modes. That full release matrix was
-not rerun for this cast build. Physical Delta or DS testing is not claimed.
+The [focused preview](previews/three-quarter-cast/README.md) records the exact ROM
+and underlying reports. The earlier broader cartridge tour earned the first six
+events with controller input, verified autosaves and three independent profiles,
+replayed and aborted, then returned to both driving modes. That full release
+matrix was not rerun for this cast build. Physical Delta or DS testing is not claimed.
 Free Roam performance was measured separately; its optimization results are in
 PERFORMANCE.json.

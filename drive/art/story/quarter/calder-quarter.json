@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "CALDER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            42,
+            12,
+            475,
+            763
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            188,
+            1,
+            418,
+            364
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            181,
+            358,
+            430,
+            728
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            655,
+            358,
+            905,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            220,
+            721,
+            415,
+            1089
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            668,
+            721,
+            865,
+            1087
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            221,
+            1075,
+            418,
+            1446
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            673,
+            1076,
+            886,
+            1446
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/calder-base.png",
+      "generated_path": "/workspace/generated_images/exec-40f6668b-954a-4955-b7ff-bbcd4b69d831.png",
+      "sha256": "03239df0820c2225205e018d53f0aba2315164e6c39fa4af2879c6ad6c39fe94",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/elders-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-063c8b6b-a0da-4fb2-97eb-298687234771.png",
+      "sha256": "5f5b3bcf8e197966ec992c84c7ea2ad9fa398e654ab72a820c6d8d499eb5efd8",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

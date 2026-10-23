@@ -4,6 +4,9 @@
 #define CAREER_CHAPTERS 5
 #define CAREER_EVENTS 25
 #define CAREER_CAST_MODAL 6
+#define CAREER_GALLERY_POSE_MASK 7u
+#define CAREER_GALLERY_LEFT 8u
+#define CAREER_GALLERY_LEGACY 16u
 /* Transient menu state. Persistent story frontier lives in the profile. */
 typedef struct {uint8_t tab,chapter,event,modal,page,garage_return,drive_column,gallery_pose;uint32_t revision;} CareerUI;
 typedef struct {const char *name,*subtitle,*surface,*premise,*mini,*boss,*mini_style,*boss_style;uint16_t accent;} CareerChapter;

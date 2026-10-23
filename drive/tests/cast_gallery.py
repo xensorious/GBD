@@ -36,9 +36,11 @@ def native(output):
     if run.stderr:
         print(run.stderr, end='', file=sys.stderr)
     run.check_returncode()
+    directional = 142 if json.loads((ROOT / 'build/story-manifest.json').read_text()).get('quarter_portraits') else 0
     result = {'rom': inspect(ROOT / 'build/Coastline.nds'),
               'checks': int(re.search(r'(\d+) checks', run.stdout)[1]),
               'sanitizers_passed': True, 'characters': 28, 'pose_views': 71,
+              'directional_views': directional, 'total_gallery_views': 71 + directional,
               'story_ids_unchanged': True, 'saved_state_unchanged': True,
               'native_pixels': True, 'dual_lcd_seam': True,
               'exact_cache_restoration': ['story', 'endless_drive', 'free_roam'],
@@ -58,6 +60,7 @@ def cartridge(output):
     stats_address = find_symbol(elf, 'story_visual_stats')
     manifest = json.loads((ROOT / 'build/story-manifest.json').read_text())
     gallery = manifest['gallery']
+    quarter_available = bool(manifest.get('quarter_portraits', 0))
     assert len(gallery) == 28
     sha = hashlib.sha256(rom.read_bytes()).hexdigest()
     captures = []
@@ -96,7 +99,29 @@ def cartridge(output):
                 drive.shot(image)
                 captures.append({'entry': entry, 'pose': pose,
                                  'name': character['name'],
+                                 'view': 'quarter-right' if quarter_available else 'original',
                                  'image': image + '.png'})
+                if quarter_available:
+                    drive.press('x')
+                    assert state().gallery_pose == (pose | 8)
+                    image = f'cast-{entry:02d}-{pose}-left'
+                    drive.shot(image)
+                    captures.append({'entry': entry, 'pose': pose, 'name': character['name'],
+                                     'view': 'quarter-left', 'image': image + '.png'})
+                    assert bytes(drive.game().save) == original_save
+                    assert emulator.read_ram(story_address, story_size) == original_story
+                    drive.press('x')
+                    assert state().gallery_pose == pose
+                    drive.press('y')
+                    assert state().gallery_pose == (pose | 16)
+                    image = f'cast-{entry:02d}-{pose}-original'
+                    drive.shot(image)
+                    captures.append({'entry': entry, 'pose': pose, 'name': character['name'],
+                                     'view': 'original', 'image': image + '.png'})
+                    assert bytes(drive.game().save) == original_save
+                    assert emulator.read_ram(story_address, story_size) == original_story
+                    drive.press('y')
+                    assert state().gallery_pose == pose
                 assert bytes(drive.game().save) == original_save
                 assert emulator.read_ram(story_address, story_size) == original_story
                 drive.press('r')
@@ -106,7 +131,8 @@ def cartridge(output):
             drive.press('a')
             assert not state().gallery_pose
             drive.press('right')
-        assert len(captures) == 71 and state().page == state().gallery_pose == 0
+        assert len(captures) == (213 if quarter_available else 71)
+        assert state().page == state().gallery_pose == 0
         drive.ticks(4, touch=(128, 120))
         assert state().page == state().gallery_pose == 0 and state().modal == 6
         drive.press('left')
@@ -143,6 +169,8 @@ def cartridge(output):
         assert not drive.game().save.reserved[0]
     assert hashlib.sha256(rom.read_bytes()).hexdigest() == sha
     result = {'rom_sha256': sha, 'characters': 28, 'pose_views': 71,
+              'directional_views': 142 if quarter_available else 0,
+              'total_captures': len(captures),
               'fresh_profile': True, 'button_only': True, 'touch_ignored': True,
               'emulated_ram_read_only': True, 'saved_state_unchanged_while_browsing': True,
               'story_state_unchanged_while_browsing': True,

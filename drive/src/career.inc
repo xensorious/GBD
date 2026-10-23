@@ -94,11 +94,17 @@ void campaign_tick(Game*g,const Input*in){
  if(in->pressed&K_B){if(campaign.modal)campaign.modal=0;else{g->mode=M_DRIVE;g->cursor=2;}campaign.revision++;return;}
  if(campaign.modal==CAREER_CAST_MODAL){
   static const uint8_t poses[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
+  campaign.page=(uint8_t)(campaign.page%STORY_GALLERY_COUNT);
   int direction=horizontal(in)+vertical(in);
-  if(direction){campaign.page=(uint8_t)((campaign.page+STORY_GALLERY_COUNT+direction)%STORY_GALLERY_COUNT);campaign.gallery_pose=0;}
+  if(direction){campaign.page=(uint8_t)((campaign.page+STORY_GALLERY_COUNT+direction)%STORY_GALLERY_COUNT);campaign.gallery_pose&=(uint8_t)~CAREER_GALLERY_POSE_MASK;}
+  if(in->pressed&K_X)campaign.gallery_pose^=CAREER_GALLERY_LEFT;
+  if(in->pressed&K_Y)campaign.gallery_pose^=CAREER_GALLERY_LEGACY;
   int pose=((in->pressed&K_R)?1:0)-((in->pressed&K_L)?1:0);
   if(in->pressed&K_A)pose++;
-  if(pose){unsigned count=poses[campaign.page];campaign.gallery_pose=(uint8_t)((campaign.gallery_pose+count+pose)%count);}
+  if(pose){
+   unsigned count=poses[campaign.page],selected=campaign.gallery_pose&CAREER_GALLERY_POSE_MASK;
+   campaign.gallery_pose=(uint8_t)((campaign.gallery_pose&~CAREER_GALLERY_POSE_MASK)|((selected+count+pose)%count));
+  }
   campaign.revision++;return;
  }
  if(campaign.modal){

@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "VOSS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            521,
+            10,
+            929,
+            769
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            644,
+            0,
+            878,
+            412
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            123,
+            757,
+            458,
+            1511
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            401,
+            856,
+            805
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            251,
+            792,
+            431,
+            1170
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            793,
+            848,
+            1171
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            628,
+            766,
+            912,
+            1514
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            686,
+            1152,
+            845,
+            1448
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/voss-base.png",
+      "generated_path": "/workspace/generated_images/exec-c92bbfa2-45bf-4450-8f2e-40229f59a0e0.png",
+      "sha256": "b8ce2e14978765cadee22aa170b0f1fa99d97ff083de41d053fd8ca1cb125674",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/elders-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-063c8b6b-a0da-4fb2-97eb-298687234771.png",
+      "sha256": "5f5b3bcf8e197966ec992c84c7ea2ad9fa398e654ab72a820c6d8d499eb5efd8",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

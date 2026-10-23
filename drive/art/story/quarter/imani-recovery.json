@@ -1,0 +1,135 @@
+{
+  "characters": [
+    {
+      "character": "IMANI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            10,
+            25,
+            378,
+            1046
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            412,
+            31,
+            787,
+            1045
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            772,
+            30,
+            1138,
+            1050
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            1124,
+            37,
+            1441,
+            1049
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-25.png",
+          "bounds": [
+            15,
+            18,
+            417,
+            1047
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-25.png",
+          "bounds": [
+            426,
+            22,
+            819,
+            1053
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-2.png",
+          "bounds": [
+            623,
+            817,
+            898,
+            1217
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-quiet-right-repair.png",
+          "bounds": [
+            281,
+            14,
+            764,
+            1520
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/imani-recovered-33.png",
+      "generated_path": "/workspace/generated_images/exec-1d75c8da-09e2-4088-b17b-aa0a1ef2c0a5.png",
+      "sha256": "0ef6e2279405b1c401b1a0aa23341e28cfa535fe9d98bbc618a95678bc8d8827",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/imani-recovered-25.png",
+      "generated_path": "/workspace/generated_images/exec-0500fa7c-a2f2-4051-81ae-a67197f58a01.png",
+      "sha256": "91b7bc6f578057fc89b8f791d2bf24dc1e20d121610f2c92350f7512e47f98d6",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/imani-recovered-2.png",
+      "generated_path": "/workspace/generated_images/exec-0f2726e9-1f50-4763-9265-7f23be29d255.png",
+      "sha256": "4bf80e2f24cabe828c15bfd2076aff1f74a13ae74b6a9a6742a10e15ce13ddbb",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/imani-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-7e8aee0f-fb1c-4912-b35f-95b3d9d543e4.png",
+      "sha256": "a6abc10268a024409619b37ba9b2560227d92da47d558addde4f993e87d6899d",
+      "size": [
+        1024,
+        1536
+      ]
+    }
+  ]
+}

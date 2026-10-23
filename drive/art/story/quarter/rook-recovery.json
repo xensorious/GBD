@@ -1,0 +1,126 @@
+{
+  "characters": [
+    {
+      "character": "ROOK",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            192,
+            4,
+            464,
+            419
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            95,
+            3,
+            569,
+            772
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            227,
+            413,
+            447,
+            814
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            651,
+            3,
+            994,
+            770
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            239,
+            805,
+            461,
+            1199
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            1086,
+            2,
+            1431,
+            774
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-22.png",
+          "bounds": [
+            795,
+            625,
+            1050,
+            1232
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            1567,
+            3,
+            1976,
+            774
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/rook-recovered-1.png",
+      "generated_path": "/workspace/generated_images/exec-de148018-b291-44fb-b896-1fa834787a55.png",
+      "sha256": "434ba959f3db944c205a8753e065734d37de974df8d7941f012edc9f2f7181c2",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/rook-recovered-22.png",
+      "generated_path": "/workspace/generated_images/exec-70978b4c-6d18-4149-a0cb-b9aa365dad7f.png",
+      "sha256": "9e40c650d586c2ccd649f5f01555ff7d923517ffb4108fa5dd6fc7723cee3f02",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "sheet": "quarter/rook-left-physical-side-repair.png",
+      "generated_path": "/workspace/generated_images/exec-d9c611f1-2bd5-4959-bdae-5d8c5ef911e6.png",
+      "sha256": "c5bd7cb684a6d3f02e2fcdfef488505e9a1867e5f2e5696ef702151acdaa3e92",
+      "size": [
+        1983,
+        793
+      ]
+    }
+  ]
+}

@@ -20,7 +20,7 @@ manifest=json.loads((ROOT/'build/story-manifest.json').read_text())
 
 def report(name):
     result=json.loads((validation/name).read_text())
-    assert result.get('sha256',result.get('rom',{}).get('sha256'))==digest,('Stale validation report',name)
+    assert result.get('sha256',result.get('rom_sha256',result.get('rom',{}).get('sha256')))==digest,('Stale validation report',name)
     return result
 
 campaign=report('campaign-results.json')
@@ -34,7 +34,22 @@ assert campaign_native['checks']>=12000 and campaign_native['sanitizers_passed']
 story_assets=report('story-assets-results.json');story_autosave=report('story-autosave-results.json')
 assert story_assets['archive_matches_nitrofs'] and story_assets['scenes']==125 and story_assets['lines']==manifest['dialogue_lines'] and story_assets['portrait_alpha_masks_valid']
 assert story_assets['resident_headroom_bytes']>0 and story_assets['itcm_headroom_bytes']>=0
-assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==76
+quarter_count=manifest.get('quarter_portraits',0)
+assert quarter_count in (0,142)
+assert story_assets['backgrounds']==manifest['backgrounds']==54 and story_assets['portraits']==manifest['portraits']==76+quarter_count
+if quarter_count:
+    quarter_assets=report('quarter-assets-results.json');quarter_staging=report('quarter-staging-results.json')
+    assert quarter_assets['legacy_background_payloads_preserved']==54 and quarter_assets['legacy_portrait_payloads_preserved']==76
+    assert quarter_assets['independent_source_alpha_oracles_passed']==quarter_count and quarter_assets['quarter_maps_valid']
+    assert quarter_assets['source_and_native_visual_reviews']==quarter_count and quarter_assets['alpha_extraction_uses_source_alpha_only']
+    assert quarter_assets['encoded_story_events_preserved']==125 and quarter_assets['encoded_story_lines_preserved']==923
+    assert quarter_assets['archive_portraits']==218 and quarter_assets['archive_assets']==272 and quarter_assets['maximum_portrait_id']==217
+    assert quarter_assets['original_gallery_bindings_preserved'] and quarter_assets['story_speaker_ids_preserved']
+    assert quarter_staging['sanitizers_passed'] and quarter_staging['complete_directional_assets']
+    assert quarter_staging['scope']=='real_directional_art' and quarter_staging['authored_directional_gallery_views']==142
+    assert quarter_staging['real_art_pair_configurations']==2145 and quarter_staging['compatible_floor_scenes']==8
+    assert quarter_staging['pair_pixels_across_both_lcds'] and quarter_staging['speaker_swap_reloads']==0
+    assert quarter_staging['speaker_sides_stable'] and quarter_staging['geometry_clips_no_opaque_pixels']
 assert story_assets['ordinary_portraits']==manifest['ordinary_portraits']==57
 assert story_assets['gallery_people']==manifest['gallery_count']==28 and story_assets['new_gallery_only_people']==14
 assert story_assets['authored_portrait_references_valid'] and story_assets['draft_portraits_excluded_from_story']
@@ -190,6 +205,7 @@ shutil.copyfile(validation/'shadow-qa-results.json',DIST/'SHADOW-AUDIT.json')
 (DIST/'VALIDATION.json').write_text(json.dumps({'known_issues':known_issues,'strict_driving_timing_passed':not known_issues,'optimization':performance,'cartridge':stock,'interface_studio':studio,'opening':opening,
     'afternoon_sunlight':sunlight,'sunlight_comparison':sunlight_comparison,
     'shadow_qa':shadow_qa,'career_preview':campaign,'career_native':campaign_native,'story_assets':story_assets,'story_autosave':story_autosave,
+    'quarter_assets':quarter_assets if quarter_count else None,'quarter_staging':quarter_staging if quarter_count else None,
     'free_roam_refinement':refinement_report,'rotating_city_mesh':mesh,'city_environment':environment,'scenery_comparison':scenery_comparison,'openworld_art':world_art,'openworld_comparison':world_comparison,'pixel_material_masks':masks,'paint_comparison':comparison,'free_roam':city,'previous_v6_profile':current,'finishes':finishes,'premium_roster':premium,'previous_three_profiles':profiles,'v1_v2_save_migration':legacy,'v3_save_migration':previous,'previous_v4_profile':v4,'dealer_and_style_regressions':extra,
     'scope':'Fixed northwest afternoon sunlight casts southeast roof hulls and alpha canopy silhouettes. The shared world-space cache shades player and NPC vehicle vertices progressively; uniform-light vehicles retain one quad, and existing material art is preserved. Spatial buckets and conservative scenery culling keep the DS workload bounded. Independent ray/roof tests cover 145,152 cases; all 1024 chunks, canopy holes, uncached shadow unions and cache boundaries are checked. Actual button-driven captures verify full sunlight, partial shade and full shade. Free Roam refinement: ground layers compose in a separate far-depth band; direct Q4 vertices avoid the old +/-512px street-corner wrap; the view is pulled back 12.5% with fractional camera translation. Smaller per-model sprites share oriented collision/headway dimensions, verified with 1,161,216 independent polygon-clipping contact cases. Dynamic player poses are prepared before a short bank-D-only upload. Actual road-pixel inspection covers hundreds of frames including a junction sway. Heading-locked Free Roam camera using Nintendo DS hardware 3D: sixteen original orthographic facade textures, real walls and pitched/flat roofs, dimensional bridge rails and streetlights, world-fixed roads and ground, overhead canopies/gardens/boats and the existing material-protected vehicle paintings. Native checks cover all 256 headings, vertical height, world-translation cancellation and ground overlap at 24 cardinal views, plus geometry, assets and gameplay. Actual button-only cartridge tests turn through a full circle/heading wrap, capture diagonal junction turns, cross the canal, check DS geometry/underflow flags and performance, re-enter the city, restore the bitmap highway, and reload the shared battery save. Functional checks for both playable driving modes, the playable Career story scenes, six interfaces, purchases, vehicle finishes, profiles and save migrations pass on this exact ROM. Strict driving timing is reported separately and may fail in explicitly labelled UI review builds. Native district views are explicitly labelled diagnostic renders. Physical Delta/iPhone/DS testing was not performed.'},indent=2)+'\n')
 shutil.copyfile(ROOT/'CAREER-DRAFT.md',DIST/'CAREER-DRAFT.md')
@@ -267,11 +283,15 @@ assert all(len(person['portraits'])==len(person['full_body'])==5 for person in c
 draft_ids={portrait for person in cast_gallery[14:] for portrait in person['portraits']}
 assert len(draft_ids)==14 and all(len(set(person['portraits']))==1 and all(person['full_body']) for person in cast_gallery[14:])
 assert not ordinary_ids&fullbody_ids and not draft_ids&(ordinary_ids|fullbody_ids)
-assert ordinary_ids|fullbody_ids|draft_ids==set(range(manifest['portraits']))
+quarter_entries=manifest.get('quarter_entries',[])
+quarter_ids={entry['portrait'] for entry in quarter_entries}
+assert len(quarter_entries)==quarter_count and quarter_ids==set(range(76,76+quarter_count))
+assert ordinary_ids|fullbody_ids|draft_ids==set(range(76))
+assert ordinary_ids|fullbody_ids|draft_ids|quarter_ids==set(range(manifest['portraits']))
 nia=next(i for i,person in enumerate(catalog['people']) if person[0]=='NIA')
 assert all(value>=0 if person==nia else value==-1 for row in fullbody_map for person,value in enumerate(row))
 sheet=Image.new('RGB',(8*portrait_width,24+((manifest['portraits']+7)//8)*portrait_row),'#142b36');draw=ImageDraw.Draw(sheet)
-draw.text((8,5),f"INDEXED CHARACTER ART / {len(ordinary_ids)} upper-body + {len(fullbody_ids)} Nia full-body + {len(draft_ids)} concept studies / not emulator screenshots",font=font,fill='white');seen=set()
+draw.text((8,5),f"INDEXED CHARACTER ART / {len(ordinary_ids)} upper-body + {len(fullbody_ids)} Nia full-body + {len(draft_ids)} concept studies + {quarter_count} directional full bodies / not emulator screenshots",font=font,fill='white');seen=set()
 for mapping,fullbody in ((portrait_map,False),(fullbody_map,True)):
     for pose,row in enumerate(mapping):
         for person,portrait in enumerate(row):
@@ -287,6 +307,13 @@ for person in cast_gallery[14:]:
     assert im.size==(portrait_width,portrait_height)
     sheet.paste(im,(x,y),im);draw.text((x+3,y+portrait_height+1),person['name']+' / Concept',font=font,fill='white')
     draw.text((x+3,y+portrait_height+14),person['style'],font=font,fill='#9cbcb9')
+for entry in quarter_entries:
+    portrait=entry['portrait'];assert portrait not in seen
+    seen.add(portrait);x=portrait%8*portrait_width;y=24+portrait//8*portrait_row;im=indexed_art(manifest['backgrounds']+portrait)
+    assert im.size==(portrait_width,portrait_height)
+    person=next(person for person in cast_gallery if person['id']==entry['character'])
+    sheet.paste(im,(x,y),im);draw.text((x+3,y+portrait_height+1),person['name']+' / '+entry['pose'].title(),font=font,fill='white')
+    draw.text((x+3,y+portrait_height+14),'Three-quarter / '+entry['facing'].lower(),font=font,fill='#9cbcb9')
 assert seen==set(range(manifest['portraits']))
 sheet.save(DIST/'Story-Wardrobes.png')
 shutil.copyfile(validation/'opening-transition.gif',DIST/'Opening.gif')

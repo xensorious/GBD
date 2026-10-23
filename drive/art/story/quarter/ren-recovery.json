@@ -1,0 +1,126 @@
+{
+  "characters": [
+    {
+      "character": "REN",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            241,
+            2,
+            428,
+            423
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            662,
+            2,
+            847,
+            428
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            243,
+            400,
+            424,
+            810
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            672,
+            402,
+            845,
+            810
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            243,
+            785,
+            457,
+            1187
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            653,
+            786,
+            849,
+            1187
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-quiet-right-repair.png",
+          "bounds": [
+            881,
+            15,
+            1267,
+            1002
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-quiet-left-repair.png",
+          "bounds": [
+            223,
+            12,
+            750,
+            1513
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/ren-recovered-12.png",
+      "generated_path": "/workspace/generated_images/exec-2a29dfc3-53de-4c1c-987e-159c5e01be2b.png",
+      "sha256": "f715318443df14fa25873d6e3614ed3916042643e094bf89db9d51a5e53506c6",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/ren-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-27e70b9b-3fa8-4780-93e5-ca2857061913.png",
+      "sha256": "e485ab7115663bfd200a1ea29bb58d4fcef8e732d1dc5b2806e93f8e3c0e467d",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "sheet": "quarter/ren-quiet-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-4c87410e-9e16-4bac-bd9a-de1ec8f99b39.png",
+      "sha256": "7055804dc13ef85aa6565afb5110e1f4c2453d1ff7271394b903d6550b63344e",
+      "size": [
+        1024,
+        1536
+      ]
+    }
+  ]
+}

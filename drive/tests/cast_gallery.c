@@ -8,6 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "story_visuals.h"
+#ifndef STORY_QUARTER_AVAILABLE
+#define STORY_QUARTER_AVAILABLE 0
+#endif
 
 extern volatile uint32_t story_visual_stats[5];
 enum { W=256,H=192,GUARD=16 };
@@ -16,7 +19,7 @@ static Frames screen,snapshot;
 static uint8_t portrait[STORY_PORTRAIT_WIDTH*STORY_PORTRAIT_HEIGHT];
 static uint16_t palette[256];
 static const uint8_t pose_counts[STORY_GALLERY_COUNT]=STORY_GALLERY_POSE_COUNTS_INITIALIZER;
-static unsigned checks,portraits_checked;
+static unsigned checks,portraits_checked,directional_checked;
 #define CHECK(v) do{checks++;if(!(v)){fprintf(stderr,"cast gallery:%d: %s\n",__LINE__,#v);exit(1);}}while(0)
 
 static void press(Game*g,unsigned key){Input in={key,key};game_update(g,&in);}
@@ -35,10 +38,17 @@ static void open_gallery(Game*g){
  draw(g);
 }
 static void native_portrait(void){
- int entry=campaign.page,pose=campaign.gallery_pose,w,h;
- CHECK(story_asset(STORY_BACKGROUNDS+story_gallery_portraits[entry][pose],portrait,palette,sizeof portrait,&w,&h));
+ int entry=campaign.page,pose=campaign.gallery_pose&CAREER_GALLERY_POSE_MASK,w,h;
+ int id=story_gallery_portraits[entry][pose],full=story_gallery_fullbody[entry][pose];
+#if STORY_QUARTER_AVAILABLE
+ if(!(campaign.gallery_pose&CAREER_GALLERY_LEGACY)){
+  int facing=campaign.gallery_pose&CAREER_GALLERY_LEFT?0:1;
+  id=story_gallery_quarters[entry][pose][facing];full=1;directional_checked++;
+ }
+#endif
+ CHECK(story_asset(STORY_BACKGROUNDS+id,portrait,palette,sizeof portrait,&w,&h));
  CHECK(w==STORY_PORTRAIT_WIDTH&&h==STORY_PORTRAIT_HEIGHT);
- int floor=story_gallery_fullbody[entry][pose]?story_ground_y[0]:STORY_SCENE_HEIGHT;
+ int floor=full?story_ground_y[0]:STORY_SCENE_HEIGHT;
  unsigned pixels=0,lower=0;
  /* The studio always draws its lead one-to-one. Check original indexed pixels
   * directly on both LCDs; only the tiny top title can overlap a native pixel. */
@@ -67,6 +77,16 @@ static void browsing(void){
    draw(&g);native_portrait();snapshot=screen;draw(&g);
    CHECK(!memcmp(snapshot.top,screen.top,sizeof screen.top)&&!memcmp(snapshot.bottom,screen.bottom,sizeof screen.bottom));
    CHECK(!memcmp(&saved,&g.save,sizeof saved)&&!memcmp(&untouched,&story,sizeof untouched));
+#if STORY_QUARTER_AVAILABLE
+   press(&g,K_X);CHECK(campaign.gallery_pose==(unsigned)(pose|CAREER_GALLERY_LEFT));draw(&g);native_portrait();
+   CHECK(!memcmp(&saved,&g.save,sizeof saved)&&!memcmp(&untouched,&story,sizeof untouched));
+   press(&g,K_X);CHECK(campaign.gallery_pose==pose);draw(&g);
+   CHECK(!memcmp(snapshot.top,screen.top,sizeof screen.top)&&!memcmp(snapshot.bottom,screen.bottom,sizeof screen.bottom));
+   press(&g,K_Y);CHECK(campaign.gallery_pose==(unsigned)(pose|CAREER_GALLERY_LEGACY));draw(&g);native_portrait();
+   CHECK(!memcmp(&saved,&g.save,sizeof saved)&&!memcmp(&untouched,&story,sizeof untouched));
+   press(&g,K_Y);CHECK(campaign.gallery_pose==pose);draw(&g);
+   CHECK(!memcmp(snapshot.top,screen.top,sizeof screen.top)&&!memcmp(snapshot.bottom,screen.bottom,sizeof screen.bottom));
+#endif
    Input held={K_RIGHT|K_R,0};game_update(&g,&held);
    CHECK(campaign.page==entry&&campaign.gallery_pose==pose);
    press(&g,K_R);
@@ -76,7 +96,8 @@ static void browsing(void){
   press(&g,K_A);CHECK(!campaign.gallery_pose);
   press(&g,K_RIGHT);
  }
- CHECK(!campaign.page&&!campaign.gallery_pose&&portraits_checked==71);
+ CHECK(!campaign.page&&!campaign.gallery_pose&&portraits_checked==(STORY_QUARTER_AVAILABLE?213u:71u));
+ CHECK(directional_checked==(STORY_QUARTER_AVAILABLE?142u:0u));
  press(&g,K_LEFT);CHECK(campaign.page==27&&!campaign.gallery_pose);
  press(&g,K_DOWN);CHECK(!campaign.page);
  press(&g,K_UP);CHECK(campaign.page==27);
@@ -116,6 +137,6 @@ static void driving_restore(int free_roam){
 
 int main(void){
  browsing();story_restore();driving_restore(0);driving_restore(1);
- printf("cast gallery: %u checks; all 28 identities / 71 pose views, native pixels across LCDs, button navigation, unchanged saved/story state, bounds and exact story/highway/city cache restoration pass\n",checks);
+ printf("cast gallery: %u checks; all 28 identities / 71 outfits / %u directional views / %u total gallery views, native pixels across LCDs, button navigation, unchanged saved/story state, bounds and exact story/highway/city cache restoration pass\n",checks,directional_checked,portraits_checked);
  return 0;
 }

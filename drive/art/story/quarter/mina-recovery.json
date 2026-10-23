@@ -1,0 +1,126 @@
+{
+  "characters": [
+    {
+      "character": "MINA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            25,
+            33,
+            348,
+            1046
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            369,
+            31,
+            742,
+            1035
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            748,
+            41,
+            1154,
+            1042
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            1105,
+            41,
+            1434,
+            1039
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            660,
+            0,
+            834,
+            380
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            638,
+            380,
+            882,
+            757
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            635,
+            757,
+            830,
+            1135
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-quiet-right-repair.png",
+          "bounds": [
+            320,
+            32,
+            769,
+            1508
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/mina-recovered-36.png",
+      "generated_path": "/workspace/generated_images/exec-d614ac88-98ce-4ca6-ae5d-b2eb744a4fe5.png",
+      "sha256": "7d374c7b87614305e09de51831193cec130a2a12085b78e3977c672b4ba18aa5",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/mina-recovered-8.png",
+      "generated_path": "/workspace/generated_images/exec-617ddc70-eb6b-4aea-9f21-24af26ed7667.png",
+      "sha256": "99265f8a6f2f1d20e289c9d3797a302ec8b29d04606cf377bb750f3a4c66f6d7",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/mina-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-aa029815-d8f8-48b7-a163-fb3f35b4b055.png",
+      "sha256": "1dddb43d44d01d2cc6d68237fa9ba0751c6300367e847ff840f85df406d227d1",
+      "size": [
+        1024,
+        1536
+      ]
+    }
+  ]
+}

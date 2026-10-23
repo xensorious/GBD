@@ -1,0 +1,1521 @@
+{
+  "characters": [
+    {
+      "character": "MARISOL",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            235,
+            5,
+            578,
+            623
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            244,
+            0,
+            598,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            733,
+            5,
+            1033,
+            624
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            765,
+            3,
+            1042,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            305,
+            625,
+            574,
+            1248
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            259,
+            623,
+            561,
+            1250
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            767,
+            626,
+            1028,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            785,
+            624,
+            1072,
+            1246
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ASTER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            212,
+            3,
+            529,
+            633
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            229,
+            5,
+            496,
+            626
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            764,
+            2,
+            1033,
+            633
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            8,
+            1041,
+            630
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            266,
+            624,
+            525,
+            1242
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            261,
+            628,
+            535,
+            1243
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            752,
+            624,
+            986,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            634,
+            1018,
+            1244
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SABLE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            240,
+            4,
+            587,
+            636
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            249,
+            9,
+            575,
+            631
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            797,
+            5,
+            1060,
+            636
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            763,
+            11,
+            1020,
+            633
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            252,
+            622,
+            535,
+            1249
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            266,
+            627,
+            519,
+            1249
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            825,
+            633,
+            1056,
+            1252
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            779,
+            628,
+            1029,
+            1249
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ELI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            2,
+            494,
+            753
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            161,
+            2,
+            531,
+            717
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            534,
+            4,
+            959,
+            758
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            638,
+            2,
+            1079,
+            715
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            762,
+            495,
+            1517
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1175,
+            4,
+            1559,
+            717
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            641,
+            764,
+            956,
+            1522
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1681,
+            4,
+            2026,
+            717
+          ]
+        }
+      ]
+    },
+    {
+      "character": "CALDER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            42,
+            12,
+            475,
+            763
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            188,
+            1,
+            418,
+            364
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            181,
+            358,
+            430,
+            728
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            655,
+            358,
+            905,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            220,
+            721,
+            415,
+            1089
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            668,
+            721,
+            865,
+            1087
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            221,
+            1075,
+            418,
+            1446
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            673,
+            1076,
+            886,
+            1446
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VOSS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            521,
+            10,
+            929,
+            769
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            644,
+            0,
+            878,
+            412
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            123,
+            757,
+            458,
+            1511
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            401,
+            856,
+            805
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            251,
+            792,
+            431,
+            1170
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            793,
+            848,
+            1171
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            628,
+            766,
+            912,
+            1514
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            686,
+            1152,
+            845,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VALE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-left-default.png",
+          "bounds": [
+            181,
+            63,
+            940,
+            1470
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            209,
+            0,
+            484,
+            373
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            626,
+            355,
+            880,
+            732
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            233,
+            357,
+            467,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            675,
+            714,
+            897,
+            1093
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            212,
+            715,
+            438,
+            1095
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            677,
+            1078,
+            883,
+            1448
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            243,
+            1078,
+            438,
+            1448
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/marisol-right.png",
+      "generated_path": "/workspace/generated_images/exec-4804dea5-eaa0-4a9a-9ef4-8b123ef8153e.png",
+      "sha256": "895a62891acdde64dd22067fea8be639253ad148e8b9cb7f3ccf6232cb099063",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/marisol-left.png",
+      "generated_path": "/workspace/generated_images/exec-3c54d1fa-f7ca-44a7-b0d7-65f19597c7e3.png",
+      "sha256": "3f7f4ee41003e0362e1a0014f83373706edb298410a409f52a2e19d6e751b549",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/aster-left.png",
+      "generated_path": "/workspace/generated_images/exec-4b9a47f6-2524-4493-aaed-05eb4b0a96f6.png",
+      "sha256": "531cb5045cf3705cc7b06585003a81e63ecd5c316eff378fed55337cb93a657b",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/aster-right.png",
+      "generated_path": "/workspace/generated_images/exec-1dfd8dc7-6769-464a-9182-9f7287300cf0.png",
+      "sha256": "d64ee1eb1128196beb2c666507db50a6cd36a1bdfd9a2d25e8115aff5f3fc6e7",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/sable-right.png",
+      "generated_path": "/workspace/generated_images/exec-6db30da6-d217-4139-b28d-247bf27d219b.png",
+      "sha256": "5c91267203a34909a69286cfaa35b687c9ca404230e79877fe1696472542ca4c",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/sable-left.png",
+      "generated_path": "/workspace/generated_images/exec-97cfc02d-aed8-47a4-a8c3-392b796e1eaf.png",
+      "sha256": "3c753813723a1d1e8aaee551eec3ed656a1af37d979c3009efe54d93d600554a",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/calder-base.png",
+      "generated_path": "/workspace/generated_images/exec-40f6668b-954a-4955-b7ff-bbcd4b69d831.png",
+      "sha256": "03239df0820c2225205e018d53f0aba2315164e6c39fa4af2879c6ad6c39fe94",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/voss-base.png",
+      "generated_path": "/workspace/generated_images/exec-c92bbfa2-45bf-4450-8f2e-40229f59a0e0.png",
+      "sha256": "b8ce2e14978765cadee22aa170b0f1fa99d97ff083de41d053fd8ca1cb125674",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/vale-base.png",
+      "generated_path": "/workspace/generated_images/exec-37097a95-e1b1-411e-b8b3-aa188e826e12.png",
+      "sha256": "03094b0e6e01a50caf57c1c892125190249aeda75dcca11b6a486178f9eb9c5e",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/elders-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-063c8b6b-a0da-4fb2-97eb-298687234771.png",
+      "sha256": "5f5b3bcf8e197966ec992c84c7ea2ad9fa398e654ab72a820c6d8d499eb5efd8",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/vale-left-default.png",
+      "generated_path": "/workspace/generated_images/exec-5afcd4cf-f80e-4437-9217-8a7a2b3f2b6f.png",
+      "sha256": "cf87c05239098a8ceea6cfb55622003f1c3f61c603ba729d20b3d4fc2cc6f8f4",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/eli-left.png",
+      "generated_path": "/workspace/generated_images/exec-28c982b4-12c4-487e-8c6d-1d037823d5d2.png",
+      "sha256": "5c8dfe61ebe748490bf6671e1ceb0a0b914a7a99d5e0af76559f864a563e3969",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/eli-right.png",
+      "generated_path": "/workspace/generated_images/exec-66f7f599-97e4-485b-b919-f54d7ca22ade.png",
+      "sha256": "d8d8f9467449c90cbcd13c231f6526c82e4d13ab8ccbf5d02cf2c810d3e8768a",
+      "copied_without_pixel_changes": true
+    }
+  ],
+  "review": [
+    {
+      "character": "MARISOL",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/marisol-left.png",
+      "retained_component_area": 101635,
+      "content_bounds": [
+        241,
+        11,
+        572,
+        617
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/marisol-right.png",
+      "retained_component_area": 92087,
+      "content_bounds": [
+        250,
+        6,
+        592,
+        622
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/marisol-left.png",
+      "retained_component_area": 100645,
+      "content_bounds": [
+        739,
+        11,
+        1027,
+        618
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/marisol-right.png",
+      "retained_component_area": 92838,
+      "content_bounds": [
+        771,
+        9,
+        1036,
+        622
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/marisol-left.png",
+      "retained_component_area": 95049,
+      "content_bounds": [
+        311,
+        631,
+        568,
+        1242
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/marisol-right.png",
+      "retained_component_area": 88270,
+      "content_bounds": [
+        265,
+        629,
+        555,
+        1244
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/marisol-left.png",
+      "retained_component_area": 96075,
+      "content_bounds": [
+        773,
+        632,
+        1022,
+        1240
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "MARISOL",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/marisol-right.png",
+      "retained_component_area": 90148,
+      "content_bounds": [
+        791,
+        630,
+        1066,
+        1240
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/aster-left.png",
+      "retained_component_area": 84295,
+      "content_bounds": [
+        218,
+        9,
+        523,
+        627
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/aster-right.png",
+      "retained_component_area": 75469,
+      "content_bounds": [
+        235,
+        11,
+        490,
+        620
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/aster-left.png",
+      "retained_component_area": 81988,
+      "content_bounds": [
+        770,
+        8,
+        1027,
+        627
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/aster-right.png",
+      "retained_component_area": 72371,
+      "content_bounds": [
+        824,
+        14,
+        1035,
+        624
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/aster-left.png",
+      "retained_component_area": 83005,
+      "content_bounds": [
+        272,
+        630,
+        519,
+        1236
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/aster-right.png",
+      "retained_component_area": 80650,
+      "content_bounds": [
+        267,
+        634,
+        529,
+        1237
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/aster-left.png",
+      "retained_component_area": 72110,
+      "content_bounds": [
+        758,
+        630,
+        980,
+        1240
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ASTER",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/aster-right.png",
+      "retained_component_area": 67337,
+      "content_bounds": [
+        824,
+        640,
+        1012,
+        1238
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/sable-left.png",
+      "retained_component_area": 87215,
+      "content_bounds": [
+        246,
+        10,
+        581,
+        630
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/sable-right.png",
+      "retained_component_area": 84350,
+      "content_bounds": [
+        255,
+        15,
+        569,
+        625
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/sable-left.png",
+      "retained_component_area": 90060,
+      "content_bounds": [
+        803,
+        11,
+        1054,
+        630
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/sable-right.png",
+      "retained_component_area": 82162,
+      "content_bounds": [
+        769,
+        17,
+        1014,
+        627
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/sable-left.png",
+      "retained_component_area": 85800,
+      "content_bounds": [
+        258,
+        628,
+        529,
+        1243
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/sable-right.png",
+      "retained_component_area": 83460,
+      "content_bounds": [
+        272,
+        633,
+        513,
+        1243
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/sable-left.png",
+      "retained_component_area": 80845,
+      "content_bounds": [
+        831,
+        639,
+        1050,
+        1246
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "SABLE",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/sable-right.png",
+      "retained_component_area": 81697,
+      "content_bounds": [
+        785,
+        634,
+        1023,
+        1243
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/eli-left.png",
+      "retained_component_area": 146654,
+      "content_bounds": [
+        75,
+        8,
+        488,
+        747
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/eli-right.png",
+      "retained_component_area": 144286,
+      "content_bounds": [
+        167,
+        8,
+        525,
+        711
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/eli-left.png",
+      "retained_component_area": 143707,
+      "content_bounds": [
+        540,
+        10,
+        953,
+        752
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/eli-right.png",
+      "retained_component_area": 149200,
+      "content_bounds": [
+        644,
+        8,
+        1073,
+        709
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/eli-left.png",
+      "retained_component_area": 151910,
+      "content_bounds": [
+        75,
+        768,
+        489,
+        1511
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/eli-right.png",
+      "retained_component_area": 152194,
+      "content_bounds": [
+        1181,
+        10,
+        1553,
+        711
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/eli-left.png",
+      "retained_component_area": 134738,
+      "content_bounds": [
+        647,
+        770,
+        950,
+        1516
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "ELI",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/eli-right.png",
+      "retained_component_area": 129845,
+      "content_bounds": [
+        1687,
+        10,
+        2020,
+        711
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/elders-left-repair.png",
+      "retained_component_area": 142695,
+      "content_bounds": [
+        48,
+        18,
+        469,
+        757
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 35496,
+      "content_bounds": [
+        194,
+        7,
+        412,
+        358
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 39620,
+      "content_bounds": [
+        187,
+        364,
+        424,
+        722
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 39769,
+      "content_bounds": [
+        661,
+        364,
+        899,
+        725
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 37138,
+      "content_bounds": [
+        226,
+        727,
+        409,
+        1083
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 37660,
+      "content_bounds": [
+        674,
+        727,
+        859,
+        1081
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 36936,
+      "content_bounds": [
+        227,
+        1081,
+        412,
+        1440
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "CALDER",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/calder-base.png",
+      "retained_component_area": 35774,
+      "content_bounds": [
+        679,
+        1082,
+        880,
+        1440
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/elders-left-repair.png",
+      "retained_component_area": 132247,
+      "content_bounds": [
+        527,
+        16,
+        923,
+        763
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/voss-base.png",
+      "retained_component_area": 39956,
+      "content_bounds": [
+        650,
+        6,
+        872,
+        406
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/elders-left-repair.png",
+      "retained_component_area": 123245,
+      "content_bounds": [
+        129,
+        763,
+        452,
+        1505
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/voss-base.png",
+      "retained_component_area": 35721,
+      "content_bounds": [
+        672,
+        407,
+        850,
+        799
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/voss-base.png",
+      "retained_component_area": 34489,
+      "content_bounds": [
+        257,
+        798,
+        425,
+        1164
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/voss-base.png",
+      "retained_component_area": 35469,
+      "content_bounds": [
+        672,
+        799,
+        842,
+        1165
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/elders-left-repair.png",
+      "retained_component_area": 115048,
+      "content_bounds": [
+        634,
+        772,
+        906,
+        1508
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VOSS",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/voss-base.png",
+      "retained_component_area": 24335,
+      "content_bounds": [
+        692,
+        1158,
+        839,
+        1445
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "DEFAULT",
+      "facing": "LEFT",
+      "sheet": "quarter/vale-left-default.png",
+      "retained_component_area": 517407,
+      "content_bounds": [
+        187,
+        69,
+        934,
+        1464
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "DEFAULT",
+      "facing": "RIGHT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 47582,
+      "content_bounds": [
+        215,
+        4,
+        478,
+        367
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "CASUAL",
+      "facing": "LEFT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 48765,
+      "content_bounds": [
+        632,
+        361,
+        874,
+        726
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "CASUAL",
+      "facing": "RIGHT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 46410,
+      "content_bounds": [
+        239,
+        363,
+        461,
+        725
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "GEAR",
+      "facing": "LEFT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 46290,
+      "content_bounds": [
+        681,
+        720,
+        891,
+        1087
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "GEAR",
+      "facing": "RIGHT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 48014,
+      "content_bounds": [
+        218,
+        721,
+        432,
+        1089
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "QUIET",
+      "facing": "LEFT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 42197,
+      "content_bounds": [
+        683,
+        1084,
+        877,
+        1443
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    },
+    {
+      "character": "VALE",
+      "pose": "QUIET",
+      "facing": "RIGHT",
+      "sheet": "quarter/vale-base.png",
+      "retained_component_area": 41914,
+      "content_bounds": [
+        249,
+        1084,
+        432,
+        1444
+      ],
+      "visual_review": "Complete standing head, hands, outfit props and shoes. Actual nose, body and feet face the metadata direction; no horizontal flip."
+    }
+  ]
+}

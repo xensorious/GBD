@@ -38,7 +38,18 @@ gallery_ids={value for entry in gallery for value in entry['portraits']}
 draft_ids={value for entry in gallery[14:] for value in entry['portraits']}
 assert len(draft_ids)==14 and not draft_ids&(ordinary_ids|fullbody_ids)
 assert all(len(set(entry['portraits']))==1 and entry['full_body']==[True]*5 for entry in gallery[14:])
-assert ordinary_ids|fullbody_ids|draft_ids==set(range(manifest['portraits'])) and manifest['portraits']==76
+legacy_ids=ordinary_ids|fullbody_ids|draft_ids
+assert legacy_ids==set(range(76))
+quarter_count=manifest.get('quarter_portraits',0)
+quarter_entries=manifest.get('quarter_entries',[])
+quarter_ids={entry['portrait'] for entry in quarter_entries}
+assert quarter_count in (0,142) and len(quarter_entries)==quarter_count
+assert quarter_ids==set(range(76,76+quarter_count))
+assert legacy_ids|quarter_ids==set(range(manifest['portraits'])) and manifest['portraits']==76+quarter_count
+if quarter_count:
+ assert len(manifest['quarter_map'])==2 and all(len(direction)==5 and all(len(row)==14 for row in direction) for direction in manifest['quarter_map'])
+ assert len(manifest['gallery_quarters'])==28 and all(len(person)==5 and all(len(row)==2 for row in person) for person in manifest['gallery_quarters'])
+ assert {portrait for person in manifest['gallery_quarters'] for row in person for portrait in row}==quarter_ids
 nia=PEOPLE.index('NIA')
 assert len({row[nia] for row in fullbody_map})==5
 assert all(value>=0 if actor==nia else value==-1 for row in fullbody_map for actor,value in enumerate(row))
@@ -98,7 +109,8 @@ assert portraits_seen<=ordinary_ids
 # Eli and Vale now have extra outfits even when the unchanged script does not
 # select every one. The gallery covers those new images; authored references
 # must stay valid, and every archive portrait must have a story or gallery use.
-assert portraits_seen|gallery_ids==set(range(manifest['portraits']))
+assert portraits_seen|gallery_ids==legacy_ids
+assert portraits_seen|gallery_ids|quarter_ids==set(range(manifest['portraits']))
 assert {entry['portrait'] for entry in fullbody_occurrences}==fullbody_ids
 assert extended_leads and extended_companions
 shot_count=0
@@ -145,7 +157,7 @@ for i in range(assets):
  art.append({'id':i,'width':w,'height':h,'transparent':bool(kind),'sha256':hashlib.sha256(pixels).hexdigest()})
 elf=ROOT/'build/arm9.elf';main_end=find_symbol(elf,'__bss_end__');itcm_end=find_symbol(elf,'__itcm_end')
 assert main_end<0x02380000 and itcm_end<=0x01008000
-result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'authored_portrait_references_valid':True,'authored_unique_ordinary_portraits':len(portraits_seen),'ordinary_portraits':len(ordinary_ids),'gallery_people':len(gallery),'new_gallery_only_people':14,'draft_portraits_excluded_from_story':True,'all_portraits_have_story_or_gallery_use':True,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':sorted(fullbody_backgrounds),'fullbody_occurrences':fullbody_occurrences,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'background_cache_slots':1,'actor_cache_slots':2,'art':art}
+result={'rom':inspect(rom),'archive_matches_nitrofs':True,'archive_bytes':len(archive),'scenes':events,'lines':lines,'backgrounds':nbg,'people':len(PEOPLE),'portraits':manifest['portraits'],'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'authored_portrait_references_valid':True,'authored_unique_ordinary_portraits':len(portraits_seen),'ordinary_portraits':len(ordinary_ids),'legacy_portraits':len(legacy_ids),'quarter_portraits':quarter_count,'quarter_directional_maps_valid':True,'gallery_people':len(gallery),'new_gallery_only_people':14,'draft_portraits_excluded_from_story':True,'all_portraits_have_story_or_gallery_use':True,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':sorted(fullbody_backgrounds),'fullbody_occurrences':fullbody_occurrences,'no_large_atlas_fragments':True,'one_event_new_backgrounds':sum(len(v)==1 for k,v in background_events.items() if k>=18),'new_place_events':len(set.union(*(v for k,v in background_events.items() if k>=18))),'authored_shots':shot_count,'compiled_directions_match_source':True,'subjects_in_final_frame':True,'shot_local_companions':True,'longest_line':longest,'methods':sorted(methods),'all_character_sprites':True,'portrait_alpha_masks_valid':True,'resident_end':hex(main_end),'resident_headroom_bytes':0x02380000-main_end,'itcm_headroom_bytes':0x01008000-itcm_end,'shared_scratch_bytes':307200,'story_scratch_required_bytes':scratch_required,'background_cache_slots':1,'actor_cache_slots':2,'art':art}
 result.update({'pose_count':len(POSES),'extended_pose_lead_lines':extended_leads,'extended_pose_companion_lines':extended_companions})
 result['all_portraits_used']=True # Authored cues and the explicit gallery cover every portrait above.
 (a.output/'story-assets-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

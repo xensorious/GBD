@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "SABLE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            240,
+            4,
+            587,
+            636
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            249,
+            9,
+            575,
+            631
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            797,
+            5,
+            1060,
+            636
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            763,
+            11,
+            1020,
+            633
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            252,
+            622,
+            535,
+            1249
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            266,
+            627,
+            519,
+            1249
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            825,
+            633,
+            1056,
+            1252
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            779,
+            628,
+            1029,
+            1249
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/sable-right.png",
+      "generated_path": "/workspace/generated_images/exec-6db30da6-d217-4139-b28d-247bf27d219b.png",
+      "sha256": "5c91267203a34909a69286cfaa35b687c9ca404230e79877fe1696472542ca4c",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/sable-left.png",
+      "generated_path": "/workspace/generated_images/exec-97cfc02d-aed8-47a4-a8c3-392b796e1eaf.png",
+      "sha256": "3c753813723a1d1e8aaee551eec3ed656a1af37d979c3009efe54d93d600554a",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

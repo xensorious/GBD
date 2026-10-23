@@ -6,9 +6,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "story_visuals.h"
+#ifndef STORY_QUARTER_AVAILABLE
+#define STORY_QUARTER_AVAILABLE 0
+#endif
 static uint8_t *back[1],*people[2];
 static uint16_t *back_palette[1],*people_palette[2];
 static int leased,back_id[1]={-1},people_id[2]={-1,-1};
+static uint16_t people_left[2],people_right[2],people_foot[2];
 static int camera_q8,last_background=-1,camera_line=-1;
 volatile uint32_t story_visual_stats[5]; /* archive failures, bg loads, portraits, camera, stage */
 static int limit(int n,int lo,int hi){return n<lo?lo:n>hi?hi:n;}
@@ -41,6 +45,14 @@ static int person(int id,int protect){
  for(int i=0;i<2;i++)if(people_id[i]==id)return i;
  int slot=protect>=0&&people_id[0]==protect?1:0,w,h;
  if(!story_asset(STORY_BACKGROUNDS+id,people[slot],people_palette[slot],STORY_PORTRAIT_WIDTH*STORY_PORTRAIT_HEIGHT,&w,&h)||w!=STORY_PORTRAIT_WIDTH||h!=STORY_PORTRAIT_HEIGHT){story_visual_stats[0]++;return -1;}
+ int left=w,right=0,foot_left=w,foot_right=0;
+ for(int y=0;y<h;y++)for(int x=0;x<w;x++)if(people[slot][y*w+x]){
+  if(x<left)left=x;
+  if(x+1>right)right=x+1;
+  if(y>=h-16){if(x<foot_left)foot_left=x;if(x+1>foot_right)foot_right=x+1;}
+ }
+ people_left[slot]=(uint16_t)(left<right?left:0);people_right[slot]=(uint16_t)(left<right?right:w);
+ people_foot[slot]=(uint16_t)(foot_left<foot_right?(foot_left+foot_right)/2:(left+right)/2);
  people_id[slot]=id;story_visual_stats[2]++;return slot;
 }
 static void actor(Surface*s,int slot,int x,int y,int width,int height,int opacity,int light){
@@ -104,6 +116,49 @@ static const char*subject_name(int bg,int right){
  return bg>=6&&bg<STORY_BACKGROUNDS?story_subjects[bg][right]:NULL;
 }
 static int portrait_id(int actor_id,int pose){return actor_id>=0&&actor_id<STORY_PEOPLE&&pose>=0&&pose<STORY_POSES?story_portraits[pose][actor_id]:-1;}
+static int quarter_portrait(int actor_id,int pose,int facing){
+#if STORY_QUARTER_AVAILABLE
+ if(actor_id>=0&&actor_id<STORY_PEOPLE&&pose>=0&&pose<STORY_POSES&&facing>=0&&facing<2)return story_quarter_portraits[facing][pose][actor_id];
+#else
+ (void)actor_id;(void)pose;(void)facing;
+#endif
+ return -1;
+}
+/* These are scene positions, not speaker positions. A change of dialogue turns
+ * adjusts emphasis while each person stays on the same side of the room. */
+typedef struct {int x,y,width,height,center,floor;} StandingActor;
+static void standing_pair(int left_slot,int right_slot,int floor,StandingActor*out_left,StandingActor*out_right){
+ int span=(int)people_right[left_slot]-people_left[left_slot]+(int)people_right[right_slot]-people_left[right_slot];
+ /* Reserve the conversation gap in screen pixels before scaling bodies.
+  * Scaling the gap with a wide pair otherwise makes the two people crowd. */
+ int scale=span+12>240?228*256/span:256;
+ /* Sampling rounds each silhouette edge independently. Keep twelve empty
+  * columns even when that rounding widens the combined silhouettes by one. */
+ for(;;){
+  int occupied=0;
+  for(int slot=0;slot<2;slot++){
+   int person_slot=slot?right_slot:left_slot;
+   occupied+=((int)people_right[person_slot]*scale+255)/256-((int)people_left[person_slot]*scale+255)/256;
+  }
+  if(occupied<=228)break;
+  scale--;
+ }
+ int width=STORY_PORTRAIT_WIDTH*scale/256,height=STORY_PORTRAIT_HEIGHT*scale/256;
+ int left_edge=((int)people_left[left_slot]*width+STORY_PORTRAIT_WIDTH-1)/STORY_PORTRAIT_WIDTH;
+ int right_end=((int)people_right[right_slot]*width+STORY_PORTRAIT_WIDTH-1)/STORY_PORTRAIT_WIDTH;
+ int left_x=8-left_edge,right_x=248-right_end;
+ *out_left=(StandingActor){left_x,floor-height,width,height,left_x+people_foot[left_slot]*width/STORY_PORTRAIT_WIDTH,floor};
+ *out_right=(StandingActor){right_x,floor-4-height,width,height,right_x+people_foot[right_slot]*width/STORY_PORTRAIT_WIDTH,floor-4};
+}
+static void standing_draw(Surface*top,Surface*bottom,int left_slot,int right_slot,int floor,int speaker_left,int opacity,int light){
+ StandingActor left,right;standing_pair(left_slot,right_slot,floor,&left,&right);
+ int shadow_radius=27*left.width/STORY_PORTRAIT_WIDTH;
+ contact_shadow(top,bottom,right.center,right.floor,shadow_radius,light);
+ contact_shadow(top,bottom,left.center,left.floor,shadow_radius,light);
+ /* The right person stands four pixels farther away, independent of who talks. */
+ scene_actor(top,bottom,right_slot,right.x,right.y,right.width,right.height,opacity,speaker_left?light*232/256:light);
+ scene_actor(top,bottom,left_slot,left.x,left.y,left.width,left.height,opacity,speaker_left?light:light*232/256);
+}
 static int staged_portrait(int actor_id,int pose,int bg,int stage,int*full){
  *full=0;
  if(actor_id>=0&&actor_id<STORY_PEOPLE&&pose>=0&&pose<STORY_POSES&&stage==ST_FACE&&
@@ -127,14 +182,20 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  int lead_full=0,other_full=0;
  int face_id=staged_portrait(face,face_pose,line->background,line->stage,&lead_full);
  int other_id=staged_portrait(other,other_pose,line->background,line->stage,&other_full);
- /* The standing-height scenes frame the current conversational partner. Older
-  * close scenes retain their paired portraits until the rest of the cast gets
-  * full-body art, rather than placing cropped torsos onto the new floor. */
+ int standing=line->stage==ST_FACE&&story_fullbody_background[line->background];
+ int face_left=other<STORY_PEOPLE&&other!=face?face<other:1;
+ int quarter=standing?quarter_portrait(face,face_pose,face_left?1:0):-1;
+ int quarter_other=standing&&other<STORY_PEOPLE&&other!=face?quarter_portrait(other,other_pose,face_left?0:1):-1;
+ int quarter_pair=quarter>=0&&quarter_other>=0;
+ if(quarter>=0){face_id=quarter;lead_full=1;}
+ if(quarter_pair){other_id=quarter_other;other_full=1;}
+ /* Close compositions keep their original upper-body staging. The standing
+  * scenes can now keep both conversational partners physically in the room. */
  int paired=line->stage==ST_FACE&&!story_fullbody_background[line->background];
  int lead=-1,companion=-1;
  if(okay&&line->stage==ST_FACE){
-  lead=person(face_id,paired?other_id:-1);
-  if(paired&&other<STORY_PEOPLE&&other!=face)companion=person(other_id,face_id);
+  lead=person(face_id,paired||quarter_pair?other_id:-1);
+  if((paired||quarter_pair)&&other<STORY_PEOPLE&&other!=face)companion=person(other_id,face_id);
  }else if(okay&&speaking)lead=person(face_id,-1);
  if(okay){
   int target=(int)(line->focus&STORY_FOCUS_X)*256;
@@ -154,12 +215,14 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   }
   if(line->stage==ST_FACE){
    int left=other>=STORY_PEOPLE||line->speaker<other;
-   if(companion>=0)scene_actor(&image,&dialog,companion,left?132:-32,127,156,161,210,brightness*160/256);
-   int opacity=story.age<7?160+(int)story.age*96/7:256;
-   if(lead_full){
-    int floor=story_ground_y[line->background];contact_shadow(&image,&dialog,128,floor,27,brightness);
+   int opacity=quarter>=0?256:story.age<7?160+(int)story.age*96/7:256;
+   if(quarter_pair&&lead>=0&&companion>=0){
+    standing_draw(&image,&dialog,face_left?lead:companion,face_left?companion:lead,story_ground_y[line->background],face_left,opacity,brightness);
+   }else if(lead_full){
+    int floor=story_ground_y[line->background];contact_shadow(&image,&dialog,lead>=0?people_foot[lead]:128,floor,27,brightness);
     scene_actor(&image,&dialog,lead,0,floor-STORY_PORTRAIT_HEIGHT,STORY_PORTRAIT_WIDTH,STORY_PORTRAIT_HEIGHT,opacity,brightness);
    }else{
+    if(companion>=0)scene_actor(&image,&dialog,companion,left?132:-32,127,156,161,210,brightness*160/256);
     int x=paired&&speaking?(left?-48:48):0;
     int breath=(story.ticks/35)%2;
     scene_actor(&image,&dialog,lead,x,STORY_SCENE_HEIGHT-STORY_PORTRAIT_HEIGHT-breath,STORY_PORTRAIT_WIDTH,STORY_PORTRAIT_HEIGHT,opacity,brightness);
@@ -182,7 +245,7 @@ void story_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   text_center(&image,84,"Scene artwork unavailable",C(240,182,117));
  }
  char title[70];snprintf(title,sizeof title,"%s.%02d  /  %s",game_class_name(story.chapter),story.event+1,career_event_name(story.chapter,story.event));
- overlay(&image,5,5,246,16,C(3,10,20),150);gfx_text_small(&image,11,9,title,C(231,238,225));
+ overlay(&image,5,quarter_pair?3:5,246,quarter_pair?12:16,C(3,10,20),150);gfx_text_small(&image,11,quarter_pair?5:9,title,C(231,238,225));
  if(line->stage==ST_MONTAGE)scene_text(&image,&dialog,82,277,"STORY MONTAGE",C(232,210,161));
  if(line->stage==ST_RADIO)scene_text(&image,&dialog,11,277,"SUNLINE / CREW RADIO",C(154,214,209));
  const char*subject=subject_name(line->background,(line->focus&STORY_FOCUS_SUBJECT)!=0);
@@ -241,9 +304,18 @@ void story_gallery_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  static const char*const pose_names[STORY_POSES]={"Signature","Off duty","On shift","Reflective","Skeptical"};
  int entry=limit(campaign.page,0,STORY_GALLERY_COUNT-1);
  int count=pose_counts[entry];
- int pose=limit(campaign.gallery_pose,0,count-1);
+ int pose=limit(campaign.gallery_pose&CAREER_GALLERY_POSE_MASK,0,count-1);
+ int facing=campaign.gallery_pose&CAREER_GALLERY_LEFT?0:1;
+ int portrait=story_gallery_portraits[entry][pose],fullbody=story_gallery_fullbody[entry][pose],quarter=0;
+#if STORY_QUARTER_AVAILABLE
+ if(!(campaign.gallery_pose&CAREER_GALLERY_LEGACY)&&story_gallery_quarters[entry][pose][facing]>=0){
+  portrait=story_gallery_quarters[entry][pose][facing];fullbody=quarter=1;
+ }
+#else
+ (void)facing;
+#endif
  int okay=lease(),bg=okay?background(0):-1;
- int slot=bg>=0?person(story_gallery_portraits[entry][pose],-1):-1;
+ int slot=bg>=0?person(portrait,-1):-1;
  if(bg>=0){
   const int cx=(STORY_BACKGROUND_WIDTH-256)/2,cy=(STORY_BACKGROUND_HEIGHT-STORY_SCENE_HEIGHT)/2;
   for(int y=0;y<STORY_SCENE_HEIGHT;y++){
@@ -257,8 +329,8 @@ void story_gallery_draw(const Game*g,uint16_t*top,uint16_t*bottom){
   gfx_rect(&menu,0,0,256,STORY_DIALOG_Y,C(8,18,31));
  }
  if(slot>=0){
-  int floor=story_gallery_fullbody[entry][pose]?story_ground_y[0]:STORY_SCENE_HEIGHT;
-  if(story_gallery_fullbody[entry][pose])contact_shadow(&image,&menu,128,floor,27,256);
+  int floor=fullbody?story_ground_y[0]:STORY_SCENE_HEIGHT;
+  if(fullbody)contact_shadow(&image,&menu,people_foot[slot],floor,27,256);
   scene_actor(&image,&menu,slot,0,floor-STORY_PORTRAIT_HEIGHT,STORY_PORTRAIT_WIDTH,STORY_PORTRAIT_HEIGHT,256,256);
  }else text_center(&image,84,"Portrait unavailable",C(240,182,117));
  overlay(&image,5,5,246,16,C(3,10,20),170);
@@ -274,6 +346,7 @@ void story_gallery_draw(const Game*g,uint16_t*top,uint16_t*bottom){
  gfx_text_small(&menu,15,124,story_gallery_styles[entry],C(157,219,207));
  gfx_wrap(&menu,15,138,story_gallery_descriptions[entry],226,14,2,C(235,239,226));
  gfx_text_small(&menu,15,174,pose_names[pose],C(245,217,151));
+ gfx_text_small(&menu,98,174,quarter?(facing?"3/4 right":"3/4 left"):"Original",C(157,219,207));
  for(int n=0;n<count;n++)gfx_rect(&menu,239-(count-1-n)*9,175,5,3,n==pose?C(245,217,151):C(68,108,119));
  story_visual_stats[3]=(uint32_t)((STORY_BACKGROUND_WIDTH-256)/2);
  story_visual_stats[4]=ST_FACE;

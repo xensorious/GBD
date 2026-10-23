@@ -65,9 +65,10 @@ target instead of looping sideways. Soft cuts and typewriter text suit the retro
 ROM streams its artwork internally; it needs no external asset files.
 The story now visits bedrooms, a kitchen, diner, music club, ferry, greenhouse,
 motel, washrooms, gallery and other places away from the grid. Nineteen new
-locations appear in only one event. The cast archive has 76 portrait records:
-57 upper-body portraits, five approved full-body Nia poses and fourteen new
-full-body character studies. Thirteen existing characters now have individual
+locations appear in only one event. The cast archive has 218 portrait records:
+the preceding 76 portraits plus 142 authored left/right three-quarter full-body
+views for all 71 available poses across the 28-person roster. Thirteen existing
+characters now have individual
 wardrobes and expressions, from Jules's skate layers and Mina's Y2K colors to
 Rook's punk workwear and Sable's romantic goth clothes. Each has default, casual,
 work and reflective variants; reflective poses keep the casual outfit. Nia's
@@ -75,13 +76,16 @@ approved design and all ten of her existing portrait imports are preserved.
 Speaking actors use a native 256x264 canvas; secondary portraits and compact
 badges can shrink.
 Eight 512x324 backgrounds provide standing floor space in the garage, meet,
-kitchen, diner, greenhouse, rooftop, night garage and epilogue. Nia uses full-body
-poses there; other characters and the remaining close scenes retain upper-body
-portraits. The dialogue, names and cast relationships are preserved. Original
+kitchen, diner, greenhouse, rooftop, night garage and epilogue. People use
+three-quarter standing poses there and face their conversational partner. Their
+left/right places stay stable when the speaker changes. Close scenes retain
+their upper-body framing. The dialogue, names and cast relationships are preserved. Original
 source atlases remain as provenance; active costumes come from the new per-person
-artwork in `art/story/restyle/catalog.json`.
+artwork in `art/story/restyle/catalog.json` and `art/story/quarter/catalog.json`.
 One background cache, two actor slots and their palettes use 302,592 bytes of
-the existing 307,200-byte driving scratch pool.
+the existing 307,200-byte driving scratch pool. The directional views use the same
+slots. Partners stay at native scale when their silhouettes fit; wider pairs
+are reduced only enough to keep both complete figures inside the scene.
 Eli and Mrs. Vale make the neighborhood part of the story. The crew has private
 choices, paid work and relationships beyond the next race. These are illustrated
 cutscene settings; they do not add free-roaming interiors or Career races.
@@ -101,18 +105,22 @@ Career → Office → Cast studio opens a review roster of 28 people. The origin
 fourteen remain the story cast; fourteen new full-body studies are marked as
 concepts and have no dialogue or event roles yet. The studio is available from a
 fresh profile and never changes money, cars or story progress. D-pad directions
-browse people; L/R or A cycles available outfits and expressions; B returns to
-the Office. It uses the same continuous illustration area and lower-half browser,
+browse people; L/R or A cycles available outfits and expressions. X changes
+left/right facing, Y compares the original portrait, and B returns to the Office.
+It uses the same continuous illustration area and lower-half browser,
 with no touch controls or additional large graphics cache.
 
-The focused cast build passes 38,508 native campaign checks, 4,447 dialogue
-pixel checks and 2,202,587 Cast Studio checks. Its DeSmuME review visits all
-71 available portrait variants, returns to both driving modes and verifies that
-touch input stays passive. The five-scene story sample also passes. All 54
-background payloads and ten approved Nia payloads match the preceding build;
-66 new portrait silhouettes match their source imports. The download's
-VALIDATION.json records the exact ROM and reports. The full driving release
-matrix was not rerun, and physical Delta/DS testing is not claimed.
+The directional build passes 38,934 native campaign checks, 4,873 dialogue
+pixel checks, 4,632,846 Cast Studio checks and 246,580,775 standing-staging
+checks. The staging suite covers 2,145 real-art configurations on all eight
+floors. DeSmuME visits 213 gallery views, returns to both driving modes and
+verifies passive touch input. The five-scene story sample passes 48 messages
+across 49 pages, including a real page flip and pause/resume.
+All 54 background and 76 legacy portrait payloads remain byte-identical to the
+published cast build; 142 new source alpha oracles and reviewed native payload
+hashes pass. [Review images and exact-ROM evidence](previews/three-quarter-cast/README.md)
+record the focused results. The full driving release matrix was not rerun, and
+physical Delta/DS testing is not claimed.
 
 Version 7 preserves the 8 KiB, three-profile save bank and migrates versions
 1–6. Each profile has its own story record. The previous story build also uses

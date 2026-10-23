@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "ASTER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            212,
+            3,
+            529,
+            633
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            229,
+            5,
+            496,
+            626
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            764,
+            2,
+            1033,
+            633
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            8,
+            1041,
+            630
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            266,
+            624,
+            525,
+            1242
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            261,
+            628,
+            535,
+            1243
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            752,
+            624,
+            986,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            634,
+            1018,
+            1244
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/aster-left.png",
+      "generated_path": "/workspace/generated_images/exec-4b9a47f6-2524-4493-aaed-05eb4b0a96f6.png",
+      "sha256": "531cb5045cf3705cc7b06585003a81e63ecd5c316eff378fed55337cb93a657b",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/aster-right.png",
+      "generated_path": "/workspace/generated_images/exec-1dfd8dc7-6769-464a-9182-9f7287300cf0.png",
+      "sha256": "d64ee1eb1128196beb2c666507db50a6cd36a1bdfd9a2d25e8115aff5f3fc6e7",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

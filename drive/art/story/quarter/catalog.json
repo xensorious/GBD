@@ -1,0 +1,2190 @@
+{
+  "version": 1,
+  "complete": true,
+  "purpose": "Authored left/right three-quarter standing conversation variants for all 71 roster poses. Legacy portraits, story IDs and source designs remain available.",
+  "characters": [
+    {
+      "character": "NIA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/nia-source-c.png",
+          "bounds": [
+            108,
+            15,
+            452,
+            991
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/nia-source-f.png",
+          "bounds": [
+            222,
+            8,
+            805,
+            1495
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/nia-source-c.png",
+          "bounds": [
+            500,
+            14,
+            968,
+            993
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/nia-source-a.png",
+          "bounds": [
+            192,
+            639,
+            510,
+            1254
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/nia-source-d.png",
+          "bounds": [
+            299,
+            5,
+            683,
+            989
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/nia-source-e.png",
+          "bounds": [
+            278,
+            0,
+            687,
+            997
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/nia-source-d.png",
+          "bounds": [
+            978,
+            5,
+            1294,
+            994
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/nia-source-e.png",
+          "bounds": [
+            904,
+            1,
+            1261,
+            997
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "facing": "LEFT",
+          "sheet": "quarter/nia-source-c.png",
+          "bounds": [
+            1069,
+            14,
+            1522,
+            992
+          ]
+        },
+        {
+          "pose": "ANNOYED",
+          "facing": "RIGHT",
+          "sheet": "quarter/nia-source-b.png",
+          "bounds": [
+            172,
+            1,
+            672,
+            1015
+          ]
+        }
+      ]
+    },
+    {
+      "character": "JULES",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            26,
+            34,
+            391,
+            1030
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            18,
+            17,
+            350,
+            1050
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            371,
+            44,
+            754,
+            1039
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            378,
+            26,
+            747,
+            1050
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            739,
+            46,
+            1112,
+            1038
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            735,
+            32,
+            1115,
+            1049
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            1124,
+            45,
+            1441,
+            1040
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            1119,
+            40,
+            1432,
+            1053
+          ]
+        }
+      ]
+    },
+    {
+      "character": "CALDER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            42,
+            12,
+            475,
+            763
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            188,
+            1,
+            418,
+            364
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            181,
+            358,
+            430,
+            728
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            655,
+            358,
+            905,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            220,
+            721,
+            415,
+            1089
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            668,
+            721,
+            865,
+            1087
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            221,
+            1075,
+            418,
+            1446
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/calder-base.png",
+          "bounds": [
+            673,
+            1076,
+            886,
+            1446
+          ]
+        }
+      ]
+    },
+    {
+      "character": "IMANI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            10,
+            25,
+            378,
+            1046
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-25.png",
+          "bounds": [
+            15,
+            18,
+            417,
+            1047
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            412,
+            31,
+            787,
+            1045
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-25.png",
+          "bounds": [
+            426,
+            22,
+            819,
+            1053
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            772,
+            30,
+            1138,
+            1050
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-recovered-2.png",
+          "bounds": [
+            623,
+            817,
+            898,
+            1217
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/imani-recovered-33.png",
+          "bounds": [
+            1124,
+            37,
+            1441,
+            1049
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/imani-quiet-right-repair.png",
+          "bounds": [
+            281,
+            14,
+            764,
+            1520
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MARISOL",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            235,
+            5,
+            578,
+            623
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            244,
+            0,
+            598,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            733,
+            5,
+            1033,
+            624
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            765,
+            3,
+            1042,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            305,
+            625,
+            574,
+            1248
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            259,
+            623,
+            561,
+            1250
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            767,
+            626,
+            1028,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            785,
+            624,
+            1072,
+            1246
+          ]
+        }
+      ]
+    },
+    {
+      "character": "KADE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            246,
+            1,
+            457,
+            389
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            637,
+            2,
+            843,
+            389
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            261,
+            384,
+            418,
+            758
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            668,
+            385,
+            832,
+            758
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            256,
+            756,
+            436,
+            1136
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            666,
+            755,
+            835,
+            1137
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-19.png",
+          "bounds": [
+            255,
+            13,
+            600,
+            997
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-19.png",
+          "bounds": [
+            959,
+            15,
+            1264,
+            1000
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ROOK",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            95,
+            3,
+            569,
+            772
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            192,
+            4,
+            464,
+            419
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            651,
+            3,
+            994,
+            770
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            227,
+            413,
+            447,
+            814
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            1086,
+            2,
+            1431,
+            774
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-1.png",
+          "bounds": [
+            239,
+            805,
+            461,
+            1199
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/rook-left-physical-side-repair.png",
+          "bounds": [
+            1567,
+            3,
+            1976,
+            774
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/rook-recovered-22.png",
+          "bounds": [
+            795,
+            625,
+            1050,
+            1232
+          ]
+        }
+      ]
+    },
+    {
+      "character": "REN",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            662,
+            2,
+            847,
+            428
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            241,
+            2,
+            428,
+            423
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            672,
+            402,
+            845,
+            810
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            243,
+            400,
+            424,
+            810
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            653,
+            786,
+            849,
+            1187
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-recovered-12.png",
+          "bounds": [
+            243,
+            785,
+            457,
+            1187
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/ren-quiet-left-repair.png",
+          "bounds": [
+            223,
+            12,
+            750,
+            1513
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/ren-quiet-right-repair.png",
+          "bounds": [
+            881,
+            15,
+            1267,
+            1002
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ASTER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            212,
+            3,
+            529,
+            633
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            229,
+            5,
+            496,
+            626
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            764,
+            2,
+            1033,
+            633
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            8,
+            1041,
+            630
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            266,
+            624,
+            525,
+            1242
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            261,
+            628,
+            535,
+            1243
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/aster-left.png",
+          "bounds": [
+            752,
+            624,
+            986,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/aster-right.png",
+          "bounds": [
+            818,
+            634,
+            1018,
+            1244
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SABLE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            240,
+            4,
+            587,
+            636
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            249,
+            9,
+            575,
+            631
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            797,
+            5,
+            1060,
+            636
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            763,
+            11,
+            1020,
+            633
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            252,
+            622,
+            535,
+            1249
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            266,
+            627,
+            519,
+            1249
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/sable-left.png",
+          "bounds": [
+            825,
+            633,
+            1056,
+            1252
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/sable-right.png",
+          "bounds": [
+            779,
+            628,
+            1029,
+            1249
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VOSS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            521,
+            10,
+            929,
+            769
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            644,
+            0,
+            878,
+            412
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            123,
+            757,
+            458,
+            1511
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            401,
+            856,
+            805
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            251,
+            792,
+            431,
+            1170
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            666,
+            793,
+            848,
+            1171
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/elders-left-repair.png",
+          "bounds": [
+            628,
+            766,
+            912,
+            1514
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/voss-base.png",
+          "bounds": [
+            686,
+            1152,
+            845,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MINA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            25,
+            33,
+            348,
+            1046
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            660,
+            0,
+            834,
+            380
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            369,
+            31,
+            742,
+            1035
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            638,
+            380,
+            882,
+            757
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            748,
+            41,
+            1154,
+            1042
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-recovered-8.png",
+          "bounds": [
+            635,
+            757,
+            830,
+            1135
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/mina-recovered-36.png",
+          "bounds": [
+            1105,
+            41,
+            1434,
+            1039
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/mina-quiet-right-repair.png",
+          "bounds": [
+            320,
+            32,
+            769,
+            1508
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ELI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            2,
+            494,
+            753
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            161,
+            2,
+            531,
+            717
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            534,
+            4,
+            959,
+            758
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            638,
+            2,
+            1079,
+            715
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            69,
+            762,
+            495,
+            1517
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1175,
+            4,
+            1559,
+            717
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/eli-left.png",
+          "bounds": [
+            641,
+            764,
+            956,
+            1522
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/eli-right.png",
+          "bounds": [
+            1681,
+            4,
+            2026,
+            717
+          ]
+        }
+      ]
+    },
+    {
+      "character": "VALE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-left-default.png",
+          "bounds": [
+            181,
+            63,
+            940,
+            1470
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            209,
+            0,
+            484,
+            373
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            626,
+            355,
+            880,
+            732
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            233,
+            357,
+            467,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            675,
+            714,
+            897,
+            1093
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            212,
+            715,
+            438,
+            1095
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            677,
+            1078,
+            883,
+            1448
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            243,
+            1078,
+            438,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "LEXI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            640,
+            0,
+            838,
+            365
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-lexi-right-repair.png",
+          "bounds": [
+            240,
+            65,
+            856,
+            1483
+          ]
+        }
+      ]
+    },
+    {
+      "character": "NYX",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            302,
+            355,
+            462,
+            744
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            640,
+            356,
+            869,
+            749
+          ]
+        }
+      ]
+    },
+    {
+      "character": "KIT",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            264,
+            731,
+            466,
+            1105
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            642,
+            732,
+            841,
+            1106
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SIENNA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            242,
+            1090,
+            502,
+            1448
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            624,
+            1090,
+            864,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "BEAU",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            350,
+            0,
+            646,
+            556
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            289,
+            0,
+            493,
+            389
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MILES",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            346,
+            534,
+            648,
+            1073
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            254,
+            373,
+            479,
+            783
+          ]
+        }
+      ]
+    },
+    {
+      "character": "TESS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            378,
+            1048,
+            641,
+            1536
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            277,
+            762,
+            464,
+            1136
+          ]
+        }
+      ]
+    },
+    {
+      "character": "AKIRA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            278,
+            1120,
+            478,
+            1448
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            620,
+            1122,
+            844,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ZOE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            241,
+            0,
+            479,
+            377
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-repair-e.png",
+          "bounds": [
+            365,
+            10,
+            701,
+            777
+          ]
+        }
+      ]
+    },
+    {
+      "character": "DANTE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            238,
+            364,
+            465,
+            748
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-repair-e.png",
+          "bounds": [
+            362,
+            761,
+            746,
+            1536
+          ]
+        }
+      ]
+    },
+    {
+      "character": "PIPER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            270,
+            735,
+            463,
+            1101
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            642,
+            738,
+            834,
+            1102
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SOL",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            237,
+            1082,
+            465,
+            1443
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            640,
+            1081,
+            827,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "CASS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            163,
+            2,
+            573,
+            631
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            714,
+            6,
+            1078,
+            631
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ORION",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            249,
+            619,
+            555,
+            1247
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            727,
+            619,
+            1083,
+            1251
+          ]
+        }
+      ]
+    }
+  ],
+  "source_catalogs": [
+    "nia.json",
+    "batch-a.json",
+    "batch-b.json",
+    "drafts.json"
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/nia-source-a.png",
+      "generated_path": "/workspace/generated_images/exec-1037f67a-3cbc-4594-b312-d6b917b8631c.png",
+      "sha256": "3618b556f5902615a08a29425352a2a8efada19042407191826c49dbe3059e45",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "bounds_alpha_96": [
+            198,
+            645,
+            504,
+            1250
+          ],
+          "pixels_alpha_96": 81979,
+          "crop_margin": 6
+        }
+      ]
+    },
+    {
+      "sheet": "quarter/nia-source-b.png",
+      "generated_path": "/workspace/generated_images/exec-ee1934bb-e734-49b0-8f0a-392c5ded09ee.png",
+      "sha256": "ceabb498a2bb529a7c2eb08fe31a5458c841beace004cf091f472a72c02a25fe",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "ANNOYED",
+          "facing": "RIGHT",
+          "bounds_alpha_96": [
+            178,
+            7,
+            666,
+            1009
+          ],
+          "pixels_alpha_96": 204572,
+          "crop_margin": 6
+        }
+      ]
+    },
+    {
+      "sheet": "quarter/nia-source-c.png",
+      "generated_path": "/workspace/generated_images/exec-855d8b6b-86c8-4777-8472-dfae0e27b13f.png",
+      "sha256": "3ff739e599eb2a760ece7b68a15cdf0ebfba822a595d82569d5cc5338a6f6101",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "bounds_alpha_96": [
+            114,
+            21,
+            446,
+            985
+          ],
+          "pixels_alpha_96": 197461,
+          "crop_margin": 6
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "bounds_alpha_96": [
+            506,
+            20,
+            962,
+            987
+          ],
+          "pixels_alpha_96": 194499,
+          "crop_margin": 6
+        },
+        {
+          "pose": "ANNOYED",
+          "facing": "LEFT",
+          "bounds_alpha_96": [
+            1075,
+            20,
+            1516,
+            986
+          ],
+          "pixels_alpha_96": 203990,
+          "crop_margin": 6
+        }
+      ]
+    },
+    {
+      "sheet": "quarter/nia-source-d.png",
+      "generated_path": "/workspace/generated_images/exec-82552097-47b7-43f3-8ca1-938006e1a1ec.png",
+      "sha256": "45b1e9b2e285eb9716b8a266709def05303c9c925deeec3cd09434de5941e59e",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "bounds_alpha_96": [
+            305,
+            11,
+            677,
+            983
+          ],
+          "pixels_alpha_96": 199263,
+          "crop_margin": 6
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "bounds_alpha_96": [
+            984,
+            11,
+            1288,
+            988
+          ],
+          "pixels_alpha_96": 188960,
+          "crop_margin": 6
+        }
+      ]
+    },
+    {
+      "sheet": "quarter/nia-source-e.png",
+      "generated_path": "/workspace/generated_images/exec-da089811-b73d-4aeb-8d93-8430be6eb29b.png",
+      "sha256": "12af179d8acbc5b744709311523ea1a4d4cda10940f8068ea7d30e24782bbe2a",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "bounds_alpha_96": [
+            284,
+            6,
+            681,
+            991
+          ],
+          "pixels_alpha_96": 213503,
+          "crop_margin": 6
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "bounds_alpha_96": [
+            910,
+            7,
+            1255,
+            991
+          ],
+          "pixels_alpha_96": 197855,
+          "crop_margin": 6
+        }
+      ]
+    },
+    {
+      "sheet": "quarter/nia-source-f.png",
+      "generated_path": "/workspace/generated_images/exec-86b02431-487d-42ed-9be6-40aa6d5d3a21.png",
+      "sha256": "0aee06e23c403a69e3b03a193894d318006710fa320904d1d2e67cace0841936",
+      "copied_without_pixel_changes": true,
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha_threshold": 96,
+      "selected_components": [
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "bounds_alpha_96": [
+            228,
+            14,
+            799,
+            1489
+          ],
+          "pixels_alpha_96": 459531,
+          "crop_margin": 6
+        }
+      ],
+      "generation_purpose": "Replace original DEFAULT.RIGHT because its visible anatomical left arm lacked the full botanical sleeve. Identity and pose references A, C, E; new source preserved byte-unchanged."
+    },
+    {
+      "sheet": "quarter/jules-recovered-17.png",
+      "generated_path": "/workspace/generated_images/exec-aff11fdc-626b-4f23-9d8e-937790c03bd0.png",
+      "sha256": "71ee1b71508d8a4371f51ea30a7e9089a18b513b54e8c4b926d8a825de98d5e3",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/jules-recovered-28.png",
+      "generated_path": "/workspace/generated_images/exec-1c63d71c-61a0-42e2-8d0a-1209a13c09e5.png",
+      "sha256": "e4ea75765c280e439b7537f59de8a2f007ef5b130f6862739dc34aa5b13b046e",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/imani-recovered-33.png",
+      "generated_path": "/workspace/generated_images/exec-1d75c8da-09e2-4088-b17b-aa0a1ef2c0a5.png",
+      "sha256": "0ef6e2279405b1c401b1a0aa23341e28cfa535fe9d98bbc618a95678bc8d8827",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/imani-recovered-25.png",
+      "generated_path": "/workspace/generated_images/exec-0500fa7c-a2f2-4051-81ae-a67197f58a01.png",
+      "sha256": "91b7bc6f578057fc89b8f791d2bf24dc1e20d121610f2c92350f7512e47f98d6",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/imani-recovered-2.png",
+      "generated_path": "/workspace/generated_images/exec-0f2726e9-1f50-4763-9265-7f23be29d255.png",
+      "sha256": "4bf80e2f24cabe828c15bfd2076aff1f74a13ae74b6a9a6742a10e15ce13ddbb",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/imani-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-7e8aee0f-fb1c-4912-b35f-95b3d9d543e4.png",
+      "sha256": "a6abc10268a024409619b37ba9b2560227d92da47d558addde4f993e87d6899d",
+      "size": [
+        1024,
+        1536
+      ]
+    },
+    {
+      "sheet": "quarter/mina-recovered-36.png",
+      "generated_path": "/workspace/generated_images/exec-d614ac88-98ce-4ca6-ae5d-b2eb744a4fe5.png",
+      "sha256": "7d374c7b87614305e09de51831193cec130a2a12085b78e3977c672b4ba18aa5",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/mina-recovered-8.png",
+      "generated_path": "/workspace/generated_images/exec-617ddc70-eb6b-4aea-9f21-24af26ed7667.png",
+      "sha256": "99265f8a6f2f1d20e289c9d3797a302ec8b29d04606cf377bb750f3a4c66f6d7",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/mina-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-aa029815-d8f8-48b7-a163-fb3f35b4b055.png",
+      "sha256": "1dddb43d44d01d2cc6d68237fa9ba0751c6300367e847ff840f85df406d227d1",
+      "size": [
+        1024,
+        1536
+      ]
+    },
+    {
+      "sheet": "quarter/kade-recovered-7.png",
+      "generated_path": "/workspace/generated_images/exec-d1f1e6da-42d5-4f1d-b4ef-9f3a679814fc.png",
+      "sha256": "04dfe2614772752d96141534d8e12d0a3bd0601070d3952bb3f351d7f08e71f5",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/kade-recovered-19.png",
+      "generated_path": "/workspace/generated_images/exec-61c3d5b8-2f9c-4b94-b47d-d960118688ad.png",
+      "sha256": "43a24a205493db1f29a987959f5764c604e1b95b03bcd7b9f81e3a97bac49a13",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "sheet": "quarter/rook-recovered-1.png",
+      "generated_path": "/workspace/generated_images/exec-de148018-b291-44fb-b896-1fa834787a55.png",
+      "sha256": "434ba959f3db944c205a8753e065734d37de974df8d7941f012edc9f2f7181c2",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/rook-recovered-22.png",
+      "generated_path": "/workspace/generated_images/exec-70978b4c-6d18-4149-a0cb-b9aa365dad7f.png",
+      "sha256": "9e40c650d586c2ccd649f5f01555ff7d923517ffb4108fa5dd6fc7723cee3f02",
+      "size": [
+        1254,
+        1254
+      ]
+    },
+    {
+      "sheet": "quarter/rook-left-physical-side-repair.png",
+      "generated_path": "/workspace/generated_images/exec-d9c611f1-2bd5-4959-bdae-5d8c5ef911e6.png",
+      "sha256": "c5bd7cb684a6d3f02e2fcdfef488505e9a1867e5f2e5696ef702151acdaa3e92",
+      "size": [
+        1983,
+        793
+      ]
+    },
+    {
+      "sheet": "quarter/ren-recovered-12.png",
+      "generated_path": "/workspace/generated_images/exec-2a29dfc3-53de-4c1c-987e-159c5e01be2b.png",
+      "sha256": "f715318443df14fa25873d6e3614ed3916042643e094bf89db9d51a5e53506c6",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/ren-quiet-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-27e70b9b-3fa8-4780-93e5-ca2857061913.png",
+      "sha256": "e485ab7115663bfd200a1ea29bb58d4fcef8e732d1dc5b2806e93f8e3c0e467d",
+      "size": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "sheet": "quarter/ren-quiet-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-4c87410e-9e16-4bac-bd9a-de1ec8f99b39.png",
+      "sha256": "7055804dc13ef85aa6565afb5110e1f4c2453d1ff7271394b903d6550b63344e",
+      "size": [
+        1024,
+        1536
+      ]
+    },
+    {
+      "sheet": "quarter/marisol-right.png",
+      "generated_path": "/workspace/generated_images/exec-4804dea5-eaa0-4a9a-9ef4-8b123ef8153e.png",
+      "sha256": "895a62891acdde64dd22067fea8be639253ad148e8b9cb7f3ccf6232cb099063",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/marisol-left.png",
+      "generated_path": "/workspace/generated_images/exec-3c54d1fa-f7ca-44a7-b0d7-65f19597c7e3.png",
+      "sha256": "3f7f4ee41003e0362e1a0014f83373706edb298410a409f52a2e19d6e751b549",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/aster-left.png",
+      "generated_path": "/workspace/generated_images/exec-4b9a47f6-2524-4493-aaed-05eb4b0a96f6.png",
+      "sha256": "531cb5045cf3705cc7b06585003a81e63ecd5c316eff378fed55337cb93a657b",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/aster-right.png",
+      "generated_path": "/workspace/generated_images/exec-1dfd8dc7-6769-464a-9182-9f7287300cf0.png",
+      "sha256": "d64ee1eb1128196beb2c666507db50a6cd36a1bdfd9a2d25e8115aff5f3fc6e7",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/sable-right.png",
+      "generated_path": "/workspace/generated_images/exec-6db30da6-d217-4139-b28d-247bf27d219b.png",
+      "sha256": "5c91267203a34909a69286cfaa35b687c9ca404230e79877fe1696472542ca4c",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/sable-left.png",
+      "generated_path": "/workspace/generated_images/exec-97cfc02d-aed8-47a4-a8c3-392b796e1eaf.png",
+      "sha256": "3c753813723a1d1e8aaee551eec3ed656a1af37d979c3009efe54d93d600554a",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/calder-base.png",
+      "generated_path": "/workspace/generated_images/exec-40f6668b-954a-4955-b7ff-bbcd4b69d831.png",
+      "sha256": "03239df0820c2225205e018d53f0aba2315164e6c39fa4af2879c6ad6c39fe94",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/voss-base.png",
+      "generated_path": "/workspace/generated_images/exec-c92bbfa2-45bf-4450-8f2e-40229f59a0e0.png",
+      "sha256": "b8ce2e14978765cadee22aa170b0f1fa99d97ff083de41d053fd8ca1cb125674",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/vale-base.png",
+      "generated_path": "/workspace/generated_images/exec-37097a95-e1b1-411e-b8b3-aa188e826e12.png",
+      "sha256": "03094b0e6e01a50caf57c1c892125190249aeda75dcca11b6a486178f9eb9c5e",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/elders-left-repair.png",
+      "generated_path": "/workspace/generated_images/exec-063c8b6b-a0da-4fb2-97eb-298687234771.png",
+      "sha256": "5f5b3bcf8e197966ec992c84c7ea2ad9fa398e654ab72a820c6d8d499eb5efd8",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/vale-left-default.png",
+      "generated_path": "/workspace/generated_images/exec-5afcd4cf-f80e-4437-9217-8a7a2b3f2b6f.png",
+      "sha256": "cf87c05239098a8ceea6cfb55622003f1c3f61c603ba729d20b3d4fc2cc6f8f4",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/eli-left.png",
+      "generated_path": "/workspace/generated_images/exec-28c982b4-12c4-487e-8c6d-1d037823d5d2.png",
+      "sha256": "5c8dfe61ebe748490bf6671e1ceb0a0b914a7a99d5e0af76559f864a563e3969",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/eli-right.png",
+      "generated_path": "/workspace/generated_images/exec-66f7f599-97e4-485b-b919-f54d7ca22ade.png",
+      "sha256": "d8d8f9467449c90cbcd13c231f6526c82e4d13ab8ccbf5d02cf2c810d3e8768a",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-a.png",
+      "generated_path": "/workspace/generated_images/exec-f2741932-45ac-4edd-82b1-7b08a8fc8988.png",
+      "sha256": "2a6e2c50c57f7aae216bcee294162ae17a81a6feb6cc172adfa3da5559a4fd57",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-b.png",
+      "generated_path": "/workspace/generated_images/exec-cc630d9c-234a-4271-976b-a3b5a3b9e09a.png",
+      "sha256": "e9279150cbaec93c897c19c8983ddbf002a82d7ab14f756e78c3b3c96959cd6a",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-c.png",
+      "generated_path": "/workspace/generated_images/exec-07152429-87b5-45fe-a429-cec531363dc6.png",
+      "sha256": "f75d20c989846a294e8b53691ece104827893e6c732c5793f9e8b2f211b06efb",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-d.png",
+      "generated_path": "/workspace/generated_images/exec-c12e9042-da3b-4000-9536-cc5a666faa85.png",
+      "sha256": "989e8c8bc99713115a7946c8ab7f3cafe649234613d5c807c1ea51c086add1c5",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-repair-e.png",
+      "generated_path": "/workspace/generated_images/exec-7a74e33d-3d59-466f-ac1e-9f763553559c.png",
+      "sha256": "8860392c533c446aa194743a49ee81fdbc2f6b93449992a997be6d73dcc6596b",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-repair-f.png",
+      "generated_path": "/workspace/generated_images/exec-2056cbc3-8948-4dad-8055-1dbe68769d8e.png",
+      "sha256": "f90de2485e4aac70ad0ace0a5e0980b694850bd7e4a584a711e890a50b481a50",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-lexi-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-b27f3f83-1ce1-48f3-9aa5-6a382ab11a52.png",
+      "sha256": "894fcdd281f11b5e1937bd7e71bc255ea6dc4b1ad1b732e651b8f077ed262bc7",
+      "copied_without_pixel_changes": true,
+      "purpose": "Complete-hair framing repair for Lexi RIGHT only."
+    }
+  ]
+}

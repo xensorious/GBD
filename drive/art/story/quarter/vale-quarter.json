@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "VALE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-left-default.png",
+          "bounds": [
+            181,
+            63,
+            940,
+            1470
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            209,
+            0,
+            484,
+            373
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            626,
+            355,
+            880,
+            732
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            233,
+            357,
+            467,
+            731
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            675,
+            714,
+            897,
+            1093
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            212,
+            715,
+            438,
+            1095
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            677,
+            1078,
+            883,
+            1448
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/vale-base.png",
+          "bounds": [
+            243,
+            1078,
+            438,
+            1448
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/vale-base.png",
+      "generated_path": "/workspace/generated_images/exec-37097a95-e1b1-411e-b8b3-aa188e826e12.png",
+      "sha256": "03094b0e6e01a50caf57c1c892125190249aeda75dcca11b6a486178f9eb9c5e",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/vale-left-default.png",
+      "generated_path": "/workspace/generated_images/exec-5afcd4cf-f80e-4437-9217-8a7a2b3f2b6f.png",
+      "sha256": "cf87c05239098a8ceea6cfb55622003f1c3f61c603ba729d20b3d4fc2cc6f8f4",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

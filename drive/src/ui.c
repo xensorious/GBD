@@ -312,9 +312,9 @@ static void controls(Surface*s,const Game*g){
   gfx_text_small(s,16,158,"Combo: +0.25 steps. Speed builds slowly.",t->ink);
   gfx_text_small(s,16,168,"5x combo = 2x skill recharge. No idle fill.",t->muted);
  }else{
-  static const char*const keys[8]={"D-pad","A","B","L / R","Left / Right","Select","Any button","Up / Down"};
-  static const char*const actions[8]={"Choose tiles / list rows","Confirm / advance dialogue","Back / pause story scene","Garage / Career / settings","Car / finish / chapter / event","Dealer vehicle class","Open profiles from title","Choose a save slot"};
-  for(int i=0;i<8;i++){int y=35+i*17;glass(s,12,y,75,16,0);center_small(s,12,y+5,75,keys[i],t->accent);gfx_text_small(s,94,y+5,actions[i],t->ink);}
+  static const char*const keys[10]={"D-pad","A","B","L / R","Left / Right","Select","Any button","Up / Down","X / Studio","Y / Studio"};
+  static const char*const actions[10]={"Choose tiles / list rows","Confirm / dialogue / outfit","Back / pause story scene","Tabs / studio outfit","Car / finish / chapter / event","Dealer vehicle class","Open profiles from title","Choose a save slot","Turn left / right","Original / three-quarter"};
+  for(int i=0;i<10;i++){int y=32+i*14;glass(s,12,y,75,13,0);center_small(s,12,y+3,75,keys[i],t->accent);gfx_text_small(s,94,y+3,actions[i],t->ink);}
  }
  footer(s,"L / R: Change page","B: Back");
 }

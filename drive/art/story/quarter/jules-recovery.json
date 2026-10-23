@@ -1,0 +1,117 @@
+{
+  "characters": [
+    {
+      "character": "JULES",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            26,
+            34,
+            391,
+            1030
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            371,
+            44,
+            754,
+            1039
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            739,
+            46,
+            1112,
+            1038
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/jules-recovered-17.png",
+          "bounds": [
+            1124,
+            45,
+            1441,
+            1040
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            18,
+            17,
+            350,
+            1050
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            378,
+            26,
+            747,
+            1050
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            735,
+            32,
+            1115,
+            1049
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/jules-recovered-28.png",
+          "bounds": [
+            1119,
+            40,
+            1432,
+            1053
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/jules-recovered-17.png",
+      "generated_path": "/workspace/generated_images/exec-aff11fdc-626b-4f23-9d8e-937790c03bd0.png",
+      "sha256": "71ee1b71508d8a4371f51ea30a7e9089a18b513b54e8c4b926d8a825de98d5e3",
+      "size": [
+        1448,
+        1086
+      ]
+    },
+    {
+      "sheet": "quarter/jules-recovered-28.png",
+      "generated_path": "/workspace/generated_images/exec-1c63d71c-61a0-42e2-8d0a-1209a13c09e5.png",
+      "sha256": "e4ea75765c280e439b7537f59de8a2f007ef5b130f6862739dc34aa5b13b046e",
+      "size": [
+        1448,
+        1086
+      ]
+    }
+  ]
+}

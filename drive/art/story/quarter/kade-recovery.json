@@ -1,0 +1,117 @@
+{
+  "characters": [
+    {
+      "character": "KADE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            246,
+            1,
+            457,
+            389
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            637,
+            2,
+            843,
+            389
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            261,
+            384,
+            418,
+            758
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            668,
+            385,
+            832,
+            758
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            256,
+            756,
+            436,
+            1136
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-7.png",
+          "bounds": [
+            666,
+            755,
+            835,
+            1137
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/kade-recovered-19.png",
+          "bounds": [
+            255,
+            13,
+            600,
+            997
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/kade-recovered-19.png",
+          "bounds": [
+            959,
+            15,
+            1264,
+            1000
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/kade-recovered-7.png",
+      "generated_path": "/workspace/generated_images/exec-d1f1e6da-42d5-4f1d-b4ef-9f3a679814fc.png",
+      "sha256": "04dfe2614772752d96141534d8e12d0a3bd0601070d3952bb3f351d7f08e71f5",
+      "size": [
+        1086,
+        1448
+      ]
+    },
+    {
+      "sheet": "quarter/kade-recovered-19.png",
+      "generated_path": "/workspace/generated_images/exec-61c3d5b8-2f9c-4b94-b47d-d960118688ad.png",
+      "sha256": "43a24a205493db1f29a987959f5764c604e1b95b03bcd7b9f81e3a97bac49a13",
+      "size": [
+        1536,
+        1024
+      ]
+    }
+  ]
+}

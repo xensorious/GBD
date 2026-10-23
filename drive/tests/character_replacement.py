@@ -309,7 +309,9 @@ def main():
     assert (catalog['portrait_width'], catalog['portrait_height']) == (width, height)
     assert (manifest['portrait_width'], manifest['portrait_height']) == (width, height)
     assert catalog['people'] == approval['story_people']
-    assert manifest['portraits'] == 76 and manifest['ordinary_portraits'] == 57
+    quarter_count = manifest.get('quarter_portraits', 0)
+    assert quarter_count in (0, 142)
+    assert manifest['portraits'] == 76 + quarter_count and manifest['ordinary_portraits'] == 57
     assert manifest['fullbody_portraits'] == 5
     assert manifest['people'] == len(catalog['people'])
     preserved_source_files = preserve_sources(catalog, backgrounds, baseline)
@@ -329,11 +331,16 @@ def main():
     assert family_shots, 'The workshop family photograph has no unobscured camera shot'
 
     data = (ROOT / 'build/nitro/story.bin').read_bytes()
+    rom = (ROOT / 'build/Coastline.nds').read_bytes()
+    fat, fat_size = struct.unpack_from('<II', rom, 0x48)
+    assert fat_size == 8
+    archive_start, archive_end = struct.unpack_from('<II', rom, fat)
+    assert rom[archive_start:archive_end] == data, 'Cartridge archive differs from validated imports'
     magic, event_table, event_count, asset_table, asset_count, total, unused = struct.unpack_from(
         '<8s6I', data)
     assert magic == b'CSTORY02' and event_count == 125 and total == len(data) and not unused
     assert digest(data) == manifest['archive_sha256']
-    assert asset_count == manifest['assets'] == len(backgrounds) + 76
+    assert asset_count == manifest['assets'] == len(backgrounds) + 76 + quarter_count
     assets = read_assets(data, asset_table, asset_count)
     for asset in assets[len(backgrounds):]:
         assert (asset['width'], asset['height'], asset['kind']) == (width, height, 1)
@@ -386,7 +393,10 @@ def main():
     assert not draft_ids & {value for row in portrait_map for value in row}
     assert not draft_ids & set(fullbody_ids)
     gallery_ids = {portrait for entry in gallery for portrait in entry['portraits']}
-    assert gallery_ids | set(nia_ids) == set(range(manifest['portraits']))
+    assert gallery_ids | set(nia_ids) == set(range(76))
+    quarter_ids = {entry['portrait'] for entry in manifest.get('quarter_entries', [])}
+    assert quarter_ids == set(range(76, 76 + quarter_count))
+    assert gallery_ids | set(nia_ids) | quarter_ids == set(range(manifest['portraits']))
     new_sources = check_restyle_sources(catalog, manifest, assets, len(backgrounds), approval, width, height)
 
     occurrences = []
@@ -424,10 +434,12 @@ def main():
         assert source['crop'] == tuple(expected['bounds']), ('Pose crop changed', source['pose'])
         assert source['crop_sha256'] == expected['rgba_sha256'], ('Pose crop pixels changed', source['pose'])
     result = {'baseline_ref': baseline['baseline_ref'], 'archive_sha256': digest(data),
+              'rom_sha256': digest(rom), 'archive_matches_nitrofs': True,
               'source_preservation_ref': baseline['source_preservation']['baseline_ref'],
               'portrait_size': width, 'portrait_width': width, 'portrait_height': height,
               'portraits': manifest['portraits'], 'ordinary_portraits': manifest['ordinary_portraits'],
-              'fullbody_portraits': 5, 'nia_poses': POSES,
+              'fullbody_portraits': 5, 'legacy_portraits': 76,
+              'additional_quarter_portraits': quarter_count, 'nia_poses': POSES,
               'all_previous_nia_portraits_replaced': True,
               'imported_alpha_matches_approved_source': True,
               'fullbody_alpha_matches_approved_source': True,

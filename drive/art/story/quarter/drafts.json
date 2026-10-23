@@ -1,0 +1,436 @@
+{
+  "version": 1,
+  "complete": true,
+  "characters": [
+    {
+      "character": "LEXI",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            640,
+            0,
+            838,
+            365
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-lexi-right-repair.png",
+          "bounds": [
+            240,
+            65,
+            856,
+            1483
+          ]
+        }
+      ]
+    },
+    {
+      "character": "NYX",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            302,
+            355,
+            462,
+            744
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            640,
+            356,
+            869,
+            749
+          ]
+        }
+      ]
+    },
+    {
+      "character": "KIT",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            264,
+            731,
+            466,
+            1105
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            642,
+            732,
+            841,
+            1106
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SIENNA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            242,
+            1090,
+            502,
+            1448
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-a.png",
+          "bounds": [
+            624,
+            1090,
+            864,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "BEAU",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            350,
+            0,
+            646,
+            556
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            289,
+            0,
+            493,
+            389
+          ]
+        }
+      ]
+    },
+    {
+      "character": "MILES",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            346,
+            534,
+            648,
+            1073
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            254,
+            373,
+            479,
+            783
+          ]
+        }
+      ]
+    },
+    {
+      "character": "TESS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-repair-f.png",
+          "bounds": [
+            378,
+            1048,
+            641,
+            1536
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            277,
+            762,
+            464,
+            1136
+          ]
+        }
+      ]
+    },
+    {
+      "character": "AKIRA",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            278,
+            1120,
+            478,
+            1448
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-b.png",
+          "bounds": [
+            620,
+            1122,
+            844,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ZOE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            241,
+            0,
+            479,
+            377
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-repair-e.png",
+          "bounds": [
+            365,
+            10,
+            701,
+            777
+          ]
+        }
+      ]
+    },
+    {
+      "character": "DANTE",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            238,
+            364,
+            465,
+            748
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-repair-e.png",
+          "bounds": [
+            362,
+            761,
+            746,
+            1536
+          ]
+        }
+      ]
+    },
+    {
+      "character": "PIPER",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            270,
+            735,
+            463,
+            1101
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            642,
+            738,
+            834,
+            1102
+          ]
+        }
+      ]
+    },
+    {
+      "character": "SOL",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            237,
+            1082,
+            465,
+            1443
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-c.png",
+          "bounds": [
+            640,
+            1081,
+            827,
+            1448
+          ]
+        }
+      ]
+    },
+    {
+      "character": "CASS",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            163,
+            2,
+            573,
+            631
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            714,
+            6,
+            1078,
+            631
+          ]
+        }
+      ]
+    },
+    {
+      "character": "ORION",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            249,
+            619,
+            555,
+            1247
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/drafts-d.png",
+          "bounds": [
+            727,
+            619,
+            1083,
+            1251
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/drafts-a.png",
+      "generated_path": "/workspace/generated_images/exec-f2741932-45ac-4edd-82b1-7b08a8fc8988.png",
+      "sha256": "2a6e2c50c57f7aae216bcee294162ae17a81a6feb6cc172adfa3da5559a4fd57",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-b.png",
+      "generated_path": "/workspace/generated_images/exec-cc630d9c-234a-4271-976b-a3b5a3b9e09a.png",
+      "sha256": "e9279150cbaec93c897c19c8983ddbf002a82d7ab14f756e78c3b3c96959cd6a",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-c.png",
+      "generated_path": "/workspace/generated_images/exec-07152429-87b5-45fe-a429-cec531363dc6.png",
+      "sha256": "f75d20c989846a294e8b53691ece104827893e6c732c5793f9e8b2f211b06efb",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-d.png",
+      "generated_path": "/workspace/generated_images/exec-c12e9042-da3b-4000-9536-cc5a666faa85.png",
+      "sha256": "989e8c8bc99713115a7946c8ab7f3cafe649234613d5c807c1ea51c086add1c5",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-repair-e.png",
+      "generated_path": "/workspace/generated_images/exec-7a74e33d-3d59-466f-ac1e-9f763553559c.png",
+      "sha256": "8860392c533c446aa194743a49ee81fdbc2f6b93449992a997be6d73dcc6596b",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-repair-f.png",
+      "generated_path": "/workspace/generated_images/exec-2056cbc3-8948-4dad-8055-1dbe68769d8e.png",
+      "sha256": "f90de2485e4aac70ad0ace0a5e0980b694850bd7e4a584a711e890a50b481a50",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/drafts-lexi-right-repair.png",
+      "generated_path": "/workspace/generated_images/exec-b27f3f83-1ce1-48f3-9aa5-6a382ab11a52.png",
+      "sha256": "894fcdd281f11b5e1937bd7e71bc255ea6dc4b1ad1b732e651b8f077ed262bc7",
+      "copied_without_pixel_changes": true,
+      "purpose": "Complete-hair framing repair for Lexi RIGHT only."
+    }
+  ],
+  "review": {
+    "method": "Original full-resolution view, direction and full-extremity review; metadata uses explicit component-aware crops.",
+    "left_right": "Actual nose/body facing, not column assumptions. Lexi columns reversed; Beau/Miles/Tess LEFT and Zoe/Dante RIGHT use independent repair sources.",
+    "native_masks": "All28 native256x264 alpha masks retain clean complete figures; no secondary component exceeds32pixels.",
+    "completed_frames": 28,
+    "lexi_repair": "Lexi RIGHT alone regenerated to restore complete ponytail; all other27 frames recovered from approved raw generations without pixel edits."
+  }
+}

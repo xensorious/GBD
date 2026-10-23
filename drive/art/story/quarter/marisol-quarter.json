@@ -1,0 +1,111 @@
+{
+  "characters": [
+    {
+      "character": "MARISOL",
+      "portraits": [
+        {
+          "pose": "DEFAULT",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            235,
+            5,
+            578,
+            623
+          ]
+        },
+        {
+          "pose": "DEFAULT",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            244,
+            0,
+            598,
+            628
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            733,
+            5,
+            1033,
+            624
+          ]
+        },
+        {
+          "pose": "CASUAL",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            765,
+            3,
+            1042,
+            628
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            305,
+            625,
+            574,
+            1248
+          ]
+        },
+        {
+          "pose": "GEAR",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            259,
+            623,
+            561,
+            1250
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "LEFT",
+          "sheet": "quarter/marisol-left.png",
+          "bounds": [
+            767,
+            626,
+            1028,
+            1246
+          ]
+        },
+        {
+          "pose": "QUIET",
+          "facing": "RIGHT",
+          "sheet": "quarter/marisol-right.png",
+          "bounds": [
+            785,
+            624,
+            1072,
+            1246
+          ]
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "sheet": "quarter/marisol-right.png",
+      "generated_path": "/workspace/generated_images/exec-4804dea5-eaa0-4a9a-9ef4-8b123ef8153e.png",
+      "sha256": "895a62891acdde64dd22067fea8be639253ad148e8b9cb7f3ccf6232cb099063",
+      "copied_without_pixel_changes": true
+    },
+    {
+      "sheet": "quarter/marisol-left.png",
+      "generated_path": "/workspace/generated_images/exec-3c54d1fa-f7ca-44a7-b0d7-65f19597c7e3.png",
+      "sha256": "3f7f4ee41003e0362e1a0014f83373706edb298410a409f52a2e19d6e751b549",
+      "copied_without_pixel_changes": true
+    }
+  ]
+}

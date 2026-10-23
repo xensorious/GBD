@@ -48,6 +48,7 @@ def optional_catalog(relative):
  return json.loads(path.read_text()) if path.exists() else {'characters':[]}
 restyles=optional_catalog('restyle/catalog.json')['characters']
 drafts=optional_catalog('new-cast/catalog.json')['characters']
+quarters=optional_catalog('quarter/catalog.json')['characters']
 restyle_by_id={person['character']:person for person in restyles}
 assert len(restyle_by_id)==len(restyles) and 'NIA' not in restyle_by_id
 assert 0<len(POSES)<=64
@@ -103,6 +104,36 @@ for person in drafts:
  gallery.append({'id':person['id'],'name':person['name'],'style':person['style'],
   'description':person['description'],'draft':True,'portraits':[portrait]*len(POSES),'full_body':[True]*len(POSES)})
 assert len({person['id'] for person in gallery})==len(gallery)
+# Standing conversations keep the earlier artwork and add authored directions.
+# Frame IDs stay below 256 even though the complete archive now has >256 assets.
+quarter_sources={};quarter_entries=[]
+for person in quarters:
+ assert person['character'] in {entry['id'] for entry in gallery}
+ expected=POSES if person['character']=='NIA' else POSES[:4] if person['character'] in PEOPLE else POSES[:1]
+ assert {(p['pose'],p['facing']) for p in person['portraits']}=={(pose,direction) for pose in expected for direction in ('LEFT','RIGHT')},person['character']
+ for spec in person['portraits']:
+  source={key:spec[key] for key in ('sheet','bounds')}
+  key=json.dumps(source,sort_keys=True)
+  assert key not in source_ids,(person['character'],spec['pose'],spec['facing'])
+  portrait=len(portraits);source_ids[key]=portrait;portraits.append(source)
+  identity=(person['character'],spec['pose'],spec['facing'])
+  assert identity not in quarter_sources,identity
+  quarter_sources[identity]=portrait
+  quarter_entries.append({'character':person['character'],'pose':spec['pose'],'facing':spec['facing'],'portrait':portrait,**source})
+quarter_available=bool(quarters)
+if quarter_available:
+ assert {p['character'] for p in quarters}=={entry['id'] for entry in gallery}
+ assert len(quarter_entries)==142
+quarter_map=[[[-1]*len(PEOPLE) for _ in POSES] for _ in range(2)]
+gallery_quarters=[]
+for actor,person in enumerate(gallery):
+ rows=[]
+ for pose in POSES:
+  ids=[quarter_sources.get((person['id'],pose,direction),quarter_sources.get((person['id'],'DEFAULT',direction),-1)) for direction in ('LEFT','RIGHT')]
+  rows.append(ids)
+  if actor<len(PEOPLE):
+   for facing,portrait in enumerate(ids):quarter_map[facing][POSES.index(pose)][actor]=portrait
+ gallery_quarters.append(rows)
 assert len(portraits)<256
 for person in gallery:
  assert all(person[key].isascii() for key in ('name','style','description')),person['id']
@@ -155,14 +186,16 @@ for idx,(w,h,payload) in enumerate(assets):
 struct.pack_into('<8s6I',data,0,b'CSTORY02',event_table,len(scenes),asset_table,len(assets),len(data),0)
 (OUT/'story.bin').write_bytes(data)
 line_count=sum(len(s['lines']) for s in scenes)
-(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'ordinary_portraits':len(ordinary_ids),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'gallery':gallery,'gallery_count':len(gallery),'restyled_people':list(restyle_by_id),'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
+(ROOT/'build/story-manifest.json').write_text(json.dumps({'archive_sha256':hashlib.sha256(data).hexdigest(),'scenes':len(scenes),'dialogue_lines':line_count,'assets':len(assets),'backgrounds':nbg,'portraits':len(portraits),'ordinary_portraits':len(ordinary_ids),'portrait_size':portrait_width,'portrait_width':portrait_width,'portrait_height':portrait_height,'background_width':background_width,'background_height':background_height,'fullbody_map':fullbody_map,'fullbody_portraits':len(fullbody_ids),'fullbody_backgrounds':[b['name'] for b in tall if b.get('full_body')],'people':len(PEOPLE),'portrait_map':portrait_map,'gallery':gallery,'gallery_count':len(gallery),'restyled_people':list(restyle_by_id),'quarter_portraits':len(quarter_entries),'quarter_entries':quarter_entries,'quarter_map':quarter_map,'gallery_quarters':gallery_quarters,'bytes':len(data),'methods':STAGES,'events':[{'id':s['id'],'lines':len(s['lines']),'shots':s['shots']} for s in scenes]},indent=2)+'\n')
 limits={'BACKGROUNDS':nbg,'BACKGROUND_WIDTH':background_width,'BACKGROUND_HEIGHT':background_height,'PEOPLE':len(PEOPLE),'SPEAKERS':len(CAST),'PORTRAITS':len(portraits),'PORTRAIT_SIZE':portrait_width,'PORTRAIT_WIDTH':portrait_width,'PORTRAIT_HEIGHT':portrait_height,'POSES':len(POSES),'ASSETS':len(assets),'LINES':line_count,'GALLERY_COUNT':len(gallery)}
 advances=(ROOT/'build/font_advance.bin').read_bytes();assert len(advances)==96
-(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n#define STORY_GALLERY_POSE_COUNTS_INITIALIZER {'+','.join(map(str,gallery_pose_counts))+'}\n')
+(ROOT/'build/story_limits.h').write_text('/* Generated from the authored story catalog and actual dialogue font. */\n'+''.join(f'#define STORY_{k} {v}\n' for k,v in limits.items())+'#define STORY_FONT_ADVANCE_INITIALIZER {'+','.join(map(str,advances))+'}\n#define STORY_GALLERY_POSE_COUNTS_INITIALIZER {'+','.join(map(str,gallery_pose_counts))+'}\n#define STORY_QUARTER_AVAILABLE '+str(int(quarter_available))+'\n')
 def cstring(value):return json.dumps(value,ensure_ascii=True)
 visuals='/* Generated visual catalog; included by the dialogue renderer only. */\n'
 visuals+='static const uint8_t story_portraits[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in portrait_map)+'};\n'
 visuals+='static const int16_t story_fullbodies[STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join(map(str,row))+'}' for row in fullbody_map)+'};\n'
+visuals+='static const int16_t story_quarter_portraits[2][STORY_POSES][STORY_PEOPLE] = {'+','.join('{'+','.join('{'+','.join(map(str,row))+'}' for row in direction)+'}' for direction in quarter_map)+'};\n'
+visuals+='static const int16_t story_gallery_quarters[STORY_GALLERY_COUNT][STORY_POSES][2] = {'+','.join('{'+','.join('{'+','.join(map(str,row))+'}' for row in person)+'}' for person in gallery_quarters)+'};\n'
 for field in ('names','styles','descriptions'):
  key={'names':'name','styles':'style','descriptions':'description'}[field]
  visuals+='static const char*const story_gallery_'+field+'[STORY_GALLERY_COUNT] = {'+','.join(cstring(person[key]) for person in gallery)+'};\n'
