@@ -4,9 +4,9 @@
 
 - Use deliberate, GTA-style **sequences** of button inputs, rather than only holding a button combination.
 - Each cheat must have a sequence unlikely to occur accidentally during normal play.
-- The user's example was `L, R, L, R, Left, Right, Up, Down`; this is illustrative, not an assigned or implemented sequence.
+- The user's example `L, R, L, R, Left, Right, Up, Down` became the shared prefix; six endings are listed in README.md.
 - The intended interface is Delta's custom cheat menu for Pokémon Amethyst v1.4.0.
-- No specific code format or implementation approach has been validated yet.
+- The implementation uses a BPS patch and Action Replay activation code. Testing in the iPhone app remains outstanding.
 
 ## Six effects
 
@@ -21,7 +21,7 @@
 
 ## Implementation checks
 
-These checks follow from the requested behavior. Host tests cover command emission; game effects have not been implemented or tested in the target game.
+These checks follow from the requested behavior. Game effects are implemented; tested scope and gaps are recorded in VALIDATION.md.
 
 - Each completed item sequence grants exactly one item, including on repeated uses. Holding the final button must not repeatedly add items.
 - Item grants must preserve existing inventory contents; continuously refilling or overwriting a slot does not satisfy the request.
@@ -29,9 +29,9 @@ These checks follow from the requested behavior. Host tests cover command emissi
 - Walking and invulnerability must be tested against the exact game version. Refilling HP periodically alone does not establish invulnerability.
 - Inventory-full handling, toggle persistence across resets/save states, and the treatment of special battle effects remain implementation details to resolve during development.
 
-## Unverified assumptions
+## Implementation decisions
 
-- Walking and invulnerability will use sequence-controlled toggles unless the user changes that preference.
-- A Delta-compatible implementation is preferred. A game patch is a possible fallback, not a confirmed requirement.
+- Walking and invulnerability use sequence-controlled toggles, based on the assistant's proposed behavior.
+- The build requires a game patch because normal heap resets erased the code-only prototype. The activation targets the examined Delta GBA core; device verification remains outstanding.
 
-No sequence, address, hook, or code in this project should be treated as working until validated against the exact game file.
+The builder enforces the exact source checksum. These hooks must not be reused with another release.

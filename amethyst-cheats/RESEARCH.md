@@ -1,40 +1,37 @@
-# Research and current limits
+# Verified target and implementation
 
-Research notes recorded from the conversation. These are leads for implementation, not evidence of a working cheat system.
+The supplied v1.4.0 ROM is 33,554,432 bytes, title POKEMON FIRE, code BPRE, revision 0. Source SHA-256:
+
+`89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`
+
+Header identity alone cannot identify a hack/version. The builder verifies the complete hash and every original hook byte.
 
 ## Delta
 
-- Delta's GBA cheat interface offers Action Replay, Code Breaker, and GameShark. The selected format must match the supplied code.
-- The examined VBA-M cheat-engine source contains conditional operations, memory writes, arithmetic operations, button checks, and ROM patch operations. These are building blocks for remembered sequence progress and toggles.
-- This supports feasibility **in principle**; a complete sequential-input system has not been implemented or verified in Delta.
-- A button sequence requires custom state handling. There is no verified ready-made sequence for this project.
+The examined [GBADeltaCore bridge](https://github.com/rileytestut/GBADeltaCore/blob/master/GBADeltaCore/Bridge/GBAEmulatorBridge.mm) routes Action Replay and GameShark to AR v3. Its pinned [VBA-M implementation](https://raw.githubusercontent.com/visualboyadvance-m/visualboyadvance-m/453fa0decf179360926fb417725a794aa496d6e3/src/gba/Cheats.cpp) supports conditional RAM writes but only four reversible halfword ROM patches.
 
-Sources:
+A RAM installer was rejected after live battle entry erased its heap storage. Other resets occur in title/save/reload paths. The release therefore uses a ROM patch plus a short enable heartbeat. [Delta cheat instructions](https://faq.deltaemulator.com/using-delta/cheat-codes).
 
-- [Delta cheat-code instructions](https://faq.deltaemulator.com/using-delta/cheat-codes)
-- [Examined VBA-M Cheats.cpp revision](https://raw.githubusercontent.com/visualboyadvance-m/visualboyadvance-m/453fa0decf179360926fb417725a794aa496d6e3/src/gba/Cheats.cpp)
-- [Delta issue discussing GBA code-format behavior](https://github.com/rileytestut/Delta/issues/347)
+## Version-specific anchors
 
-## Pokémon Amethyst
+| Location | Verified purpose |
+| --- | --- |
+| 080005EC | ReadKeys destination 0891CECD, chained by handler |
+| 08002B80 | InitHeap, hooked to reserve 512 bytes |
+| 03000A38/03000A3C | Heap start/size globals |
+| 08002949 | First free-block initializer |
+| 0805BB1C | Common player collision function |
+| 0809A085 | AddBagItem: Master Ball1, Max Revive25, Rare Candy68 |
+| 0806E681/0806E6A9/0806E6D1 | FlagSet/Clear/Get; shiny flag0913 |
+| 0803DA55 | CreateMon, used for real generation tests |
+| 0888B960 | Battle script command table |
+| 02023BD6 | Battler positions; even positions are player-side |
+| 0201BE00 | Reserved runtime state |
 
-- The project concerns duck_caper's GBA Pokémon Amethyst v1.4.0. Other projects also use the Amethyst name, so identity and version must be checked.
-- The creator's v1.4.0 announcement links to HackDex for the release and documentation, and describes a 32 MB game size. The user's reported roughly 33 MB file size is not enough to verify its contents.
-- The exact v1.4.0 game binary has not been obtained, hashed, disassembled, or tested.
-- No project-specific addresses, unused memory locations, item-grant functions, collision hooks, shiny-generation hooks, or invulnerability hooks have been verified.
-- Whether the full requested system can be supplied through Delta's cheat menu, or requires a game patch, remains unresolved.
+Shiny generation preserves trainer ownership and does not change existing Pokémon. Other game options can also influence shiny rates. Battle guards and exact addresses are recorded in source.
 
-Sources:
+## Limits
 
-- [Creator's v1.4.0 release announcement](https://www.reddit.com/r/PokemonROMhacks/comments/1wq234b/pokemon_amethyst_v140_has_released_the_battle/)
-- [Creator-linked HackDex project page](https://www.hackdex.app/hack/pokemon-amethyst)
+Actual iPhone Delta, all terrain, all battle variants and a full playthrough remain untested. [VALIDATION.md](VALIDATION.md) separates stubbed checks from game tests.
 
-## Validation still needed
-
-1. Obtain the exact game file privately and record its size and checksum without committing the binary.
-2. Verify the active Delta GBA core and supported cheat semantics.
-3. Identify version-specific functions and safe storage for sequence progress and toggle state.
-4. Test one-shot inventory additions without overwriting items or repeatedly incrementing while a key is held.
-5. Test collision bypass, shiny state restoration, and invulnerability in relevant game situations.
-6. Document installation, assigned button sequences, limitations, and test results only after validation.
-
-No working cheat code or patch has been created or tested.
+Identification sources: [creator's v1.4.0 announcement](https://www.reddit.com/r/PokemonROMhacks/comments/1wq234b/pokemon_amethyst_v140_has_released_the_battle/) and [creator-linked HackDex page](https://www.hackdex.app/hack/pokemon-amethyst).

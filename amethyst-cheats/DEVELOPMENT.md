@@ -1,29 +1,35 @@
-# Development plan
+# Building and extending the project
 
-## First milestone: input behavior
+The release uses a ROM-resident ARM7TDMI Thumb handler and a four-line Action Replay heartbeat. A pure RAM installer was rejected because normal gameplay resets its heap. The examined Delta AR v3 engine also has only four reversible halfword ROM patch slots.
 
-Completed for the initial prototype: a host-side reference model emits one command per completed sequence and alternates the shiny toggle state. All 14 reference tests passed. It cannot change a running game, and it is not code that can be pasted into Delta.
+## Build
 
-The model will help specify press/release handling, rejection of simultaneous inputs, wrong-button recovery, and timeouts before implementing those rules inside the GBA game or emulator cheat engine. Candidate sequences and timing are development defaults, not finalized user controls. Walk-anywhere and invulnerability toggles remain proposed behavior; the user explicitly required toggling for the shiny effect.
+Requires Python 3.10+ and Zig **0.13.0**. Supply your own matching original ROM; any other SHA-256 is rejected.
 
-## Second milestone: identify the target
+```sh
+ZIG=/path/to/zig sh tools/build.sh /path/to/original-amethyst.gba
+python3 -m unittest discover -s tests -v
+```
 
-- Obtain the user's exact Amethyst v1.4.0 game file in a local analysis workspace.
-- Record its byte size, SHA-256, and GBA header identifiers. A filename or reported size alone cannot identify it.
-- Establish the Delta version and the active GBA core's cheat semantics.
-- Identify safe scratch storage and the relevant version-specific functions/hooks. Do not borrow addresses from another hack or release without checking the code.
+This writes `build/runtime.elf`, the BPS patch, activation text and manifest. It leaves the input untouched and emits no patched ROM by default. For private local testing:
 
-## Third milestone: implement the game effects
+```sh
+python3 tools/build_release.py /path/to/original-amethyst.gba \
+  --patched-copy /path/to/private-patched-amethyst.gba
+```
 
-| Effect | Implementation requirement |
-| --- | --- |
-| Add an item | Call a verified item-grant routine or implement equivalent inventory handling, preserving existing quantities and inventory contents. Emit one grant of exactly one item per completed sequence. A full bag can reject a grant; it must not corrupt or replace another item. |
-| Walk anywhere | Verify collision, elevation, water, and map-transition behavior. Distinguish traversing blocked tiles from leaving valid map bounds. Preserve the original behavior so it can be restored if a toggle is implemented. |
-| Shiny toggle | Change the relevant encounter-generation path only while enabled. Restore normal generation after the next activation. Test that disabling the effect restores normal behavior for new encounters. |
-| Invulnerability | Prevent player-side damage/fainting in the relevant battle paths, including both player slots in double battles. Periodic healing alone does not prove invulnerability. Record any unsupported damage or instant-faint mechanics. |
+Keep ROMs, saves and credentials outside version control.
 
-Choose between a Delta cheat implementation and a game patch after inspecting the target. Both remain possible approaches. No build artifact should be called Delta-compatible until it has been tested in Delta.
+## Runtime layout
 
-## Validation and release
+The payload occupies verified-unused ROM near `09FF0000`; entry thunks and guard pointers occupy `09FF1000–09FF1073`. The builder checks exact hook bytes, requires injected regions to have been FF, and validates ELF layout and Thumb pointers. Its BPS output has source/target/patch CRCs and is independently applied for a byte-for-byte round trip.
 
-Test held buttons, repeated sequences, reset behavior, battle entry/exit, and item quantities. Verify game effects in a matching game/emulator setup and separately record host-model results. Only then publish installation steps, final sequences, known limitations, and a patch or cheat text. Keep game binaries, saves, and credentials outside version control.
+InitHeap reduces the standard heap from `1C000` to `1BE00` bytes. State occupies the excluded 512 bytes at `0201BE00`. The hook updates original allocator globals `03000A38/03000A3C` and calls the original free-header initializer. Heap resets preserve state; an EWRAM reset initializes fresh state.
+
+ReadKeys chains the game's RTC/keypad routine, consumes one heartbeat, and recognizes single-button taps. The maximum gap is 120 frames. Item commands call the game's inventory function with quantity one. Shiny uses an existing game flag. Walking returns no collision while active and replays the original entry when off.
+
+Battle commands 0B, 0C, 19, 79 and F4 route through guards for positive HP damage, zeroing, direct subtraction and faint checks. Foe damage and healing remain normal. Position parity identifies both player banks. Faint tracking checks party identity before restoring a previously living bank. This is engine-path protection, not blanket healing each frame.
+
+The Delta code checks the patched ReadKeys pointer and installed-state magic, then writes a heartbeat. Turning it off clears walking/protection and restores the prior shiny option. It consumes no AR ROM patch slots.
+
+See [VALIDATION.md](VALIDATION.md) and [validation/README.md](validation/README.md) for tests and stub boundaries. Device testing remains outstanding.

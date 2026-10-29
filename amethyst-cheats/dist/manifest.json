@@ -1,0 +1,8 @@
+{
+  "source_sha256": "89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430",
+  "patched_sha256": "be1804e482d04b5a5284c427d9625ccd6c051c5e30595715dd395c6efb0b62f6",
+  "bps_bytes": 2056,
+  "activation_lines": 4,
+  "format": "GBA Action Replay v3",
+  "validation": "Development build; see VALIDATION.md for tested scope."
+}
