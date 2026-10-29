@@ -1,0 +1,58 @@
+# Game binaries used during private analysis
+*.gba
+*.gb
+*.gbc
+*.nds
+*.rom
+*.bin
+
+# Saves, save states, and emulator data
+*.sav
+*.srm
+*.state
+*.state*
+*.sgm
+*.ss0
+*.ss1
+*.ss2
+*.ss3
+*.ss4
+*.ss5
+*.ss6
+*.ss7
+*.ss8
+*.ss9
+*.dsv
+*.rtc
+
+# Archives may contain game files, saves, or private material
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.gz
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*
+secrets*
+.aws/
+.ssh/
+.codex/
+
+# Private inputs, local artifacts, and editor/cache files
+private/
+roms/
+saves/
+tmp/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
