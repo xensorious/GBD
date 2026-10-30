@@ -1,3 +1,5 @@
+These top-level scripts validate the earlier ROM-patch prototype. For the current Delta-only release, use [code_only/README.md](code_only/README.md). The instructions below are retained for the older source and are not the current installation workflow.
+
 These scripts execute the compiled ARM Thumb runtime in Unicorn against an original, checksum-checked Amethyst v1.4.0 ROM supplied locally. No ROM or save file is included. They are independent scripts, separate from the synthetic unit tests in `tests/`.
 
 Use Python 3.10 or newer, Zig 0.13.0, and Unicorn 2.1.4. From the project directory:

@@ -1,73 +1,64 @@
 # Amethyst button cheats for Delta
 
-An experimental button-sequence system for **Pokémon Amethyst v1.4.0**: one-shot items, walking through obstacles, shiny generation, and player-side battle protection.
+**The current release is one Action Replay entry for the original Pokémon Amethyst v1.4.0 ROM. No ROM patch is required.**
 
-**Install the BPS patch first. The four-line Delta code alone does nothing to the original ROM.** The handler needs permanent ROM storage because the game resets its heap during normal play. No game or save files are distributed.
+[Open the complete code](dist/amethyst-v1.4.0-delta-code.txt) · [Raw copyable text](https://raw.githubusercontent.com/xensorious/GBD/main/amethyst-cheats/dist/amethyst-v1.4.0-delta-code.txt)
 
-## Install on iPhone
+## Install
 
-1. Export a backup of your current in-game save from Delta.
-2. Download [the BPS patch](dist/amethyst-v1.4.0-button-cheats.bps). Apply it to your original Amethyst v1.4.0 `.gba` with a BPS patcher such as [ROM Patcher JS](https://www.marcrobledo.com/RomPatcher.js/). It produces a new `.gba`. A checksum mismatch means a different ROM; do not force the patch.
-3. Import the patched game into Delta. Import your exported in-game save for it and start with **Continue**. Do not load a save state made with the original ROM: it has the old heap layout.
-4. Add one cheat named `Amethyst button cheats`, choose **Action Replay**, paste all four lines, save it, and leave it enabled.
+1. Use your original Amethyst v1.4.0 game. Replace the earlier four-line experimental cheat.
+2. Open the code link, select all its text, and copy it. It contains **3,451 lines**; keep them together.
+3. In Delta, add one cheat named `Amethyst button cheats`, choose **Action Replay**, and paste the entire code. Save and enable it.
+4. Restart the game and choose **Continue** from its title screen. Use your normal in-game save. Avoid loading a save state made before this code was installed, because it lacks the handler's RAM state.
 
-```text
-5D7E1F8B 453ED2BE
-79B40C0C E894258B
-47A4EA49 35AB8BC4
-1E27D83B BBFB6923
-```
+If you applied the earlier BPS patch, switch back to your original ROM and transfer your in-game save to it. This code targets the original file.
 
-Also available as [delta-action-replay.txt](dist/delta-action-replay.txt). A new game works too; items become available once its inventory is initialized.
+## Controls
 
-## Button sequences
-
-Begin every sequence with:
+Every command starts with:
 
 **L, R, L, R, Left, Right, Up, Down**
 
-Then enter the ending:
+Then add its ending:
 
 | Ending | Effect |
 | --- | --- |
 | A, A | Add exactly 1 Master Ball |
 | B, B | Add exactly 1 Max Revive |
 | A, B | Add exactly 1 Rare Candy |
-| B, A | Toggle walking through obstacles |
+| B, A | Toggle walking through normally blocked tiles |
 | L, L | Toggle 100% shiny generation |
-| R, R | Toggle player Pokémon battle protection |
+| R, R | Toggle protection for your Pokémon in battle |
 
-L/R are shoulder buttons; Left/Right are directions. Tap one button at a time and release it before the next tap, including repeated buttons. Tap deliberately, leaving less than about two seconds between taps at normal speed. Avoid entering a sequence during loading or transitions. Holding the last button does not repeat an item grant. Each full item sequence requests quantity one; a full bag can reject it.
+L/R are shoulder buttons. Left/Right/Up/Down are directions. Tap and release one button at a time, including repeated buttons. Leave less than about two seconds between taps at normal speed. Enter commands during ordinary gameplay, outside loading screens.
 
-Repeat a toggle sequence to turn its effect off, then again to turn it on. Walking and protection start off. Shiny starts from the game's current shiny option and affects newly generated Pokémon; existing Pokémon stay unchanged. Buttons still reach the game, so use a safe position. There is no visual toggle indicator.
+Each completed item command requests one item once. Holding the final button adds no extra items. A full bag can reject the grant; no slot is overwritten. Repeat a toggle command to switch it off, then again to switch it on. Walking and protection start off. Shiny starts from the game's current shiny flag and changes newly generated Pokémon.
 
-## Tested scope and limits
+Buttons also reach the normal game controls. A command can move the player or a battle-menu cursor; check your position/menu before the next ordinary action. There is no on-screen toggle indicator.
 
-The exact game ran in headless mGBA with the activation code processed by the actual VBA-M cheat implementation used by the examined Delta core. Tests covered real items, shiny creation, a battle, bedroom obstacles, outdoor trees, a house roof, and map transitions. Another 243 compiled ARM checks cover input, heap boundaries, and battle paths. **The iPhone Delta app itself has not been tested.** See [VALIDATION.md](VALIDATION.md).
+## Behavior
 
-Walking bypasses player collision. It does not create tiles beyond map boundaries or remove scripts and warps. Water and mountains have not been tested directly. Return to an ordinary accessible tile before turning it off. Battle protection covers verified HP-loss and fainting paths; unusual scripted outcomes remain unverified.
+Walking bypasses the common foot-movement collision result. Map boundaries, warps, scripted movement, and other map scripts still exist. Return to an accessible ordinary tile before toggling walking off.
 
-Disabling the Delta code turns walking/protection off and restores the shiny option recorded before the first shiny toggle. Walking/protection are session state. Shiny uses a game flag that can be saved: turn it off before saving if the next session should start with normal rates. Other game options can also affect those rates. Save states made after patching retain their recorded state.
+Shiny toggling uses the game's existing flag. It leaves existing Pokémon unchanged and preserves trainer ownership. Other game options can also affect normal shiny rates. The flag can be saved with the game; turn it off before saving if the next session should start with normal rates.
 
-This build accepts only the original ROM with SHA-256:
+Battle protection guards HP-loss and fainting paths for both player positions, including double battles, while preserving enemy damage and healing. It does not intentionally revive already fainted party members. Unusual scripted outcomes outside those paths remain a validation limit.
+
+Use the button commands to switch effects off before disabling/removing the entire Delta entry. Restart after changing/removing the entry so the game rebuilds its normal memory layout. Newly captured save states retain their recorded runtime state.
+
+## Validation
+
+The delivered code runs on the original ROM in headless mGBA, using the actual VBA-M AR v3 parser/executor and its CPU master-code timing. Real tests passed all three item grants, held-button behavior, toggles, shiny generation, walking, single-battle protection on/off, both player positions in a double battle, and a direct save-block/heap reset. Source and ARM checks also passed. **The actual iPhone Delta app has not been run here.**
+
+Water and mountains were not directly visited in live-map tests. The shared collision-return patch was checked across all 256 behavior-byte inputs, 11 collision inputs and four directions; scripts/warps and every special terrain path remain outside that claim. See [the exact tested scope](CODE_ONLY_VALIDATION.md).
+
+Only the supplied original ROM is supported:
 
 ```text
-89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430
+SHA-256: 89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430
+Size: 33,554,432 bytes
 ```
 
-## Source and checks
+[Build instructions](DEVELOPMENT.md) · [Native validation scripts](validation/code_only/README.md) · [Requirements](REQUIREMENTS.md)
 
-- [native/runtime.c](native/runtime.c): actual ARM/Thumb runtime.
-- [tools/build_release.py](tools/build_release.py): checked BPS and Action Replay generator.
-- [DEVELOPMENT.md](DEVELOPMENT.md): build instructions.
-- [validation/README.md](validation/README.md): optional ROM-backed native checks.
-- [REQUIREMENTS.md](REQUIREMENTS.md): requested behavior.
-- [SETUP.md](SETUP.md): repository and conversation handoff.
-
-From this directory:
-
-```sh
-python3 -m unittest discover -s tests -v
-```
-
-Game files, saves, and private download links stay outside this repository. The conversation is preserved as project notes, not an automatically synchronized transcript.
+The earlier patch release is superseded. No game binaries, saves, or private download links are stored in this repository.

@@ -3,6 +3,8 @@
 These use synthetic bytes; no game ROM is included or required.
 """
 import struct
+import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -149,8 +151,24 @@ class ActivationTests(unittest.TestCase):
                     (0, 0x40000000)]
         code = activation_code()
         self.assertEqual([decode_line(line) for line in code.splitlines()], expected)
-        distributed = Path(__file__).resolve().parents[1] / 'dist/delta-action-replay.txt'
-        self.assertEqual(distributed.read_text(), code)
+
+    def test_current_delta_only_artifact_is_complete_and_preserves_payload_on_removal(self):
+        root = Path(__file__).resolve().parents[1]
+        code = (root / 'dist/amethyst-v1.4.0-delta-code.txt').read_text()
+        manifest = json.loads((root / 'dist/code-only-manifest.json').read_text())
+        self.assertFalse(manifest['requires_rom_patch'])
+        self.assertEqual(hashlib.sha256(code.encode()).hexdigest(), manifest['code_sha256'])
+        self.assertFalse(code.endswith('\n'))
+        lines = code.splitlines()
+        self.assertEqual(len(lines), manifest['activation_lines'])
+        self.assertLessEqual(len(lines), 16384)
+        for line in lines:
+            self.assertRegex(line, r'^[0-9A-F]{8} [0-9A-F]{8}$')
+        raw = [decode_line(line) for line in lines]
+        self.assertEqual(raw[0], (0xC4002B80, 0))
+        # INT32 writes restore stale words on DeleteAll. Payload uses FILL;
+        # never allow the old operation back into this installer.
+        self.assertNotIn(2, [((a >> 25) & 127) | ((a >> 17) & 128) for a, _ in raw])
 
 
 if __name__ == '__main__':

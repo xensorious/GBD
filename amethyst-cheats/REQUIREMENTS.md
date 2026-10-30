@@ -6,7 +6,7 @@
 - Each cheat must have a sequence unlikely to occur accidentally during normal play.
 - The user's example `L, R, L, R, Left, Right, Up, Down` became the shared prefix; six endings are listed in README.md.
 - The intended interface is Delta's custom cheat menu for Pokémon Amethyst v1.4.0.
-- The implementation uses a BPS patch and Action Replay activation code. Testing in the iPhone app remains outstanding.
+- The current implementation is one Action Replay code entry for the original game, without a ROM patch. Direct iPhone testing remains outstanding.
 
 ## Six effects
 
@@ -27,11 +27,11 @@ These checks follow from the requested behavior. Game effects are implemented; t
 - Item grants must preserve existing inventory contents; continuously refilling or overwriting a slot does not satisfy the request.
 - Shiny toggle deactivation must restore normal encounter behavior.
 - Walking and invulnerability must be tested against the exact game version. Refilling HP periodically alone does not establish invulnerability.
-- Inventory-full handling, toggle persistence across resets/save states, and the treatment of special battle effects remain implementation details to resolve during development.
+- Inventory grants use the game's own rejection behavior. Ordinary heap resets preserve toggles; full resets start fresh walking/protection state. Shiny uses a saveable game flag. Earlier save states lack the runtime and must not be used for setup. Special battle paths remain documented testing limits.
 
 ## Implementation decisions
 
 - Walking and invulnerability use sequence-controlled toggles, based on the assistant's proposed behavior.
-- The build requires a game patch because normal heap resets erased the code-only prototype. The activation targets the examined Delta GBA core; device verification remains outstanding.
+- A master-code installer and protected RAM intervals handle heap resets. The final artifact is the requested Delta-only entry; the earlier patch approach is superseded.
 
 The builder enforces the exact source checksum. These hooks must not be reused with another release.
