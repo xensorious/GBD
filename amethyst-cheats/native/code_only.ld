@@ -6,6 +6,9 @@ SECTIONS {
   . = 0x0200D100;
   .text : { *(.text*) *(.rodata*) }
   ASSERT(. < 0x0200E000, "code-only runtime overlaps ExecuteActions clone")
+  . = 0x0200E940;
+  .entrymode : { KEEP(*(.entrymode)) }
+  ASSERT(. <= 0x0200EAF0, "entry mode exceeds its reserved interval")
   . = 0x02010A38;
   .heapentry : { KEEP(*(.heapentry)) }
   ASSERT(. <= 0x02010B00, "ARM heap entry overlaps guard export")

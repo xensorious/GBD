@@ -33,6 +33,10 @@ Two ROM halfwords route InitHeap through a small ARM entry; a third redirects th
 
 The handler protects eight allocated intervals rather than reserving a continuous 22 KiB hole. The intervals total 8,936 bytes including their allocated headers. Free gaps remain available to the original allocator. State resides at `02010C00` and survives ordinary heap resets. A full game reset starts fresh state.
 
+Version1.1.0 appends capture-mode state without changing earlier field offsets. Holding L+R for30samples toggles it once until all buttons release. Entry masks all five ordinary key halfwords, preserves the pre-read watched-key latch, resets repeat timing, and saves/replaces both normal main callbacks with a gate. This freezes gameplay while the main ReadKeys loop and interrupts continue. Exit restores callbacks after release; the gate also restores them if hooks disappear. New helpers occupy `.entrymode` at0200E940 within an existing reserved interval.
+
+The fourth ROM slot selects battle dispatch first, otherwise bike collision at080BD3F6 when avatar flags contain2/4, otherwise foot collision at0805BB8C. This fixes the previous bicycle gap without expanding reserved RAM or requiring another patch slot.
+
 Two exact game callbacks execute from RAM copies, with external BL veneers preserving argument registers. Wrappers preserve the original public callback identity while game logic executes, including multiple logical battle steps in one video frame. This covers the extra dispatch paths without spending another ROM patch slot.
 
 Payload writes use halfword FILL operations so the engine's DeleteAll operation does not replace live RAM code with stale words before ROM hooks are undone. Effect toggles should be switched off with their sequences before removing the entire entry; restart afterward.

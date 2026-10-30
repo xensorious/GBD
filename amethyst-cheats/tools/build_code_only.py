@@ -23,6 +23,7 @@ SOURCE_WORD=0x0891CECD
 SOURCE_AT=0x080005EC
 WALK=0x57414C4B
 BATTLE=0x4241544C
+BIKE=0x42494B45
 RESERVED_DATA=((0x0200b960,0x0200bd60),(0x0200cecc,0x0200ced4),
                (0x0200d100,0x0200eaf0),(0x0200f000,0x0200f200),
                (0x02010038,0x02010070),(0x02010a38,0x02010a48),
@@ -60,6 +61,7 @@ def build(rom,elf):
         raise ValueError('This code requires the exact supplied Amethyst v1.4.0 ROM')
     parts=sections(elf)
     layout={'.readkeys':(0x0200cecc,8),'.text':(0x0200d100,0xf00),
+            '.entrymode':(0x0200e940,0x1b0),
             '.heapentry':(0x02010a38,16),'.guards':(0x02010b00,20),
             '.callbacks':(0x02010b20,8)}
     if {n for n,a,b in parts}!=set(layout) or len(parts)!=len(layout):
@@ -69,7 +71,7 @@ def build(rom,elf):
         expected,capacity=layout[name]
         if address!=expected or not 0<len(data)<=capacity:
             raise ValueError('Unexpected native layout: '+name)
-        if name!='.text' and len(data)!=capacity:raise ValueError('Invalid section size')
+        if name not in ('.text','.entrymode') and len(data)!=capacity:raise ValueError('Invalid section size')
         blobs[name]=data
     guards=struct.unpack('<5I',blobs['.guards'])
     callback,cb2shim=struct.unpack('<2I',blobs['.callbacks'])
@@ -93,9 +95,10 @@ def build(rom,elf):
     lines+=gated_patch(2,0x080005ee,0x0200)
     lines+=gated_patch(3,0x08014c1e,0x0200,BATTLE)
     lines+=gated_patch(3,0x0805bb8c,0x2000,WALK)
+    lines+=gated_patch(3,0x080bd3f6,0x2000,BIKE)
     if len(lines)>16384:raise ValueError('VBA-M cheat limit exceeded')
     text='\n'.join(lines) # Delta rejects an extra empty final line.
-    manifest={'release_version':'1.0.1','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
+    manifest={'release_version':'1.1.0','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
               'requires_rom_patch':False,'activation_lines':len(lines),
               'code_sha256':hashlib.sha256(text.encode()).hexdigest(),
               'runtime_bytes':sum(len(b) for n,a,b in payload),

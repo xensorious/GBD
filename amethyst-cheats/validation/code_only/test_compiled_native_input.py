@@ -7,13 +7,14 @@ S=0x02010C00; END=0x03007C00
 PREFIX=[512,256,512,256,32,16,64,128]
 SEQUENCES=[PREFIX+[1,1],PREFIX+[2,2],PREFIX+[1,2],PREFIX+[2,1],PREFIX+[512,512],PREFIX+[256,256]]
 class Decoder:
- def __init__(self,bag_success=1):
+ def __init__(self,bag_success=1,capture=True):
   self.uc=u=Uc(UC_ARCH_ARM,UC_MODE_THUMB);self.calls=[];self.bag_success=bag_success;self.shiny=0
   for a,n in [(0x08000000,0x02000000),(0x02000000,0x40000),(0x03000000,0x8000),(0x04000000,0x1000)]:u.mem_map(a,n)
   u.mem_write(0x08000000,ROM)
   u.mem_write(0x080005ec,struct.pack('<I',0x0200cecd));u.mem_write(0x08002b84,struct.pack('<H',0x4710));u.mem_write(0x08002b96,struct.pack('<H',0x0201))
   for name,a,b in PARTS:u.mem_write(a,b)
   self.w32(S,0x414d5954);self.w32(0x0203988c,0x0203bb20)
+  if capture:u.mem_write(S+112,b'\x01')
   u.hook_add(UC_HOOK_CODE,self.hook)
  def w32(self,a,v):self.uc.mem_write(a,struct.pack('<I',v))
  def r32(self,a):return struct.unpack('<I',self.uc.mem_read(a,4))[0]
@@ -39,6 +40,10 @@ class Decoder:
   for key in seq:
    for i in range(hold):self.sample(key)
    self.sample(0)
+ def open(self):
+  if self.uc.mem_read(S+112,1)==b'\0':
+   for _ in range(30):self.sample(768)
+   self.sample(0);self.sample(0)
 checks=0
 for index,seq in enumerate(SEQUENCES):
  d=Decoder();d.enter(seq);d.enter(seq)
@@ -68,7 +73,7 @@ d=Decoder();d.enter(PREFIX[:4]);[d.sample(0) for _ in range(121)];d.enter(PREFIX
 for initial in [0,1]:
  d=Decoder();d.shiny=initial;d.enter(SEQUENCES[4]);assert d.shiny==1-initial
  d.sample(0,pulse=False);assert d.shiny==initial
- d.enter(SEQUENCES[4]);assert d.shiny==1-initial
+ d.open();d.enter(SEQUENCES[4]);assert d.shiny==1-initial
  checks+=1
 # The real battle cleanup clears flag0913. Explicit ON must restore it on
 # the next input sample, repeatedly; a second command must stop restoration.

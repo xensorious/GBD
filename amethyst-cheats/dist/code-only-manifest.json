@@ -1,11 +1,11 @@
 {
-  "release_version": "1.0.1",
+  "release_version": "1.1.0",
   "source_sha256": "89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430",
   "format": "GBA Action Replay v3",
   "requires_rom_patch": false,
-  "activation_lines": 3479,
-  "code_sha256": "93173136eea3d00d55cc7e50868d3607dffe1e4243ae09273c4ce3129d2c7293",
-  "runtime_bytes": 6906,
+  "activation_lines": 3711,
+  "code_sha256": "50c1d5f0b0c10834a7609ae95f7981941388a095ce7788eb4ad180fe1821cd53",
+  "runtime_bytes": 7358,
   "heap_reserved_bytes": 8936,
   "master_address": "08002B80",
   "validation": "See CODE_ONLY_VALIDATION.md for tested scope."

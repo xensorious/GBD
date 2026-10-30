@@ -40,7 +40,11 @@ def sample(keys=0):
  u.mem_write(0x04000130,struct.pack('<H',1023^keys));w32(S+92,0x43484541)
  call(0x0200cecd)
 def enter():
+ for _ in range(30):sample(768)
+ sample();sample()
  for key in SEQUENCE:sample(key);sample()
+ for _ in range(30):sample(768)
+ sample();sample()
 def generate():
  call(0x0803da55,(MON,1,5,31),(1,PID,1,OT))
  pid,owner=struct.unpack('<II',u.mem_read(MON,8))

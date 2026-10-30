@@ -22,12 +22,52 @@ struct State {
     u8 listening, shiny_touched, shiny_original, was_battle;
     u16 last_party[4];
     u32 patch_request;
+    u8 entry_mode, entry_hold, entry_latch, entry_block;
+    u32 entry_callbacks[2];
 };
 #define S ((volatile struct State *)0x02010c00u)
 #define SCRIPT (*(u8 * volatile *)0x02023d74u)
 
 static int HooksLive(void) {
     return V32(0x080005ecu) == 0x0200cecdu && V16(0x08002b84u) == 0x4710;
+}
+
+#define ENTRY_FN __attribute__((section(".entrymode")))
+static void entry_gate(void);
+/* Callbacks are frozen while keys are captured; the main ReadKeys loop and
+ * interrupt/audio processing continue, so the exit chord always remains live.
+ */
+static ENTRY_FN void entry_callbacks(u32 capture) {
+    u32 i, gate = (u32)entry_gate;
+    for (i = 0; i < 2; ++i) {
+        u32 address = 0x030030f0u + i * 4, current = V32(address);
+        if (capture && current != gate) {
+            S->entry_callbacks[i] = current;
+            V32(address) = gate;
+        } else if (!capture && current == gate)
+            V32(address) = S->entry_callbacks[i];
+    }
+}
+static ENTRY_FN void entry_gate(void) {
+    if (!HooksLive()) {
+        S->entry_mode = S->entry_block = S->entry_hold = S->entry_latch = 0;
+        entry_callbacks(0);
+    }
+}
+static ENTRY_FN u32 entry_keys(u32 mask) {
+    u32 suppress = S->entry_mode || S->entry_block;
+    if (mask == 768) { /* L + R */
+        suppress = S->entry_block = 1;
+        if (!S->entry_latch && ++S->entry_hold >= 30) {
+            S->entry_mode ^= 1;
+            S->entry_latch = 1;
+            S->count = S->previous = S->release = S->age = 0;
+        }
+    } else {
+        S->entry_hold = 0;
+        if (!mask) S->entry_latch = S->entry_block = 0;
+    }
+    return suppress || S->entry_mode;
 }
 
 static int player(u32 bank) {
@@ -169,7 +209,8 @@ static void input(void) {
 }
 
 __attribute__((used)) void runtime_read_keys(void) {
-    u32 bank;
+    u32 bank, suppress;
+    u16 watched = V16(0x03003124u);
     ((Fn)0x0891cecdu)(); /* Chain Amethyst's RTC/keypad implementation. */
     if (S->install != INSTALL_MAGIC) return;
     /* The master code fires at InitHeap, before any cold/reset heap entry can
@@ -177,7 +218,7 @@ __attribute__((used)) void runtime_read_keys(void) {
      * once per ReadKeys without allowing mid-save-scratch writes at VBlank.
      */
     S->patch_request = (V8(0x03003529u) & 2) ? 0x4241544cu :
-                       (S->walk ? 0x57414c4bu : 0);
+                       (S->walk ? ((V8(0x02037078u) & 6) ? 0x42494b45u : 0x57414c4bu) : 0);
     if (HooksLive()) ((void (*)(void *,u32))0x08002b81u)((void *)0,0);
     if (S->initialized != RUNTIME_MAGIC) initialize();
     if (!HooksLive() || S->pulse != 0x43484541u) {
@@ -189,6 +230,8 @@ __attribute__((used)) void runtime_read_keys(void) {
             S->count = S->previous = S->release = S->age = 0;
         }
         S->listening = 0;
+        S->entry_mode = S->entry_hold = S->entry_latch = S->entry_block = 0;
+        entry_callbacks(0);
         return;
     }
     S->pulse = 0;
@@ -197,7 +240,15 @@ __attribute__((used)) void runtime_read_keys(void) {
     InitActionShadow();
     PatchBattleMain();
     PatchBattleCallbacks();
-    input();
+    suppress = entry_keys((~V16(0x04000130u)) & 1023);
+    if (S->entry_mode && !S->entry_latch) input();
+    else S->count = S->previous = S->release = S->age = 0;
+    entry_callbacks(suppress);
+    if (suppress) {
+        for (bank = 0; bank < 5; ++bank) V16(0x03003118u + bank * 2) = 0;
+        V16(0x03003122u) = 40;
+        V16(0x03003124u) = watched;
+    }
     /* Battle cleanup clears the game's temporary shiny-creation flag. Keep
      * the user's explicit toggle active across encounters, without promoting
      * an untouched game flag (e.g. a temporary encounter bonus) to a cheat.

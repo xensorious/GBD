@@ -7,6 +7,7 @@
 - The user's example `L, R, L, R, Left, Right, Up, Down` became the shared prefix; six endings are listed in README.md.
 - The intended interface is Delta's custom cheat menu for Pokémon Amethyst v1.4.0.
 - The current implementation is one Action Replay code entry for the original game, without a ROM patch. Direct iPhone testing remains outstanding.
+- The user subsequently requested isolated cheat entry from menus and battles. Holding L+R enters/exits a mode that pauses normal callbacks and controls; item grants occur immediately while the command is entered. Previous normal-mode combinations are now ignored.
 
 ## Six effects
 

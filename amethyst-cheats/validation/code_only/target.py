@@ -24,6 +24,7 @@ if not ELF.is_file():
     raise SystemExit('Missing build/code_only.elf. Compile the code-only runtime first.')
 PARTS = PAYLOAD = sections(ELF)
 layout = {'.readkeys': (0x0200cecc, 8), '.text': (0x0200d100, 0x0f00),
+          '.entrymode': (0x0200e940, 0x1b0),
           '.heapentry': (0x02010a38, 16), '.guards': (0x02010b00, 20),
           '.callbacks': (0x02010b20, 8)}
 if len(PARTS) != len(layout) or set(n for n, _, _ in PARTS) != set(layout):
@@ -32,7 +33,7 @@ for section, address, data in PARTS:
     expected, capacity = layout[section]
     if address != expected or not 0 < len(data) <= capacity:
         raise SystemExit(f'Invalid code-only ELF section layout: {section}')
-    if section != '.text' and len(data) != capacity:
+    if section not in ('.text','.entrymode') and len(data) != capacity:
         raise SystemExit(f'Invalid code-only ELF section size: {section}')
 text = next(data for name, _, data in PARTS if name == '.text')
 for name, _, data in PARTS:
