@@ -18,9 +18,10 @@ python3 validation/code_only/test_dispatch.py
 python3 validation/code_only/test_clones.py
 python3 validation/code_only/test_heap.py
 python3 validation/code_only/test_walk_return.py
+python3 validation/code_only/test_shiny_persistence.py
 ```
 
-The shared loader checks the ROM SHA-256 and current ELF layout. Scripts are separate from the dependency-free tests/ suite.
+The shared loader checks the ROM SHA-256 and current ELF layout. Scripts are separate from the dependency-free tests/ suite. The shiny persistence regression executes the actual cleanup loop, flag routines and generation code with the compiled handler; it stubs only RTC/keypad handling.
 
 Input checks stub inventory/shiny calls; effects checks stub controller plumbing and original faint/healthbar callbacks as documented. Spread checks execute the original spread routine with its classification/substitute/controller dependencies stubbed. Callback checks compare original and relocated code with external callees stubbed. Collision checks stub map/stair/lower collision calls and exercise the actual result instruction. Heap checks run the actual allocator and exact patched entry, preserving registers and verifying every protected interval.
 

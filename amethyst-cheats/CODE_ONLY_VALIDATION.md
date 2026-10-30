@@ -1,6 +1,16 @@
 # Delta-only validation
 
-Final source ROM: SHA-256 `89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`, 33,554,432 bytes. Delivered text: **3,451 lines**, SHA-256 `06a5ccfc0de41c715fc2d4e1a9103243480fec94727f91cc310589cdd857388b`. No ROM patch was applied.
+Final source ROM: SHA-256 `89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`, 33,554,432 bytes. Version 1.0.1 text: **3,479 lines**, SHA-256 `93173136eea3d00d55cc7e50868d3607dffe1e4243ae09273c4ce3129d2c7293`. No ROM patch was applied.
+
+## Version 1.0.1 shiny persistence correction
+
+The first release set the game's temporary flag0913 only when a sequence was entered. The real end-battle cleanup loop at `088F033A–034C` clears that flag, leaving the runtime's toggle on but subsequent generation normal. The initial normal/on/off/on generation test did not catch this because it generated only once per toggle state.
+
+The handler now checks the real flag after each input sample and restores it when an explicitly entered shiny toggle is on. Toggle-off and listener-disable restoration are retained. A preexisting transient game flag is not made persistent without a user toggle.
+
+The new regression executes the actual compiled handler, actual FlagGet/Set/Clear, actual CreateMon and the exact original cleanup loop. One ON entry survives three cleanup loops and nine generations; a second entry returns subsequent generation to normal, and a third re-enables it. Trainer ownership is preserved. Only the RTC/keypad function is stubbed. The two new compiled-input cases verify repeated external clears and preserving unrelated temporary game behavior. The generated file is still entirely Delta-only.
+
+The full-game integration findings below were obtained with the first release. The persistence correction has the targeted real-ROM and compiled-input checks above; it has not been run in the iPhone app.
 
 ## Full-game integration
 
@@ -32,7 +42,8 @@ The dependency-free project suite passes **41 tests**. Optional [ROM-backed scri
 
 | Scope | Result |
 | --- | --- |
-| Compiled input/quantity-one requests and toggles | 14 scenarios passed |
+| Compiled input/quantity-one requests and toggles | 16 scenarios passed |
+| Actual shiny flag cleanup and generation | Persistent ON / OFF / ON regression passed |
 | HP guards, both sides, healing, waits, faint state and party identity | 162 cases passed |
 | Missing-hook fail-open behavior | 32 cases passed |
 | Mixed-target spread HP bars | 48 cases passed |

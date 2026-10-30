@@ -70,5 +70,18 @@ for initial in [0,1]:
  d.sample(0,pulse=False);assert d.shiny==initial
  d.enter(SEQUENCES[4]);assert d.shiny==1-initial
  checks+=1
+# The real battle cleanup clears flag0913. Explicit ON must restore it on
+# the next input sample, repeatedly; a second command must stop restoration.
+d=Decoder();d.enter(SEQUENCES[4]);assert d.shiny==1
+for _ in range(3):
+ d.shiny=0;d.sample(0);assert d.shiny==1
+d.enter(SEQUENCES[4]);assert d.shiny==0
+d.sample(0);assert d.shiny==0
+d.enter(SEQUENCES[4]);d.shiny=0;d.sample(0);assert d.shiny==1
+checks+=1
+# A flag present before any cheat command can be a transient game effect.
+# Clearing that effect must not silently make it persistent.
+d=Decoder();d.shiny=1;d.sample(0);d.shiny=0;d.sample(0);assert d.shiny==0
+checks+=1
 print('PASS:',checks,'compiled-native input/command scenarios')
 print('Items are emitted with quantity1; FlagSet/FlagClear alternate; external item/shiny operations are stubbed here.')

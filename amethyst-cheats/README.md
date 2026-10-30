@@ -2,12 +2,14 @@
 
 **The current release is one Action Replay entry for the original Pokémon Amethyst v1.4.0 ROM. No ROM patch is required.**
 
+**Version 1.0.1 fixes shiny mode turning ineffective after a battle.** The game clears its temporary shiny flag during battle cleanup; the handler now restores it while your shiny toggle is on. Replace the whole previous entry, restart, and Continue from your in-game save to load this update.
+
 [Open the complete code](dist/amethyst-v1.4.0-delta-code.txt) · [Raw copyable text](https://raw.githubusercontent.com/xensorious/GBD/main/amethyst-cheats/dist/amethyst-v1.4.0-delta-code.txt)
 
 ## Install
 
 1. Use your original Amethyst v1.4.0 game. Replace the earlier four-line experimental cheat.
-2. Open the code link, select all its text, and copy it. It contains **3,451 lines**; keep them together.
+2. Open the code link, select all its text, and copy it. It contains **3,479 lines**; keep them together.
 3. In Delta, add one cheat named `Amethyst button cheats`, choose **Action Replay**, and paste the entire code. Save and enable it.
 4. Restart the game and choose **Continue** from its title screen. Use your normal in-game save. Avoid loading a save state made before this code was installed, because it lacks the handler's RAM state.
 

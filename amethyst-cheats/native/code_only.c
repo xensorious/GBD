@@ -198,6 +198,13 @@ __attribute__((used)) void runtime_read_keys(void) {
     PatchBattleMain();
     PatchBattleCallbacks();
     input();
+    /* Battle cleanup clears the game's temporary shiny-creation flag. Keep
+     * the user's explicit toggle active across encounters, without promoting
+     * an untouched game flag (e.g. a temporary encounter bonus) to a cheat.
+     */
+    if (S->shiny_touched && S->shiny &&
+        !((u8 (*)(u16))0x0806e6d1u)(0x0913))
+        ((void (*)(u16))0x0806e681u)(0x0913);
     if (!(V8(0x03003529u) & 2)) S->alive = S->was_battle = 0;
     if (S->invulnerable && (V8(0x03003529u) & 2)) {
         if (!S->was_battle) S->alive = 0;
