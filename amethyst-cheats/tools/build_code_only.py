@@ -98,7 +98,7 @@ def build(rom,elf):
     lines+=gated_patch(3,0x080bd3f6,0x2000,BIKE)
     if len(lines)>16384:raise ValueError('VBA-M cheat limit exceeded')
     text='\n'.join(lines) # Delta rejects an extra empty final line.
-    manifest={'release_version':'1.1.0','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
+    manifest={'release_version':'1.1.1','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
               'requires_rom_patch':False,'activation_lines':len(lines),
               'code_sha256':hashlib.sha256(text.encode()).hexdigest(),
               'runtime_bytes':sum(len(b) for n,a,b in payload),

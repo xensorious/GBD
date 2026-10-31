@@ -24,6 +24,8 @@ struct State {
     u32 patch_request;
     u8 entry_mode, entry_hold, entry_latch, entry_block;
     u32 entry_callbacks[2];
+    u8 entry_ups, entry_up_down;
+    u16 entry_up_age;
 };
 #define S ((volatile struct State *)0x02010c00u)
 #define SCRIPT (*(u8 * volatile *)0x02023d74u)
@@ -51,23 +53,36 @@ static ENTRY_FN void entry_callbacks(u32 capture) {
 static ENTRY_FN void entry_gate(void) {
     if (!HooksLive()) {
         S->entry_mode = S->entry_block = S->entry_hold = S->entry_latch = 0;
+        S->entry_ups = S->entry_up_down = S->entry_up_age = 0;
         entry_callbacks(0);
     }
 }
-static ENTRY_FN u32 entry_keys(u32 mask) {
+static ENTRY_FN __attribute__((noinline)) u32 entry_keys(u32 mask) {
     u32 suppress = S->entry_mode || S->entry_block;
-    if (mask == 768) { /* L + R */
-        suppress = S->entry_block = 1;
-        if (!S->entry_latch && ++S->entry_hold >= 30) {
-            S->entry_mode ^= 1;
-            S->entry_latch = 1;
-            S->count = S->previous = S->release = S->age = 0;
+    u32 toggle = 0;
+    if (S->entry_up_age < 121) ++S->entry_up_age;
+    if (S->entry_up_age > 120) S->entry_ups = 0;
+    if (mask == 64) {
+        if (!S->entry_up_down) {
+            S->entry_up_age = 0;
+            if (++S->entry_ups == 10) toggle = 1;
         }
+    } else if (mask) S->entry_ups = 0;
+    S->entry_up_down = mask != 0;
+    if (mask == 768) { /* L + R */
+        suppress = 1;
+        if (!S->entry_latch && ++S->entry_hold >= 30) toggle = 1;
     } else {
         S->entry_hold = 0;
         if (!mask) S->entry_latch = S->entry_block = 0;
     }
-    return suppress || S->entry_mode;
+    if (toggle) {
+        S->entry_mode ^= 1;
+        S->entry_latch = S->entry_block = 1;
+        S->entry_ups = 0;
+        S->count = S->previous = S->release = S->age = 0;
+    }
+    return suppress || S->entry_mode || S->entry_block;
 }
 
 static int player(u32 bank) {
@@ -231,6 +246,7 @@ __attribute__((used)) void runtime_read_keys(void) {
         }
         S->listening = 0;
         S->entry_mode = S->entry_hold = S->entry_latch = S->entry_block = 0;
+        S->entry_ups = S->entry_up_down = S->entry_up_age = 0;
         entry_callbacks(0);
         return;
     }
@@ -243,7 +259,10 @@ __attribute__((used)) void runtime_read_keys(void) {
     suppress = entry_keys((~V16(0x04000130u)) & 1023);
     if (S->entry_mode && !S->entry_latch) input();
     else S->count = S->previous = S->release = S->age = 0;
-    entry_callbacks(suppress);
+    /* A short/incomplete chord masks its buttons without pretending that
+     * capture mode is active. Only an actual toggle pauses the callbacks.
+     */
+    entry_callbacks(S->entry_mode || S->entry_block);
     if (suppress) {
         for (bank = 0; bank < 5; ++bank) V16(0x03003118u + bank * 2) = 0;
         V16(0x03003122u) = 40;

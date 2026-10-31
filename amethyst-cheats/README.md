@@ -1,13 +1,13 @@
 # Amethyst button cheats for Delta
 
-**Version 1.1.0 is one Action Replay entry for the original Pokémon Amethyst v1.4.0 ROM. No ROM patch is required.** It adds a dedicated cheat-entry mode and fixes the bicycle collision bypass. The persistent shiny fix from 1.0.1 is included.
+**Version 1.1.1 is one Action Replay entry for the original Pokémon Amethyst v1.4.0 ROM. No ROM patch is required.** It adds ten-Up entry/exit as an alternative to the shoulder-button hold, and prevents incomplete L+R holds from pausing gameplay before cheat mode is active. Earlier effects are retained.
 
 [Open the complete code](dist/amethyst-v1.4.0-delta-code.txt) · [Raw copyable text](https://raw.githubusercontent.com/xensorious/GBD/main/amethyst-cheats/dist/amethyst-v1.4.0-delta-code.txt)
 
 ## Install or update
 
 1. Use your original Amethyst v1.4.0 game. Replace the entire previous cheat entry.
-2. Open the code link, select all its text, and copy it. It contains **3,711 lines**; keep them together.
+2. Open the code link, select all its text, and copy it. It contains **3,775 lines**; keep them together.
 3. In Delta, add one cheat named `Amethyst button cheats`, choose **Action Replay**, and paste the entire code. Save and enable it.
 4. Restart the game and choose **Continue** from its title screen using your in-game save. Do not load a save state captured with an earlier code version.
 
@@ -15,13 +15,15 @@ If you applied the old BPS patch, switch back to your original ROM and transfer 
 
 ## Cheat-entry mode
 
-1. **Hold L + R together for about one second, then release both.** This enters cheat mode and pauses ordinary gameplay and controls.
+1. **Tap Up ten times in a row, releasing between taps.** This enters cheat mode and pauses ordinary gameplay and controls. Let go of every button after the tenth tap. Keep less than about two seconds between taps; another button interrupts the count.
 2. Enter any of the combinations below. You can enter multiple commands while remaining in this mode. Item grants happen immediately, including mid-battle.
-3. **Hold L + R again for about one second, then release both** to resume the game.
+3. **Tap Up ten times again, then release** to resume the game.
 
-The hold toggles only once; continuing to hold it does not repeatedly switch modes. Normal controls remain blocked until every held button is released. No ordinary A/B/menu/directional input is sent to the game while you type. Outside cheat-entry mode the command combinations are ignored.
+You can also **hold L + R together until gameplay pauses, then release both** to enter or exit. The hold toggles only once; continuing to hold it does not repeatedly switch modes. A short hold does not pause gameplay. Normal controls remain blocked until every held button is released after a toggle. No ordinary A/B/menu/directional input is sent to the game while you type. Outside cheat-entry mode the command combinations are ignored.
 
 This works from ordinary game menus and battle screens. It does not require closing the Party menu first. If the Bag was already open when an item was added, close and reopen it after resuming to refresh its list. Inventory must already exist; commands cannot grant items before a new game/save is initialized.
+
+For a mid-battle item: enter cheat mode, tap **L, R, L, R, Left, Right, Up, Down, A, A** for one Master Ball, then exit cheat mode and open the Bag. All taps must release before the next. While a battle is still loading, the game can miss brief inputs; wait until its screen responds, or use slower taps. The initial Up taps reach the normal game until the tenth tap enters capture mode.
 
 ## Combinations
 
@@ -58,7 +60,7 @@ Exit cheat-entry mode and switch effects off with their combinations before remo
 
 ## Validation and supported ROM
 
-Current live-game checks passed: normal controls and gameplay frozen during entry, Party menu preserved, all three items granted once mid-battle, normal battle callbacks restored on exit, and foot/bicycle collision off/on/off. Shiny persistence and native battle regressions also pass. The iPhone Delta app itself has not been run here. [Exact tested scope and limits](CODE_ONLY_VALIDATION.md).
+Current checks cover ten-Up entry/exit, capture-only commands, all three items granted once during battle, normal battle callbacks restored on exit, and no callback freeze for incomplete L+R holds. The iPhone Delta app itself has not been run here; these checks cannot establish the cause of every reported failure there. [Exact tested scope and limits](CODE_ONLY_VALIDATION.md).
 
 Only the supplied original ROM is supported:
 
