@@ -1,60 +1,56 @@
 # Delta-only validation
 
-Supported original ROM: SHA-256 `89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`, 33,554,432 bytes. Version **1.1.1** text: **3,775 lines**, SHA-256 `1725361d1435cf7740b856b77967dac523dd6c06416fc508b4394123491c94de`. No ROM patch is applied.
+Supported original ROM: SHA-256 `89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`, 33,554,432 bytes. Version **1.1.2** text: **2,759 lines**, SHA-256 `3887135f426046e47f9f1d2923aad91bd656b571febaec90565f629d45ef0534`. No ROM patch is applied.
 
-## Current release checks
+## Pokédex freeze and correction
 
-The v1.1.0 timing regression was reproduced during battle initialization: a40-frame L+R hold encountered only29 ReadKeys samples, below the30-sample toggle threshold. The old code nevertheless froze both main callbacks during that partial hold, while the command decoder remained disabled. A90-frame hold entered correctly. This establishes a partial-hold defect; it does not prove the cause of every failure reported in iPhone Delta.
+The reported sequence was reproduced with the released v1.1.1 code: grant one Master Ball, explicitly enable shiny generation, generate a shiny Tornadus, catch it, and advance to its new Pokédex entry. The game stopped while drawing the entry's sprite, before reaching its A/B input state.
 
-Version1.1.1 masks an incomplete chord's game keys without freezing callbacks. It also supports ten distinct Up presses as the user-requested alternative entry/exit method. Compiled regressions cover on/off, single counting of held keys, interruption, timeout, full release after toggles, and commands rejected outside capture. All three items are still emitted with quantity1.
+The original sprite routine requested8,192 contiguous heap bytes. Although more memory was free in total, the largest free block was6,032 bytes. The original allocator asserted at malloc.c line174, before returning NULL. This explains why simply watching for a NULL return did not reveal the failure.
 
-On the rebuilt runtime, native input16, heap, shiny persistence, effects162, relocated callbacks260 plus action override, dispatch46, and dependency-free41 checks passed. Collision behavior was left unchanged for this release.
+Version1.1.2 removes the large ExecuteActions RAM clone, preserves its behavior using the original ROM function and a phase-specific action-table hook, and groups movable code near the heap's upper end. It reserves6,192bytes in six intervals, compared with8,936bytes in eight intervals in1.1.1. The tested capture path now has an8,240-byte block available for the8,192-byte request. No Pokédex allocation or graphics data is reduced or skipped.
 
-The updated real-game check explicitly advanced past the battle intro to the visible Fight/Bag/Pokémon/Run menu, rather than treating an intro text screen as the action menu. Up10 entry/exit granted all three items once (`0→1`); L+R entry/exit on that same ready action menu granted each once again (`1→2`). Navigation then opened the actual battle Bag (callback08107EE1); Up10 capture granted each once more (`2→3`) and restored that same Bag callback. Battle-script pointer, all battler data and frozen callback pointers stayed unchanged during each set of grants. Entry during the intro was also checked with slower Up taps; the game can miss taps during a busy loading interval before ReadKeys runs again.
+The full corrected sequence passed on the final packaged code: the shiny Tornadus was caught with the granted Master Ball, its entry reached the normal input state11, A dismissed it, and battle exit returned to the overworld with two party members instead of one. The new entry screen was visually inspected. The added party member was checked through the real GetMonData routine: species694/Tornadus, with a shiny personality/owner combination. The same sequence previously stopped in drawing state8.
 
-## Live-game harness
+The final code also passed a real battle protection test: HP stayed18 while enabled and fell to10 after disabling. Both player positions in a four-battler battle retained18HP through repeated turns. A real SaveMoveBlocks_ResetHeap call preserved the walking/protection toggles and granted Master Ball immediately and after60frames, with a valid reconstructed heap chain.
 
-The original game executes in mGBA0.10.5 with the actual examined Delta-core VBA-M ARv3 parser/executor. A CPU hook schedules the master-code pass at InitHeap, before instruction execution. These are game/engine tests, not a run of the iPhone application.
+## Harness and scope
 
-- The current release's battle checks are described above. The following live-game checks were completed on v1.1.0 and retained as baseline evidence.
-- Holding L+R entered capture mode. Ordinary A/B/Start/Select/directions/shoulders did not move the player or operate the game. Normal callbacks resumed after exit and release.
-- In an actual Party menu (callback0811EBA1), capture mode added one Rare Candy and restored the same menu. A/B in the command did not dismiss or select it.
-- During a battle intro, the three actual bag quantities changed `0 → 1` respectively for Master Ball, Max Revive and Rare Candy. Menu cursors, battle script pointer, player HP and frozen callback pointers stayed unchanged while commands were typed. The battle remained active and its normal callbacks resumed after exit.
-- On foot, west movement was blocked at(10,13); enabling walking crossed the obstacle to(6,13); disabling blocked again at(10,13).
-- On the bicycle, movement was blocked at(10,13); enabling bypass crossed to(7,13); disabling blocked again at(10,13). The actual bike instruction080BD3F6 switched0600→2000→0600. The earlier code only patched the foot routine.
-- The immutable entry helper occupies protected RAM at0200E940. Reserved heap intervals remain unchanged at8,936bytes including their headers.
+The original game runs in mGBA0.10.5 with the actual examined Delta-core VBA-M ARv3 parser/executor. A CPU hook schedules master-code execution at InitHeap before its first instruction. These are game/engine checks, not a run of the iPhone Delta application.
 
-The field fixture predates the code. Test setup preserves existing allocations, reserves the same intervals in its verified free tail, and refreshes the installer. Cold boot has separate prior checks. Test Pokémon and battle setup use real game routines. ROMs/saves/fixtures remain private.
+The field fixture predates the code. Setup preserves its five existing allocations, reserves the production intervals in the verified free tail, and refreshes the installer. Pokémon creation, battle setup, item insertion, capture, Pokédex tasks and battle exit use the actual game's routines. Cold boot and heap reset have separate compiled checks. ROMs, saves and private download links are not included.
 
-## Focused regressions on the current compiled runtime
+A public regression replays169 capture/Pokédex allocation requests and their frees through the original ROM allocator after executing the compiled heap initializer. Its JSON contains only allocation sizes, lifetime IDs and a synthetic prefix; it contains no ROM or save bytes. Every allocation is filled, all protected code/tables/state are checked after each action, and all buffers remain independently freeable. This tests memory capacity and isolation; the separate live-game check establishes UI progress.
+
+## Current compiled regressions
 
 | Scope | Result |
 | --- | --- |
-| Compiled command decoder, one-shot quantities, toggles and shiny recovery |16 scenarios passed|
-| L+R/Up10 toggles, debounce, interruption/timeout, capture-only commands, partial-chord callback progress, key masking, callback restore and hook removal |Passed|
-| Foot/bicycle selection and battle slot priority |Passed|
-| Actual shiny flag cleanup and actual Pokémon generation |ON survives3cleanup loops/9generations; OFF and ON again passed|
-| Player/foe HP guards, healing, controller waits, fainting and party identity |162cases passed|
-| Mixed-target spread HP bars |48cases passed|
-| Dispatch wrappers and public callback identity |46cases passed|
-| Relocated battle callbacks |260differential cases plus1action override passed|
-| Sparse heap allocator, reset preservation, all free gaps, exhaustion, split/coalesce and zero refresh |Passed|
-| Dependency-free source/package tests |41tests passed|
+| Decoder, one-shot item requests, toggles and shiny recovery |16 scenarios passed|
+| L+R/Up10 entry/exit, release/debounce, interruption/timeout, capture-only commands and callback restoration |Passed|
+| Sparse heap initialization, resets, all free intervals, exhaustion, split/coalesce and zero refresh |Passed|
+| Capture/Pokédex allocation replay through original Alloc/Free |169 requests passed|
+| Shiny toggle, real cleanup and real Pokémon generation |ON survives3cleanup loops/9generations; OFF and third ON passed|
+| HP guards, healing, controller waits, fainting and party identity |162 cases passed|
+| Missing-hook guard restoration |32 cases passed|
+| Mixed-target spread HP bars |48 cases passed|
+| Dispatcher wrappers |32 cases passed|
+| Original-action mapping and disabled restoration |9 cases passed|
+| Shared ROM-slot phase changes, selection and action dispatch |8 cases passed|
+| Public callback identity, including nested fast-loop dispatch |5 cases passed|
+| CB2/action-table differential cases |260 cases plus original action10 routing passed|
+| Dependency-free source/package tests |41 tests passed|
 
-Input-unit checks stub external item/shiny operations. The shiny persistence regression runs the actual FlagGet/Set/Clear, CreateMon and exact original battle-cleanup loop; only RTC/keypad is stubbed. Battle native tests stub controller plumbing and some original callbacks as documented. Callback differential tests compare registers, calls and RAM with external callees stubbed.
+Input tests stub external inventory/shiny effects. Shiny persistence executes the real flag routines, CreateMon and exact battle-cleanup loop; only RTC/keypad is stubbed. HP/dispatch tests stub controller plumbing and selected original callbacks as documented. Differential tests compare registers, calls and RAM with external callees stubbed. The allocation replay executes the actual allocator and stops on its assertion rather than treating assertion as a successful NULL return.
 
-## Retained baseline evidence
+## Retained behavior and earlier evidence
 
-Earlier releases also passed real item quantities0→1→2, a held-final-button single grant, shiny normal/on/off/on creation, single-battle protection18→18 then18→8 after disabling, both player positions protected in a four-battler battle, and a direct SaveMoveBlocks_ResetHeap call preserving toggles/items. The v1.1.0 release reran its affected capture/collision paths. The v1.1.1 release reran entry/items and the native checks listed above; those older complete battle/reset/collision scenarios were not repeated wholesale.
+All command combinations, Up10/L+R capture toggles, one-item quantities and shiny persistence are retained. Earlier live checks covered all three items added mid-battle and from the actual battle Bag, Party-menu callback restoration, foot/bicycle collision off/on/off, and capture-only command registration. Collision logic was not changed for this release.
 
-The normal foot-collision result was previously checked across256behavior bytes,11lower collision results and4directions (22,528cases) with external map/stair/collision calls stubbed. This covers the normal shared result path, not every warp or scripted movement.
+Shiny mode uses game flag0913. Battle cleanup clears that flag; an explicitly activated toggle restores it. An untouched pre-existing game flag is not promoted into a persistent cheat. The flag itself is saved by the game, so saving while it is set can affect a later encounter after restart.
 
-## Shiny fix retained from1.0.1
+## Limits and updating
 
-The game clears temporary shiny flag0913 in its real end-battle cleanup loop088F033A–034C. The handler restores it while an explicitly activated shiny toggle is on. Toggle-off and disable restoration remain intact; an untouched transient game flag is not silently promoted into a persistent cheat.
+The actual iPhone app, touchscreen timing, every map/script, unusual battle outcome, late-game memory peak and long-term save are not exhaustively tested. The code receives inputs only while the game returns to ReadKeys; brief taps during loading can be missed. If a Bag list was already built before an item grant, close and reopen it to refresh the list.
 
-## Limits
-
-The actual iPhone Delta app and touchscreen paste/timing remain untested. Water and mountain tiles were not directly visited in live-map tests. Specialized subsystems that do not return to the normal ReadKeys loop, loading periods, every script/warp, unusual battle outcome, late-game allocation peak and long-term save are not exhaustively covered. The code can only process buttons while the game is running; it cannot receive them while Delta itself is paused.
-
-If a bag list was already built before the grant, it can require closing/reopening to show a newly added item. The inventory change itself is immediate.
+This release changes the reserved heap layout and callback addresses. Replace the complete Action Replay entry, restart the game, and use title-screen Continue with an in-game save. Earlier Delta save states retain old memory links and must not be resumed with this version. An already crashed session is not repaired by replacing the cheat text.

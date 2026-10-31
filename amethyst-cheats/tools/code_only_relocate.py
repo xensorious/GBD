@@ -1,4 +1,4 @@
-"""Bounded relocation of two exact Amethyst callbacks into reserved RAM.
+"""Bounded relocation of an exact Amethyst callback into reserved RAM.
 
 Reads the user's checksum-matched ROM locally. No ROM is bundled with this tool.
 Ordinary game logic stays byte-identical apart from necessary PC/BL fixups and
@@ -14,7 +14,7 @@ ROM_BASE = 0x08000000
 
 # Source code + its final literal pool, ending exactly before the next function.
 ACTION_SOURCE, ACTION_END, ACTION_DEST = 0x088CE0CC, 0x088CE8E4, 0x0200E000
-CB2_SOURCE, CB2_END, CB2_DEST = 0x088CD010, 0x088CD110, 0x0200F000
+CB2_SOURCE, CB2_END, CB2_DEST = 0x088CD010, 0x088CD110, 0x0201BE60
 CASE_U16 = 0x08850436
 
 
@@ -164,11 +164,9 @@ def clone_parts(rom: bytes, battle_main_guard: int):
         raise ValueError('Callback relocation requires the exact Amethyst v1.4.0 ROM')
     if not battle_main_guard & 1 or not 0x02000000 <= battle_main_guard < 0x02040000:
         raise ValueError('battle_main_guard must be a Thumb function in EWRAM')
-    actions = _clone(rom, ACTION_SOURCE, ACTION_END, ACTION_DEST, CB2_DEST,
-                     {0x088CE780: 0x02010038})
     # The native CB2 shim exposes the original public callback identity while
     # game logic runs. Preserve the original CD0F0 comparison literal: numerous
     # other engine functions also depend on callback2 == 08011101.
-    cb2 = _clone(rom, CB2_SOURCE, CB2_END, CB2_DEST, 0x02010000,
+    cb2 = _clone(rom, CB2_SOURCE, CB2_END, CB2_DEST, 0x0201BFA0,
                  {0x088CD0F4: battle_main_guard})
-    return [('.actionclone', ACTION_DEST, actions), ('.cb2clone', CB2_DEST, cb2)]
+    return [('.cb2clone', CB2_DEST, cb2)]

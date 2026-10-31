@@ -31,7 +31,7 @@ def launch(u,ptr,stubs,events):
 u=setup();w32(u,S,0x414d5954);w16(u,0x04000130,1023)
 launch(u,0x0200cecd,{0x0891cecc:None,0x0806e6d0:0},[])
 assert r32(u,S+4)==0x52554e31
-GUARDS=dict(zip([0x0b,0x0c,0x19,0x79,0xf4], struct.unpack('<5I',u.mem_read(0x02010b00,20))))
+GUARDS=dict(zip([0x0b,0x0c,0x19,0x79,0xf4], struct.unpack('<5I',u.mem_read(0x0201bfa0,20))))
 u.mem_write(S+96,b'\x01')
 BASE_RAM=bytes(u.mem_read(0x02000000,0x40000))
 def run(op,bank,damage,on,busy=False):

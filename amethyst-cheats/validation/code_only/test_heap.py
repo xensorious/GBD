@@ -10,9 +10,8 @@ S = 0x02010c00
 END = 0x03007c00
 MAGIC = 0x414d5954
 RESERVED = [(ROOT + low, ROOT + high) for low, high in [
-    (0xb950, 0xbd60), (0xcebc, 0xced4), (0xd0f0, 0xeaf0),
-    (0xeff0, 0xf200), (0x10028, 0x10070), (0x10a28, 0x10a48),
-    (0x10af0, 0x10b28), (0x10bf0, 0x10e00),
+    (0xb950, 0xbd60), (0xcebc, 0xced4), (0x10028, 0x10070),
+    (0x10a28, 0x10a48), (0x10bf0, 0x10e00), (0x1ae50, 0x1bfe0),
 ]]
 FREE = []
 current = ROOT
@@ -144,7 +143,7 @@ for low, high in FREE:
     assert reserved_data(u) == before
 assert launch(u, 0x08002b9d, [4]) == 0
 assert reserved_data(u) == before
-print('PASS all 9 free intervals are usable; 8 reservations survive exhaustion')
+print('PASS all 7 free intervals are usable; 6 reservations survive exhaustion')
 
 # Splits and frees update neighboring headers, but must never use their data.
 for requests in [[4] * 80, [1, 17, 0x40, 0x8000, 0x101, 0x3000, 0x2000, 7],
@@ -201,4 +200,4 @@ for marker in [0, 0xa5a5a5a5]:
     assert bytes(u.mem_read(0x03000a38, 8)) == globals_before
     assert 0x08002b80 not in trace
 print('PASS 2 uninstalled ReadKeys cases leave heap, state, and globals untouched')
-print('Reserved bytes including 8 headers:', sum(high - low for low, high in RESERVED))
+print('Reserved bytes including 6 headers:', sum(high - low for low, high in RESERVED))

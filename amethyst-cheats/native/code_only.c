@@ -232,7 +232,7 @@ __attribute__((used)) void runtime_read_keys(void) {
      * execute its RAM trampoline. This no-op call also refreshes the payload
      * once per ReadKeys without allowing mid-save-scratch writes at VBlank.
      */
-    S->patch_request = (V8(0x03003529u) & 2) ? 0x4241544cu :
+    S->patch_request = (V8(0x03003529u) & 2) ? BattlePatchRequest() :
                        (S->walk ? ((V8(0x02037078u) & 6) ? 0x42494b45u : 0x57414c4bu) : 0);
     if (HooksLive()) ((void (*)(void *,u32))0x08002b81u)((void *)0,0);
     if (S->initialized != RUNTIME_MAGIC) initialize();
@@ -317,14 +317,13 @@ __attribute__((used)) void runtime_init_heap(void *start, u32 size) {
     V32(0x03000a38u) = (u32)start;
     V32(0x03000a3cu) = size;
     if ((u32)start == 0x02000000u && size == 0x1c000u) {
-        static const u32 intervals[8][2] = {
+        static const u32 intervals[6][2] = {
             {0x0200b950u, 0x0200bd60u}, {0x0200cebcu, 0x0200ced4u},
-            {0x0200d0f0u, 0x0200eaf0u}, {0x0200eff0u, 0x0200f200u},
             {0x02010028u, 0x02010070u}, {0x02010a28u, 0x02010a48u},
-            {0x02010af0u, 0x02010b28u}, {0x02010bf0u, 0x02010e00u}
+            {0x02010bf0u, 0x02010e00u}, {0x0201ae50u, 0x0201bfe0u}
         };
         u32 current = (u32)start, previous = current, i;
-        for (i = 0; i < 8; ++i) {
+        for (i = 0; i < 6; ++i) {
             u32 reserved = intervals[i][0], next = intervals[i][1];
             heap_header(current, 0, reserved - current - 16, previous, reserved);
             heap_header(reserved, 1, next - reserved - 16, current, next);

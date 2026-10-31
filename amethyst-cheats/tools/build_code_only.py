@@ -23,11 +23,11 @@ SOURCE_WORD=0x0891CECD
 SOURCE_AT=0x080005EC
 WALK=0x57414C4B
 BATTLE=0x4241544C
+ACTION=0x4143544E
 BIKE=0x42494B45
 RESERVED_DATA=((0x0200b960,0x0200bd60),(0x0200cecc,0x0200ced4),
-               (0x0200d100,0x0200eaf0),(0x0200f000,0x0200f200),
                (0x02010038,0x02010070),(0x02010a38,0x02010a48),
-               (0x02010b00,0x02010b28),(0x02010c00,0x02010e00))
+               (0x02010c00,0x02010e00),(0x0201ae60,0x0201bfe0))
 
 
 def equal(address, value, *, skip=1, width=32):
@@ -60,10 +60,10 @@ def build(rom,elf):
     if hashlib.sha256(rom).hexdigest()!=EXPECTED:
         raise ValueError('This code requires the exact supplied Amethyst v1.4.0 ROM')
     parts=sections(elf)
-    layout={'.readkeys':(0x0200cecc,8),'.text':(0x0200d100,0xf00),
-            '.entrymode':(0x0200e940,0x1b0),
-            '.heapentry':(0x02010a38,16),'.guards':(0x02010b00,20),
-            '.callbacks':(0x02010b20,8)}
+    layout={'.readkeys':(0x0200cecc,8),'.text':(0x0201ae60,0xeb0),
+            '.entrymode':(0x0201bd10,0x150),
+            '.heapentry':(0x02010a38,16),'.guards':(0x0201bfa0,20),
+            '.callbacks':(0x0201bfc0,8)}
     if {n for n,a,b in parts}!=set(layout) or len(parts)!=len(layout):
         raise ValueError('Unexpected native sections')
     blobs={}
@@ -76,7 +76,7 @@ def build(rom,elf):
     guards=struct.unpack('<5I',blobs['.guards'])
     callback,cb2shim=struct.unpack('<2I',blobs['.callbacks'])
     for pointer in (*guards,callback,cb2shim):
-        if not pointer&1 or not 0x0200d100<=pointer<0x0200d100+len(blobs['.text']):
+        if not pointer&1 or not 0x0201ae60<=pointer<0x0201ae60+len(blobs['.text']):
             raise ValueError('Invalid native callback')
     table=bytearray(rom[0x88b960:0x88bd60])
     for op,pointer in zip((0x0b,0x0c,0x19,0x79,0xf4),guards):
@@ -94,11 +94,12 @@ def build(rom,elf):
     lines+=gated_patch(1,0x08002b84,0x4710)
     lines+=gated_patch(2,0x080005ee,0x0200)
     lines+=gated_patch(3,0x08014c1e,0x0200,BATTLE)
+    lines+=gated_patch(3,0x088ce782,0x0201,ACTION)
     lines+=gated_patch(3,0x0805bb8c,0x2000,WALK)
     lines+=gated_patch(3,0x080bd3f6,0x2000,BIKE)
     if len(lines)>16384:raise ValueError('VBA-M cheat limit exceeded')
     text='\n'.join(lines) # Delta rejects an extra empty final line.
-    manifest={'release_version':'1.1.1','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
+    manifest={'release_version':'1.1.2','source_sha256':EXPECTED,'format':'GBA Action Replay v3',
               'requires_rom_patch':False,'activation_lines':len(lines),
               'code_sha256':hashlib.sha256(text.encode()).hexdigest(),
               'runtime_bytes':sum(len(b) for n,a,b in payload),

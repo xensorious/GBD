@@ -1,0 +1,1431 @@
+{
+  "schema_version": 1,
+  "description": "Sanitized allocation sizes and lifetime IDs from a shiny Tornadus Master Ball capture through the first Pokedex detail sprite request. Initial allocations form a synthetic pinned field prefix. No ROM, save, heap contents, or captured dynamic pointers are included.",
+  "initial_allocations": [
+    {
+      "id": 0,
+      "size": 2048,
+      "expected_pointer": "0x02000010"
+    },
+    {
+      "id": 1,
+      "size": 2048,
+      "expected_pointer": "0x02000820"
+    },
+    {
+      "id": 2,
+      "size": 2048,
+      "expected_pointer": "0x02001030"
+    },
+    {
+      "id": 3,
+      "size": 2048,
+      "expected_pointer": "0x02001840"
+    },
+    {
+      "id": 4,
+      "size": 3328,
+      "expected_pointer": "0x02002050"
+    }
+  ],
+  "original_failure": {
+    "allocation_request": 169,
+    "size": 8192,
+    "largest_free_block": 6032
+  },
+  "events": [
+    {
+      "op": "alloc",
+      "id": 5,
+      "size": 60
+    },
+    {
+      "op": "free",
+      "id": 0
+    },
+    {
+      "op": "free",
+      "id": 1
+    },
+    {
+      "op": "free",
+      "id": 2
+    },
+    {
+      "op": "free",
+      "id": 3
+    },
+    {
+      "op": "free",
+      "id": 4
+    },
+    {
+      "op": "free",
+      "id": 5
+    },
+    {
+      "op": "alloc",
+      "id": 6,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 7,
+      "size": 32
+    },
+    {
+      "op": "alloc",
+      "id": 8,
+      "size": 160
+    },
+    {
+      "op": "alloc",
+      "id": 9,
+      "size": 16
+    },
+    {
+      "op": "alloc",
+      "id": 10,
+      "size": 36
+    },
+    {
+      "op": "alloc",
+      "id": 11,
+      "size": 36
+    },
+    {
+      "op": "alloc",
+      "id": 12,
+      "size": 12
+    },
+    {
+      "op": "alloc",
+      "id": 13,
+      "size": 28
+    },
+    {
+      "op": "alloc",
+      "id": 14,
+      "size": 48
+    },
+    {
+      "op": "alloc",
+      "id": 15,
+      "size": 36
+    },
+    {
+      "op": "alloc",
+      "id": 16,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 17,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 18,
+      "size": 8192
+    },
+    {
+      "op": "alloc",
+      "id": 19,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 20,
+      "size": 16
+    },
+    {
+      "op": "alloc",
+      "id": 21,
+      "size": 16
+    },
+    {
+      "op": "alloc",
+      "id": 22,
+      "size": 48
+    },
+    {
+      "op": "alloc",
+      "id": 23,
+      "size": 16
+    },
+    {
+      "op": "alloc",
+      "id": 24,
+      "size": 80
+    },
+    {
+      "op": "alloc",
+      "id": 25,
+      "size": 384
+    },
+    {
+      "op": "alloc",
+      "id": 26,
+      "size": 32768
+    },
+    {
+      "op": "alloc",
+      "id": 27,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 28,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 29,
+      "size": 3584
+    },
+    {
+      "op": "alloc",
+      "id": 30,
+      "size": 1792
+    },
+    {
+      "op": "alloc",
+      "id": 31,
+      "size": 1536
+    },
+    {
+      "op": "alloc",
+      "id": 32,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 33,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 34,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 35,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 36,
+      "size": 192
+    },
+    {
+      "op": "alloc",
+      "id": 37,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 38,
+      "size": 320
+    },
+    {
+      "op": "alloc",
+      "id": 39,
+      "size": 0
+    },
+    {
+      "op": "alloc",
+      "id": 40,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 41,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 42,
+      "size": 3520
+    },
+    {
+      "op": "alloc",
+      "id": 43,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 44,
+      "size": 1152
+    },
+    {
+      "op": "alloc",
+      "id": 45,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 46,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 47,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 48,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 49,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 50,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 51,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 52,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 53,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 54,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 55,
+      "size": 3328
+    },
+    {
+      "op": "alloc",
+      "id": 56,
+      "size": 2404
+    },
+    {
+      "op": "alloc",
+      "id": 57,
+      "size": 4096
+    },
+    {
+      "op": "free",
+      "id": 57
+    },
+    {
+      "op": "alloc",
+      "id": 58,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 58
+    },
+    {
+      "op": "alloc",
+      "id": 59,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 59
+    },
+    {
+      "op": "alloc",
+      "id": 60,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 60
+    },
+    {
+      "op": "alloc",
+      "id": 61,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 61
+    },
+    {
+      "op": "alloc",
+      "id": 62,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 62
+    },
+    {
+      "op": "alloc",
+      "id": 63,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 63
+    },
+    {
+      "op": "alloc",
+      "id": 64,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 64
+    },
+    {
+      "op": "alloc",
+      "id": 65,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 65
+    },
+    {
+      "op": "alloc",
+      "id": 66,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 66
+    },
+    {
+      "op": "alloc",
+      "id": 67,
+      "size": 128
+    },
+    {
+      "op": "free",
+      "id": 67
+    },
+    {
+      "op": "alloc",
+      "id": 68,
+      "size": 1024
+    },
+    {
+      "op": "free",
+      "id": 68
+    },
+    {
+      "op": "alloc",
+      "id": 69,
+      "size": 192
+    },
+    {
+      "op": "free",
+      "id": 69
+    },
+    {
+      "op": "alloc",
+      "id": 70,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 70
+    },
+    {
+      "op": "alloc",
+      "id": 71,
+      "size": 384
+    },
+    {
+      "op": "free",
+      "id": 71
+    },
+    {
+      "op": "alloc",
+      "id": 72,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 72
+    },
+    {
+      "op": "alloc",
+      "id": 73,
+      "size": 1024
+    },
+    {
+      "op": "free",
+      "id": 73
+    },
+    {
+      "op": "alloc",
+      "id": 74,
+      "size": 256
+    },
+    {
+      "op": "free",
+      "id": 74
+    },
+    {
+      "op": "alloc",
+      "id": 75,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 75
+    },
+    {
+      "op": "alloc",
+      "id": 76,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 76
+    },
+    {
+      "op": "alloc",
+      "id": 77,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 77
+    },
+    {
+      "op": "alloc",
+      "id": 78,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 78
+    },
+    {
+      "op": "alloc",
+      "id": 79,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 79
+    },
+    {
+      "op": "alloc",
+      "id": 80,
+      "size": 114
+    },
+    {
+      "op": "free",
+      "id": 80
+    },
+    {
+      "op": "alloc",
+      "id": 81,
+      "size": 114
+    },
+    {
+      "op": "free",
+      "id": 81
+    },
+    {
+      "op": "alloc",
+      "id": 82,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 82
+    },
+    {
+      "op": "alloc",
+      "id": 83,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 83
+    },
+    {
+      "op": "alloc",
+      "id": 84,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 28
+    },
+    {
+      "op": "free",
+      "id": 29
+    },
+    {
+      "op": "free",
+      "id": 30
+    },
+    {
+      "op": "free",
+      "id": 31
+    },
+    {
+      "op": "free",
+      "id": 32
+    },
+    {
+      "op": "free",
+      "id": 33
+    },
+    {
+      "op": "free",
+      "id": 34
+    },
+    {
+      "op": "free",
+      "id": 35
+    },
+    {
+      "op": "free",
+      "id": 36
+    },
+    {
+      "op": "free",
+      "id": 37
+    },
+    {
+      "op": "free",
+      "id": 38
+    },
+    {
+      "op": "free",
+      "id": 39
+    },
+    {
+      "op": "free",
+      "id": 40
+    },
+    {
+      "op": "free",
+      "id": 41
+    },
+    {
+      "op": "free",
+      "id": 42
+    },
+    {
+      "op": "free",
+      "id": 43
+    },
+    {
+      "op": "free",
+      "id": 44
+    },
+    {
+      "op": "free",
+      "id": 45
+    },
+    {
+      "op": "free",
+      "id": 46
+    },
+    {
+      "op": "free",
+      "id": 47
+    },
+    {
+      "op": "free",
+      "id": 48
+    },
+    {
+      "op": "free",
+      "id": 49
+    },
+    {
+      "op": "free",
+      "id": 50
+    },
+    {
+      "op": "free",
+      "id": 51
+    },
+    {
+      "op": "free",
+      "id": 52
+    },
+    {
+      "op": "free",
+      "id": 53
+    },
+    {
+      "op": "free",
+      "id": 54
+    },
+    {
+      "op": "free",
+      "id": 55
+    },
+    {
+      "op": "free",
+      "id": 84
+    },
+    {
+      "op": "alloc",
+      "id": 85,
+      "size": 20
+    },
+    {
+      "op": "alloc",
+      "id": 86,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 87,
+      "size": 1760
+    },
+    {
+      "op": "free",
+      "id": 87
+    },
+    {
+      "op": "alloc",
+      "id": 88,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 89,
+      "size": 6912
+    },
+    {
+      "op": "alloc",
+      "id": 90,
+      "size": 4800
+    },
+    {
+      "op": "alloc",
+      "id": 91,
+      "size": 576
+    },
+    {
+      "op": "alloc",
+      "id": 92,
+      "size": 3608
+    },
+    {
+      "op": "alloc",
+      "id": 93,
+      "size": 9922
+    },
+    {
+      "op": "alloc",
+      "id": 94,
+      "size": 288
+    },
+    {
+      "op": "alloc",
+      "id": 95,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 94
+    },
+    {
+      "op": "free",
+      "id": 95
+    },
+    {
+      "op": "alloc",
+      "id": 96,
+      "size": 288
+    },
+    {
+      "op": "alloc",
+      "id": 97,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 96
+    },
+    {
+      "op": "free",
+      "id": 97
+    },
+    {
+      "op": "alloc",
+      "id": 98,
+      "size": 288
+    },
+    {
+      "op": "alloc",
+      "id": 99,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 98
+    },
+    {
+      "op": "free",
+      "id": 99
+    },
+    {
+      "op": "alloc",
+      "id": 100,
+      "size": 896
+    },
+    {
+      "op": "alloc",
+      "id": 101,
+      "size": 1792
+    },
+    {
+      "op": "free",
+      "id": 85
+    },
+    {
+      "op": "free",
+      "id": 86
+    },
+    {
+      "op": "free",
+      "id": 88
+    },
+    {
+      "op": "free",
+      "id": 89
+    },
+    {
+      "op": "free",
+      "id": 90
+    },
+    {
+      "op": "free",
+      "id": 91
+    },
+    {
+      "op": "free",
+      "id": 92
+    },
+    {
+      "op": "free",
+      "id": 93
+    },
+    {
+      "op": "free",
+      "id": 100
+    },
+    {
+      "op": "free",
+      "id": 101
+    },
+    {
+      "op": "alloc",
+      "id": 102,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 103,
+      "size": 3584
+    },
+    {
+      "op": "alloc",
+      "id": 104,
+      "size": 1792
+    },
+    {
+      "op": "alloc",
+      "id": 105,
+      "size": 1536
+    },
+    {
+      "op": "alloc",
+      "id": 106,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 107,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 108,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 109,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 110,
+      "size": 192
+    },
+    {
+      "op": "alloc",
+      "id": 111,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 112,
+      "size": 320
+    },
+    {
+      "op": "alloc",
+      "id": 113,
+      "size": 0
+    },
+    {
+      "op": "alloc",
+      "id": 114,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 115,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 116,
+      "size": 3520
+    },
+    {
+      "op": "alloc",
+      "id": 117,
+      "size": 4096
+    },
+    {
+      "op": "alloc",
+      "id": 118,
+      "size": 1152
+    },
+    {
+      "op": "alloc",
+      "id": 119,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 120,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 121,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 122,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 123,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 124,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 125,
+      "size": 448
+    },
+    {
+      "op": "alloc",
+      "id": 126,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 127,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 128,
+      "size": 512
+    },
+    {
+      "op": "alloc",
+      "id": 129,
+      "size": 3328
+    },
+    {
+      "op": "alloc",
+      "id": 130,
+      "size": 4096
+    },
+    {
+      "op": "free",
+      "id": 130
+    },
+    {
+      "op": "alloc",
+      "id": 131,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 131
+    },
+    {
+      "op": "alloc",
+      "id": 132,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 132
+    },
+    {
+      "op": "alloc",
+      "id": 133,
+      "size": 2048
+    },
+    {
+      "op": "free",
+      "id": 133
+    },
+    {
+      "op": "alloc",
+      "id": 134,
+      "size": 1024
+    },
+    {
+      "op": "free",
+      "id": 134
+    },
+    {
+      "op": "alloc",
+      "id": 135,
+      "size": 1024
+    },
+    {
+      "op": "free",
+      "id": 135
+    },
+    {
+      "op": "alloc",
+      "id": 136,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 136
+    },
+    {
+      "op": "alloc",
+      "id": 137,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 137
+    },
+    {
+      "op": "alloc",
+      "id": 138,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 138
+    },
+    {
+      "op": "alloc",
+      "id": 139,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 139
+    },
+    {
+      "op": "alloc",
+      "id": 140,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 140
+    },
+    {
+      "op": "alloc",
+      "id": 141,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 141
+    },
+    {
+      "op": "alloc",
+      "id": 142,
+      "size": 128
+    },
+    {
+      "op": "free",
+      "id": 142
+    },
+    {
+      "op": "alloc",
+      "id": 143,
+      "size": 384
+    },
+    {
+      "op": "free",
+      "id": 143
+    },
+    {
+      "op": "alloc",
+      "id": 144,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 144
+    },
+    {
+      "op": "alloc",
+      "id": 145,
+      "size": 256
+    },
+    {
+      "op": "free",
+      "id": 145
+    },
+    {
+      "op": "alloc",
+      "id": 146,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 146
+    },
+    {
+      "op": "alloc",
+      "id": 147,
+      "size": 256
+    },
+    {
+      "op": "free",
+      "id": 147
+    },
+    {
+      "op": "alloc",
+      "id": 148,
+      "size": 32
+    },
+    {
+      "op": "free",
+      "id": 148
+    },
+    {
+      "op": "alloc",
+      "id": 149,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 149
+    },
+    {
+      "op": "alloc",
+      "id": 150,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 150
+    },
+    {
+      "op": "alloc",
+      "id": 151,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 151
+    },
+    {
+      "op": "alloc",
+      "id": 152,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 152
+    },
+    {
+      "op": "alloc",
+      "id": 153,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 153
+    },
+    {
+      "op": "alloc",
+      "id": 154,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 154
+    },
+    {
+      "op": "alloc",
+      "id": 155,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 155
+    },
+    {
+      "op": "alloc",
+      "id": 156,
+      "size": 512
+    },
+    {
+      "op": "free",
+      "id": 102
+    },
+    {
+      "op": "free",
+      "id": 103
+    },
+    {
+      "op": "free",
+      "id": 104
+    },
+    {
+      "op": "free",
+      "id": 105
+    },
+    {
+      "op": "free",
+      "id": 106
+    },
+    {
+      "op": "free",
+      "id": 107
+    },
+    {
+      "op": "free",
+      "id": 108
+    },
+    {
+      "op": "free",
+      "id": 109
+    },
+    {
+      "op": "free",
+      "id": 110
+    },
+    {
+      "op": "free",
+      "id": 111
+    },
+    {
+      "op": "free",
+      "id": 112
+    },
+    {
+      "op": "free",
+      "id": 113
+    },
+    {
+      "op": "free",
+      "id": 114
+    },
+    {
+      "op": "free",
+      "id": 115
+    },
+    {
+      "op": "free",
+      "id": 116
+    },
+    {
+      "op": "free",
+      "id": 117
+    },
+    {
+      "op": "free",
+      "id": 118
+    },
+    {
+      "op": "free",
+      "id": 119
+    },
+    {
+      "op": "free",
+      "id": 120
+    },
+    {
+      "op": "free",
+      "id": 121
+    },
+    {
+      "op": "free",
+      "id": 122
+    },
+    {
+      "op": "free",
+      "id": 123
+    },
+    {
+      "op": "free",
+      "id": 124
+    },
+    {
+      "op": "free",
+      "id": 125
+    },
+    {
+      "op": "free",
+      "id": 126
+    },
+    {
+      "op": "free",
+      "id": 127
+    },
+    {
+      "op": "free",
+      "id": 128
+    },
+    {
+      "op": "free",
+      "id": 129
+    },
+    {
+      "op": "free",
+      "id": 156
+    },
+    {
+      "op": "alloc",
+      "id": 157,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 158,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 159,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 160,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 161,
+      "size": 1024
+    },
+    {
+      "op": "alloc",
+      "id": 162,
+      "size": 1920
+    },
+    {
+      "op": "alloc",
+      "id": 163,
+      "size": 1920
+    },
+    {
+      "op": "alloc",
+      "id": 164,
+      "size": 112
+    },
+    {
+      "op": "alloc",
+      "id": 165,
+      "size": 3088
+    },
+    {
+      "op": "free",
+      "id": 161
+    },
+    {
+      "op": "alloc",
+      "id": 166,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 167,
+      "size": 8192
+    },
+    {
+      "op": "free",
+      "id": 167
+    },
+    {
+      "op": "alloc",
+      "id": 168,
+      "size": 1280
+    },
+    {
+      "op": "alloc",
+      "id": 169,
+      "size": 88
+    },
+    {
+      "op": "free",
+      "id": 169
+    },
+    {
+      "op": "alloc",
+      "id": 170,
+      "size": 2048
+    },
+    {
+      "op": "alloc",
+      "id": 171,
+      "size": 3328
+    },
+    {
+      "op": "alloc",
+      "id": 172,
+      "size": 6720
+    },
+    {
+      "op": "alloc",
+      "id": 173,
+      "size": 8192
+    }
+  ]
+}

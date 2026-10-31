@@ -1,14 +1,17 @@
-"""Compare callback clones with original ROM routines; external callees stubbed."""
+"""Check the CB2 clone and shared-slot ROM action routing; callees stubbed."""
 from pathlib import Path
 import sys, struct
-from target import PROJECT, ROM
+from target import PROJECT, ROM, PARTS as COMPILED_PARTS
 sys.path.insert(0, str(PROJECT / 'tools'))
-from code_only_relocate import clone_parts, _instructions, ACTION_SOURCE, ACTION_END, CB2_SOURCE, CB2_END
+from code_only_relocate import clone_parts, _instructions, ACTION_SOURCE, ACTION_END, CB2_SOURCE, CB2_END, CB2_DEST
 from unicorn import Uc,UC_ARCH_ARM,UC_MODE_THUMB,UC_HOOK_CODE
 from unicorn.arm_const import *
 
-END=0x03007C00;GUARD=0x0200D001
+END=0x03007C00
+GUARD=struct.unpack_from('<I',next(data for name,_,data in COMPILED_PARTS if name=='.callbacks'))[0]
 PARTS=clone_parts(ROM,GUARD)
+assert [name for name,_,_ in PARTS]==['.cb2clone']
+assert len(PARTS[0][2])<=0x140
 REGS=[UC_ARM_REG_R0,UC_ARM_REG_R1,UC_ARM_REG_R2,UC_ARM_REG_R3]
 
 def run(which,cloned,options):
@@ -33,6 +36,9 @@ def run(which,cloned,options):
   w16(0x02023be4+bank*0x58+0x2c,20)
  u.mem_write(0x02010038,ROM[0x250038:0x250038+56])
  if options.get('override_action'):w32(0x02010038+40,GUARD)
+ # ExecuteActions stays in ROM. Only its action-table literal changes while
+ # this phase owns AR slot 4; the ordinary table entries must behave identically.
+ if which=='actions' and cloned:u.mem_write(0x088ce782,struct.pack('<H',0x0201))
  _,action_calls,_=_instructions(ROM,ACTION_SOURCE,ACTION_END)
  _,cb_calls,_=_instructions(ROM,CB2_SOURCE,CB2_END)
  calls=set(action_calls.values())|set(cb_calls.values())
@@ -50,7 +56,7 @@ def run(which,cloned,options):
    args=tuple(u.reg_read(r) for r in REGS)
    # R3 is an indirect-call target; normalize the intentionally changed alias.
    args=tuple(0x080123e5 if which=='cb2' and x==GUARD else
-              0x08011101 if x==0x0200f001 else x for x in args)
+              0x08011101 if x==(CB2_DEST|1) else x for x in args)
    events.append((normalized,args))
    if normalized==0x0806e568:ret=options.get('speed',0)
    else:ret=options.get('external_return',0)
@@ -62,12 +68,12 @@ def run(which,cloned,options):
  u.hook_add(UC_HOOK_CODE,hook)
  u.reg_write(UC_ARM_REG_SP,0x03007000);u.reg_write(UC_ARM_REG_LR,END|1)
  for i,r in enumerate([UC_ARM_REG_R4,UC_ARM_REG_R5,UC_ARM_REG_R6,UC_ARM_REG_R7,UC_ARM_REG_R8,UC_ARM_REG_R9,UC_ARM_REG_R10,UC_ARM_REG_R11]):u.reg_write(r,0x12340000+i)
- entry=({'actions':0x0200e001,'cb2':0x0200f001} if cloned else {'actions':ACTION_SOURCE|1,'cb2':CB2_SOURCE|1})[which]
+ entry=({'actions':ACTION_SOURCE|1,'cb2':CB2_DEST|1} if cloned else {'actions':ACTION_SOURCE|1,'cb2':CB2_SOURCE|1})[which]
  u.emu_start(entry,0,count=100000)
  assert u.reg_read(UC_ARM_REG_PC)==END,(which,cloned,options,hex(u.reg_read(UC_ARM_REG_PC)),events[-4:])
  assert u.reg_read(UC_ARM_REG_SP)==0x03007000
  assert [u.reg_read(r) for r in [UC_ARM_REG_R4,UC_ARM_REG_R5,UC_ARM_REG_R6,UC_ARM_REG_R7,UC_ARM_REG_R8,UC_ARM_REG_R9,UC_ARM_REG_R10,UC_ARM_REG_R11]]==[0x12340000+i for i in range(8)]
- if cloned and u.mem_read(0x030030f4,4)==struct.pack('<I',0x0200f001):w32(0x030030f4,0x08011101)
+ if cloned and u.mem_read(0x030030f4,4)==struct.pack('<I',CB2_DEST|1):w32(0x030030f4,0x08011101)
  return events,bytes(u.mem_read(0x02000000,0x40000)),bytes(u.mem_read(0x03000000,0x6c00))
 
 checks=0
@@ -82,10 +88,10 @@ for options in [dict(banks=b,phase=p,raid_phase=q,action=a,external_return=ret)
  original=run('actions',False,options);cloned=run('actions',True,options)
  assert original==cloned,('actions',options,original[0],cloned[0])
  checks+=1
-print('PASS:',checks,'total callback differential cases; external callees stubbed',flush=True)
+print('PASS:',checks,'total callback/action-table differential cases; external callees stubbed',flush=True)
 original=run('actions',False,{'action':10,'override_action':True,'phase':1,'raid_phase':5})
 cloned=run('actions',True,{'action':10,'override_action':True,'phase':1,'raid_phase':5})
 assert any(a==0x0801D030 for a,args in original[0]), original[0]
 assert any(a==GUARD&~1 for a,args in cloned[0]), cloned[0]
 assert not any(a==0x0801D030 for a,args in cloned[0]), cloned[0]
-print('PASS: cloned ExecuteActions actually dispatches action10 through RAM override',flush=True)
+print('PASS: original ROM ExecuteActions dispatches action10 through the shared-slot RAM table',flush=True)

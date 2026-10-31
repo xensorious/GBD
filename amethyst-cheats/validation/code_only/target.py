@@ -23,10 +23,10 @@ ELF = PROJECT / 'build' / 'code_only.elf'
 if not ELF.is_file():
     raise SystemExit('Missing build/code_only.elf. Compile the code-only runtime first.')
 PARTS = PAYLOAD = sections(ELF)
-layout = {'.readkeys': (0x0200cecc, 8), '.text': (0x0200d100, 0x0f00),
-          '.entrymode': (0x0200e940, 0x1b0),
-          '.heapentry': (0x02010a38, 16), '.guards': (0x02010b00, 20),
-          '.callbacks': (0x02010b20, 8)}
+layout = {'.readkeys': (0x0200cecc, 8), '.text': (0x0201ae60, 0xeb0),
+          '.entrymode': (0x0201bd10, 0x150),
+          '.heapentry': (0x02010a38, 16), '.guards': (0x0201bfa0, 20),
+          '.callbacks': (0x0201bfc0, 8)}
 if len(PARTS) != len(layout) or set(n for n, _, _ in PARTS) != set(layout):
     raise SystemExit('Unexpected code-only ELF sections; rebuild the current runtime.')
 for section, address, data in PARTS:
@@ -39,5 +39,5 @@ text = next(data for name, _, data in PARTS if name == '.text')
 for name, _, data in PARTS:
     if name in ('.guards', '.callbacks'):
         for pointer in struct.unpack('<' + 'I' * (len(data) // 4), data):
-            if not pointer & 1 or not 0x0200d100 <= (pointer & ~1) < 0x0200d100 + len(text):
+            if not pointer & 1 or not 0x0201ae60 <= (pointer & ~1) < 0x0201ae60 + len(text):
                 raise SystemExit(f'Invalid Thumb pointer in {name}; rebuild the runtime.')

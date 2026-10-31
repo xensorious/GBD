@@ -17,12 +17,15 @@ python3 validation/code_only/test_mixed_spread_bar.py
 python3 validation/code_only/test_dispatch.py
 python3 validation/code_only/test_clones.py
 python3 validation/code_only/test_heap.py
+python3 validation/code_only/test_pokedex_heap.py
 python3 validation/code_only/test_walk_return.py
 python3 validation/code_only/test_shiny_persistence.py
 python3 validation/code_only/test_entry_mode.py
 ```
 
 The shared loader checks the ROM SHA-256 and current ELF layout, including the entry-mode helper section. Scripts are separate from the dependency-free tests/ suite. The shiny persistence regression executes the actual cleanup loop, flag routines and generation code with the compiled handler; it stubs only RTC/keypad handling. Entry-mode checks exercise the actual compiled L+R/Up10 toggles, held-key debounce, interruption/timeout, partial-chord callback progress, capture-only commands, key masking, callback restore, and foot/bike/battle slot selection; ordinary keypad updates are simulated there.
+
+The Pokédex heap regression replays169 sanitized allocation requests and their frees through the actual ROM Alloc/Free after compiled initialization. It fills allocated buffers and verifies protected code, tables and state after every operation. The JSON fixture contains sizes, lifetime IDs and a synthetic initial prefix only; no ROM or save data. This checks the formerly failing8,192-byte sprite request and memory isolation, not UI rendering. The live catch/entry/exit check is described in the validation report.
 
 Input checks stub inventory/shiny calls; effects checks stub controller plumbing and original faint/healthbar callbacks as documented. Spread checks execute the original spread routine with its classification/substitute/controller dependencies stubbed. Callback checks compare original and relocated code with external callees stubbed. Collision checks stub map/stair/lower collision calls and exercise the actual result instruction. Heap checks run the actual allocator and exact patched entry, preserving registers and verifying every protected interval.
 
