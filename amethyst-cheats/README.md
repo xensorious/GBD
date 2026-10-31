@@ -2,6 +2,8 @@
 
 **Version 1.1.2 is one Action Replay entry for the original Pokémon Amethyst v1.4.0 ROM. No ROM patch is required.** It reduces and groups the cheat's memory reservations to address the reproduced freeze when registering a caught Pokémon in the Pokédex. Ten-Up entry/exit, L+R entry/exit and all command combinations remain the same.
 
+**Unresolved issue:** a repeat Pokédex freeze has been reported in Delta after this release was supplied. The controlled harness result does not establish that the crash is fixed in the user's game. Diagnosis requires the affected save or save state; the published code is unchanged.
+
 [Open the complete code](dist/amethyst-v1.4.0-delta-code.txt) · [Raw copyable text](https://raw.githubusercontent.com/xensorious/GBD/main/amethyst-cheats/dist/amethyst-v1.4.0-delta-code.txt)
 
 ## Install or update
@@ -60,7 +62,7 @@ Exit cheat-entry mode and switch effects off with their combinations before remo
 
 ## Validation and supported ROM
 
-The reported shiny Tornadus/Master Ball catch and Pokédex freeze was reproduced. With this release, the full catch, Pokédex entry/dismissal and return to the overworld passed in the emulator harness. A regression also replays169 capture/Pokédex allocations through the game's original allocator. Capture, shiny and battle-hook checks pass. The iPhone Delta app itself has not been run here. [Exact tested scope and limits](CODE_ONLY_VALIDATION.md).
+A generated shiny Tornadus/Master Ball catch passed through Pokédex dismissal and overworld return in a controlled regular wild battle with a one-member party. It did not reproduce the user's roaming battle or save. A regression also replays169 capture/Pokédex allocations through the game's original allocator. The user's repeat Delta freeze remains unresolved, and the iPhone app itself has not been run here. [Exact tested scope and limits](CODE_ONLY_VALIDATION.md).
 
 Only the supplied original ROM is supported:
 

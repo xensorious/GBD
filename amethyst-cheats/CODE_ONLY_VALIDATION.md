@@ -2,7 +2,11 @@
 
 Supported original ROM: SHA-256 `89f92414af401a3c20068224e4c937c1b4380be5d0997e9202f4f788916b1430`, 33,554,432 bytes. Version **1.1.2** text: **2,759 lines**, SHA-256 `3887135f426046e47f9f1d2923aad91bd656b571febaec90565f629d45ef0534`. No ROM patch is applied.
 
-## Pokédex freeze and correction
+## Pokédex freeze: unresolved in the reported Delta case
+
+The user reported the same Pokédex crash again after v1.1.2 was supplied. Their affected save/state and installed runtime have not been inspected. The passing controlled test below is insufficient to establish resolution of that report. No replacement code has been issued in response to the repeat crash.
+
+The catch fixture directly creates Tornadus and calls ordinary wild-battle setup. It forces a one-member player party and starts from a controlled field snapshot. It does not run the actual roaming encounter and capture path from the user's save. Its successful8,192-byte request had only48bytes of contiguous headroom. That limited result does not establish the cause of the latest failure or adequate capacity in other game states.
 
 The reported sequence was reproduced with the released v1.1.1 code: grant one Master Ball, explicitly enable shiny generation, generate a shiny Tornadus, catch it, and advance to its new Pokédex entry. The game stopped while drawing the entry's sprite, before reaching its A/B input state.
 
@@ -10,7 +14,7 @@ The original sprite routine requested8,192 contiguous heap bytes. Although more 
 
 Version1.1.2 removes the large ExecuteActions RAM clone, preserves its behavior using the original ROM function and a phase-specific action-table hook, and groups movable code near the heap's upper end. It reserves6,192bytes in six intervals, compared with8,936bytes in eight intervals in1.1.1. The tested capture path now has an8,240-byte block available for the8,192-byte request. No Pokédex allocation or graphics data is reduced or skipped.
 
-The full corrected sequence passed on the final packaged code: the shiny Tornadus was caught with the granted Master Ball, its entry reached the normal input state11, A dismissed it, and battle exit returned to the overworld with two party members instead of one. The new entry screen was visually inspected. The added party member was checked through the real GetMonData routine: species694/Tornadus, with a shiny personality/owner combination. The same sequence previously stopped in drawing state8.
+The controlled sequence passed on the final packaged code: the generated shiny Tornadus was caught with the granted Master Ball in a regular wild battle, its entry reached the normal input state11, A dismissed it, and battle exit returned to the overworld with two party members instead of one. The new entry screen was visually inspected. The added party member was checked through the real GetMonData routine: species694/Tornadus, with a shiny personality/owner combination. The same controlled sequence previously stopped in drawing state8. This is a harness regression result, not confirmation that the user's roaming-capture crash is fixed.
 
 The final code also passed a real battle protection test: HP stayed18 while enabled and fell to10 after disabling. Both player positions in a four-battler battle retained18HP through repeated turns. A real SaveMoveBlocks_ResetHeap call preserved the walking/protection toggles and granted Master Ball immediately and after60frames, with a valid reconstructed heap chain.
 
